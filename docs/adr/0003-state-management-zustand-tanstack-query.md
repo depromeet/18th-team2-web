@@ -21,15 +21,18 @@ React 애플리케이션의 상태는 성격이 다른 두 가지로 나뉜다:
 - **클라이언트 상태**: Zustand v5
 - **서버 상태**: TanStack Query v5 (Hybrid 패턴 사용)
 
-### Hybrid 패턴 — queryOptions 팩토리 + custom hook
+### 도메인별 단일 파일 패턴
 
-두 레이어로 분리한다:
+한 도메인의 서버 상태(queryOptions + query hook + mutation hook)를 `src/services/[도메인].ts` 한 파일에 정의한다.
+`src/hooks/`에는 서버 상태 관련 훅을 두지 않고 순수 클라이언트 훅(useDebounce 등)만 둔다.
 
 ```typescript
-// [1] src/services/user.ts — queryOptions 팩토리 (쿼리키 + 쿼리함수 공동 관리)
-import { queryOptions } from '@tanstack/react-query';
+// src/services/user.ts — 한 도메인의 서버 상태 전부
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import type { User } from '@/types/user';
+
+// ── queryOptions 팩토리 ──
 
 export const userQueries = {
   all: () =>
@@ -45,16 +48,25 @@ export const userQueries = {
     }),
 };
 
-// [2] src/hooks/useUser.ts — custom hook (컴포넌트 진입점)
+// ── Query hooks ──
+
 export function useUsers() {
   return useQuery(userQueries.all());
 }
 
+// ── Mutation hooks ──
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { name: string }) => api.post<User>('/users', body),
+    onSuccess: () => queryClient.invalidateQueries(userQueries.all()),
+  });
+}
+
 // 컴포넌트에서
 const { data } = useUsers();
-
-// mutation 후 캐시 무효화 (타입 안전)
-queryClient.invalidateQueries(userQueries.all());
+const { mutate } = useCreateUser();
 ```
 
 ## 근거 (Rationale)
@@ -67,7 +79,7 @@ queryClient.invalidateQueries(userQueries.all());
 
 ### TanStack Query 선택 이유
 - 서버 상태의 캐싱, 백그라운드 리패칭, stale-while-revalidate를 선언적으로 처리한다.
-- Hybrid 패턴으로 컴포넌트는 custom hook만 알면 되고, invalidation/prefetch는 팩토리로 타입 안전하게 처리한다.
+- 도메인별 단일 파일 패턴으로 queryOptions + hook이 물리적으로 가까워 응집도가 높다.
 - `queryOptions()` 팩토리는 쿼리키와 쿼리함수를 한 곳에서 관리해 문자열 오타로 인한 버그를 방지한다.
 - `useQuery`, `useSuspenseQuery`, `prefetchQuery` 등 모두 동일 options 객체를 재사용한다.
 - 낙관적 업데이트(optimistic update), 무한 스크롤, 인터렉티브 페이지네이션을 내장 지원한다.

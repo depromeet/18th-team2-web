@@ -2,11 +2,13 @@
 //
 // ── 패턴 ──────────────────────────────────────────────────────────────────
 //
-// [1] src/services/user.ts  →  queryOptions 팩토리 (쿼리키 + 쿼리함수 공동 관리)
+// src/services/user.ts — 한 도메인의 서버 상태 전부
 //
-//   import { queryOptions } from '@tanstack/react-query';
+//   import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 //   import type { User } from '@/types/user';
 //   import { api } from '@/services/api';
+//
+//   // ── queryOptions 팩토리 ──
 //
 //   export const userQueries = {
 //     all: () =>
@@ -22,31 +24,30 @@
 //       }),
 //   };
 //
-// [2] src/hooks/useUser.ts  →  컴포넌트 진입점 (custom hook)
-//
-//   import { useQuery } from '@tanstack/react-query';
-//   import { userQueries } from '@/services/user';
+//   // ── Query hooks ──
 //
 //   export function useUsers() {
 //     return useQuery(userQueries.all());
 //   }
 //
-//   export function useUser(id: string) {
-//     return useQuery(userQueries.detail(id));
+//   // ── Mutation hooks ──
+//
+//   export function useCreateUser() {
+//     const queryClient = useQueryClient();
+//     return useMutation({
+//       mutationFn: (body: { name: string }) => api.post<User>('/users', body),
+//       onSuccess: () => queryClient.invalidateQueries(userQueries.all()),
+//     });
 //   }
 //
 // ── 사용 ──────────────────────────────────────────────────────────────────
 //
-//   // 컴포넌트
-//   const { data, isPending } = useUsers();
-//
-//   // mutation 후 캐시 무효화 (타입 안전)
-//   queryClient.invalidateQueries(userQueries.all());
+//   const { data } = useUsers();
+//   const { mutate } = useCreateUser();
 //
 // ── 규칙 ──────────────────────────────────────────────────────────────────
 //
-//   - services/  →  queryOptions 팩토리, api 호출 함수
-//   - hooks/     →  useQuery/useMutation을 감싼 custom hook
-//   - mutation은 custom hook 안에 useMutation으로 정의 (services에 두지 않음)
+//   - services/  →  queryOptions + query hook + mutation hook (도메인별 단일 파일)
+//   - hooks/     →  서버와 무관한 순수 클라이언트 훅만 (useDebounce, useMediaQuery 등)
 
 export {};

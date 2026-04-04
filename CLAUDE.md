@@ -25,10 +25,10 @@ src/
 │   └── ui/          # 원시 UI 컴포넌트 (Button, Input, Modal 등)
 ├── config/          # 환경변수 및 앱 설정
 ├── constants/       # 앱 전역 상수
-├── hooks/           # 커스텀 React 훅 (TanStack Query custom hook 포함)
+├── hooks/           # 순수 클라이언트 커스텀 훅 (useDebounce, useMediaQuery 등)
 ├── pages/           # 라우트 단위 페이지 컴포넌트
 ├── router/          # React Router 설정
-├── services/        # API fetch 함수 + queryOptions
+├── services/        # API 호출 + queryOptions + query/mutation hook
 ├── stores/          # Zustand 스토어
 ├── types/           # 공유 TypeScript 타입/인터페이스
 └── utils/           # 순수 유틸리티 함수
@@ -65,13 +65,11 @@ import Button from '@/components/ui/Button';
 - **서버에서 받아온 데이터(API 응답)를 Zustand에 저장하지 않음**
 
 ### TanStack Query — 서버 상태
-- **Hybrid 패턴**: `queryOptions` 팩토리 + custom hook 두 레이어로 분리
-  - `src/services/[도메인].ts` — `queryOptions` 팩토리 (쿼리키 + 쿼리함수 공동 관리)
-  - `src/hooks/use[도메인].ts` — `useQuery`를 감싼 custom hook (컴포넌트 진입점)
+- **도메인별 단일 파일**: `src/services/[도메인].ts`에 queryOptions + query/mutation hook을 함께 정의
 - 컴포넌트에서는 custom hook만 사용: `const { data } = useUsers();`
 - invalidation/prefetch는 팩토리로 타입 안전하게: `queryClient.invalidateQueries(userQueries.all())`
 - 쿼리키 배열 구조: `['도메인', ...params]`
-- mutation은 custom hook 안에 `useMutation`으로 정의 (services에 두지 않음)
+- **`src/hooks/`에는 서버 상태 관련 훅을 두지 않음** — 순수 클라이언트 훅만
 - **TanStack Query 캐시를 UI 상태 저장소로 사용하지 않음**
 
 ---
