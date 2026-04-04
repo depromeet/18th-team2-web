@@ -25,7 +25,7 @@ src/
 │   └── ui/          # 원시 UI 컴포넌트 (Button, Input, Modal 등)
 ├── config/          # 환경변수 및 앱 설정
 ├── constants/       # 앱 전역 상수
-├── hooks/           # 커스텀 React 훅 (쿼리 훅 제외)
+├── hooks/           # 커스텀 React 훅 (TanStack Query custom hook 포함)
 ├── pages/           # 라우트 단위 페이지 컴포넌트
 ├── router/          # React Router 설정
 ├── services/        # API fetch 함수 + queryOptions
