@@ -42,6 +42,62 @@ type UserRole = 'admin' | 'user';
 interface ApiResponse<T> { data: T; }
 ```
 
+## 함수 네이밍 원칙
+
+**"무엇을 하는가"가 이름에서 바로 드러나야 합니다.**
+
+### 동사 + 목적어
+
+```ts
+// ✅ 무엇을 하는지 명확
+function fetchUserProfile(userId: string) { ... }
+function validateEmailFormat(email: string) { ... }
+function formatCurrency(amount: number) { ... }
+function calculateTotalPrice(items: CartItem[]) { ... }
+
+// ❌ 너무 모호
+function getData() { ... }
+function process() { ... }
+function handle() { ... }
+function util() { ... }
+```
+
+### 반환값이 boolean인 함수 — `is` / `has` / `can` 접두사
+
+```ts
+// ✅
+function isValidEmail(email: string): boolean { ... }
+function hasPermission(user: User, action: string): boolean { ... }
+function canSubmitForm(form: FormState): boolean { ... }
+
+// ❌
+function checkEmail(email: string): boolean { ... }
+function permission(user: User): boolean { ... }
+```
+
+### 축약어 금지 — 풀어서 쓰기
+
+```ts
+// ✅
+const userAuthenticated = true;
+function getUserProfile() { ... }
+
+// ❌
+const usrAuth = true;
+function getUsrProf() { ... }
+```
+
+### 동사 선택 기준
+
+| 상황 | 사용할 동사 |
+| --- | --- |
+| API 호출 (비동기) | `fetch`, `load` |
+| 로컬 데이터 가공 | `get`, `find`, `filter`, `calculate`, `format` |
+| 상태 변경 | `set`, `update`, `reset`, `toggle` |
+| 생성/추가 | `create`, `add`, `append` |
+| 삭제 | `remove`, `delete`, `clear` |
+| 검증 | `validate`, `check` → `is*` / `has*` |
+
 ## 훅
 
 ```ts
