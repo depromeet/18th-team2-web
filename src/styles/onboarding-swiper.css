@@ -1,0 +1,14 @@
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+
+.onboarding-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  margin: 0;
+  opacity: 1;
+  background-color: rgb(255 255 255 / 0.5);
+}
+
+.onboarding-pagination .swiper-pagination-bullet-active {
+  background-color: #fff;
+}
