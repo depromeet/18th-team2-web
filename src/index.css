@@ -1,9 +1,42 @@
 @import 'tailwindcss';
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+@import './styles/tokens.css';
 
-@theme {
-  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
-    sans-serif;
+@layer base {
+  h1 {
+    font-size: var(--text-title-1);
+    line-height: var(--text-title-1--line-height);
+    font-weight: 700;
+  }
+  h2 {
+    font-size: var(--text-title-2);
+    line-height: var(--text-title-2--line-height);
+    font-weight: 700;
+  }
+  h3 {
+    font-size: var(--text-title-3);
+    line-height: var(--text-title-3--line-height);
+    font-weight: 700;
+  }
+  h4 {
+    font-size: var(--text-title-4);
+    line-height: var(--text-title-4--line-height);
+    font-weight: 700;
+  }
+  h5 {
+    font-size: var(--text-head-1);
+    line-height: var(--text-head-1--line-height);
+    font-weight: 600;
+  }
+  h6 {
+    font-size: var(--text-head-2);
+    line-height: var(--text-head-2--line-height);
+    font-weight: 600;
+  }
+  p {
+    font-size: var(--text-body-1);
+    line-height: var(--text-body-1--line-height);
+  }
 }
 
 /* 모바일 기본 리셋 */
