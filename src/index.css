@@ -1,1 +1,20 @@
 @import 'tailwindcss';
+
+/* 모바일 기본 리셋 */
+html,
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+/* iOS input focus 시 화면 확대 방지 */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
