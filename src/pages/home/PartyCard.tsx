@@ -18,9 +18,9 @@ export function PartyCard() {
           }}
         />
         <button className="flex h-9 w-24.5 items-center justify-center gap-2.5 rounded-[40px] bg-white/20 px-3 py-1.5 text-white">
-        <B1 as="span" className="font-medium">
-          파티 만들기
-        </B1>
+          <B1 as="span" className="font-medium">
+            파티 만들기
+          </B1>
         </button>
       </div>
       <div className="absolute bottom-5 left-5 flex flex-col gap-0.5 text-blue-50">
