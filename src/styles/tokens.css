@@ -87,6 +87,10 @@
   --color-red-800: #852323;
   --color-red-900: #661b1b;
 
+  /* Gradients */
+  --background-image-gradient-bg: linear-gradient(180deg, #eef4ff 0%, #ffffff 100%);
+  --background-image-gradient-blue: linear-gradient(90deg, #eef4ff 0%, #ffffff 100%);
+
   /* Colors — Yellow */
   --color-yellow-30: #fffaf0;
   --color-yellow-50: #fff6e2;
