@@ -1,8 +1,8 @@
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { H2, L1 } from '@/components/ui/Typography';
-import { ArchiveCard } from './home/ArchiveCard';
-import { HomeHeader } from './home/HomeHeader';
-import { PartyCard } from './home/PartyCard';
+import { ArchiveCard } from '@/components/home/ArchiveCard';
+import { HomeHeader } from '@/components/home/HomeHeader';
+import { PartyCard } from '@/components/home/PartyCard';
 
 function HomePage() {
   return (
