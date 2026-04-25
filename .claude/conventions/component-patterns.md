@@ -21,7 +21,7 @@ function LoginPage() {
 export default LoginPage;
 ```
 
-`MobileLayout`은 `max-w-[430px]` 모바일 중앙 정렬 컨테이너입니다.
+`MobileLayout`은 `max-w-[600px]` 모바일 중앙 정렬 컨테이너입니다. 양 옆에 border, 바깥 배경은 흰색입니다.
 
 ## UI 컴포넌트
 
