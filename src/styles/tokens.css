@@ -39,6 +39,11 @@
   --text-caption-1: 12px;
   --text-caption-1--line-height: 16px;
 
+  /* Border Radius — Button */
+  --radius-btn-sm: 10px;
+  --radius-btn-md: 12px;
+  --radius-btn-lg: 14px;
+
   /* Colors — Common */
   --color-white: #ffffff;
   --color-black: #000000;
