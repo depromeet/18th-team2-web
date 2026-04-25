@@ -1,0 +1,97 @@
+@theme {
+  /* Font */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
+
+  /* Typography — Title */
+  --text-title-1: 36px;
+  --text-title-1--line-height: 48px;
+  --text-title-2: 32px;
+  --text-title-2--line-height: 42px;
+  --text-title-3: 28px;
+  --text-title-3--line-height: 38px;
+  --text-title-4: 24px;
+  --text-title-4--line-height: 32px;
+
+  /* Typography — Head */
+  --text-head-1: 22px;
+  --text-head-1--line-height: 30px;
+  --text-head-2: 20px;
+  --text-head-2--line-height: 28px;
+  --text-head-3: 18px;
+  --text-head-3--line-height: 26px;
+  --text-head-4: 17px;
+  --text-head-4--line-height: 24px;
+
+  /* Typography — Body */
+  --text-body-1: 16px;
+  --text-body-1--line-height: 24px;
+  --text-body-2: 15px;
+  --text-body-2--line-height: 22px;
+
+  /* Typography — Label */
+  --text-label-1: 14px;
+  --text-label-1--line-height: 20px;
+  --text-label-2: 13px;
+  --text-label-2--line-height: 18px;
+
+  /* Typography — Caption */
+  --text-caption-1: 12px;
+  --text-caption-1--line-height: 16px;
+
+  /* Colors — Common */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Colors — Neutral */
+  --color-grey-30: #f7f7f8;
+  --color-grey-50: #eeeeee;
+  --color-grey-100: #dcdcdc;
+  --color-grey-200: #bebebf;
+  --color-grey-300: #a0a1a5;
+  --color-grey-400: #84858a;
+  --color-grey-500: #6b6c70;
+  --color-grey-600: #46474c;
+  --color-grey-700: #323236;
+  --color-grey-800: #27272a;
+  --color-grey-900: #000000;
+
+  /* Colors — Blue */
+  --color-blue-30: #eef4ff;
+  --color-blue-50: #e2ecff;
+  --color-blue-100: #cbddff;
+  --color-blue-200: #b2cdff;
+  --color-blue-300: #8fb6ff;
+  --color-blue-400: #79a8ff;
+  --color-blue-500: #5892ff;
+  --color-blue-600: #3b76e5;
+  --color-blue-700: #2960c4;
+  --color-blue-800: #224d9d;
+  --color-blue-900: #253d6b;
+
+  /* Colors — Red */
+  --color-red-30: #feecec;
+  --color-red-50: #ffdddd;
+  --color-red-100: #fbc4c4;
+  --color-red-200: #f9a7a7;
+  --color-red-300: #f67f7f;
+  --color-red-400: #f56666;
+  --color-red-500: #f24040;
+  --color-red-600: #dc3a3a;
+  --color-red-700: #ac2d2d;
+  --color-red-800: #852323;
+  --color-red-900: #661b1b;
+
+  /* Colors — Yellow */
+  --color-yellow-30: #fffaf0;
+  --color-yellow-50: #fff6e2;
+  --color-yellow-100: #fff1d0;
+  --color-yellow-200: #ffeab9;
+  --color-yellow-300: #ffe098;
+  --color-yellow-400: #ffda85;
+  --color-yellow-500: #ffd166;
+  --color-yellow-600: #e8b55d;
+  --color-yellow-700: #b58b48;
+  --color-yellow-800: #8c6f38;
+  --color-yellow-900: #5f4826;
+}
