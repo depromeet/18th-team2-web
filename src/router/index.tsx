@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 
 import { ProtectedRoute } from '@/router/ProtectedRoute';
-import { OnboardingPage } from '@/pages/OnboardingPage';
+import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
