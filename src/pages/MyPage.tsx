@@ -1,6 +1,6 @@
 import { MobileLayout } from '@/components/layout/MobileLayout';
 
-export function MyPage() {
+export default function MyPage() {
   return (
     <MobileLayout>
       <div className="flex min-h-dvh flex-col items-center justify-center px-5">

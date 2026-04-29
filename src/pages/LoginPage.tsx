@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-export function LoginPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
 
   const handleDevLogin = () => {

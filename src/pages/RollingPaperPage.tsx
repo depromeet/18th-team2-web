@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 
 import { MobileLayout } from '@/components/layout/MobileLayout';
 
-export function RollingPaperPage() {
+export default function RollingPaperPage() {
   const { id } = useParams<{ id: string }>();
 
   return (
