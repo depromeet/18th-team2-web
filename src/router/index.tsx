@@ -25,15 +25,13 @@ export const router = createBrowserRouter([
     element: <SignupPage />,
   },
 
-  // 보호 라우트
+  // 공개 (비회원/회원 모두 접근, 내부에서 조건부 렌더링)
   {
     path: ROUTES.home,
-    element: (
-      <ProtectedRoute>
-        <HomePage />
-      </ProtectedRoute>
-    ),
+    element: <HomePage />,
   },
+
+  // 보호 라우트
   {
     path: ROUTES.archive,
     element: (
