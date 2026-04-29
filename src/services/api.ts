@@ -16,8 +16,8 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       'Content-Type': 'application/json',
       ...options?.headers,
     },
-    credentials: 'include',
     ...options,
+    credentials: 'include',
   });
 
   if (!res.ok) {

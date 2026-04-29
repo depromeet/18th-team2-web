@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 
+import { ROUTES } from '@/constants/routes';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
 import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
@@ -12,21 +13,21 @@ import MyPage from '@/pages/MyPage';
 export const router = createBrowserRouter([
   // 공개 라우트
   {
-    path: '/onboarding',
+    path: ROUTES.onboarding,
     element: <OnboardingPage />,
   },
   {
-    path: '/login',
+    path: ROUTES.login,
     element: <LoginPage />,
   },
   {
-    path: '/signup',
+    path: ROUTES.signup,
     element: <SignupPage />,
   },
 
   // 보호 라우트
   {
-    path: '/',
+    path: ROUTES.home,
     element: (
       <ProtectedRoute>
         <HomePage />
@@ -34,7 +35,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/archive',
+    path: ROUTES.archive,
     element: (
       <ProtectedRoute>
         <ArchivePage />
@@ -42,7 +43,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/rolling-paper/:id',
+    path: ROUTES.rollingPaper,
     element: (
       <ProtectedRoute>
         <RollingPaperPage />
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/mypage',
+    path: ROUTES.mypage,
     element: (
       <ProtectedRoute>
         <MyPage />

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import type { AuthUser } from '@/stores/useAuthStore';
 
 // ── Types ──
+// TODO: BE Swagger 연동 후 components['schemas']에서 import로 교체
 
 interface LoginRequest {
   email: string;
@@ -40,6 +41,7 @@ export function useLogout() {
     mutationFn: () => api.post('/auth/logout'),
     onSuccess: () => {
       useAuthStore.getState().logout();
+      // 로그아웃 시 모든 서버 상태 캐시를 제거하여 다른 사용자 데이터 노출 방지
       queryClient.clear();
     },
   });

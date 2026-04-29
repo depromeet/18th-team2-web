@@ -4,6 +4,10 @@ export const ROUTES = {
   login: '/login',
   signup: '/signup',
   archive: '/archive',
-  rollingPaper: (id: string) => `/rolling-paper/${id}`,
+  rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
 } as const;
+
+export function buildRollingPaperPath(id: string) {
+  return `/rolling-paper/${id}`;
+}
