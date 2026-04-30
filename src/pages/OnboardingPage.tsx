@@ -7,7 +7,7 @@ import '@/styles/onboarding-swiper.css';
 import { useOnboarding } from '@/hooks/onboarding/useOnboarding';
 import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
 
-export function OnboardingPage() {
+export default function OnboardingPage() {
   const { isLastContent, handleNext, handleSkip, handleSlideChange, handleSwiperInit } =
     useOnboarding();
 

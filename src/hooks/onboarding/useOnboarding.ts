@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
-import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
-import type { Swiper } from 'swiper/types';
 import { useNavigate } from 'react-router-dom';
+
+import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
+import { ROUTES } from '@/constants/routes';
+import type { Swiper } from 'swiper/types';
 
 export function useOnboarding() {
   const swiperRef = useRef<Swiper | null>(null);
@@ -12,7 +14,7 @@ export function useOnboarding() {
 
   const handleNext = () => {
     if (isLastContent) {
-      navigate('/');
+      navigate(ROUTES.home);
       return;
     }
 
@@ -20,7 +22,7 @@ export function useOnboarding() {
   };
 
   const handleSkip = () => {
-    navigate('/');
+    navigate(ROUTES.home);
   };
 
   const handleSlideChange = (swiper: Swiper) => {
