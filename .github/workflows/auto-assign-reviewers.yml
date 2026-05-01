@@ -18,6 +18,15 @@ jobs:
             const author = context.payload.pull_request.user.login;
             const reviewers = codeowners.filter(u => u !== author);
 
+            // PR 작성자를 assignee로 자동 할당
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees: [author],
+            });
+
+            // 나머지 코드오너를 리뷰어로 할당
             if (reviewers.length > 0) {
               await github.rest.pulls.requestReviewers({
                 owner: context.repo.owner,
