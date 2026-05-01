@@ -17,6 +17,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       ...options?.headers,
     },
     ...options,
+    credentials: 'include',
   });
 
   if (!res.ok) {
