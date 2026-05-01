@@ -2,69 +2,96 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
-import { T4, B2 } from '@/components/ui/Typography';
+import { T4, B1 } from '@/components/ui/Typography';
 
 type PartyType = 'live' | 'rolling';
+type CardState = 'default' | 'selected' | 'inactive';
 
-function CheckCircle({ checked }: { checked: boolean }) {
-  return checked ? (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="12" fill="#5892ff" />
-      <path
-        d="M7 12.5L10.5 16L17 9"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+function CheckCircle({ state }: { state: CardState }) {
+  if (state === 'selected') {
+    return (
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="#5892ff" />
+        <path
+          d="M9.5 16.5L14 21L22.5 12"
+          stroke="white"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  const checkColor = state === 'inactive' ? '#bebebf' : '#6b6c70';
+
+  return (
+    <div className="relative shrink-0" style={{ width: 32, height: 32 }}>
+      <div
+        className="absolute rounded-full bg-white"
+        style={{ width: 26.67, height: 26.67, top: 2.67, left: 2.67 }}
       />
-    </svg>
-  ) : (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="11.25" className="fill-white" stroke="#a0a1a5" strokeWidth="1.5" />
-      <path
-        d="M7 12.5L10.5 16L17 9"
-        stroke="#a0a1a5"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="absolute inset-0">
+        <path
+          d="M9.5 16.5L14 21L22.5 12"
+          stroke={checkColor}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
   );
 }
 
 interface PartyTypeCardProps {
   label: string;
-  selected: boolean;
+  state: CardState;
   onClick: () => void;
 }
 
-function PartyTypeCard({ label, selected, onClick }: PartyTypeCardProps) {
+function PartyTypeCard({ label, state, onClick }: PartyTypeCardProps) {
+  const cardStyle = {
+    default: 'border border-transparent bg-grey-30',
+    selected: 'border border-blue-500 bg-blue-30',
+    inactive: 'border border-transparent bg-grey-30',
+  }[state];
+
+  const textStyle = {
+    default: 'text-grey-900 font-medium',
+    selected: 'text-blue-600 font-bold',
+    inactive: 'text-grey-300 font-medium',
+  }[state];
+
   return (
     <button
       type="button"
       onClick={onClick}
       style={{ width: 162, height: 257 }}
-      className={`flex flex-col justify-between rounded-[12px] p-4 transition-colors ${
-        selected
-          ? 'border border-blue-500 bg-blue-30'
-          : 'border border-transparent bg-grey-30'
-      }`}
+      className={`relative rounded-[12px] transition-colors ${cardStyle}`}
     >
-      <div className="flex justify-end">
-        <CheckCircle checked={selected} />
+      <div className="absolute top-4 right-4">
+        <CheckCircle state={state} />
       </div>
       {/* TODO: 에셋 준비되면 이미지 컴포넌트로 교체 */}
-      <div style={{ width: 130, height: 110 }} className="mx-auto rounded-md bg-white" />
-      <B2
-        as="span"
-        className={`whitespace-pre-line text-left font-medium ${
-          selected ? 'text-blue-500' : 'text-grey-300'
-        }`}
-      >
-        {label}
-      </B2>
+      <div className="absolute" style={{ top: 68, left: 16 }}>
+        <div style={{ width: 130, height: 110 }} className="rounded-md bg-white" />
+      </div>
+      <div className="absolute bottom-4 left-4 right-4 text-left">
+        <B1
+          className={`whitespace-pre-line ${textStyle}`}
+        >
+          {label}
+        </B1>
+      </div>
     </button>
   );
+}
+
+function getCardState(type: PartyType, selected: PartyType | null): CardState {
+  if (selected === type) return 'selected';
+  if (selected !== null) return 'inactive';
+  return 'default';
 }
 
 export default function PartyTypePage() {
@@ -84,18 +111,17 @@ export default function PartyTypePage() {
   return (
     <MobileLayout>
       <div className="flex min-h-screen flex-col">
-        {/* 컨테이너: top 140px, width 375px, gap 40px */}
         <div className="mx-auto w-full max-w-[375px] flex flex-col gap-10 pt-[140px]">
           <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
           <div className="flex justify-center gap-3">
             <PartyTypeCard
               label={'라이브 파티와\n롤링페이퍼 받기'}
-              selected={selected === 'live'}
+              state={getCardState('live', selected)}
               onClick={() => toggle('live')}
             />
             <PartyTypeCard
               label="롤링페이퍼만 받기"
-              selected={selected === 'rolling'}
+              state={getCardState('rolling', selected)}
               onClick={() => toggle('rolling')}
             />
           </div>
