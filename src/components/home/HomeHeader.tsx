@@ -12,11 +12,7 @@ export function HomeHeader() {
       <img src={hapalinLogo} alt="해파링 로고" className="h-7.5" />
       <div className="flex items-center gap-3">
         {isAuthenticated && (
-          <button
-            type="button"
-            className="text-grey-400 text-caption-1"
-            onClick={logout}
-          >
+          <button type="button" className="text-grey-400 text-caption-1" onClick={logout}>
             로그아웃
           </button>
         )}

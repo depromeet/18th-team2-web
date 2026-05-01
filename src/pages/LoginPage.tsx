@@ -31,7 +31,7 @@ export default function LoginPage() {
     <MobileLayout>
       <div className="flex min-h-dvh flex-col items-center justify-center px-5">
         <h1 className="text-title-2 font-bold">로그인</h1>
-        <p className="text-grey-300 mt-2 text-body-2">카카오 계정으로 시작하세요</p>
+        <p className="text-grey-300 text-body-2 mt-2">카카오 계정으로 시작하세요</p>
 
         <button
           type="button"
@@ -44,7 +44,7 @@ export default function LoginPage() {
         {import.meta.env.DEV && (
           <button
             type="button"
-            className="bg-grey-800 text-grey-50 mt-10 rounded-lg px-6 py-3 text-body-2"
+            className="bg-grey-800 text-grey-50 text-body-2 mt-10 rounded-lg px-6 py-3"
             onClick={handleDevLogin}
             disabled={devToken.isPending}
           >
