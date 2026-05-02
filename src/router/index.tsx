@@ -6,6 +6,7 @@ import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
 import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
 import PartyTypePage from '@/pages/PartyTypePage';
+import PartyCreateIntroPage from '@/pages/PartyCreateIntroPage';
 import ArchivePage from '@/pages/ArchivePage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
@@ -29,6 +30,11 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.createParty,
     element: <PartyTypePage />,
+  },
+  {
+    // TODO: BE CORS 해결 후 ProtectedRoute 다시 적용 (회원 전용)
+    path: ROUTES.createPartyIntro,
+    element: <PartyCreateIntroPage />,
   },
 
   // 보호 라우트
