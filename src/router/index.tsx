@@ -6,6 +6,7 @@ import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
+import PartyTypePage from '@/pages/PartyTypePage';
 import ArchivePage from '@/pages/ArchivePage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.home,
     element: <HomePage />,
+  },
+  {
+    path: ROUTES.createParty,
+    element: <PartyTypePage />,
   },
 
   // 보호 라우트

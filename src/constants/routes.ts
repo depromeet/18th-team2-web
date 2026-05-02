@@ -3,6 +3,7 @@ export const ROUTES = {
   onboarding: '/onboarding',
   login: '/login',
   oauthCallback: '/oauth/callback',
+  createParty: '/create-party',
   archive: '/archive',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
