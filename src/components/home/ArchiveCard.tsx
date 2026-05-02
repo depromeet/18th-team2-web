@@ -19,9 +19,7 @@ export function ArchiveCard({ count }: ArchiveCardProps) {
     >
       <div className="absolute top-5 left-5 flex items-center gap-1.5">
         <H2>보관함</H2>
-        {count > 0 && (
-          <Caption className="font-semibold text-blue-500">{count}개</Caption>
-        )}
+        {count > 0 && <Caption className="font-semibold text-blue-500">{count}개</Caption>}
       </div>
     </button>
   );

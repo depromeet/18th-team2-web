@@ -18,7 +18,7 @@ export default function OAuthCallbackPage() {
       useAuthStore.getState().clearRedirectUrl();
       navigate(redirectUrl ?? ROUTES.home, { replace: true });
     } else {
-      navigate(ROUTES.login, { replace: true });
+      navigate(ROUTES.home, { replace: true });
     }
   }, [searchParams, navigate]);
 

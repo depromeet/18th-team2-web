@@ -4,7 +4,6 @@ import { ROUTES } from '@/constants/routes';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
 import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
-import LoginPage from '@/pages/LoginPage';
 import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
 import PartyTypePage from '@/pages/PartyTypePage';
 import ArchivePage from '@/pages/ArchivePage';
@@ -16,10 +15,6 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.onboarding,
     element: <OnboardingPage />,
-  },
-  {
-    path: ROUTES.login,
-    element: <LoginPage />,
   },
   {
     path: ROUTES.oauthCallback,
