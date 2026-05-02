@@ -1,6 +1,7 @@
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
-import { ROUTES } from '@/constants/routes';
+import { LoginBottomSheet } from '@/components/ui/LoginBottomSheet';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ProtectedRouteProps {
@@ -8,10 +9,17 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      useAuthStore.getState().setRedirectUrl(location.pathname);
+    }
+  }, [isAuthenticated, location.pathname]);
+
   if (!isAuthenticated) {
-    return <Navigate to={ROUTES.login} replace />;
+    return <LoginBottomSheet isOpen onClose={() => window.history.back()} />;
   }
 
   return <>{children}</>;

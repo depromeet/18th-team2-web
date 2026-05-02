@@ -1,9 +1,13 @@
+import { useNavigate } from 'react-router-dom';
+
 import hapalinLogo from '@/assets/images/hapalin-logo.png';
 import iconPerson from '@/assets/icons/icon-person.svg';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { ROUTES } from '@/constants/routes';
 import { useLogout } from '@/services/auth';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function HomeHeader() {
+  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { logout } = useLogout();
 
@@ -16,7 +20,9 @@ export function HomeHeader() {
             로그아웃
           </button>
         )}
-        <img src={iconPerson} alt="프로필" className="h-6 w-6" />
+        <button type="button" onClick={() => navigate(ROUTES.mypage)}>
+          <img src={iconPerson} alt="프로필" className="h-6 w-6" />
+        </button>
       </div>
     </header>
   );

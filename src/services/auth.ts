@@ -59,7 +59,12 @@ export function useDevToken() {
     mutationFn: (email: string) =>
       api.post<ApiResponse<DevTokenResponse>>(`/api/dev/token?email=${encodeURIComponent(email)}`),
     onSuccess: (res) => {
-      useAuthStore.getState().setToken(res.data.token);
+      const { setToken, redirectUrl, clearRedirectUrl } = useAuthStore.getState();
+      setToken(res.data.token);
+      if (redirectUrl) {
+        clearRedirectUrl();
+        window.location.href = redirectUrl;
+      }
     },
   });
 }
