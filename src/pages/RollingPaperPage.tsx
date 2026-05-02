@@ -9,7 +9,7 @@ export default function RollingPaperPage() {
     <MobileLayout>
       <div className="flex min-h-dvh flex-col items-center justify-center px-5">
         <h1 className="text-title-2 font-bold">롤링페이퍼</h1>
-        <p className="text-grey-300 mt-2 text-body-2">롤링페이퍼 #{id} (구현 예정)</p>
+        <p className="text-grey-300 text-body-2 mt-2">롤링페이퍼 #{id} (구현 예정)</p>
       </div>
     </MobileLayout>
   );
