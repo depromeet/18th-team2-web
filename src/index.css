@@ -39,15 +39,6 @@
   }
 }
 
-@keyframes slide-up {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
 /* 모바일 기본 리셋 */
 html,
 body {

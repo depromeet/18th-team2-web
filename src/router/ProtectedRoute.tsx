@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { LoginBottomSheet } from '@/components/ui/LoginBottomSheet';
+import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ProtectedRouteProps {
@@ -19,7 +19,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [isAuthenticated, location.pathname]);
 
   if (!isAuthenticated) {
-    return <LoginBottomSheet isOpen onClose={() => window.history.back()} />;
+    return <LoginPromptSheet isOpen onClose={() => window.history.back()} />;
   }
 
   return <>{children}</>;
