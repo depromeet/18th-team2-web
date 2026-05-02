@@ -1,13 +1,9 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-export interface AuthUser {
-  id: number;
-  name: string;
-  email: string;
-  provider: 'KAKAO' | 'GOOGLE' | 'APPLE' | 'NAVER';
-  birthDay: string | null;
-}
+import type { components } from '@/types/api';
+
+export type AuthUser = components['schemas']['UserResponse'];
 
 interface AuthState {
   accessToken: string | null;
