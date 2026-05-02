@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
 import { T4, B1 } from '@/components/ui/Typography';
+import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 type PartyType = 'live' | 'rolling';
 type CardState = 'default' | 'selected' | 'inactive';
@@ -96,7 +98,9 @@ function getCardState(type: PartyType, selected: PartyType | null): CardState {
 
 export default function PartyTypePage() {
   const [selected, setSelected] = useState<PartyType | null>(null);
+  const [showLoginSheet, setShowLoginSheet] = useState(false);
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const toggle = (type: PartyType) => {
     setSelected((prev) => (prev === type ? null : type));
@@ -104,6 +108,10 @@ export default function PartyTypePage() {
 
   const handleComplete = () => {
     if (!selected) return;
+    if (!isAuthenticated) {
+      setShowLoginSheet(true);
+      return;
+    }
     // TODO: 다음 단계 경로로 교체
     navigate('/');
   };
@@ -111,7 +119,7 @@ export default function PartyTypePage() {
   return (
     <MobileLayout>
       <div className="flex min-h-screen flex-col">
-        <div className="mx-auto w-full max-w-[375px] flex flex-col gap-10 pt-[140px]">
+        <div className="mx-auto w-full max-w-93.75 flex flex-col gap-10 pt-35">
           <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
           <div className="flex justify-center gap-3">
             <PartyTypeCard
@@ -137,6 +145,7 @@ export default function PartyTypePage() {
           </Button>
         </div>
       </div>
+      <LoginPromptSheet isOpen={showLoginSheet} onClose={() => setShowLoginSheet(false)} />
     </MobileLayout>
   );
 }

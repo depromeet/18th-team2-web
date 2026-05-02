@@ -31,16 +31,12 @@ export const router = createBrowserRouter([
     path: ROUTES.home,
     element: <HomePage />,
   },
-
-  // 보호 라우트
   {
     path: ROUTES.createParty,
-    element: (
-      <ProtectedRoute>
-        <PartyTypePage />
-      </ProtectedRoute>
-    ),
+    element: <PartyTypePage />,
   },
+
+  // 보호 라우트
   {
     path: ROUTES.archive,
     element: (
