@@ -5,7 +5,7 @@ import { ProtectedRoute } from '@/router/ProtectedRoute';
 import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
-import SignupPage from '@/pages/SignupPage';
+import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
 import ArchivePage from '@/pages/ArchivePage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
@@ -21,8 +21,8 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: ROUTES.signup,
-    element: <SignupPage />,
+    path: ROUTES.oauthCallback,
+    element: <OAuthCallbackPage />,
   },
 
   // 공개 (비회원/회원 모두 접근, 내부에서 조건부 렌더링)
