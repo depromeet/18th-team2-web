@@ -52,6 +52,19 @@ body {
     env(safe-area-inset-left);
 }
 
+/* 예정된 파티 캐러셀 인디케이터 */
+.upcoming-party-pagination .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dcdcdc;
+  opacity: 1;
+}
+
+.upcoming-party-pagination .swiper-pagination-bullet-active {
+  background: #84858a;
+}
+
 /* iOS input focus 시 화면 확대 방지 */
 input,
 select,

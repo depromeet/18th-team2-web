@@ -1,21 +1,16 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import type { components } from '@/types/api';
 import { config } from '@/config/env';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
-import type { AuthUser } from '@/stores/useAuthStore';
 
-// ── Types ──
+// ── Types (from OpenAPI) ──
 
-interface DevTokenResponse {
-  token: string;
-  userId: number;
-}
-
-interface ApiResponse<T> {
-  status: number;
-  data: T;
-}
+type UserResponse = components['schemas']['UserResponse'];
+type DevTokenResponse = components['schemas']['DevTokenResponse'];
+type ApiResponseUserResponse = components['schemas']['ApiResponseUserResponse'];
+type ApiResponseDevTokenResponse = components['schemas']['ApiResponseDevTokenResponse'];
 
 // ── 카카오 OAuth ──
 
@@ -30,7 +25,7 @@ export const authQueries = {
   me: () =>
     queryOptions({
       queryKey: ['auth', 'me'],
-      queryFn: () => api.get<ApiResponse<AuthUser>>('/api/auth/me'),
+      queryFn: () => api.get<ApiResponseUserResponse>('/api/auth/me'),
       enabled: !!useAuthStore.getState().accessToken,
     }),
 };
@@ -57,9 +52,19 @@ export function useLogout() {
 export function useDevToken() {
   return useMutation({
     mutationFn: (email: string) =>
-      api.post<ApiResponse<DevTokenResponse>>(`/api/dev/token?email=${encodeURIComponent(email)}`),
+      api.post<ApiResponseDevTokenResponse>(`/api/dev/token?email=${encodeURIComponent(email)}`),
     onSuccess: (res) => {
-      useAuthStore.getState().setToken(res.data.token);
+      const { setToken, redirectUrl, clearRedirectUrl } = useAuthStore.getState();
+      if (res.data?.token) {
+        setToken(res.data.token);
+      }
+      if (redirectUrl) {
+        clearRedirectUrl();
+        window.location.href = redirectUrl;
+      }
     },
   });
 }
+
+// Re-export for components
+export type { UserResponse, DevTokenResponse };

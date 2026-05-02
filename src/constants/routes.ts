@@ -1,7 +1,6 @@
 export const ROUTES = {
   home: '/',
   onboarding: '/onboarding',
-  login: '/login',
   oauthCallback: '/oauth/callback',
   createParty: '/create-party',
   archive: '/archive',

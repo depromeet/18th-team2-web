@@ -14,9 +14,11 @@ export default function OAuthCallbackPage() {
 
     if (token) {
       useAuthStore.getState().setToken(token);
-      navigate(ROUTES.home, { replace: true });
+      const redirectUrl = useAuthStore.getState().redirectUrl;
+      useAuthStore.getState().clearRedirectUrl();
+      navigate(redirectUrl ?? ROUTES.home, { replace: true });
     } else {
-      navigate(ROUTES.login, { replace: true });
+      navigate(ROUTES.home, { replace: true });
     }
   }, [searchParams, navigate]);
 
