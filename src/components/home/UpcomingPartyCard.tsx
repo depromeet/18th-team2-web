@@ -1,4 +1,4 @@
-import { L2, B1, Caption } from '@/components/ui/Typography';
+import { B1 } from '@/components/ui/Typography';
 
 type PartyRole = 'host' | 'participant';
 
@@ -7,6 +7,8 @@ type PartyStatus = 'default' | 'soon' | 'rollingPaper' | 'rollingPaperOpen';
 export interface UpcomingParty {
   partyName: string;
   date: string;
+  time?: string;
+  endDate?: string;
   role: PartyRole;
   status: PartyStatus;
 }
@@ -18,9 +20,9 @@ interface UpcomingPartyCardProps {
 
 function getLabel(status: PartyStatus): { text: string; color: string } {
   if (status === 'rollingPaper' || status === 'rollingPaperOpen') {
-    return { text: '롤링페이퍼', color: 'bg-blue-100 text-blue-700' };
+    return { text: '롤링페이퍼', color: 'bg-yellow-100 text-yellow-900' };
   }
-  return { text: '라이브 파티', color: 'bg-blue-100 text-blue-700' };
+  return { text: '라이브 파티', color: 'bg-blue-200 text-blue-900' };
 }
 
 function getActionButton(
@@ -28,52 +30,69 @@ function getActionButton(
   status: PartyStatus,
 ): { text: string; style: string } | null {
   if (role === 'participant') {
-    if (status === 'default') return { text: '초대장 확인하기', style: 'bg-blue-50 text-blue-700' };
-    if (status === 'soon') return { text: '파티 입장하기', style: 'bg-yellow-400 text-grey-900' };
+    if (status === 'default') return { text: '초대장 확인하기', style: 'bg-blue-500 text-white' };
+    if (status === 'soon') return { text: '파티 입장하기', style: 'bg-blue-500 text-white' };
     if (status === 'rollingPaper')
-      return { text: '롤링페이퍼 작성하기', style: 'bg-blue-50 text-blue-700' };
+      return { text: '롤링페이퍼 작성하기', style: 'bg-blue-500 text-white' };
   }
   if (role === 'host') {
-    if (status === 'soon') return { text: '파티 시작하기', style: 'bg-yellow-400 text-grey-900' };
+    if (status === 'default')
+      return {
+        text: '파티 시작 5분 전에 입장할 수 있어요',
+        style: 'bg-grey-50 text-grey-300',
+      };
+    if (status === 'soon') return { text: '파티 시작하기', style: 'bg-blue-500 text-white' };
+    if (status === 'rollingPaper')
+      return { text: '파티 당일 밤 10시에 공개되어요', style: 'bg-grey-50 text-grey-300' };
     if (status === 'rollingPaperOpen')
-      return { text: '롤링페이퍼 확인하기', style: 'bg-blue-50 text-blue-700' };
+      return { text: '롤링페이퍼 확인하기', style: 'bg-blue-500 text-white' };
   }
   return null;
 }
 
-function getSubText(role: PartyRole, status: PartyStatus): string | null {
-  if (role === 'host' && status === 'default') {
-    return '파티 시작 5분 전에 입장할 수 있어요';
-  }
-  if (role === 'host' && status === 'rollingPaper') {
-    return '파티 당일 밤 10시에 공개되어요';
-  }
-  return null;
+function isRollingPaperStatus(status: PartyStatus): boolean {
+  return status === 'rollingPaper' || status === 'rollingPaperOpen';
 }
 
 export function UpcomingPartyCard({ party, onAction }: UpcomingPartyCardProps) {
-  const { partyName, date, role, status } = party;
+  const { partyName, date, time, endDate, role, status } = party;
   const label = getLabel(status);
   const action = getActionButton(role, status);
-  const subText = getSubText(role, status);
+  const isRollingPaper = isRollingPaperStatus(status);
 
   return (
-    <div className="rounded-2xl bg-white px-5 py-4 shadow-sm">
-      <div className="flex items-center justify-between">
-        <Caption className="text-grey-400">예정된 파티</Caption>
-        <span className={`text-caption-1 rounded-full px-2 py-0.5 font-medium ${label.color}`}>
-          {label.text}
-        </span>
+    <div className="rounded-btn-lg flex h-32.5 flex-col justify-between bg-blue-50 p-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-grey-500 text-label-1 font-medium">예정된 파티</span>
+          <span className={`text-label-2 rounded-md px-2 py-1 font-semibold ${label.color}`}>
+            {label.text}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <B1 className="font-semibold">{partyName}</B1>
+          <div className="flex items-center gap-1.5">
+            <B1 className="font-medium">{date}</B1>
+            {isRollingPaper && endDate ? (
+              <>
+                <span className="text-grey-200 text-body-1 font-medium">~</span>
+                <B1 className="font-medium">{endDate}</B1>
+              </>
+            ) : (
+              time && (
+                <>
+                  <span className="border-grey-200 h-3 border-l" />
+                  <B1 className="font-medium">{time}</B1>
+                </>
+              )
+            )}
+          </div>
+        </div>
       </div>
-      <div className="mt-2">
-        <B1 className="font-semibold">{partyName}</B1>
-        <L2 className="text-grey-400 mt-0.5">{date}</L2>
-      </div>
-      {subText && <Caption className="text-grey-400 mt-3">{subText}</Caption>}
       {action && (
         <button
           type="button"
-          className={`text-body-2 mt-3 w-full rounded-xl py-3 font-semibold ${action.style}`}
+          className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold ${action.style}`}
           onClick={onAction}
         >
           {action.text}

@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 
-import { H2, Caption } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 
 interface ArchiveCardProps {
@@ -13,14 +12,15 @@ export function ArchiveCard({ count }: ArchiveCardProps) {
   return (
     <button
       type="button"
-      className="relative h-30 w-full cursor-pointer rounded-[20px] text-left"
+      className="flex h-30 w-full cursor-pointer items-start justify-between rounded-[20px] p-5 text-left"
       style={{ background: 'linear-gradient(130.25deg, #F9F6D8 0%, #FFF0F7 68.04%)' }}
       onClick={() => navigate(ROUTES.archive)}
     >
-      <div className="absolute top-5 left-5 flex items-center gap-1.5">
-        <H2>보관함</H2>
-        {count > 0 && <Caption className="font-semibold text-blue-500">{count}개</Caption>}
+      <div className="flex items-start gap-1">
+        <span className="text-head-2 font-semibold tracking-tight">보관함</span>
+        {count > 0 && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
       </div>
+      {count > 0 && <span className="text-head-3 text-grey-600 font-medium">{count}개</span>}
     </button>
   );
 }
