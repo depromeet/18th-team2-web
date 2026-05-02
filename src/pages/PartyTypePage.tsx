@@ -79,12 +79,8 @@ function PartyTypeCard({ label, state, onClick }: PartyTypeCardProps) {
       <div className="absolute" style={{ top: 68, left: 16 }}>
         <div style={{ width: 130, height: 110 }} className="rounded-md bg-white" />
       </div>
-      <div className="absolute bottom-4 left-4 right-4 text-left">
-        <B1
-          className={`whitespace-pre-line ${textStyle}`}
-        >
-          {label}
-        </B1>
+      <div className="absolute right-4 bottom-4 left-4 text-left">
+        <B1 className={`whitespace-pre-line ${textStyle}`}>{label}</B1>
       </div>
     </button>
   );
@@ -119,7 +115,7 @@ export default function PartyTypePage() {
   return (
     <MobileLayout>
       <div className="flex min-h-screen flex-col">
-        <div className="mx-auto w-full max-w-93.75 flex flex-col gap-10 pt-35">
+        <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
           <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
           <div className="flex justify-center gap-3">
             <PartyTypeCard
