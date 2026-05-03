@@ -137,7 +137,7 @@ function CarouselButton({ label, direction, onClick }: CarouselButtonProps) {
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="bg-blue-50 text-blue-600 flex h-13 w-13 items-center justify-center rounded-full"
+      className="flex h-13 w-13 items-center justify-center rounded-full bg-blue-50 text-blue-600"
     >
       <ChevronIcon direction={direction} />
     </button>

@@ -23,9 +23,9 @@ export function CompletedInvitationCard({
   return (
     <div className={`rounded-[8px] bg-white px-9 pt-10 pb-9 ${className ?? ''}`}>
       <H2 className="text-center">{title}</H2>
-      <div className="mt-7 border-t border-grey-50" />
+      <div className="border-grey-50 mt-7 border-t" />
 
-      <div className="mt-8 flex flex-col gap-3 text-head-1 font-normal text-grey-600 tracking-[-0.0002em]">
+      <div className="text-head-1 text-grey-600 mt-8 flex flex-col gap-3 font-normal tracking-[-0.0002em]">
         <div>
           <strong className="text-blue-500">{hostName}</strong>
           <span>를 위해</span>
@@ -41,8 +41,8 @@ export function CompletedInvitationCard({
         <span>온라인 생일 파티가 열려요</span>
       </div>
 
-      <div className="mt-12 border-t border-grey-50" />
-      <B1 className="mt-7 font-medium text-grey-200">{footerText}</B1>
+      <div className="border-grey-50 mt-12 border-t" />
+      <B1 className="text-grey-200 mt-7 font-medium">{footerText}</B1>
     </div>
   );
 }

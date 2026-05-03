@@ -17,13 +17,13 @@ export function InvitationCard({ title, children, footerDate }: InvitationCardPr
         boxShadow: '0px 0px 8px 0px #5892FF4D',
       }}
     >
-      <H2 className="text-center text-grey-500 tracking-[-0.0001em]">{title}</H2>
+      <H2 className="text-grey-500 text-center tracking-[-0.0001em]">{title}</H2>
       <div className="border-grey-50 border-t" />
       <div className="flex-1">{children}</div>
       <div className="border-grey-50 absolute right-[30px] bottom-[80px] left-[30px] border-t" />
       <B1
         as="span"
-        className="absolute right-[30px] bottom-[42px] left-[30px] font-medium text-grey-200"
+        className="text-grey-200 absolute right-[30px] bottom-[42px] left-[30px] font-medium"
       >
         {footerDate}
       </B1>

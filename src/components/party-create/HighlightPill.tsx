@@ -10,7 +10,8 @@ interface HighlightPillProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 const variantStyles: Record<Variant, string> = {
   filled:
     'bg-[radial-gradient(50%_50%_at_50%_50%,#3D7AE9_0%,#6174FF_100%)] text-white font-semibold tracking-[-0.0002em]',
-  outlined: 'border border-grey-50 bg-white text-head-2 font-medium text-grey-600 tracking-[-0.0001em]',
+  outlined:
+    'border border-grey-50 bg-white text-head-2 font-medium text-grey-600 tracking-[-0.0001em]',
   active: 'border-2 border-blue-600 bg-white text-grey-800 font-semibold tracking-[-0.0002em]',
   selected: 'border border-blue-500 bg-white text-grey-800 font-semibold tracking-[-0.0002em]',
 };

@@ -1,11 +1,13 @@
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import homeIcon from '@/assets/icons/icon-home.svg';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { CompletedInvitationCard } from '@/components/party-create/CompletedInvitationCard';
 import { Button } from '@/components/ui/Button';
+import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
-import { ROUTES } from '@/constants/routes';
+import { buildRollingPaperPath, ROUTES } from '@/constants/routes';
 import { getTodayMidnight } from '@/utils/date';
 
 const PARTY_DURATION_MINUTES = 10;
@@ -29,13 +31,19 @@ export default function PartyCreateCompletePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const partyState = getPartyCompleteState(location.state);
+  const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
   const hostName = partyState.hostName ?? DEFAULT_HOST_NAME;
   const partyDate = partyState.partyDate ? new Date(partyState.partyDate) : getTodayMidnight();
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
+  // TODO: 파티 생성 API 응답의 실제 ID로 교체
+  const invitationLink = useMemo(
+    () => `${window.location.origin}${buildRollingPaperPath('mock-party-id')}`,
+    [],
+  );
 
   const handleShareLink = () => {
-    // TODO: 공유 링크 생성/복사 API 연결
+    setIsShareSheetOpen(true);
   };
 
   return (
@@ -74,6 +82,14 @@ export default function PartyCreateCompletePage() {
             </Button>
           </div>
         </div>
+
+        <LinkShareSheet
+          isOpen={isShareSheetOpen}
+          link={invitationLink}
+          title="초대장 링크 공유하기"
+          shareText="파티 초대장이 도착했어요"
+          onClose={() => setIsShareSheetOpen(false)}
+        />
       </div>
     </MobileLayout>
   );

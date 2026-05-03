@@ -2,7 +2,7 @@ export function StackedInvitationBackdrop() {
   return (
     <svg
       aria-hidden
-      className="pointer-events-none absolute left-0 right-0 z-20 w-full"
+      className="pointer-events-none absolute right-0 left-0 z-20 w-full"
       style={{ height: 220, top: 'calc(100% - 32px)' }}
       viewBox="0 0 375 220"
       preserveAspectRatio="none"

@@ -11,12 +11,7 @@ import { InvitationCard } from '@/components/party-create/InvitationCard';
 import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvitationBackdrop';
 import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/stores/useAuthStore';
-import {
-  formatDisplayTime,
-  formatDotDate,
-  formatKoreanDate,
-  getTodayMidnight,
-} from '@/utils/date';
+import { formatDisplayTime, formatDotDate, formatKoreanDate, getTodayMidnight } from '@/utils/date';
 
 const NAME_MAX_LENGTH = 10;
 const PARTY_DURATION_MINUTES = 10;
@@ -125,7 +120,7 @@ export default function PartyTimeSelectPage() {
           )}
           <div className="relative z-10 flex justify-center">
             <InvitationCard title="파티 초대장" footerDate={formatDotDate(selectedDate)}>
-              <div className="relative flex flex-col gap-3 text-head-1 font-normal text-grey-600 tracking-[-0.0002em]">
+              <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                   <HighlightPill>{userName || '이름'}</HighlightPill>
                   <span>를 위해</span>
@@ -141,12 +136,10 @@ export default function PartyTimeSelectPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                   <HighlightPill
-                    variant={
-                      isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'
-                    }
+                    variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
                     onClick={handleOpenTimePicker}
                   >
-                    {isTimePickerOpen ? pendingTime : selectedTime ?? '시간선택'}
+                    {isTimePickerOpen ? pendingTime : (selectedTime ?? '시간선택')}
                   </HighlightPill>
                   <span>부터 {PARTY_DURATION_MINUTES}분 동안</span>
                 </div>
@@ -157,7 +150,7 @@ export default function PartyTimeSelectPage() {
           <StackedInvitationBackdrop />
           {isDatePickerOpen && (
             <div
-              className="absolute top-[212px] z-30 w-[282px] rounded-[8px] bg-grey-600/70 px-4 py-3 text-white shadow-lg backdrop-blur-sm"
+              className="bg-grey-600/70 absolute top-[212px] z-30 w-[282px] rounded-[8px] px-4 py-3 text-white shadow-lg backdrop-blur-sm"
               style={{ left: 'calc(50% - 141.5px)' }}
               onClick={(event) => event.stopPropagation()}
             >
@@ -184,8 +177,7 @@ export default function PartyTimeSelectPage() {
                   weekday: 'h-7 font-normal',
                   week: 'h-7',
                   day: 'h-7 w-9 text-center align-middle',
-                  day_button:
-                    'h-7 w-7 rounded-full text-body-1 text-white disabled:text-grey-300',
+                  day_button: 'h-7 w-7 rounded-full text-body-1 text-white disabled:text-grey-300',
                   selected: '[&>button]:bg-white [&>button]:font-semibold [&>button]:text-blue-500',
                   disabled: '[&>button]:text-grey-300',
                   outside: '[&>button]:text-grey-300',
@@ -195,7 +187,7 @@ export default function PartyTimeSelectPage() {
           )}
           {isTimePickerOpen && (
             <div
-              className="absolute top-[260px] z-30 w-[282px] rounded-[8px] bg-grey-600/70 px-5 py-3 text-white shadow-lg backdrop-blur-sm"
+              className="bg-grey-600/70 absolute top-[260px] z-30 w-[282px] rounded-[8px] px-5 py-3 text-white shadow-lg backdrop-blur-sm"
               style={{ left: 'calc(50% - 141.5px)' }}
               onClick={(event) => event.stopPropagation()}
             >
@@ -210,7 +202,9 @@ export default function PartyTimeSelectPage() {
                   {TIME_PICKER_OPTIONS.period.map((option) => (
                     <Picker.Item key={option} value={option}>
                       {({ selected }) => (
-                        <span className={`text-head-2 ${selected ? 'text-white' : 'text-grey-300'}`}>
+                        <span
+                          className={`text-head-2 ${selected ? 'text-white' : 'text-grey-300'}`}
+                        >
                           {option}
                         </span>
                       )}
@@ -221,7 +215,9 @@ export default function PartyTimeSelectPage() {
                   {TIME_PICKER_OPTIONS.hour.map((option) => (
                     <Picker.Item key={option} value={option}>
                       {({ selected }) => (
-                        <span className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}>
+                        <span
+                          className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}
+                        >
                           {option}
                         </span>
                       )}
@@ -232,7 +228,9 @@ export default function PartyTimeSelectPage() {
                   {TIME_PICKER_OPTIONS.minute.map((option) => (
                     <Picker.Item key={option} value={option}>
                       {({ selected }) => (
-                        <span className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}>
+                        <span
+                          className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}
+                        >
                           {option}
                         </span>
                       )}
@@ -243,7 +241,7 @@ export default function PartyTimeSelectPage() {
               <div className="pointer-events-none absolute top-[84px] right-5 left-5 border-y border-white/60">
                 <div className="h-9" />
               </div>
-              <span className="pointer-events-none absolute top-[87px] left-[157px] text-head-1 text-white">
+              <span className="text-head-1 pointer-events-none absolute top-[87px] left-[157px] text-white">
                 :
               </span>
             </div>
