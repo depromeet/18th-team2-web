@@ -89,7 +89,13 @@ export default function PartyTimeSelectPage() {
 
   const handleCreateParty = () => {
     // TODO: 파티 생성 API 호출
-    navigate(ROUTES.createPartyCharacter);
+    navigate(ROUTES.createPartyCharacter, {
+      state: {
+        hostName: userName,
+        partyDate: selectedDate.toISOString(),
+        partyTime: selectedTime,
+      },
+    });
   };
 
   return (

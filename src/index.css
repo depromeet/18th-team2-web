@@ -101,3 +101,72 @@ textarea {
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
   mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
 }
+
+.party-complete-page {
+  background: linear-gradient(180deg, var(--color-blue-30) 0%, var(--color-blue-500) 100%);
+}
+
+.party-complete-card {
+  box-shadow: 0 0 8px 0 color-mix(in srgb, var(--color-blue-500) 30%, transparent);
+}
+
+.party-complete-title,
+.party-complete-card,
+.party-complete-notice,
+.party-complete-button {
+  opacity: 0;
+  animation-fill-mode: forwards;
+  will-change: opacity, transform;
+}
+
+.party-complete-title {
+  animation-name: party-complete-fade-in;
+  animation-duration: 600ms;
+  animation-delay: 650ms;
+  animation-timing-function: ease-out;
+}
+
+.party-complete-card {
+  transform: translateY(100vh);
+  animation-name: party-complete-card-rise;
+  animation-duration: 1100ms;
+  animation-delay: 500ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.party-complete-notice {
+  animation-name: party-complete-fade-in;
+  animation-duration: 500ms;
+  animation-delay: 850ms;
+  animation-timing-function: ease-out;
+}
+
+.party-complete-button {
+  animation-name: party-complete-fade-in;
+  animation-duration: 500ms;
+  animation-delay: 1900ms;
+  animation-timing-function: ease-out;
+}
+
+@keyframes party-complete-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(100vh);
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes party-complete-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { EffectCoverflow } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper/types';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -21,11 +21,18 @@ const TEMP_CHARACTERS = [
 
 export default function PartyCharacterSelectPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const swiperRef = useRef<SwiperType | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const handleSelectCharacter = () => {
     // TODO: 캐릭터 선택 API/다음 단계 연결
+    navigate(ROUTES.createPartyComplete, {
+      state: {
+        ...(typeof location.state === 'object' && location.state ? location.state : {}),
+        characterId: TEMP_CHARACTERS[selectedIndex].id,
+      },
+    });
   };
 
   return (
