@@ -1,8 +1,22 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import hapalinPartyCard from '@/assets/images/hapalin-party-card.png';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { H1 } from '@/components/ui/Typography';
+import { ROUTES } from '@/constants/routes';
+
+const INTRO_DURATION_MS = 4500;
 
 export default function PartyCreateIntroPage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      navigate(ROUTES.createPartyTime, { replace: true });
+    }, INTRO_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [navigate]);
+
   return (
     <MobileLayout>
       <div
