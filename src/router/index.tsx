@@ -32,18 +32,24 @@ export const router = createBrowserRouter([
     path: ROUTES.createParty,
     element: <PartyTypePage />,
   },
-  {
-    // TODO: BE CORS 해결 후 ProtectedRoute 다시 적용 (회원 전용)
-    path: ROUTES.createPartyIntro,
-    element: <PartyCreateIntroPage />,
-  },
-  {
-    // TODO: BE CORS 해결 후 ProtectedRoute 다시 적용 (회원 전용)
-    path: ROUTES.createPartyTime,
-    element: <PartyTimeSelectPage />,
-  },
 
   // 보호 라우트
+  {
+    path: ROUTES.createPartyIntro,
+    element: (
+      <ProtectedRoute>
+        <PartyCreateIntroPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.createPartyTime,
+    element: (
+      <ProtectedRoute>
+        <PartyTimeSelectPage />
+      </ProtectedRoute>
+    ),
+  },
   {
     path: ROUTES.archive,
     element: (
