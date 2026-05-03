@@ -4,6 +4,7 @@ import Picker from 'react-mobile-picker';
 import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { H1 } from '@/components/ui/Typography';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { InvitationCard } from '@/components/party-create/InvitationCard';
@@ -88,14 +89,12 @@ export default function PartyTimeSelectPage() {
 
   const handleCreateParty = () => {
     // TODO: 파티 생성 API 호출
+    navigate(ROUTES.createPartyCharacter);
   };
 
   return (
     <MobileLayout>
-      <div
-        className="relative flex min-h-screen flex-col"
-        style={{ background: 'linear-gradient(180deg, #EEF4FF 0%, #FFFFFF 100%)' }}
-      >
+      <div className="bg-gradient-bg relative flex min-h-screen flex-col">
         <header className="px-5 pt-3">
           <button
             type="button"
@@ -107,9 +106,7 @@ export default function PartyTimeSelectPage() {
           </button>
         </header>
 
-        <H1 className="mt-2 px-5 text-black tracking-[-0.0002em]">
-          파티 시간을 선택해 주세요
-        </H1>
+        <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 시간을 선택해 주세요</H1>
 
         <div className="relative mt-6">
           {pickerMode && (
@@ -261,18 +258,3 @@ export default function PartyTimeSelectPage() {
     </MobileLayout>
   );
 }
-
-function ChevronLeftIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M15 18L9 12L15 6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-

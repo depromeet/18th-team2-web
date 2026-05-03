@@ -5,6 +5,7 @@ export const ROUTES = {
   createParty: '/create-party',
   createPartyIntro: '/create-party/intro',
   createPartyTime: '/create-party/time',
+  createPartyCharacter: '/create-party/character',
   archive: '/archive',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',

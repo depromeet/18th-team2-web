@@ -8,6 +8,7 @@ import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
 import PartyTypePage from '@/pages/PartyTypePage';
 import PartyCreateIntroPage from '@/pages/PartyCreateIntroPage';
 import PartyTimeSelectPage from '@/pages/PartyTimeSelectPage';
+import PartyCharacterSelectPage from '@/pages/PartyCharacterSelectPage';
 import ArchivePage from '@/pages/ArchivePage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
@@ -47,6 +48,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <PartyTimeSelectPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.createPartyCharacter,
+    element: (
+      <ProtectedRoute>
+        <PartyCharacterSelectPage />
       </ProtectedRoute>
     ),
   },
