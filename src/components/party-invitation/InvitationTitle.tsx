@@ -6,7 +6,7 @@ interface ParticipantTitleProps {
 
 export function ParticipantTitle({ hostName }: ParticipantTitleProps) {
   return (
-    <H1 as="h1" className="text-center text-black">
+    <H1 as="h1" className="text-center tracking-[-0.0044px] text-black">
       {hostName}님의
       <br />
       <span className="text-blue-500">초대장</span>이 도착했어요!
@@ -16,7 +16,7 @@ export function ParticipantTitle({ hostName }: ParticipantTitleProps) {
 
 export function HostTitle() {
   return (
-    <H1 as="h1" className="text-center text-black">
+    <H1 as="h1" className="text-center tracking-[-0.0044px] text-black">
       다른 사람에게 보여지는
       <br />내 초대장이에요
     </H1>
