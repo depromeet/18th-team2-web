@@ -29,7 +29,7 @@ export default function PartyEndedPage() {
   return (
     <MobileLayout>
       <main className="bg-gradient-bg flex min-h-screen flex-col">
-        <section className="flex flex-1 flex-col items-start gap-7 px-4 pt-16">
+        <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
           {isExpired ? (
             <H1 as="h1" className="w-full text-center tracking-[-0.0044px] text-black">
               아쉽지만 작성이 <span className="text-red-500">마감</span>됐어요.
@@ -55,7 +55,7 @@ export default function PartyEndedPage() {
           />
         </section>
 
-        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-[110px] w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
+        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-27.5 w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
           <div className="w-full">
             <Button variant="primary" size="full" onClick={handlePrimaryClick}>
               {isExpired ? '홈으로' : '롤링페이퍼 작성하기'}

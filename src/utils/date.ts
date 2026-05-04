@@ -32,7 +32,12 @@ export function formatDateParts(startsAt: Date): { year: number; month: number; 
   return { year: d.year(), month: d.month() + 1, day: d.date() };
 }
 
-export function formatKoreanMonthDay(d: Date): string {
+export function formatIsoDate(d: Date): string {
+  const { year, month, day } = formatDateParts(d);
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+export function formatKoreanShortDate(d: Date): string {
   const date = dayjs(d).tz(KST);
   return `${date.month() + 1}월 ${String(date.date()).padStart(2, '0')}일`;
 }

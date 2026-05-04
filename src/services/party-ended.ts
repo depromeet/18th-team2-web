@@ -13,9 +13,10 @@ export interface PartyEndedData {
 
 // ── Mock Data ──
 
+// TODO: API 연결 시 createMockData 및 분기 로직 제거
+// 테스트 편의를 위한 임시 분기 — partyId가 'expired'면 작성 마감 상태로 시뮬레이션
 function createMockData(partyId: string): PartyEndedData {
   const now = new Date();
-  // partyId가 'expired'면 작성 마감 상태, 아니면 작성 가능 상태
   const isExpired = partyId === 'expired';
 
   const writableFrom = isExpired

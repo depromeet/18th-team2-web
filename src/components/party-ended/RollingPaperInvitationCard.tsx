@@ -1,6 +1,6 @@
 import { InvitationHighlightText } from '@/components/party-invitation/InvitationHighlightText';
 import { H1, H2 } from '@/components/ui/Typography';
-import { formatKoreanMonthDay } from '@/utils/date';
+import { formatKoreanShortDate } from '@/utils/date';
 
 import { DateRangeBadge } from './DateRangeBadge';
 
@@ -39,7 +39,7 @@ export function RollingPaperInvitationCard({
               <span className={rowClassName}>롤링페이퍼가</span>
               <span className={rowClassName}>
                 <InvitationHighlightText>
-                  {formatKoreanMonthDay(writableUntil)}
+                  {formatKoreanShortDate(writableUntil)}
                 </InvitationHighlightText>
                 에 마감되었어요
               </span>
@@ -49,13 +49,13 @@ export function RollingPaperInvitationCard({
               <span className={rowClassName}>롤링페이퍼를</span>
               <span className={rowClassName}>
                 <InvitationHighlightText>
-                  {formatKoreanMonthDay(writableFrom)}
+                  {formatKoreanShortDate(writableFrom)}
                 </InvitationHighlightText>
                 부터
               </span>
               <span className={rowClassName}>
                 <InvitationHighlightText>
-                  {formatKoreanMonthDay(writableUntil)}
+                  {formatKoreanShortDate(writableUntil)}
                 </InvitationHighlightText>
                 까지 받아요
               </span>
