@@ -1,64 +1,11 @@
-import { B1, H1, H2 } from '@/components/ui/Typography';
-import { formatDateParts, formatKoreanDate, formatKoreanTime } from '@/utils/dateFormat';
+import { H2 } from '@/components/ui/Typography';
 
-import { InvitationHighlightText } from './InvitationHighlightText';
+import { InvitationDateBadge } from './InvitationDateBadge';
+import { InvitationTemplate } from './InvitationTemplate';
 
 interface InvitationCardProps {
   hostName: string;
   startsAt: string;
-}
-
-interface InvitationTemplateProps {
-  hostName: string;
-  startsAt: string;
-}
-
-function InvitationTemplate({ hostName, startsAt }: InvitationTemplateProps) {
-  const dateLabel = formatKoreanDate(startsAt);
-  const timeLabel = formatKoreanTime(startsAt);
-  const rowClassName =
-    'flex h-11 w-full items-center gap-0.5 text-left font-medium tracking-[-0.0044px] text-grey-500';
-
-  return (
-    <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
-      <span className={rowClassName}>
-        <InvitationHighlightText>{hostName}</InvitationHighlightText>를 위해
-      </span>
-      <span className={rowClassName}>
-        <InvitationHighlightText>{dateLabel}</InvitationHighlightText>에
-      </span>
-      <span className={rowClassName}>
-        <InvitationHighlightText>{timeLabel}</InvitationHighlightText>부터 10분 동안
-      </span>
-      <span className={rowClassName}>온라인 생일 파티가 열려요</span>
-    </H1>
-  );
-}
-
-interface InvitationDateBadgeProps {
-  startsAt: string;
-}
-
-function InvitationDateBadge({ startsAt }: InvitationDateBadgeProps) {
-  const { year, month, day } = formatDateParts(startsAt);
-  const timeLabel = formatKoreanTime(startsAt);
-
-  return (
-    <B1 as="div" className="flex items-center gap-2 text-grey-200">
-      <time
-        dateTime={`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
-        className="flex items-center gap-1"
-      >
-        <span>{year}</span>
-        <span className="h-1 w-1 rounded-full bg-grey-100" aria-hidden="true" />
-        <span>{month}</span>
-        <span className="h-1 w-1 rounded-full bg-grey-100" aria-hidden="true" />
-        <span>{day}</span>
-      </time>
-      <div className="h-3 w-px bg-grey-100" role="separator" />
-      <span>{timeLabel}</span>
-    </B1>
-  );
 }
 
 export function InvitationCard({ hostName, startsAt }: InvitationCardProps) {
