@@ -1,7 +1,7 @@
 import { B1, H1, H2 } from '@/components/ui/Typography';
 import { formatDateParts, formatKoreanDate, formatKoreanTime } from '@/utils/dateFormat';
 
-import { InvitationChip } from './InvitationChip';
+import { InvitationHighlightText } from './InvitationHighlightText';
 
 interface InvitationCardProps {
   hostName: string;
@@ -22,13 +22,13 @@ function InvitationTemplate({ hostName, startsAt }: InvitationTemplateProps) {
   return (
     <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
       <span className={rowClassName}>
-        <InvitationChip>{hostName}</InvitationChip>를 위해
+        <InvitationHighlightText>{hostName}</InvitationHighlightText>를 위해
       </span>
       <span className={rowClassName}>
-        <InvitationChip>{dateLabel}</InvitationChip>에
+        <InvitationHighlightText>{dateLabel}</InvitationHighlightText>에
       </span>
       <span className={rowClassName}>
-        <InvitationChip>{timeLabel}</InvitationChip>부터 10분 동안
+        <InvitationHighlightText>{timeLabel}</InvitationHighlightText>부터 10분 동안
       </span>
       <span className={rowClassName}>온라인 생일 파티가 열려요</span>
     </H1>
