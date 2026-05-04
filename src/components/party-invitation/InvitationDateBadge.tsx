@@ -14,6 +14,10 @@ export function InvitationDateBadge({
   const { year, month, day } = formatDateParts(startsAt);
   const timeLabel = formatKoreanTime(startsAt);
 
+  function handleDeleteClick() {
+    // TODO: 삭제 아이콘 클릭 시 초대장 삭제 확인 모달 노출
+  }
+
   return (
     <B1 as="div" className="text-grey-200 flex h-6 w-full items-center justify-between">
       <div className="flex items-center gap-2">
@@ -35,6 +39,7 @@ export function InvitationDateBadge({
           type="button"
           className="flex h-6 w-6 cursor-pointer items-center justify-center"
           aria-label="파티 삭제"
+          onClick={handleDeleteClick}
         >
           <img src={trashIcon} alt="" className="h-6 w-6" aria-hidden="true" />
         </button>
