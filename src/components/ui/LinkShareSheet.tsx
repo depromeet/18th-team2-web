@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
-import { B1, H2, L1 } from '@/components/ui/Typography';
+import { B1, B2, H2, L1 } from '@/components/ui/Typography';
 
 const TOAST_VISIBLE_MS = 1600;
 const TOAST_EXIT_MS = 300;
@@ -264,9 +264,9 @@ export function LinkShareSheet({
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
               <ToastCheckIcon />
             </span>
-            <B1 as="span" className="font-semibold">
+            <B2 as="span" className="font-semibold text-grey-100">
               {copySuccessMessage}
-            </B1>
+            </B2>
           </div>
         </div>
       )}
