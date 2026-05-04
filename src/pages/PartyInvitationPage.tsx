@@ -7,6 +7,7 @@ import { HostTitle, ParticipantTitle } from '@/components/party-invitation/Invit
 import { InvitationCard } from '@/components/party-invitation/InvitationCard';
 import { ParticipantActions } from '@/components/party-invitation/ParticipantActions';
 import { MobileLayout } from '@/components/layout/MobileLayout';
+import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 
 // TODO: API 연동 시 교체
@@ -28,12 +29,16 @@ export default function PartyInvitationPage() {
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(false);
 
   function handleEnterParty() {
-    navigate(`/party/${partyId}/enter`);
+    if (!partyId) return;
+
+    navigate(ROUTES.PARTY_ENTER(partyId));
   }
 
   function handleWriteRollingPaper() {
+    if (!partyId) return;
+
     setHasWrittenRollingPaper(true);
-    navigate(`/party/${partyId}/rolling-paper/write`);
+    navigate(ROUTES.ROLLING_PAPER_WRITE(partyId));
   }
 
   return (
