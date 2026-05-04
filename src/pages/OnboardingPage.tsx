@@ -6,10 +6,17 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import '@/styles/onboarding-swiper.css';
 import { useOnboarding } from '@/hooks/onboarding/useOnboarding';
 import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
+import { Button } from '@/components/ui/Button';
 
 export default function OnboardingPage() {
-  const { isLastContent, handleNext, handleSkip, handleSlideChange, handleSwiperInit } =
-    useOnboarding();
+  const {
+    isLastContent,
+    handleNext,
+    handleStart,
+    handleSkip,
+    handleSlideChange,
+    handleSwiperInit,
+  } = useOnboarding();
 
   return (
     <MobileLayout>
@@ -39,14 +46,16 @@ export default function OnboardingPage() {
           </Swiper>
           <div className="onboarding-pagination flex items-center justify-center gap-2" />
         </div>
-        <button
-          onClick={handleNext}
-          className={`h-14 w-full cursor-pointer rounded-2xl border border-white/60 ${isLastContent && 'bg-white'}`}
-        >
-          <B1 className={`${isLastContent ? 'text-grey-900' : 'text-white'} font-semibold`}>
-            {isLastContent ? '시작하기' : '다음'}
-          </B1>
-        </button>
+
+        {isLastContent ? (
+          <Button variant="white" onClick={handleStart}>
+            <B1 className="font-semibold">시작하기</B1>
+          </Button>
+        ) : (
+          <Button variant="ghost" onClick={handleNext}>
+            <B1 className="font-semibold">다음</B1>
+          </Button>
+        )}
       </main>
     </MobileLayout>
   );

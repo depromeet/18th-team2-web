@@ -13,12 +13,11 @@ export function useOnboarding() {
   const navigate = useNavigate();
 
   const handleNext = () => {
-    if (isLastContent) {
-      navigate(ROUTES.home);
-      return;
-    }
-
     swiperRef.current?.slideNext();
+  };
+
+  const handleStart = () => {
+    navigate(ROUTES.home);
   };
 
   const handleSkip = () => {
@@ -37,6 +36,7 @@ export function useOnboarding() {
     currentIndex,
     isLastContent,
     handleNext,
+    handleStart,
     handleSkip,
     handleSlideChange,
     handleSwiperInit,
