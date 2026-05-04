@@ -1,4 +1,7 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import type { Swiper as SwiperType } from 'swiper/types';
+import 'swiper/css';
 
 import type { RollingPaperMessage, ToppingType } from '@/services/rolling-paper';
 import toppingCherry from '@/assets/images/topping-cherry.png';
@@ -35,57 +38,55 @@ interface ToppingGridProps {
 export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
   const totalPages = Math.ceil(messages.length / TOPPINGS_PER_PAGE);
   const [currentPage, setCurrentPage] = useState(0);
+  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const showIndicator = messages.length > TOPPINGS_PER_PAGE;
-  const swipeRef = useRef({ startX: 0 });
 
-  const pageMessages = messages.slice(
-    currentPage * TOPPINGS_PER_PAGE,
-    (currentPage + 1) * TOPPINGS_PER_PAGE,
+  // 페이지별 토핑 슬라이드 생성
+  const pages = Array.from({ length: totalPages }, (_, pageIndex) =>
+    messages.slice(pageIndex * TOPPINGS_PER_PAGE, (pageIndex + 1) * TOPPINGS_PER_PAGE),
   );
 
-  const handlePrev = () => setCurrentPage((p) => Math.max(0, p - 1));
-  const handleNext = () => setCurrentPage((p) => Math.min(totalPages - 1, p + 1));
+  const handlePrev = () => swiperInstance?.slidePrev();
+  const handleNext = () => swiperInstance?.slideNext();
 
   return (
     <div className="relative z-10 flex flex-1 flex-col justify-center">
-      {/* 토핑 영역 — aspect-ratio로 너비 대비 고정 비율 (375/350) */}
-      <div
-        className="relative aspect-375/350 w-full"
-        onTouchStart={(e) => {
-          swipeRef.current.startX = e.touches[0].clientX;
-        }}
-        onTouchEnd={(e) => {
-          const diff = swipeRef.current.startX - e.changedTouches[0].clientX;
-          if (Math.abs(diff) > 50) {
-            if (diff > 0) handleNext();
-            else handlePrev();
-          }
-        }}
+      <Swiper
+        slidesPerView={1}
+        onSwiper={setSwiperInstance}
+        onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
+        className="aspect-375/350 w-full"
       >
-        {/* 토핑 크기: 80/375 ≈ 21.3% */}
-        {pageMessages.map((message, index) => {
-          const pos = TOPPING_POSITIONS[index];
-          const globalIndex = currentPage * TOPPINGS_PER_PAGE + index;
+        {pages.map((pageMessages, pageIndex) => (
+          <SwiperSlide key={pageIndex}>
+            <div className="relative h-full w-full">
+              {/* 토핑 크기: 80/375 ≈ 21.3% */}
+              {pageMessages.map((message, index) => {
+                const pos = TOPPING_POSITIONS[index];
+                const globalIndex = pageIndex * TOPPINGS_PER_PAGE + index;
 
-          return (
-            <button
-              key={message.id}
-              type="button"
-              className="absolute z-10 flex w-[21.3%] flex-col items-center gap-1"
-              style={{ left: pos.left, top: pos.top }}
-              onClick={() => onToppingClick(globalIndex)}
-            >
-              <img
-                src={TOPPING_IMAGES[message.toppingType]}
-                alt={message.writerName}
-                className="aspect-square w-full"
-                draggable={false}
-              />
-              <L1 className="w-full truncate text-center text-white">{message.writerName}</L1>
-            </button>
-          );
-        })}
-      </div>
+                return (
+                  <button
+                    key={message.id}
+                    type="button"
+                    className="absolute z-10 flex w-[21.3%] cursor-pointer flex-col items-center gap-1"
+                    style={{ left: pos.left, top: pos.top }}
+                    onClick={() => onToppingClick(globalIndex)}
+                  >
+                    <img
+                      src={TOPPING_IMAGES[message.toppingType]}
+                      alt={message.writerName}
+                      className="aspect-square w-full"
+                      draggable={false}
+                    />
+                    <L1 className="w-full truncate text-center text-white">{message.writerName}</L1>
+                  </button>
+                );
+              })}
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
 
       {/* 페이지 인디케이터 — 하단에서 60px */}
       {showIndicator && (

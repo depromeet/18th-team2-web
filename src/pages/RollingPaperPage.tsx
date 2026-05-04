@@ -47,7 +47,7 @@ export default function RollingPaperPage() {
             type="button"
             onClick={() => navigate(ROUTES.home)}
             aria-label="뒤로가기"
-            className="-ml-2 flex h-12 w-12 items-center justify-center"
+            className="-ml-2 flex h-12 w-12 cursor-pointer items-center justify-center"
           >
             <ChevronLeftIcon className="text-white" />
           </button>

@@ -14,7 +14,7 @@ export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorP
       <button
         type="button"
         aria-label="이전 페이지"
-        className="flex h-4 w-4 items-center justify-center"
+        className="flex h-4 w-4 cursor-pointer items-center justify-center"
         onClick={onPrev}
         disabled={current <= 1}
       >
@@ -26,7 +26,7 @@ export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorP
       <button
         type="button"
         aria-label="다음 페이지"
-        className="flex h-4 w-4 items-center justify-center"
+        className="flex h-4 w-4 cursor-pointer items-center justify-center"
         onClick={onNext}
         disabled={current >= total}
       >

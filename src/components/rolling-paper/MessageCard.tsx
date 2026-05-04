@@ -36,7 +36,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
           <button
             type="button"
             aria-label="메시지 닫기"
-            className="flex h-12 w-12 items-center justify-center p-2.5"
+            className="flex h-12 w-12 cursor-pointer items-center justify-center p-2.5"
             onClick={onClose}
           >
             <CloseIcon color="white" />
@@ -74,7 +74,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
           <button
             type="button"
             aria-label="이전 메시지"
-            className="flex h-4 w-4 items-center justify-center"
+            className="flex h-4 w-4 cursor-pointer items-center justify-center"
             onClick={handlePrev}
             disabled={currentIndex <= 0}
           >
@@ -86,7 +86,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
           <button
             type="button"
             aria-label="다음 메시지"
-            className="flex h-4 w-4 items-center justify-center"
+            className="flex h-4 w-4 cursor-pointer items-center justify-center"
             onClick={handleNext}
             disabled={currentIndex >= messages.length - 1}
           >
