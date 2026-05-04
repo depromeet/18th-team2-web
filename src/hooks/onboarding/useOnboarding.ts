@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 
 import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
@@ -13,6 +14,11 @@ export function useOnboarding() {
   const navigate = useNavigate();
 
   const handleNext = () => {
+    if (isLastContent) {
+      navigate(ROUTES.home);
+      return;
+    }
+
     swiperRef.current?.slideNext();
   };
 

@@ -1,10 +1,35 @@
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const KST = 'Asia/Seoul';
+
 export function getTodayMidnight(): Date {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 export function formatKoreanDate(d: Date): string {
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+  const date = dayjs(d).tz(KST);
+  return `${date.year()}년 ${date.month() + 1}월 ${date.date()}일`;
+}
+
+export function formatKoreanTime(startsAt: Date): string {
+  const d = dayjs(startsAt).tz(KST);
+  const hour = d.hour();
+  const minute = d.minute();
+  const period = hour < 12 ? '오전' : '오후';
+  const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+  const displayMinute = String(minute).padStart(2, '0');
+  return `${period} ${displayHour}:${displayMinute}`;
+}
+
+export function formatDateParts(startsAt: Date): { year: number; month: number; day: number } {
+  const d = dayjs(startsAt).tz(KST);
+  return { year: d.year(), month: d.month() + 1, day: d.date() };
 }
 
 export function formatDotDate(d: Date): string {
