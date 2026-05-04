@@ -10,12 +10,7 @@ interface InvitationCardProps {
 export function InvitationCard({ title, children, footerDate }: InvitationCardProps) {
   return (
     <div
-      className="relative flex w-[343px] flex-col gap-6 rounded-[8px] bg-white"
-      style={{
-        minHeight: 446,
-        padding: '30px 30px 70px 30px',
-        boxShadow: '0px 0px 8px 0px #5892FF4D',
-      }}
+      className="relative flex w-[343px] min-h-[446px] flex-col gap-6 rounded-[8px] bg-white px-[30px] pt-[30px] pb-[70px] shadow-[0px_0px_8px_0px_#5892FF4D]"
     >
       <H2 className="text-grey-500 text-center tracking-[-0.0001em]">{title}</H2>
       <div className="border-grey-50 border-t" />
