@@ -71,7 +71,7 @@ function PartyTypeCard({ label, state, onClick }: PartyTypeCardProps) {
       type="button"
       onClick={onClick}
       style={{ width: 162, height: 257 }}
-      className={`relative rounded-[12px] transition-colors ${cardStyle}`}
+      className={`rounded-btn-md relative transition-colors ${cardStyle}`}
     >
       <div className="absolute top-4 right-4">
         <CheckCircle state={state} />
