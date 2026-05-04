@@ -10,8 +10,12 @@ export const ROUTES = {
   archive: '/archive',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
-  partyInvitation: '/party/:partyId/invitation',
-  partyEnded: '/party/:partyId/ended',
-  partyEnter: '/party/:partyId/enter',
-  rollingPaperWrite: '/party/:partyId/rolling-paper/write',
+
+  // 초대링크 통합 진입점 (inviteToken 기반)
+  partyInvite: '/invite/:inviteToken',
+
+  // TODO: BE 입장/작성 API 명세 확정 시 partyId 기반으로 변경 가능
+  // 현재는 진입점(inviteToken)에서 그대로 이어지도록 inviteToken 기반 유지
+  partyInviteEnter: '/invite/:inviteToken/enter',
+  partyInviteRollingPaperWrite: '/invite/:inviteToken/rolling-paper/write',
 } as const;
