@@ -1,4 +1,4 @@
-import { B1, H2 } from '@/components/ui/Typography';
+import { B1, H1, H2 } from '@/components/ui/Typography';
 import { formatDateParts, formatKoreanDate, formatKoreanTime } from '@/utils/dateFormat';
 
 import { InvitationChip } from './InvitationChip';
@@ -16,20 +16,22 @@ interface InvitationTemplateProps {
 function InvitationTemplate({ hostName, startsAt }: InvitationTemplateProps) {
   const dateLabel = formatKoreanDate(startsAt);
   const timeLabel = formatKoreanTime(startsAt);
+  const rowClassName =
+    'flex h-11 w-full items-center gap-0.5 text-left font-medium tracking-[-0.0044px] text-grey-500';
 
   return (
-    <H2 as="p" className="flex flex-col gap-0.5 text-grey-500">
-      <span className="flex items-center gap-0.5">
+    <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
+      <span className={rowClassName}>
         <InvitationChip>{hostName}</InvitationChip>를 위해
       </span>
-      <span className="flex items-center gap-0.5">
+      <span className={rowClassName}>
         <InvitationChip>{dateLabel}</InvitationChip>에
       </span>
-      <span className="flex items-center gap-0.5">
+      <span className={rowClassName}>
         <InvitationChip>{timeLabel}</InvitationChip>부터 10분 동안
       </span>
-      온라인 생일 파티가 열려요
-    </H2>
+      <span className={rowClassName}>온라인 생일 파티가 열려요</span>
+    </H1>
   );
 }
 
