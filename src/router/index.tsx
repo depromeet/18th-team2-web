@@ -13,8 +13,7 @@ import PartyCreateCompletePage from '@/pages/PartyCreateCompletePage';
 import ArchivePage from '@/pages/ArchivePage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
-import PartyInvitationPage from '@/pages/PartyInvitationPage';
-import PartyEndedPage from '@/pages/PartyEndedPage';
+import PartyInviteEntryPage from '@/pages/PartyInviteEntryPage';
 
 export const router = createBrowserRouter([
   // 공개 라우트
@@ -37,12 +36,8 @@ export const router = createBrowserRouter([
     element: <PartyTypePage />,
   },
   {
-    path: ROUTES.partyInvitation,
-    element: <PartyInvitationPage />,
-  },
-  {
-    path: ROUTES.partyEnded,
-    element: <PartyEndedPage />,
+    path: ROUTES.partyInvite,
+    element: <PartyInviteEntryPage />,
   },
 
   // 보호 라우트

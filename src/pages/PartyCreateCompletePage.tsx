@@ -36,9 +36,10 @@ export default function PartyCreateCompletePage() {
   const hostName = partyState.hostName ?? DEFAULT_HOST_NAME;
   const partyDate = partyState.partyDate ? new Date(partyState.partyDate) : getTodayMidnight();
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
-  // TODO: 파티 생성 API 응답의 실제 ID로 교체
-  const invitationLink = useMemo(
-    () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: 'mock-party-id' })}`,
+  // TODO: activateInviteLink API 응답의 실제 토큰으로 교체
+  const shareLink = useMemo(
+    () =>
+      `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: 'mock-invite-token' })}`,
     [],
   );
 
@@ -85,7 +86,7 @@ export default function PartyCreateCompletePage() {
 
         <LinkShareSheet
           isOpen={isShareSheetOpen}
-          link={invitationLink}
+          link={shareLink}
           title="초대장 링크 공유하기"
           shareText="파티 초대장이 도착했어요"
           onClose={() => setIsShareSheetOpen(false)}
