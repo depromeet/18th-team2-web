@@ -5,16 +5,13 @@ export function getTodayMidnight(): Date {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
-export function formatKoreanDate(d: Date | string): string {
-  if (typeof d === 'string') {
-    const date = dayjs.tz(d, KST);
-    return `${date.year()}년 ${date.month() + 1}월 ${date.date()}일`;
-  }
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+export function formatKoreanDate(d: Date): string {
+  const date = dayjs(d).tz(KST);
+  return `${date.year()}년 ${date.month() + 1}월 ${date.date()}일`;
 }
 
-export function formatKoreanTime(startsAt: string): string {
-  const d = dayjs.tz(startsAt, KST);
+export function formatKoreanTime(startsAt: Date): string {
+  const d = dayjs(startsAt).tz(KST);
   const hour = d.hour();
   const minute = d.minute();
   const period = hour < 12 ? '오전' : '오후';
@@ -23,8 +20,8 @@ export function formatKoreanTime(startsAt: string): string {
   return `${period} ${displayHour}:${displayMinute}`;
 }
 
-export function formatDateParts(startsAt: string): { year: number; month: number; day: number } {
-  const d = dayjs.tz(startsAt, KST);
+export function formatDateParts(startsAt: Date): { year: number; month: number; day: number } {
+  const d = dayjs(startsAt).tz(KST);
   return { year: d.year(), month: d.month() + 1, day: d.date() };
 }
 

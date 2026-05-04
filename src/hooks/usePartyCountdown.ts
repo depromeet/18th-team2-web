@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 
 import dayjs, { KST } from '@/lib/dayjs';
 
-function getMinutesUntilStart(startsAt: string): number {
+function getMinutesUntilStart(startsAt: Date): number {
   const now = dayjs().tz(KST);
-  const start = dayjs.tz(startsAt, KST);
+  const start = dayjs(startsAt).tz(KST);
   return start.diff(now, 'minute');
 }
 
-export function usePartyCountdown(startsAt: string) {
+export function usePartyCountdown(startsAt: Date) {
   const [minutesUntil, setMinutesUntil] = useState(() => getMinutesUntilStart(startsAt));
 
   useEffect(() => {

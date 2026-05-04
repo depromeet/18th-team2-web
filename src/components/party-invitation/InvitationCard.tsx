@@ -5,7 +5,7 @@ import { InvitationTemplate } from './InvitationTemplate';
 
 interface InvitationCardProps {
   hostName: string;
-  startsAt: string;
+  startsAt: Date;
   isHost?: boolean;
 }
 

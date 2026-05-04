@@ -6,7 +6,7 @@ import { InvitationHighlightText } from './InvitationHighlightText';
 
 interface InvitationTemplateProps {
   hostName: string;
-  startsAt: string;
+  startsAt: Date;
 }
 
 export function InvitationTemplate({ hostName, startsAt }: InvitationTemplateProps) {
