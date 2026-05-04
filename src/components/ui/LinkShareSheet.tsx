@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
 import { B1, H2, L1 } from '@/components/ui/Typography';
@@ -26,34 +26,32 @@ const SHARE_SERVICES = [
 
 type ShareServiceId = (typeof SHARE_SERVICES)[number]['id'];
 
-function openShareWindow(url: string) {
-  window.open(url, '_blank', 'noopener,noreferrer');
-}
-
-function shareLink(serviceId: ShareServiceId, link: string, shareText: string) {
+function getShareUrl(serviceId: ShareServiceId, link: string, shareText: string) {
   const encodedUrl = encodeURIComponent(link);
   const encodedTitle = encodeURIComponent(shareText);
 
+  if (serviceId === 'kakao') {
+    // TODO: Kakao JavaScript SDK 연결 후 카카오톡 공유창 열기
+    return null;
+  }
+
   if (serviceId === 'x') {
-    openShareWindow(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`);
-    return;
+    return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
   }
 
   if (serviceId === 'naver') {
-    openShareWindow(
-      `https://share.naver.com/web/shareView?url=${encodedUrl}&title=${encodedTitle}`,
-    );
-    return;
+    return `https://share.naver.com/web/shareView?url=${encodedUrl}&title=${encodedTitle}`;
   }
 
   if (serviceId === 'facebook') {
-    openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
-    return;
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
   }
 
   if (serviceId === 'line') {
-    openShareWindow(`https://social-plugins.line.me/lineit/share?url=${encodedUrl}`);
+    return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`;
   }
+
+  return null;
 }
 
 export function LinkShareSheet({
@@ -67,9 +65,9 @@ export function LinkShareSheet({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const toastTimerRef = useRef<number | null>(null);
   const toastExitTimerRef = useRef<number | null>(null);
-  const dragRef = useRef({
-    isDragging: false,
-    hasMoved: false,
+  const mouseDragRef = useRef({
+    isDown: false,
+    didDrag: false,
     startX: 0,
     scrollLeft: 0,
   });
@@ -119,43 +117,42 @@ export function LinkShareSheet({
     }
   };
 
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!scrollRef.current) return;
+  const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || !scrollRef.current) return;
 
-    dragRef.current = {
-      isDragging: true,
-      hasMoved: false,
+    mouseDragRef.current = {
+      isDown: true,
+      didDrag: false,
       startX: event.clientX,
       scrollLeft: scrollRef.current.scrollLeft,
     };
-    scrollRef.current.setPointerCapture(event.pointerId);
   };
 
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     const scrollElement = scrollRef.current;
-    if (!dragRef.current.isDragging || !scrollElement) return;
+    if (!mouseDragRef.current.isDown || !scrollElement) return;
 
-    const distance = event.clientX - dragRef.current.startX;
-    if (Math.abs(distance) > 4) {
-      dragRef.current.hasMoved = true;
+    const distance = event.clientX - mouseDragRef.current.startX;
+    if (Math.abs(distance) > 5) {
+      mouseDragRef.current.didDrag = true;
+      event.preventDefault();
     }
 
-    scrollElement.scrollLeft = dragRef.current.scrollLeft - distance;
+    scrollElement.scrollLeft = mouseDragRef.current.scrollLeft - distance;
   };
 
-  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (scrollRef.current?.hasPointerCapture(event.pointerId)) {
-      scrollRef.current.releasePointerCapture(event.pointerId);
-    }
-    dragRef.current.isDragging = false;
+  const handleMouseUp = () => {
+    mouseDragRef.current.isDown = false;
   };
 
-  const handleClickCapture = (event: MouseEvent<HTMLDivElement>) => {
-    if (!dragRef.current.hasMoved) return;
+  const handleShareClickCapture = (event: MouseEvent<HTMLDivElement>) => {
+    if (!mouseDragRef.current.didDrag) return;
 
     event.preventDefault();
     event.stopPropagation();
-    dragRef.current.hasMoved = false;
+    window.setTimeout(() => {
+      mouseDragRef.current.didDrag = false;
+    }, 0);
   };
 
   return (
@@ -212,25 +209,47 @@ export function LinkShareSheet({
           <div
             ref={scrollRef}
             className="share-scroll-hide mt-6 flex h-[90px] cursor-grab touch-pan-x items-start gap-5 overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing"
-            onClickCapture={handleClickCapture}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
+            onClickCapture={handleShareClickCapture}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
           >
-            {SHARE_SERVICES.map((service) => (
-              <button
-                key={service.id}
-                type="button"
-                className="flex w-15 shrink-0 flex-col items-center gap-2"
-                onClick={() => shareLink(service.id, link, shareText)}
-              >
-                <span className="bg-grey-100 text-head-2 text-grey-500 flex h-15 w-15 shrink-0 items-center justify-center rounded-[16px] font-bold">
-                  {service.mark}
-                </span>
-                <L1 className="text-grey-500">{service.label}</L1>
-              </button>
-            ))}
+            {SHARE_SERVICES.map((service) => {
+              const shareUrl = getShareUrl(service.id, link, shareText);
+              const content = (
+                <>
+                  <span className="bg-grey-100 text-head-2 text-grey-500 flex h-15 w-15 shrink-0 items-center justify-center rounded-[16px] font-bold">
+                    {service.mark}
+                  </span>
+                  <L1 className="text-grey-500">{service.label}</L1>
+                </>
+              );
+
+              if (!shareUrl) {
+                return (
+                  <button
+                    key={service.id}
+                    type="button"
+                    className="flex w-15 shrink-0 flex-col items-center gap-2"
+                  >
+                    {content}
+                  </button>
+                );
+              }
+
+              return (
+                <a
+                  key={service.id}
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-15 shrink-0 flex-col items-center gap-2"
+                >
+                  {content}
+                </a>
+              );
+            })}
           </div>
         </section>
       </div>
