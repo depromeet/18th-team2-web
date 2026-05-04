@@ -86,7 +86,9 @@ export default function RollingPaperPage() {
         {isWritable && (
           <div
             className="relative z-20 flex flex-col items-center gap-2 pt-4 pb-8"
-            style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)' }}
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
+            }}
           >
             <CountdownTimer targetDate={data.writableUntil} />
             <Button variant="primary" size="full" onClick={() => setIsShareSheetOpen(true)}>

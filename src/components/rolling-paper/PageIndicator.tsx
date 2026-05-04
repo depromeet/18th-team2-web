@@ -35,4 +35,3 @@ export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorP
     </div>
   );
 }
-

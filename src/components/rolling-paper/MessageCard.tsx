@@ -29,7 +29,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
       }}
     >
       {/* 컨텐츠 — 수직 중앙 */}
-      <div className="absolute left-1/2 top-1/2 flex w-full max-w-107.5 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-15">
+      <div className="absolute top-1/2 left-1/2 flex w-full max-w-107.5 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-15">
         {/* 닫기 + 카드 영역 */}
         <div className="flex w-full flex-col items-end gap-3 pr-1">
           {/* 닫기 버튼 */}
@@ -53,12 +53,16 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
             className="w-full overflow-visible"
           >
             {messages.map((msg) => (
-              <SwiperSlide key={msg.id} className="max-w-85.75" style={{ width: 'calc(100% - 60px)' }}>
+              <SwiperSlide
+                key={msg.id}
+                className="max-w-85.75"
+                style={{ width: 'calc(100% - 60px)' }}
+              >
                 <div className="flex h-63 flex-col gap-3 rounded-[20px] bg-white p-6">
                   <H2 className="flex-1 overflow-y-auto font-semibold tracking-tight text-blue-600 opacity-90">
                     {msg.content}
                   </H2>
-                  <B1 className="text-right font-semibold text-grey-700">- {msg.writerName}</B1>
+                  <B1 className="text-grey-700 text-right font-semibold">- {msg.writerName}</B1>
                 </div>
               </SwiperSlide>
             ))}
@@ -93,5 +97,3 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
     </div>
   );
 }
-
-

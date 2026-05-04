@@ -264,7 +264,7 @@ export function LinkShareSheet({
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
               <ToastCheckIcon />
             </span>
-            <B2 as="span" className="font-semibold text-grey-100">
+            <B2 as="span" className="text-grey-100 font-semibold">
               {copySuccessMessage}
             </B2>
           </div>

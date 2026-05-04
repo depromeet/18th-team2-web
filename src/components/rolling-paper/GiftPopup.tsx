@@ -23,8 +23,8 @@ export function GiftPopup({ onConfirm, onClose }: GiftPopupProps) {
         <div className="flex flex-col items-center gap-3">
           <img src={giftImage} alt="선물" className="h-20 w-20" draggable={false} />
           <div className="flex flex-col items-center gap-3 px-3">
-            <H3 className="text-center text-grey-700">선물이 도착했어요!</H3>
-            <B1 className="text-center font-medium text-grey-500">
+            <H3 className="text-grey-700 text-center">선물이 도착했어요!</H3>
+            <B1 className="text-grey-500 text-center font-medium">
               친구들이 남긴 따뜻한 마음들이
               <br />
               모두 도착했어요. 지금 바로 열어볼까요?

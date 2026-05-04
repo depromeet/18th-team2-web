@@ -50,7 +50,7 @@ export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
     <div className="relative z-10 flex flex-1 flex-col justify-center">
       {/* 토핑 영역 — aspect-ratio로 너비 대비 고정 비율 (375/350) */}
       <div
-        className="aspect-375/350 relative w-full"
+        className="relative aspect-375/350 w-full"
         onTouchStart={(e) => {
           swipeRef.current.startX = e.touches[0].clientX;
         }}

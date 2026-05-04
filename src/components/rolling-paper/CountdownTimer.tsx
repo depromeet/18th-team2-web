@@ -40,9 +40,8 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   const timeText = `${days}일 ${hours}시간 ${String(minutes).padStart(2, '0')}분 ${String(seconds).padStart(2, '0')}초`;
 
   return (
-    <B2 as="p" className="text-center font-medium text-grey-500">
-      작성 가능한 시간{' '}
-      <span className="font-semibold text-red-500">{timeText}</span>
+    <B2 as="p" className="text-grey-500 text-center font-medium">
+      작성 가능한 시간 <span className="font-semibold text-red-500">{timeText}</span>
     </B2>
   );
 }
