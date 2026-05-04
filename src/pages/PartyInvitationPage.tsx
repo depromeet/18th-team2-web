@@ -12,7 +12,7 @@ import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 // TODO: API 연동 시 교체
 const MOCK_PARTY = {
   hostName: '김이라',
-  startsAt: '2026-11-26T07:00:00Z', // UTC → KST 16:00
+  startsAt: '2026-11-26T16:00:00', // KST
   role: 'participant' as 'host' | 'participant',
 };
 
