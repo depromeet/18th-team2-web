@@ -1,4 +1,5 @@
 import { H1 } from '@/components/ui/Typography';
+import { getObjectParticle } from '@/utils/koreanPostposition';
 import { formatKoreanDate, formatKoreanTime } from '@/utils/dateFormat';
 
 import { InvitationHighlightText } from './InvitationHighlightText';
@@ -11,13 +12,15 @@ interface InvitationTemplateProps {
 export function InvitationTemplate({ hostName, startsAt }: InvitationTemplateProps) {
   const dateLabel = formatKoreanDate(startsAt);
   const timeLabel = formatKoreanTime(startsAt);
+  const hostNameObjectParticle = getObjectParticle(hostName);
   const rowClassName =
     'flex h-11 w-full items-center gap-0.5 font-medium tracking-[-0.0044px] text-grey-500';
 
   return (
     <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
       <span className={rowClassName}>
-        <InvitationHighlightText>{hostName}</InvitationHighlightText>를 위해
+        <InvitationHighlightText>{hostName}</InvitationHighlightText>
+        {`${hostNameObjectParticle} 위해`}
       </span>
       <span className={rowClassName}>
         <InvitationHighlightText>{dateLabel}</InvitationHighlightText>에
