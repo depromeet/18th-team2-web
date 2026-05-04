@@ -11,10 +11,7 @@ export const ROUTES = {
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
   partyInvitation: '/party/:partyId/invitation',
-  partyEnter: (partyId: string) => `/party/${partyId}/enter`,
-  rollingPaperWrite: (partyId: string) => `/party/${partyId}/rolling-paper/write`,
+  partyEnded: '/party/:partyId/ended',
+  partyEnter: '/party/:partyId/enter',
+  rollingPaperWrite: '/party/:partyId/rolling-paper/write',
 } as const;
-
-export function buildRollingPaperPath(id: string) {
-  return `/rolling-paper/${id}`;
-}

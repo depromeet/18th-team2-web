@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 
 import homeIcon from '@/assets/icons/icon-home.svg';
 import { MobileLayout } from '@/components/layout/MobileLayout';
@@ -7,7 +7,7 @@ import { CompletedInvitationCard } from '@/components/party-create/CompletedInvi
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
-import { buildRollingPaperPath, ROUTES } from '@/constants/routes';
+import { ROUTES } from '@/constants/routes';
 import { getTodayMidnight } from '@/utils/date';
 
 const PARTY_DURATION_MINUTES = 10;
@@ -38,7 +38,7 @@ export default function PartyCreateCompletePage() {
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
   // TODO: 파티 생성 API 응답의 실제 ID로 교체
   const invitationLink = useMemo(
-    () => `${window.location.origin}${buildRollingPaperPath('mock-party-id')}`,
+    () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: 'mock-party-id' })}`,
     [],
   );
 

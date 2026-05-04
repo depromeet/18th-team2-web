@@ -32,6 +32,11 @@ export function formatDateParts(startsAt: Date): { year: number; month: number; 
   return { year: d.year(), month: d.month() + 1, day: d.date() };
 }
 
+export function formatKoreanMonthDay(d: Date): string {
+  const date = dayjs(d).tz(KST);
+  return `${date.month() + 1}월 ${String(date.date()).padStart(2, '0')}일`;
+}
+
 export function formatDotDate(d: Date): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');

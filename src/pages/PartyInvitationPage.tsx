@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { HostActions } from '@/components/party-invitation/HostActions';
 import { HostTitle, ParticipantTitle } from '@/components/party-invitation/InvitationTitle';
@@ -31,14 +31,14 @@ export default function PartyInvitationPage() {
   function handleEnterParty() {
     if (!partyId) return;
 
-    navigate(ROUTES.partyEnter(partyId));
+    navigate(generatePath(ROUTES.partyEnter, { partyId }));
   }
 
   function handleWriteRollingPaper() {
     if (!partyId) return;
 
     setHasWrittenRollingPaper(true);
-    navigate(ROUTES.rollingPaperWrite(partyId));
+    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }));
   }
 
   return (
