@@ -1,0 +1,52 @@
+name: Weekly Release
+
+on:
+  schedule:
+    - cron: '0 13 * * 3' # 매주 수요일 22:00 KST
+  workflow_dispatch: # 수동 트리거
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check diff
+        id: diff
+        run: |
+          DIFF=$(git rev-list --count origin/main..origin/dev)
+          echo "count=$DIFF" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        if: steps.diff.outputs.count != '0'
+        id: log
+        run: |
+          BODY=$(gh pr list --base dev --state merged --limit 50 --json number,title --template '{{range .}}- #{{.number}} {{.title}}{{"\n"}}{{end}}')
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and merge release PR
+        if: steps.diff.outputs.count != '0'
+        run: |
+          PR_URL=$(gh pr create \
+            --base main --head dev \
+            --title "release: $(TZ=Asia/Seoul date +%Y-%m-%d) 주간 릴리즈" \
+            --body "## 📦 이번 주 변경사항
+          ${{ steps.log.outputs.body }}" \
+            2>&1) || true
+
+          if echo "$PR_URL" | grep -q "github.com"; then
+            gh pr merge "$PR_URL" --squash --auto
+          else
+            EXISTING=$(gh pr list --base main --head dev --json url --jq '.[0].url')
+            if [ -n "$EXISTING" ]; then
+              gh pr merge "$EXISTING" --squash --auto
+            fi
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
