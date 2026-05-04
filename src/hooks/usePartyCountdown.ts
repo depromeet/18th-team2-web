@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import dayjs, { KST } from '@/lib/dayjs';
-
 function getMinutesUntilStart(startsAt: Date): number {
-  const now = dayjs().tz(KST);
-  const start = dayjs(startsAt).tz(KST);
-  return start.diff(now, 'minute');
+  return Math.floor((startsAt.getTime() - Date.now()) / 60_000);
 }
 
 export function usePartyCountdown(startsAt: Date) {

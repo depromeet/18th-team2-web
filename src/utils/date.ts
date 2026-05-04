@@ -1,4 +1,11 @@
-import dayjs, { KST } from '@/lib/dayjs';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const KST = 'Asia/Seoul';
 
 export function getTodayMidnight(): Date {
   const now = new Date();
