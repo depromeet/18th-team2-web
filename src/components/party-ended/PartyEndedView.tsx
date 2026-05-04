@@ -6,14 +6,14 @@ import { H1, H3 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 
 interface PartyEndedViewProps {
-  inviteToken: string;
+  partyId: string;
   hostName: string;
   writableFrom: Date;
   writableUntil: Date;
 }
 
 export function PartyEndedView({
-  inviteToken,
+  partyId,
   hostName,
   writableFrom,
   writableUntil,
@@ -25,7 +25,7 @@ export function PartyEndedView({
     if (isExpired) {
       navigate(ROUTES.home);
     } else {
-      navigate(generatePath(ROUTES.partyInviteRollingPaperWrite, { inviteToken }));
+      navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }));
     }
   }
 

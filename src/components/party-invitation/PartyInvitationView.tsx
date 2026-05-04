@@ -9,7 +9,7 @@ import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 
 interface PartyInvitationViewProps {
-  inviteToken: string;
+  partyId: string;
   hostName: string;
   startsAt: Date;
   isHost: boolean;
@@ -17,7 +17,7 @@ interface PartyInvitationViewProps {
 }
 
 export function PartyInvitationView({
-  inviteToken,
+  partyId,
   hostName,
   startsAt,
   isHost,
@@ -26,16 +26,15 @@ export function PartyInvitationView({
   const navigate = useNavigate();
   const { isWithin5Minutes } = usePartyCountdown(startsAt);
 
-  // 작성 여부는 진입 시점 응답 + 로컬 상태로 갱신
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
 
   function handleEnterParty() {
-    navigate(generatePath(ROUTES.partyInviteEnter, { inviteToken }));
+    navigate(generatePath(ROUTES.partyEnter, { partyId }));
   }
 
   function handleWriteRollingPaper() {
     setHasWrittenRollingPaper(true);
-    navigate(generatePath(ROUTES.partyInviteRollingPaperWrite, { inviteToken }));
+    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }));
   }
 
   return (

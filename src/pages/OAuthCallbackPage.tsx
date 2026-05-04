@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -23,10 +22,8 @@ export default function OAuthCallbackPage() {
   }, [searchParams, navigate]);
 
   return (
-    <MobileLayout>
-      <div className="flex min-h-dvh items-center justify-center">
-        <p className="text-grey-400 text-body-1">로그인 처리 중...</p>
-      </div>
-    </MobileLayout>
+    <div className="flex min-h-dvh items-center justify-center">
+      <p className="text-grey-400 text-body-1">로그인 처리 중...</p>
+    </div>
   );
 }

@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 
 import homeIcon from '@/assets/icons/icon-home.svg';
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { CompletedInvitationCard } from '@/components/party-create/CompletedInvitationCard';
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
@@ -48,50 +47,48 @@ export default function PartyCreateCompletePage() {
   };
 
   return (
-    <MobileLayout>
-      <div className="party-complete-page relative flex min-h-screen flex-col overflow-hidden px-5">
-        <header className="flex justify-end pt-16">
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.home)}
-            aria-label="홈으로 이동"
-            className="flex h-10 w-10 items-center justify-center"
-          >
-            <img src={homeIcon} alt="" className="h-6 w-6 opacity-20" />
-          </button>
-        </header>
+    <div className="party-complete-page relative flex min-h-screen flex-col overflow-hidden px-5">
+      <header className="flex justify-end pt-16">
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.home)}
+          aria-label="홈으로 이동"
+          className="flex h-10 w-10 items-center justify-center"
+        >
+          <img src={homeIcon} alt="" className="h-6 w-6 opacity-20" />
+        </button>
+      </header>
 
-        <H1 className="party-complete-title mt-10 text-center">파티 초대장이 완성되었어요</H1>
+      <H1 className="party-complete-title mt-10 text-center">파티 초대장이 완성되었어요</H1>
 
-        <div className="mx-auto mt-16 flex w-full max-w-[343px] flex-1 flex-col">
-          <CompletedInvitationCard
-            className="party-complete-card"
-            title="파티 초대장"
-            hostName={hostName}
-            partyDate={partyDate}
-            partyTime={partyTime}
-            durationMinutes={PARTY_DURATION_MINUTES}
-          />
-
-          <B1 className="party-complete-notice mt-3 font-medium text-white">
-            * 파티 시작 24시간 전까지 수정할 수 있어요
-          </B1>
-
-          <div className="party-complete-button mt-auto pb-6">
-            <Button variant="white" size="full" onClick={handleShareLink}>
-              링크 공유하기
-            </Button>
-          </div>
-        </div>
-
-        <LinkShareSheet
-          isOpen={isShareSheetOpen}
-          link={shareLink}
-          title="초대장 링크 공유하기"
-          shareText="파티 초대장이 도착했어요"
-          onClose={() => setIsShareSheetOpen(false)}
+      <div className="mx-auto mt-16 flex w-full max-w-[343px] flex-1 flex-col">
+        <CompletedInvitationCard
+          className="party-complete-card"
+          title="파티 초대장"
+          hostName={hostName}
+          partyDate={partyDate}
+          partyTime={partyTime}
+          durationMinutes={PARTY_DURATION_MINUTES}
         />
+
+        <B1 className="party-complete-notice mt-3 font-medium text-white">
+          * 파티 시작 24시간 전까지 수정할 수 있어요
+        </B1>
+
+        <div className="party-complete-button mt-auto pb-6">
+          <Button variant="white" size="full" onClick={handleShareLink}>
+            링크 공유하기
+          </Button>
+        </div>
       </div>
-    </MobileLayout>
+
+      <LinkShareSheet
+        isOpen={isShareSheetOpen}
+        link={shareLink}
+        title="초대장 링크 공유하기"
+        shareText="파티 초대장이 도착했어요"
+        onClose={() => setIsShareSheetOpen(false)}
+      />
+    </div>
   );
 }

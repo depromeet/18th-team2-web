@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 
+import { MobileLayout } from '@/components/layout/MobileLayout';
 import { ROUTES } from '@/constants/routes';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
 import OnboardingPage from '@/pages/OnboardingPage';
@@ -16,85 +17,31 @@ import MyPage from '@/pages/MyPage';
 import PartyInviteEntryPage from '@/pages/PartyInviteEntryPage';
 
 export const router = createBrowserRouter([
-  // 공개 라우트
   {
-    path: ROUTES.onboarding,
-    element: <OnboardingPage />,
-  },
-  {
-    path: ROUTES.oauthCallback,
-    element: <OAuthCallbackPage />,
-  },
+    element: <MobileLayout />,
+    children: [
+      // 공개 라우트
+      { path: ROUTES.onboarding, element: <OnboardingPage /> },
+      { path: ROUTES.oauthCallback, element: <OAuthCallbackPage /> },
 
-  // 공개 (비회원/회원 모두 접근, 내부에서 조건부 렌더링)
-  {
-    path: ROUTES.home,
-    element: <HomePage />,
-  },
-  {
-    path: ROUTES.createParty,
-    element: <PartyTypePage />,
-  },
-  {
-    path: ROUTES.partyInvite,
-    element: <PartyInviteEntryPage />,
-  },
+      // 공개 (비회원/회원 모두 접근, 내부 조건부 렌더링)
+      { path: ROUTES.home, element: <HomePage /> },
+      { path: ROUTES.createParty, element: <PartyTypePage /> },
+      { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
 
-  // 보호 라우트
-  {
-    path: ROUTES.createPartyIntro,
-    element: (
-      <ProtectedRoute>
-        <PartyCreateIntroPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.createPartyTime,
-    element: (
-      <ProtectedRoute>
-        <PartyTimeSelectPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.createPartyCharacter,
-    element: (
-      <ProtectedRoute>
-        <PartyCharacterSelectPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.createPartyComplete,
-    element: (
-      <ProtectedRoute>
-        <PartyCreateCompletePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.archive,
-    element: (
-      <ProtectedRoute>
-        <ArchivePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.rollingPaper,
-    element: (
-      <ProtectedRoute>
-        <RollingPaperPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.mypage,
-    element: (
-      <ProtectedRoute>
-        <MyPage />
-      </ProtectedRoute>
-    ),
+      // 보호 라우트
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: ROUTES.createPartyIntro, element: <PartyCreateIntroPage /> },
+          { path: ROUTES.createPartyTime, element: <PartyTimeSelectPage /> },
+          { path: ROUTES.createPartyCharacter, element: <PartyCharacterSelectPage /> },
+          { path: ROUTES.createPartyComplete, element: <PartyCreateCompletePage /> },
+          { path: ROUTES.archive, element: <ArchivePage /> },
+          { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
+          { path: ROUTES.mypage, element: <MyPage /> },
+        ],
+      },
+    ],
   },
 ]);

@@ -5,7 +5,11 @@ import { formatIsoDate } from '@/utils/date';
 
 // ── Types (from OpenAPI) ──
 
-export type PartyInviteLookup = components['schemas']['PartyInviteLookupResponse'];
+// BE 응답 + FE 임시 확장 (partyId, isHost는 BE 추가 요청 중)
+export type PartyInviteLookup = components['schemas']['PartyInviteLookupResponse'] & {
+  partyId: string;
+  isHost: boolean;
+};
 
 // ── Mock Data ──
 // TODO: BE에 실제 파티 데이터가 생성되면 queryFn을 `api.get('/api/v1/party-invites/{inviteToken}')`로 교체
@@ -37,6 +41,9 @@ function createMockData(inviteToken: string): PartyInviteLookup {
   const end = new Date(start.getTime() + 7 * ONE_DAY);
 
   return {
+    // FE 임시 확장 — BE 명세 확정 시 응답에서 그대로 받기
+    partyId: `mock-party-${inviteToken}`,
+    isHost: inviteToken.includes('host'),
     celebrantNickname: '김이라',
     partyOption: 'REALTIME',
     partyEnded: override.partyEnded,

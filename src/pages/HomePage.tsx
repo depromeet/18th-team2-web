@@ -1,7 +1,6 @@
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { L1 } from '@/components/ui/Typography';
 import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
@@ -70,61 +69,59 @@ function HomePage() {
     : [];
 
   return (
-    <MobileLayout>
-      <div className="bg-gradient-bg flex min-h-screen flex-col">
-        <HomeHeader />
-        <div className="flex flex-col gap-2">
-          {mockParties.length > 0 && (
-            <div className="flex flex-col items-center gap-3 py-2">
-              {mockParties.length === 1 ? (
-                <div className="w-full px-4">
-                  <UpcomingPartyCard party={mockParties[0]} />
-                </div>
-              ) : (
-                <>
-                  <Swiper
-                    modules={[Pagination]}
-                    slidesPerView="auto"
-                    spaceBetween={8}
-                    centeredSlides
-                    loop
-                    loopAdditionalSlides={1}
-                    pagination={{
-                      clickable: true,
-                      el: '.upcoming-party-pagination',
-                    }}
-                    className="upcoming-party-swiper w-full"
-                  >
-                    {mockParties.map((party, index) => (
-                      <SwiperSlide key={`party-${index}`} style={{ width: 'calc(100% - 32px)' }}>
-                        <UpcomingPartyCard party={party} />
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                  <div className="upcoming-party-pagination flex items-center justify-center gap-2" />
-                </>
-              )}
-            </div>
-          )}
-          <div className="flex flex-col gap-2.25 px-4 py-5">
-            <h2 className="text-head-2 font-bold tracking-tight">
-              오늘은 누구의 생일을
-              <br />
-              축하해볼까요?
-            </h2>
-            <L1 className="text-grey-400 font-medium">
-              축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요
-            </L1>
+    <div className="bg-gradient-bg flex min-h-screen flex-col">
+      <HomeHeader />
+      <div className="flex flex-col gap-2">
+        {mockParties.length > 0 && (
+          <div className="flex flex-col items-center gap-3 py-2">
+            {mockParties.length === 1 ? (
+              <div className="w-full px-4">
+                <UpcomingPartyCard party={mockParties[0]} />
+              </div>
+            ) : (
+              <>
+                <Swiper
+                  modules={[Pagination]}
+                  slidesPerView="auto"
+                  spaceBetween={8}
+                  centeredSlides
+                  loop
+                  loopAdditionalSlides={1}
+                  pagination={{
+                    clickable: true,
+                    el: '.upcoming-party-pagination',
+                  }}
+                  className="upcoming-party-swiper w-full"
+                >
+                  {mockParties.map((party, index) => (
+                    <SwiperSlide key={`party-${index}`} style={{ width: 'calc(100% - 32px)' }}>
+                      <UpcomingPartyCard party={party} />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                <div className="upcoming-party-pagination flex items-center justify-center gap-2" />
+              </>
+            )}
           </div>
-          <div className="px-4">
-            <PartyCard />
-          </div>
-          <div className="px-4">
-            <ArchiveCard count={isAuthenticated ? 8 : 0} />
-          </div>
+        )}
+        <div className="flex flex-col gap-2.25 px-4 py-5">
+          <h2 className="text-head-2 font-bold tracking-tight">
+            오늘은 누구의 생일을
+            <br />
+            축하해볼까요?
+          </h2>
+          <L1 className="text-grey-400 font-medium">
+            축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요
+          </L1>
+        </div>
+        <div className="px-4">
+          <PartyCard />
+        </div>
+        <div className="px-4">
+          <ArchiveCard count={isAuthenticated ? 8 : 0} />
         </div>
       </div>
-    </MobileLayout>
+    </div>
   );
 }
 

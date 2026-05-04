@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
 import { MessageCard } from '@/components/rolling-paper/MessageCard';
@@ -33,7 +32,7 @@ export default function RollingPaperPage() {
   if (!data) return null;
 
   return (
-    <MobileLayout>
+    <>
       <div
         className="relative flex min-h-dvh flex-col overflow-hidden"
         style={{ background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)' }}
@@ -117,6 +116,6 @@ export default function RollingPaperPage() {
           />,
           document.body,
         )}
-    </MobileLayout>
+    </>
   );
 }
