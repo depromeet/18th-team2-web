@@ -1,3 +1,4 @@
+import { ChevronSmallIcon } from '@/components/ui/icons/ChevronSmallIcon';
 import { L1 } from '@/components/ui/Typography';
 
 interface PageIndicatorProps {
@@ -9,34 +10,23 @@ interface PageIndicatorProps {
 
 export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorProps) {
   return (
-    <div
-      className="inline-flex items-center justify-center"
-      style={{
-        height: 32,
-        background: 'rgba(0,0,0,0.5)',
-        borderRadius: 35,
-        padding: '6px 8px',
-        gap: 4,
-      }}
-    >
+    <div className="inline-flex h-8 items-center justify-center gap-1 rounded-full bg-black/50 px-2 py-1.5">
       <button
         type="button"
         aria-label="이전 페이지"
-        className="flex items-center justify-center"
-        style={{ width: 16, height: 16 }}
+        className="flex h-4 w-4 items-center justify-center"
         onClick={onPrev}
         disabled={current <= 1}
       >
         <ChevronSmallIcon direction="left" />
       </button>
-      <L1 className="text-center font-medium text-white" style={{ minWidth: 27 }}>
+      <L1 className="min-w-6.75 text-center font-medium text-white">
         {current} / {total}
       </L1>
       <button
         type="button"
         aria-label="다음 페이지"
-        className="flex items-center justify-center"
-        style={{ width: 16, height: 16 }}
+        className="flex h-4 w-4 items-center justify-center"
         onClick={onNext}
         disabled={current >= total}
       >
@@ -46,21 +36,3 @@ export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorP
   );
 }
 
-export function ChevronSmallIcon({ direction }: { direction: 'left' | 'right' }) {
-  const d =
-    direction === 'left'
-      ? 'M9.33 3.07L4.67 7.73 9.33 12.4'
-      : 'M6.67 3.07L11.33 7.73 6.67 12.4';
-
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path
-        d={d}
-        stroke="#BEBEBF"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}

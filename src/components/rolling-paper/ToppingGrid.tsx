@@ -48,10 +48,9 @@ export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
 
   return (
     <div className="relative z-10 flex flex-1 flex-col justify-center">
-      {/* 토핑 영역 — aspect-ratio로 너비 대비 고정 비율 */}
+      {/* 토핑 영역 — aspect-ratio로 너비 대비 고정 비율 (375/350) */}
       <div
-        className="relative w-full"
-        style={{ aspectRatio: '375 / 350' }}
+        className="aspect-375/350 relative w-full"
         onTouchStart={(e) => {
           swipeRef.current.startX = e.touches[0].clientX;
         }}
@@ -63,6 +62,7 @@ export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
           }
         }}
       >
+        {/* 토핑 크기: 80/375 ≈ 21.3% */}
         {pageMessages.map((message, index) => {
           const pos = TOPPING_POSITIONS[index];
           const globalIndex = currentPage * TOPPINGS_PER_PAGE + index;
