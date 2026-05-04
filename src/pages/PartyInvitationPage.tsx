@@ -12,8 +12,8 @@ import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 // TODO: API 연동 시 교체
 const MOCK_PARTY = {
   hostName: '김이라',
-  startsAt: '2026-11-26T16:00:00', // KST
-  role: 'participant' as 'host' | 'participant',
+  startsAt: '2026-05-04T17:55:00', // KST
+  role: 'host' as 'host' | 'participant',
 };
 
 export default function PartyInvitationPage() {
@@ -38,14 +38,10 @@ export default function PartyInvitationPage() {
 
   return (
     <MobileLayout>
-      <main className="flex min-h-screen flex-col bg-gradient-bg">
+      <main className="bg-gradient-bg flex min-h-screen flex-col">
         <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
-          {isHost ? (
-            <HostTitle />
-          ) : (
-            <ParticipantTitle hostName={party.hostName} />
-          )}
-          <InvitationCard hostName={party.hostName} startsAt={party.startsAt} />
+          {isHost ? <HostTitle /> : <ParticipantTitle hostName={party.hostName} />}
+          <InvitationCard hostName={party.hostName} startsAt={party.startsAt} isHost={isHost} />
         </section>
 
         <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-[110px] w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">

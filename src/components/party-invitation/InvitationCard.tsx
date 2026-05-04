@@ -6,9 +6,10 @@ import { InvitationTemplate } from './InvitationTemplate';
 interface InvitationCardProps {
   hostName: string;
   startsAt: string;
+  isHost?: boolean;
 }
 
-export function InvitationCard({ hostName, startsAt }: InvitationCardProps) {
+export function InvitationCard({ hostName, startsAt, isHost = false }: InvitationCardProps) {
   return (
     <article
       className="flex w-full flex-col gap-10 rounded-lg bg-white px-7.5 py-9"
@@ -24,7 +25,7 @@ export function InvitationCard({ hostName, startsAt }: InvitationCardProps) {
       {/* 카드 하단: 구분선 + 날짜 뱃지 */}
       <div className="flex flex-col gap-6">
         <hr className="w-full border-blue-50" />
-        <InvitationDateBadge startsAt={startsAt} />
+        <InvitationDateBadge startsAt={startsAt} showDeleteButton={isHost} />
       </div>
     </article>
   );
