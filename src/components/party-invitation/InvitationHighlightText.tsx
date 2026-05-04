@@ -8,7 +8,7 @@ interface InvitationHighlightTextProps {
 
 export function InvitationHighlightText({ children }: InvitationHighlightTextProps) {
   return (
-    <H1 as="span" className="text-center font-bold tracking-[-0.0044px] text-blue-500">
+    <H1 as="span" className="font-bold tracking-[-0.0044px] text-blue-500">
       {children}
     </H1>
   );

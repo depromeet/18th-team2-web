@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react';
+
 import { B2 } from '@/components/ui/Typography';
 
 interface PartyHintTextProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function PartyHintText({ children }: PartyHintTextProps) {

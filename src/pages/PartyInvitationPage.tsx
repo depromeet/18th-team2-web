@@ -32,8 +32,8 @@ export default function PartyInvitationPage() {
   }
 
   function handleWriteRollingPaper() {
-    navigate(`/party/${partyId}/rolling-paper/write`);
     setHasWrittenRollingPaper(true);
+    navigate(`/party/${partyId}/rolling-paper/write`);
   }
 
   return (

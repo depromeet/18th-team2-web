@@ -12,7 +12,7 @@ export function InvitationTemplate({ hostName, startsAt }: InvitationTemplatePro
   const dateLabel = formatKoreanDate(startsAt);
   const timeLabel = formatKoreanTime(startsAt);
   const rowClassName =
-    'flex h-11 w-full items-center gap-0.5 text-left font-medium tracking-[-0.0044px] text-grey-500';
+    'flex h-11 w-full items-center gap-0.5 font-medium tracking-[-0.0044px] text-grey-500';
 
   return (
     <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
