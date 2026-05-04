@@ -61,22 +61,22 @@ function InvitationDateBadge({ startsAt }: InvitationDateBadgeProps) {
 
 export function InvitationCard({ hostName, startsAt }: InvitationCardProps) {
   return (
-    <article className="w-full rounded-lg bg-white px-7.5 py-9">
-      <header className="mb-6 flex justify-center">
+    <article
+      className="flex w-full flex-col gap-10 rounded-lg bg-white px-7.5 py-9"
+      style={{ boxShadow: '0px 0px 8px 0px #5892FF4D' }}
+    >
+      {/* 카드 상단: 타이틀 + 구분선 + 템플릿 */}
+      <div className="flex flex-col items-center gap-6">
         <H2>파티 초대장</H2>
-      </header>
-
-      <hr className="border-blue-50" />
-
-      <section className="my-6">
+        <hr className="w-full border-blue-50" />
         <InvitationTemplate hostName={hostName} startsAt={startsAt} />
-      </section>
+      </div>
 
-      <hr className="border-blue-50" />
-
-      <footer className="mt-6">
+      {/* 카드 하단: 구분선 + 날짜 뱃지 */}
+      <div className="flex flex-col gap-6">
+        <hr className="w-full border-blue-50" />
         <InvitationDateBadge startsAt={startsAt} />
-      </footer>
+      </div>
     </article>
   );
 }
