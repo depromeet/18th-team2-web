@@ -17,7 +17,7 @@ export function HostActions({ isWithin5Minutes, onEnterParty }: HostActionsProps
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex w-full flex-col gap-2">
       <PartyEntranceHint />
       <Button variant="secondary" size="full" disabled>
         생일파티 참가하기

@@ -48,18 +48,20 @@ export default function PartyInvitationPage() {
           <InvitationCard hostName={party.hostName} startsAt={party.startsAt} />
         </section>
 
-        <footer className="px-4 pb-8 pt-4">
-          {isHost ? (
-            <HostActions isWithin5Minutes={isWithin5Minutes} onEnterParty={handleEnterParty} />
-          ) : (
-            <ParticipantActions
-              isWithin5Minutes={isWithin5Minutes}
-              hasWrittenRollingPaper={hasWrittenRollingPaper}
-              onEnterParty={handleEnterParty}
-              onWriteRollingPaper={handleWriteRollingPaper}
-            />
-          )}
-        </footer>
+        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-[110px] w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
+          <div className="w-full">
+            {isHost ? (
+              <HostActions isWithin5Minutes={isWithin5Minutes} onEnterParty={handleEnterParty} />
+            ) : (
+              <ParticipantActions
+                isWithin5Minutes={isWithin5Minutes}
+                hasWrittenRollingPaper={hasWrittenRollingPaper}
+                onEnterParty={handleEnterParty}
+                onWriteRollingPaper={handleWriteRollingPaper}
+              />
+            )}
+          </div>
+        </div>
       </main>
     </MobileLayout>
   );
