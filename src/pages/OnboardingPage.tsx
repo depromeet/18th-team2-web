@@ -49,11 +49,11 @@ export default function OnboardingPage() {
 
         {isLastContent ? (
           <Button variant="white" onClick={handleStart}>
-            <B1 className="font-semibold">시작하기</B1>
+            시작하기
           </Button>
         ) : (
           <Button variant="ghost" onClick={handleNext}>
-            <B1 className="font-semibold">다음</B1>
+            다음
           </Button>
         )}
       </main>
