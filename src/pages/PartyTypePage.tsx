@@ -4,6 +4,7 @@ import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
 import { T4, B1 } from '@/components/ui/Typography';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
+import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 type PartyType = 'live' | 'rolling';
@@ -108,8 +109,7 @@ export default function PartyTypePage() {
       setShowLoginSheet(true);
       return;
     }
-    // TODO: 다음 단계 경로로 교체
-    navigate('/');
+    navigate(ROUTES.createPartyIntro);
   };
 
   return (
