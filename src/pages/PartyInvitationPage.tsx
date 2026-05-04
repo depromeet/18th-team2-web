@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { HostActions } from '@/components/party-invitation/HostActions';
@@ -22,12 +24,16 @@ export default function PartyInvitationPage() {
   const { isWithin5Minutes } = usePartyCountdown(party.startsAt);
   const isHost = party.role === 'host';
 
+  // TODO: API 연동 시 서버에서 작성 여부 조회
+  const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(false);
+
   function handleEnterParty() {
     navigate(`/party/${partyId}/enter`);
   }
 
   function handleWriteRollingPaper() {
     navigate(`/party/${partyId}/rolling-paper/write`);
+    setHasWrittenRollingPaper(true);
   }
 
   return (
@@ -48,6 +54,7 @@ export default function PartyInvitationPage() {
           ) : (
             <ParticipantActions
               isWithin5Minutes={isWithin5Minutes}
+              hasWrittenRollingPaper={hasWrittenRollingPaper}
               onEnterParty={handleEnterParty}
               onWriteRollingPaper={handleWriteRollingPaper}
             />
