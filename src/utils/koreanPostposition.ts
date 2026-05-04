@@ -3,7 +3,8 @@ const HANGUL_SYLLABLE_END = 0xd7a3;
 const HANGUL_FINAL_CONSONANT_COUNT = 28;
 
 function hasFinalConsonant(text: string): boolean {
-  const lastCharacter = Array.from(text.trim()).at(-1);
+  const chars = Array.from(text.trim());
+  const lastCharacter = chars[chars.length - 1];
 
   if (!lastCharacter) return false;
 
