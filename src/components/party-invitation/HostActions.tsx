@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/Button';
-import { L1 } from '@/components/ui/Typography';
+
+import { PartyEntranceHint } from './PartyHintText';
 
 interface HostActionsProps {
   isWithin5Minutes: boolean;
@@ -17,9 +18,7 @@ export function HostActions({ isWithin5Minutes, onEnterParty }: HostActionsProps
 
   return (
     <div className="flex flex-col gap-2">
-      <L1 as="p" className="text-center text-grey-500">
-        파티는 시작 5분 전부터 입장 가능해요
-      </L1>
+      <PartyEntranceHint />
       <Button variant="secondary" size="full" disabled>
         생일파티 참가하기
       </Button>

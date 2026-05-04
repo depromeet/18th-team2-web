@@ -17,7 +17,7 @@ const variantStyles = {
   primary: 'bg-blue-500 text-white',
   secondary: 'bg-grey-50 text-grey-300',
   white: 'bg-white text-grey-800',
-  'white-blue': 'bg-white text-blue-600',
+  'white-blue': 'border border-blue-200 bg-white text-blue-600',
   ghost: 'border border-white/60 text-white',
 } as const;
 
