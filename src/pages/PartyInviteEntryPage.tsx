@@ -22,13 +22,17 @@ export default function PartyInviteEntryPage() {
   }
 
   const hostName = data.celebrantNickname ?? '';
-  // TODO: API 응답에 isHost 플래그가 추가되면 교체
-  const isHost = false;
+  // TODO: BE PartyInviteLookupResponse에 isHost 추가되면 data.isHost로 교체
+  // mock 한정 — 토큰에 'host' 포함되면 주최자 시점으로 시뮬레이션
+  const isHost = inviteToken.includes('host');
 
   // 파티 종료 후 화면
   if (data.partyEnded) {
-    const writableFrom = data.partyStartDate ? new Date(data.partyStartDate) : new Date();
-    const writableUntil = data.partyEndDate ? new Date(data.partyEndDate) : new Date();
+    if (!data.partyStartDate || !data.partyEndDate) {
+      return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
+    }
+    const writableFrom = new Date(data.partyStartDate);
+    const writableUntil = new Date(data.partyEndDate);
 
     return (
       <MobileLayout>
@@ -43,11 +47,11 @@ export default function PartyInviteEntryPage() {
   }
 
   // 파티 시작 전 초대장 화면 — 실시간 파티는 liveStartAt, 그 외는 partyStartDate
-  const startsAt = data.realtimeSchedule?.liveStartAt
-    ? new Date(data.realtimeSchedule.liveStartAt)
-    : data.partyStartDate
-      ? new Date(data.partyStartDate)
-      : new Date();
+  const startsAtSource = data.realtimeSchedule?.liveStartAt ?? data.partyStartDate;
+  if (!startsAtSource) {
+    return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
+  }
+  const startsAt = new Date(startsAtSource);
 
   return (
     <MobileLayout>
