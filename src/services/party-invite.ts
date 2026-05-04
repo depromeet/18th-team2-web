@@ -9,26 +9,32 @@ export type PartyInviteLookup = components['schemas']['PartyInviteLookupResponse
 
 // ── Mock Data ──
 // TODO: BE에 실제 파티 데이터가 생성되면 queryFn을 `api.get('/api/v1/party-invites/{inviteToken}')`로 교체
-// 토큰 prefix로 분기 — 'host-*' (주최자), 'expired' (마감), 'ended' (작성 가능), 그 외 (진행 중)
+// 토큰별 mock 시나리오:
+// - 'expired'  → 작성 마감
+// - 'ended'    → 파티 종료 + 작성 가능
+// - 'starting' → 파티 시작 임박 (3분 후) — 입장 가능 버튼 활성화
+// - 'host-*'   → 주최자 시점 (PartyInviteEntryPage에서 토큰 prefix로 판단)
+// - 그 외      → 파티 시작 전 (내일)
+
+const ONE_MINUTE = 60 * 1000;
+const ONE_DAY = 24 * 60 * ONE_MINUTE;
 
 interface MockOverride {
   partyEnded: boolean;
-  startsDaysFromNow: number;
+  /** 파티 시작 시각 (현재 기준 분 단위 오프셋) */
+  startsInMinutes: number;
 }
 
 const MOCK_OVERRIDES: Record<string, MockOverride> = {
-  expired: { partyEnded: true, startsDaysFromNow: -10 },
-  ended: { partyEnded: true, startsDaysFromNow: -1 },
+  expired: { partyEnded: true, startsInMinutes: -10 * 24 * 60 },
+  ended: { partyEnded: true, startsInMinutes: -1 * 24 * 60 },
+  starting: { partyEnded: false, startsInMinutes: 3 },
 };
 
 function createMockData(inviteToken: string): PartyInviteLookup {
-  const override = MOCK_OVERRIDES[inviteToken] ?? { partyEnded: false, startsDaysFromNow: 1 };
-  const now = new Date();
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const start = new Date(
-    todayMidnight.getTime() + override.startsDaysFromNow * 24 * 60 * 60 * 1000,
-  );
-  const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const override = MOCK_OVERRIDES[inviteToken] ?? { partyEnded: false, startsInMinutes: 24 * 60 };
+  const start = new Date(Date.now() + override.startsInMinutes * ONE_MINUTE);
+  const end = new Date(start.getTime() + 7 * ONE_DAY);
 
   return {
     celebrantNickname: '김이라',
@@ -37,6 +43,12 @@ function createMockData(inviteToken: string): PartyInviteLookup {
     rollingPaperWritten: false,
     partyStartDate: formatIsoDate(start),
     partyEndDate: formatIsoDate(end),
+    realtimeSchedule: {
+      liveStartAt: start.toISOString(),
+      enterableFrom: new Date(start.getTime() - 5 * ONE_MINUTE).toISOString(),
+      liveEndAt: new Date(start.getTime() + 10 * ONE_MINUTE).toISOString(),
+      liveDurationMinutes: 10,
+    },
   };
 }
 
