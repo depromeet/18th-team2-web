@@ -1,6 +1,6 @@
 import trashIcon from '@/assets/icons/icon-fill-trash.svg';
 import { B1 } from '@/components/ui/Typography';
-import { formatDateParts, formatKoreanTime } from '@/utils/dateFormat';
+import { formatDateParts, formatKoreanTime } from '@/utils/date';
 
 interface InvitationDateBadgeProps {
   startsAt: string;

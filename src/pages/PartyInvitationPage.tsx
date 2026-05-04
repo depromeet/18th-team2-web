@@ -31,14 +31,14 @@ export default function PartyInvitationPage() {
   function handleEnterParty() {
     if (!partyId) return;
 
-    navigate(ROUTES.PARTY_ENTER(partyId));
+    navigate(ROUTES.partyEnter(partyId));
   }
 
   function handleWriteRollingPaper() {
     if (!partyId) return;
 
     setHasWrittenRollingPaper(true);
-    navigate(ROUTES.ROLLING_PAPER_WRITE(partyId));
+    navigate(ROUTES.rollingPaperWrite(partyId));
   }
 
   return (

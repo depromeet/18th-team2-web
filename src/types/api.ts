@@ -4,515 +4,515 @@
  */
 
 export interface paths {
-    "/api/v1/parties/{partyOption}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 파티 생성 (REALTIME | PAPER_ONLY) */
-        post: operations["createParty"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/api/v1/parties/{partyOption}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/parties/{partyId}/invite-link": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 파티 초대링크 활성화
-         * @description 초대 토큰을 발급하거나 기존 유효 토큰을 재사용한다. 현재 파티 조회/참여 API가 보류되어 토큰 소비 경로는 새 기획 확정 후 다시 연결한다.
-         */
-        post: operations["activateInviteLink"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 파티 생성 (REALTIME | PAPER_ONLY) */
+    post: operations['createParty'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parties/{partyId}/invite-link': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/dev/token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 개발용 JWT 토큰 발급 (존재하지 않으면 유저 자동 생성) */
-        post: operations["issueToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 파티 초대링크 활성화
+     * @description 초대 토큰을 발급하거나 기존 유효 토큰을 재사용한다. 현재 파티 조회/참여 API가 보류되어 토큰 소비 경로는 새 기획 확정 후 다시 연결한다.
+     */
+    post: operations['activateInviteLink'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/dev/token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/dev/token/by-id": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 개발용 JWT 토큰 발급 (userId로) */
-        post: operations["issueTokenById"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 개발용 JWT 토큰 발급 (존재하지 않으면 유저 자동 생성) */
+    post: operations['issueToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/dev/token/by-id': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/v1/characters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 캐릭터 목록 조회
-         * @description 파티 참여 시 선택 가능한 캐릭터 목록을 조회한다.
-         */
-        get: operations["getCharacters"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 개발용 JWT 토큰 발급 (userId로) */
+    post: operations['issueTokenById'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/characters': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["me"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 캐릭터 목록 조회
+     * @description 파티 참여 시 선택 가능한 캐릭터 목록을 조회한다.
+     */
+    get: operations['getCharacters'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations['me'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** @description 파티 생성 요청 */
-        CreatePartyRequest: {
-            /**
-             * @description 파티 주인공 이름
-             * @example 홍길동
-             */
-            celebrantNickname?: string;
-            /**
-             * Format: date
-             * @description 파티 시작일
-             * @example 2024-11-26
-             */
-            startedDate?: string;
-            /**
-             * @description 파티 시작 시간 (HH:mm). 미전송 시 00:00으로 설정됩니다.
-             * @example 14:30
-             */
-            startTime?: string;
-        };
-        /** @description 에러 상세 정보 */
-        ErrorDetail: {
-            /**
-             * @description 에러 코드
-             * @example PARTY_NOT_FOUND
-             */
-            code?: string;
-            /**
-             * @description 에러 메시지
-             * @example 파티를 찾을 수 없습니다
-             */
-            message?: string;
-        };
-        /** @description 공통 에러 응답 */
-        ErrorResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 400
-             */
-            status?: number;
-            /** @description 에러 상세 */
-            error?: components["schemas"]["ErrorDetail"];
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseCreatePartyResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            /** @description 응답 데이터 */
-            data?: components["schemas"]["CreatePartyResponse"];
-        };
-        CreatePartyResponse: {
-            /** Format: int64 */
-            partyId?: number;
-        };
-        /** @description 초대링크 활성화 응답 */
-        ActivateInviteLinkResponse: {
-            /**
-             * @description 초대 토큰
-             * @example example-token-0000
-             */
-            token?: string;
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseActivateInviteLinkResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            /** @description 응답 데이터 */
-            data?: components["schemas"]["ActivateInviteLinkResponse"];
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseDevTokenResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            /** @description 응답 데이터 */
-            data?: components["schemas"]["DevTokenResponse"];
-        };
-        DevTokenResponse: {
-            token?: string;
-            /** Format: int64 */
-            userId?: number;
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseListCharacterResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            /** @description 응답 데이터 */
-            data?: components["schemas"]["CharacterResponse"][];
-        };
-        /** @description 캐릭터 조회 응답 */
-        CharacterResponse: {
-            /**
-             * Format: int64
-             * @description 캐릭터 ID. 파티 참여 요청의 characterId로 전달합니다.
-             * @example 1
-             */
-            characterId?: number;
-            /**
-             * @description 캐릭터 이름
-             * @example character1
-             */
-            name?: string;
-            /**
-             * @description 캐릭터 이미지 URL
-             * @example /images/characters/character1.jpg
-             */
-            characterImageUrl?: string;
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseUserResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            /** @description 응답 데이터 */
-            data?: components["schemas"]["UserResponse"];
-        };
-        UserResponse: {
-            /** Format: int64 */
-            id?: number;
-            name?: string;
-            email?: string;
-            /** @enum {string} */
-            provider?: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
-            birthDay?: string;
-        };
+  schemas: {
+    /** @description 파티 생성 요청 */
+    CreatePartyRequest: {
+      /**
+       * @description 파티 주인공 이름
+       * @example 홍길동
+       */
+      celebrantNickname?: string;
+      /**
+       * Format: date
+       * @description 파티 시작일
+       * @example 2024-11-26
+       */
+      startedDate?: string;
+      /**
+       * @description 파티 시작 시간 (HH:mm). 미전송 시 00:00으로 설정됩니다.
+       * @example 14:30
+       */
+      startTime?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    /** @description 에러 상세 정보 */
+    ErrorDetail: {
+      /**
+       * @description 에러 코드
+       * @example PARTY_NOT_FOUND
+       */
+      code?: string;
+      /**
+       * @description 에러 메시지
+       * @example 파티를 찾을 수 없습니다
+       */
+      message?: string;
+    };
+    /** @description 공통 에러 응답 */
+    ErrorResponse: {
+      /**
+       * Format: int32
+       * @description HTTP 상태 코드
+       * @example 400
+       */
+      status?: number;
+      /** @description 에러 상세 */
+      error?: components['schemas']['ErrorDetail'];
+    };
+    /** @description 공통 성공 응답 */
+    ApiResponseCreatePartyResponse: {
+      /**
+       * Format: int32
+       * @description HTTP 상태 코드
+       * @example 200
+       */
+      status?: number;
+      /** @description 응답 데이터 */
+      data?: components['schemas']['CreatePartyResponse'];
+    };
+    CreatePartyResponse: {
+      /** Format: int64 */
+      partyId?: number;
+    };
+    /** @description 초대링크 활성화 응답 */
+    ActivateInviteLinkResponse: {
+      /**
+       * @description 초대 토큰
+       * @example example-token-0000
+       */
+      token?: string;
+    };
+    /** @description 공통 성공 응답 */
+    ApiResponseActivateInviteLinkResponse: {
+      /**
+       * Format: int32
+       * @description HTTP 상태 코드
+       * @example 200
+       */
+      status?: number;
+      /** @description 응답 데이터 */
+      data?: components['schemas']['ActivateInviteLinkResponse'];
+    };
+    /** @description 공통 성공 응답 */
+    ApiResponseDevTokenResponse: {
+      /**
+       * Format: int32
+       * @description HTTP 상태 코드
+       * @example 200
+       */
+      status?: number;
+      /** @description 응답 데이터 */
+      data?: components['schemas']['DevTokenResponse'];
+    };
+    DevTokenResponse: {
+      token?: string;
+      /** Format: int64 */
+      userId?: number;
+    };
+    /** @description 공통 성공 응답 */
+    ApiResponseListCharacterResponse: {
+      /**
+       * Format: int32
+       * @description HTTP 상태 코드
+       * @example 200
+       */
+      status?: number;
+      /** @description 응답 데이터 */
+      data?: components['schemas']['CharacterResponse'][];
+    };
+    /** @description 캐릭터 조회 응답 */
+    CharacterResponse: {
+      /**
+       * Format: int64
+       * @description 캐릭터 ID. 파티 참여 요청의 characterId로 전달합니다.
+       * @example 1
+       */
+      characterId?: number;
+      /**
+       * @description 캐릭터 이름
+       * @example character1
+       */
+      name?: string;
+      /**
+       * @description 캐릭터 이미지 URL
+       * @example /images/characters/character1.jpg
+       */
+      characterImageUrl?: string;
+    };
+    /** @description 공통 성공 응답 */
+    ApiResponseUserResponse: {
+      /**
+       * Format: int32
+       * @description HTTP 상태 코드
+       * @example 200
+       */
+      status?: number;
+      /** @description 응답 데이터 */
+      data?: components['schemas']['UserResponse'];
+    };
+    UserResponse: {
+      /** Format: int64 */
+      id?: number;
+      name?: string;
+      email?: string;
+      /** @enum {string} */
+      provider?: 'KAKAO' | 'GOOGLE' | 'APPLE' | 'NAVER';
+      birthDay?: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    createParty: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description 파티 옵션
-                 * @example REALTIME
-                 */
-                partyOption: "REALTIME" | "PAPER_ONLY";
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePartyRequest"];
-            };
-        };
-        responses: {
-            /** @description 파티 생성 성공 */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseCreatePartyResponse"];
-                };
-            };
-            /** @description 인증 실패 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  createParty: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description 파티 옵션
+         * @example REALTIME
+         */
+        partyOption: 'REALTIME' | 'PAPER_ONLY';
+      };
+      cookie?: never;
     };
-    activateInviteLink: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description 파티 ID
-                 * @example 1
-                 */
-                partyId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 초대링크 활성화 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseActivateInviteLinkResponse"];
-                };
-            };
-            /** @description 인증 실패 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 권한 없음 */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 403,
-                     *       "error": {
-                     *         "code": "PARTY_FORBIDDEN",
-                     *         "message": "파티에 대한 권한이 없습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 존재하지 않는 파티 */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 404,
-                     *       "error": {
-                     *         "code": "PARTY_NOT_FOUND",
-                     *         "message": "파티를 찾을 수 없습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePartyRequest'];
+      };
     };
-    issueToken: {
-        parameters: {
-            query: {
-                email: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description 파티 생성 성공 */
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseDevTokenResponse"];
-                };
-            };
+        content: {
+          '*/*': components['schemas']['ApiResponseCreatePartyResponse'];
         };
+      };
+      /** @description 인증 실패 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description 서버 내부 오류 */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "status": 500,
+           *       "error": {
+           *         "code": "INTERNAL_SERVER_ERROR",
+           *         "message": "서버 내부 오류가 발생했습니다"
+           *       }
+           *     }
+           */
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
     };
-    issueTokenById: {
-        parameters: {
-            query: {
-                userId: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseDevTokenResponse"];
-                };
-            };
-        };
+  };
+  activateInviteLink: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description 파티 ID
+         * @example 1
+         */
+        partyId: number;
+      };
+      cookie?: never;
     };
-    getCharacters: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description 초대링크 활성화 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description 캐릭터 목록 조회 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseListCharacterResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          '*/*': components['schemas']['ApiResponseActivateInviteLinkResponse'];
         };
+      };
+      /** @description 인증 실패 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description 권한 없음 */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "status": 403,
+           *       "error": {
+           *         "code": "PARTY_FORBIDDEN",
+           *         "message": "파티에 대한 권한이 없습니다"
+           *       }
+           *     }
+           */
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description 존재하지 않는 파티 */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "status": 404,
+           *       "error": {
+           *         "code": "PARTY_NOT_FOUND",
+           *         "message": "파티를 찾을 수 없습니다"
+           *       }
+           *     }
+           */
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+      /** @description 서버 내부 오류 */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "status": 500,
+           *       "error": {
+           *         "code": "INTERNAL_SERVER_ERROR",
+           *         "message": "서버 내부 오류가 발생했습니다"
+           *       }
+           *     }
+           */
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
     };
-    me: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseUserResponse"];
-                };
-            };
-        };
+  };
+  issueToken: {
+    parameters: {
+      query: {
+        email: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ApiResponseDevTokenResponse'];
+        };
+      };
+    };
+  };
+  issueTokenById: {
+    parameters: {
+      query: {
+        userId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ApiResponseDevTokenResponse'];
+        };
+      };
+    };
+  };
+  getCharacters: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 캐릭터 목록 조회 성공 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ApiResponseListCharacterResponse'];
+        };
+      };
+      /** @description 서버 내부 오류 */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "status": 500,
+           *       "error": {
+           *         "code": "INTERNAL_SERVER_ERROR",
+           *         "message": "서버 내부 오류가 발생했습니다"
+           *       }
+           *     }
+           */
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+  me: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['ApiResponseUserResponse'];
+        };
+      };
+    };
+  };
 }

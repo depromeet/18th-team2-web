@@ -1,25 +1,127 @@
+import { Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+
 import { MobileLayout } from '@/components/layout/MobileLayout';
-import { H2, L1 } from '@/components/ui/Typography';
+import { L1 } from '@/components/ui/Typography';
 import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
+import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
+import { useAuthStore } from '@/stores/useAuthStore';
+
+import type { UpcomingParty } from '@/components/home/UpcomingPartyCard';
 
 function HomePage() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  // TODO: BE API 연동 후 실제 데이터로 교체 — 7개 상태 확인용 mock
+  const mockParties: UpcomingParty[] = isAuthenticated
+    ? [
+        {
+          partyName: '홍길동님의 생일파티',
+          date: '26.11.23',
+          time: '오후 2:00',
+          role: 'participant',
+          status: 'default',
+        },
+        {
+          partyName: '내 생일파티',
+          date: '26.11.23',
+          time: '오후 2:00',
+          role: 'host',
+          status: 'default',
+        },
+        {
+          partyName: '홍길동님의 생일파티',
+          date: '26.11.23',
+          time: '오후 2:00',
+          role: 'participant',
+          status: 'soon',
+        },
+        {
+          partyName: '내 생일파티',
+          date: '26.11.23',
+          time: '오후 2:00',
+          role: 'host',
+          status: 'soon',
+        },
+        {
+          partyName: '홍길동님의 롤링페이퍼',
+          date: '26.11.23',
+          endDate: '26.11.23',
+          role: 'participant',
+          status: 'rollingPaper',
+        },
+        {
+          partyName: '내 롤링페이퍼',
+          date: '26.11.23',
+          endDate: '26.11.23',
+          role: 'host',
+          status: 'rollingPaper',
+        },
+        {
+          partyName: '내 롤링페이퍼',
+          date: '26.11.23',
+          endDate: '26.11.23',
+          role: 'host',
+          status: 'rollingPaperOpen',
+        },
+      ]
+    : [];
+
   return (
     <MobileLayout>
       <div className="bg-gradient-bg flex min-h-screen flex-col">
         <HomeHeader />
-        <div className="flex flex-col gap-2 px-4">
-          <div className="flex flex-col gap-2.25 py-5">
-            <H2 className="font-bold">
+        <div className="flex flex-col gap-2">
+          {mockParties.length > 0 && (
+            <div className="flex flex-col items-center gap-3 py-2">
+              {mockParties.length === 1 ? (
+                <div className="w-full px-4">
+                  <UpcomingPartyCard party={mockParties[0]} />
+                </div>
+              ) : (
+                <>
+                  <Swiper
+                    modules={[Pagination]}
+                    slidesPerView="auto"
+                    spaceBetween={8}
+                    centeredSlides
+                    loop
+                    loopAdditionalSlides={1}
+                    pagination={{
+                      clickable: true,
+                      el: '.upcoming-party-pagination',
+                    }}
+                    className="upcoming-party-swiper w-full"
+                  >
+                    {mockParties.map((party, index) => (
+                      <SwiperSlide key={`party-${index}`} style={{ width: 'calc(100% - 32px)' }}>
+                        <UpcomingPartyCard party={party} />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                  <div className="upcoming-party-pagination flex items-center justify-center gap-2" />
+                </>
+              )}
+            </div>
+          )}
+          <div className="flex flex-col gap-2.25 px-4 py-5">
+            <h2 className="text-head-2 font-bold tracking-tight">
               오늘은 누구의 생일을
               <br />
               축하해볼까요?
-            </H2>
-            <L1 className="text-grey-400">축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요</L1>
+            </h2>
+            <L1 className="text-grey-400 font-medium">
+              축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요
+            </L1>
           </div>
-          <PartyCard />
-          <ArchiveCard />
+          <div className="px-4">
+            <PartyCard />
+          </div>
+          <div className="px-4">
+            <ArchiveCard count={isAuthenticated ? 8 : 0} />
+          </div>
         </div>
       </div>
     </MobileLayout>

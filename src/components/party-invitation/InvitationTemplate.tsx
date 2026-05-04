@@ -1,6 +1,6 @@
 import { H1 } from '@/components/ui/Typography';
 import { getObjectParticle } from '@/utils/koreanPostposition';
-import { formatKoreanDate, formatKoreanTime } from '@/utils/dateFormat';
+import { formatKoreanDate, formatKoreanTime } from '@/utils/date';
 
 import { InvitationHighlightText } from './InvitationHighlightText';
 

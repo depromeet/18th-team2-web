@@ -1,4 +1,5 @@
 import { config } from '@/config/env';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export class ApiError extends Error {
   constructor(
@@ -11,15 +12,25 @@ export class ApiError extends Error {
 }
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const token = useAuthStore.getState().accessToken;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((options?.headers as Record<string, string>) ?? {}),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${config.apiBaseUrl}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
     ...options,
+    headers,
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      useAuthStore.getState().logout();
+    }
     const message = await res.text().catch(() => res.statusText);
     throw new ApiError(res.status, message);
   }
