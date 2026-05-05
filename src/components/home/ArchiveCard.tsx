@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { ArchiveStampCard } from '@/components/archive/ArchiveStampCard';
-import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { B1, H2 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import type { ArchiveListItem } from '@/types/archive';
@@ -29,7 +29,7 @@ export function ArchiveCard({ count, previewItem }: ArchiveCardProps) {
         </div>
         <div className="flex items-center gap-0">
           <B1 className="text-grey-600 text-right font-medium">{count}</B1>
-          <ChevronLeftIcon className="text-grey-400 h-5 w-5 rotate-180" />
+          <ChevronRightIcon className="text-grey-400 h-5 w-5" />
         </div>
       </button>
       {previewItem && (
