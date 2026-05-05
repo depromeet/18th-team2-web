@@ -23,6 +23,7 @@ interface RollingPaperWriteCompleteProps {
   nickname: string;
   message: string;
   toppingType: ToppingType;
+  onBack: () => void;
   onComplete: () => void;
 }
 
@@ -31,11 +32,12 @@ export function RollingPaperWriteComplete({
   nickname,
   message,
   toppingType,
+  onBack,
   onComplete,
 }: RollingPaperWriteCompleteProps) {
   return (
-    <main className="flex min-h-screen flex-col bg-white">
-      <PageHeader variant="back" />
+    <main className="flex min-h-screen flex-col bg-gradient-bg">
+      <PageHeader variant="back" onBack={onBack} />
 
       <section className="flex flex-1 flex-col gap-2 px-4 pt-5">
         {/* 타이틀 */}

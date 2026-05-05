@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -22,10 +22,16 @@ const nicknameSchema = z.object({
 type NicknameFormValues = z.infer<typeof nicknameSchema>;
 
 interface RollingPaperNicknameFormProps {
+  initialNickname?: string;
+  onChange?: (nickname: string) => void;
   onNext: (nickname: string) => void;
 }
 
-export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormProps) {
+export function RollingPaperNicknameForm({
+  initialNickname = '',
+  onChange,
+  onNext,
+}: RollingPaperNicknameFormProps) {
   const navigate = useNavigate();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -39,12 +45,19 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
   } = useForm<NicknameFormValues>({
     resolver: zodResolver(nicknameSchema),
     mode: 'onChange',
+    defaultValues: {
+      nickname: initialNickname,
+    },
   });
 
   const nickname = watch('nickname', '');
   const charCount = Array.from(nickname ?? '').length;
   const isError = !!errors.nickname;
   const isReady = charCount > 0 && !isError;
+
+  useEffect(() => {
+    onChange?.(nickname ?? '');
+  }, [nickname, onChange]);
 
   const { onChange: registerOnChange, onBlur: registerOnBlur, ...registerRest } = register('nickname');
 
@@ -85,6 +98,7 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
             onChange={handleChange}
             onFocus={() => setIsFocused(true)}
             onBlur={handleBlur}
+            value={nickname}
             status={inputStatus}
             placeholder="이름이나 별명을 입력해주세요"
             autoComplete="off"

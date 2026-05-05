@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useParams } from 'react-router-dom';
 
@@ -31,9 +31,29 @@ export default function RollingPaperWritePage() {
 
   const { mutate: writeRollingPaper } = useWriteRollingPaper();
 
+  const handleNicknameDraftChange = useCallback((nickname: string) => {
+    setFormState((prev) => (prev.nickname === nickname ? prev : { ...prev, nickname }));
+  }, []);
+
+  const handleMessageDraftChange = useCallback(
+    (message: string, toppingType: ToppingType | null) => {
+      setFormState((prev) =>
+        prev.message === message && prev.toppingType === toppingType
+          ? prev
+          : { ...prev, message, toppingType },
+      );
+    },
+    [],
+  );
+
   function handleNicknameNext(nickname: string) {
     setFormState((prev) => ({ ...prev, nickname }));
     setStep('message');
+  }
+
+  function handleMessageBack(message: string, toppingType: ToppingType | null) {
+    setFormState((prev) => ({ ...prev, message, toppingType }));
+    setStep('nickname');
   }
 
   function handleMessageNext(message: string, toppingType: ToppingType) {
@@ -58,12 +78,31 @@ export default function RollingPaperWritePage() {
     // TODO: 롤링페이퍼_메인_참가자 화면으로 이동
   }
 
+  function handleCompleteBack() {
+    setStep('message');
+  }
+
   if (step === 'nickname') {
-    return <RollingPaperNicknameForm onNext={handleNicknameNext} />;
+    return (
+      <RollingPaperNicknameForm
+        initialNickname={formState.nickname}
+        onChange={handleNicknameDraftChange}
+        onNext={handleNicknameNext}
+      />
+    );
   }
 
   if (step === 'message') {
-    return <RollingPaperMessageForm hostName={hostName} onNext={handleMessageNext} />;
+    return (
+      <RollingPaperMessageForm
+        hostName={hostName}
+        initialMessage={formState.message}
+        initialToppingType={formState.toppingType}
+        onChange={handleMessageDraftChange}
+        onBack={handleMessageBack}
+        onNext={handleMessageNext}
+      />
+    );
   }
 
   return (
@@ -72,6 +111,7 @@ export default function RollingPaperWritePage() {
       nickname={formState.nickname}
       message={formState.message}
       toppingType={formState.toppingType!}
+      onBack={handleCompleteBack}
       onComplete={handleComplete}
     />
   );
