@@ -7,11 +7,11 @@ import { LogoutConfirmDialog } from '@/components/mypage/LogoutConfirmDialog';
 import { LogoutRow } from '@/components/mypage/LogoutRow';
 import { MyPageHeader } from '@/components/mypage/MyPageHeader';
 import { H2 } from '@/components/ui/Typography';
+import { EXTERNAL_URLS } from '@/constants/external-urls';
 import { ROUTES } from '@/constants/routes';
 import { useLogout, useMe } from '@/services/auth';
 
-// TODO: BE에서 카카오 연결 일자/오픈채팅 URL 제공 시 교체
-const KAKAO_OPEN_CHAT_URL = 'https://open.kakao.com/';
+// TODO: BE에서 카카오 연결 일자 제공 시 교체
 const MOCK_CONNECTED_AT = '26.02.23';
 
 export default function MyPage() {
@@ -43,7 +43,7 @@ export default function MyPage() {
         )}
         <div className="flex flex-col gap-3">
           <LinkedAccountCard provider="KAKAO" connectedAt={MOCK_CONNECTED_AT} />
-          <InquiryCard openChatUrl={KAKAO_OPEN_CHAT_URL} />
+          <InquiryCard openChatUrl={EXTERNAL_URLS.KAKAO_OPEN_CHAT} />
           <LogoutRow onClick={handleOpenLogoutDialog} />
         </div>
       </section>
