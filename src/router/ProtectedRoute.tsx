@@ -1,14 +1,10 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute() {
   const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -22,5 +18,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <LoginPromptSheet isOpen onClose={() => window.history.back()} />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

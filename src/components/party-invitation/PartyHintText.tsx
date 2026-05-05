@@ -8,7 +8,7 @@ interface PartyHintTextProps {
 
 export function PartyHintText({ children }: PartyHintTextProps) {
   return (
-    <B2 as="p" className="text-center font-medium text-grey-500">
+    <B2 as="p" className="text-grey-500 text-center font-medium">
       {children}
     </B2>
   );

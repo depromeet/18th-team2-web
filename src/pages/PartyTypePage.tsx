@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
 import { T4, B1 } from '@/components/ui/Typography';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
@@ -113,7 +112,7 @@ export default function PartyTypePage() {
   };
 
   return (
-    <MobileLayout>
+    <>
       <div className="flex min-h-screen flex-col">
         <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
           <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
@@ -142,6 +141,6 @@ export default function PartyTypePage() {
         </div>
       </div>
       <LoginPromptSheet isOpen={showLoginSheet} onClose={() => setShowLoginSheet(false)} />
-    </MobileLayout>
+    </>
   );
 }

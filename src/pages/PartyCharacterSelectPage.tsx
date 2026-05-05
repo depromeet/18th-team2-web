@@ -5,7 +5,6 @@ import type { Swiper as SwiperType } from 'swiper/types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { H1 } from '@/components/ui/Typography';
@@ -36,92 +35,90 @@ export default function PartyCharacterSelectPage() {
   };
 
   return (
-    <MobileLayout>
-      <div className="bg-gradient-bg flex min-h-screen flex-col overflow-hidden">
-        <header className="px-5 pt-3">
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.createPartyTime)}
-            aria-label="뒤로가기"
-            className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
-          >
-            <ChevronLeftIcon />
-          </button>
-        </header>
+    <div className="bg-gradient-bg flex min-h-screen flex-col overflow-hidden">
+      <header className="px-5 pt-3">
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.createPartyTime)}
+          aria-label="뒤로가기"
+          className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
+        >
+          <ChevronLeftIcon />
+        </button>
+      </header>
 
-        <H1 className="mt-12 px-5">
-          내 파티날,
-          <br />
-          나는 어떤 캐릭터로 등장할까요?
-        </H1>
+      <H1 className="mt-12 px-5">
+        내 파티날,
+        <br />
+        나는 어떤 캐릭터로 등장할까요?
+      </H1>
 
-        <div className="mt-21">
-          <Swiper
-            modules={[EffectCoverflow]}
-            effect="coverflow"
-            slidesPerView="auto"
-            centeredSlides
-            spaceBetween={0}
-            initialSlide={selectedIndex}
-            coverflowEffect={{
-              rotate: 0,
-              stretch: 28,
-              depth: 0,
-              modifier: 1,
-              scale: 0.62,
-              slideShadows: false,
-            }}
-            onSwiper={(swiper) => {
-              swiperRef.current = swiper;
-            }}
-            onSlideChange={(swiper) => setSelectedIndex(swiper.realIndex)}
-            className="w-full overflow-visible"
-          >
-            {TEMP_CHARACTERS.map((character, index) => (
-              <SwiperSlide
-                key={character.id}
-                aria-label={character.name}
-                style={{ width: 200 }}
-                className="flex items-center justify-center"
-              >
-                {/* TODO: 캐릭터 에셋 연결 시 더미 체크무늬 교체 */}
-                <div
-                  className={`h-50 w-50 border border-black transition-opacity duration-200 ${
-                    index === selectedIndex ? 'opacity-100' : 'opacity-25'
-                  }`}
-                  style={{
-                    backgroundColor: '#fff',
-                    backgroundImage:
-                      'linear-gradient(45deg, #eeeeee 25%, transparent 25%), linear-gradient(-45deg, #eeeeee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eeeeee 75%), linear-gradient(-45deg, transparent 75%, #eeeeee 75%)',
-                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                    backgroundSize: '20px 20px',
-                  }}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-
-        <div className="mt-13 flex justify-center gap-10">
-          <CarouselButton
-            label="이전 캐릭터"
-            onClick={() => swiperRef.current?.slidePrev()}
-            direction="prev"
-          />
-          <CarouselButton
-            label="다음 캐릭터"
-            onClick={() => swiperRef.current?.slideNext()}
-            direction="next"
-          />
-        </div>
-
-        <div className="mt-auto px-5 pb-6">
-          <Button size="full" onClick={handleSelectCharacter}>
-            선택하기
-          </Button>
-        </div>
+      <div className="mt-21">
+        <Swiper
+          modules={[EffectCoverflow]}
+          effect="coverflow"
+          slidesPerView="auto"
+          centeredSlides
+          spaceBetween={0}
+          initialSlide={selectedIndex}
+          coverflowEffect={{
+            rotate: 0,
+            stretch: 28,
+            depth: 0,
+            modifier: 1,
+            scale: 0.62,
+            slideShadows: false,
+          }}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
+          onSlideChange={(swiper) => setSelectedIndex(swiper.realIndex)}
+          className="w-full overflow-visible"
+        >
+          {TEMP_CHARACTERS.map((character, index) => (
+            <SwiperSlide
+              key={character.id}
+              aria-label={character.name}
+              style={{ width: 200 }}
+              className="flex items-center justify-center"
+            >
+              {/* TODO: 캐릭터 에셋 연결 시 더미 체크무늬 교체 */}
+              <div
+                className={`h-50 w-50 border border-black transition-opacity duration-200 ${
+                  index === selectedIndex ? 'opacity-100' : 'opacity-25'
+                }`}
+                style={{
+                  backgroundColor: '#fff',
+                  backgroundImage:
+                    'linear-gradient(45deg, #eeeeee 25%, transparent 25%), linear-gradient(-45deg, #eeeeee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eeeeee 75%), linear-gradient(-45deg, transparent 75%, #eeeeee 75%)',
+                  backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+                  backgroundSize: '20px 20px',
+                }}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
-    </MobileLayout>
+
+      <div className="mt-13 flex justify-center gap-10">
+        <CarouselButton
+          label="이전 캐릭터"
+          onClick={() => swiperRef.current?.slidePrev()}
+          direction="prev"
+        />
+        <CarouselButton
+          label="다음 캐릭터"
+          onClick={() => swiperRef.current?.slideNext()}
+          direction="next"
+        />
+      </div>
+
+      <div className="mt-auto px-5 pb-6">
+        <Button size="full" onClick={handleSelectCharacter}>
+          선택하기
+        </Button>
+      </div>
+    </div>
   );
 }
 

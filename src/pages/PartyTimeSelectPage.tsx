@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import Picker from 'react-mobile-picker';
 import { useNavigate } from 'react-router-dom';
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { H1 } from '@/components/ui/Typography';
@@ -94,171 +93,163 @@ export default function PartyTimeSelectPage() {
   };
 
   return (
-    <MobileLayout>
-      <div className="bg-gradient-bg relative flex min-h-screen flex-col">
-        <header className="px-5 pt-3">
+    <div className="bg-gradient-bg relative flex min-h-screen flex-col">
+      <header className="px-5 pt-3">
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.createParty)}
+          aria-label="뒤로가기"
+          className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
+        >
+          <ChevronLeftIcon />
+        </button>
+      </header>
+
+      <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 시간을 선택해 주세요</H1>
+
+      <div className="relative mt-6">
+        {pickerMode && (
           <button
             type="button"
-            onClick={() => navigate(ROUTES.createParty)}
-            aria-label="뒤로가기"
-            className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
+            aria-label="선택창 닫기"
+            className="fixed inset-0 z-20 cursor-default"
+            onClick={handleClosePicker}
+          />
+        )}
+        <div className="relative z-10 flex justify-center">
+          <InvitationCard title="파티 초대장" footerDate={formatDotDate(selectedDate)}>
+            <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+                <HighlightPill>{userName || '이름'}</HighlightPill>
+                <span>를 위해</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+                <HighlightPill
+                  variant={isDatePickerOpen ? 'active' : 'filled'}
+                  onClick={handleOpenDatePicker}
+                >
+                  {formatKoreanDate(selectedDate)}
+                </HighlightPill>
+                <span>에</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+                <HighlightPill
+                  variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
+                  onClick={handleOpenTimePicker}
+                >
+                  {isTimePickerOpen ? pendingTime : (selectedTime ?? '시간선택')}
+                </HighlightPill>
+                <span>부터 {PARTY_DURATION_MINUTES}분 동안</span>
+              </div>
+              <span>온라인 생일 파티가 열려요</span>
+            </div>
+          </InvitationCard>
+        </div>
+        <StackedInvitationBackdrop />
+        {isDatePickerOpen && (
+          <div
+            className="bg-grey-600/70 absolute top-[212px] z-30 w-[282px] rounded-[8px] px-4 py-3 text-white shadow-lg backdrop-blur-sm"
+            style={{ left: 'calc(50% - 141.5px)' }}
+            onClick={(event) => event.stopPropagation()}
           >
-            <ChevronLeftIcon />
-          </button>
-        </header>
-
-        <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 시간을 선택해 주세요</H1>
-
-        <div className="relative mt-6">
-          {pickerMode && (
-            <button
-              type="button"
-              aria-label="선택창 닫기"
-              className="fixed inset-0 z-20 cursor-default"
-              onClick={handleClosePicker}
+            <DayPicker
+              mode="single"
+              selected={selectedDate}
+              defaultMonth={selectedDate}
+              disabled={{ before: today }}
+              onSelect={handleSelectDate}
+              weekStartsOn={0}
+              formatters={{
+                formatCaption: (month) => `${month.getFullYear()} ${month.getMonth() + 1}월`,
+                formatWeekdayName: (weekday) =>
+                  ['일', '월', '화', '수', '목', '금', '토'][weekday.getDay()],
+              }}
+              classNames={{
+                month_caption: 'mb-3 flex items-center justify-between',
+                caption_label: 'text-body-1 font-semibold text-white',
+                nav: 'absolute top-3 right-4 flex gap-4',
+                button_previous: 'text-grey-200',
+                button_next: 'text-grey-200',
+                month_grid: 'w-full border-collapse',
+                weekdays: 'text-label-2 text-grey-300',
+                weekday: 'h-7 font-normal',
+                week: 'h-7',
+                day: 'h-7 w-9 text-center align-middle',
+                day_button: 'h-7 w-7 rounded-full text-body-1 text-white disabled:text-grey-300',
+                selected: '[&>button]:bg-white [&>button]:font-semibold [&>button]:text-blue-500',
+                disabled: '[&>button]:text-grey-300',
+                outside: '[&>button]:text-grey-300',
+              }}
             />
-          )}
-          <div className="relative z-10 flex justify-center">
-            <InvitationCard title="파티 초대장" footerDate={formatDotDate(selectedDate)}>
-              <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                  <HighlightPill>{userName || '이름'}</HighlightPill>
-                  <span>를 위해</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                  <HighlightPill
-                    variant={isDatePickerOpen ? 'active' : 'filled'}
-                    onClick={handleOpenDatePicker}
-                  >
-                    {formatKoreanDate(selectedDate)}
-                  </HighlightPill>
-                  <span>에</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                  <HighlightPill
-                    variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
-                    onClick={handleOpenTimePicker}
-                  >
-                    {isTimePickerOpen ? pendingTime : (selectedTime ?? '시간선택')}
-                  </HighlightPill>
-                  <span>부터 {PARTY_DURATION_MINUTES}분 동안</span>
-                </div>
-                <span>온라인 생일 파티가 열려요</span>
-              </div>
-            </InvitationCard>
           </div>
-          <StackedInvitationBackdrop />
-          {isDatePickerOpen && (
-            <div
-              className="bg-grey-600/70 absolute top-[212px] z-30 w-[282px] rounded-[8px] px-4 py-3 text-white shadow-lg backdrop-blur-sm"
-              style={{ left: 'calc(50% - 141.5px)' }}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <DayPicker
-                mode="single"
-                selected={selectedDate}
-                defaultMonth={selectedDate}
-                disabled={{ before: today }}
-                onSelect={handleSelectDate}
-                weekStartsOn={0}
-                formatters={{
-                  formatCaption: (month) => `${month.getFullYear()} ${month.getMonth() + 1}월`,
-                  formatWeekdayName: (weekday) =>
-                    ['일', '월', '화', '수', '목', '금', '토'][weekday.getDay()],
-                }}
-                classNames={{
-                  month_caption: 'mb-3 flex items-center justify-between',
-                  caption_label: 'text-body-1 font-semibold text-white',
-                  nav: 'absolute top-3 right-4 flex gap-4',
-                  button_previous: 'text-grey-200',
-                  button_next: 'text-grey-200',
-                  month_grid: 'w-full border-collapse',
-                  weekdays: 'text-label-2 text-grey-300',
-                  weekday: 'h-7 font-normal',
-                  week: 'h-7',
-                  day: 'h-7 w-9 text-center align-middle',
-                  day_button: 'h-7 w-7 rounded-full text-body-1 text-white disabled:text-grey-300',
-                  selected: '[&>button]:bg-white [&>button]:font-semibold [&>button]:text-blue-500',
-                  disabled: '[&>button]:text-grey-300',
-                  outside: '[&>button]:text-grey-300',
-                }}
-              />
-            </div>
-          )}
-          {isTimePickerOpen && (
-            <div
-              className="bg-grey-600/70 absolute top-[260px] z-30 w-[282px] rounded-[8px] px-5 py-3 text-white shadow-lg backdrop-blur-sm"
-              style={{ left: 'calc(50% - 141.5px)' }}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <Picker
-                value={timePickerValue}
-                onChange={handleChangeTime}
-                height={180}
-                itemHeight={36}
-                wheelMode="natural"
-              >
-                <Picker.Column name="period">
-                  {TIME_PICKER_OPTIONS.period.map((option) => (
-                    <Picker.Item key={option} value={option}>
-                      {({ selected }) => (
-                        <span
-                          className={`text-head-2 ${selected ? 'text-white' : 'text-grey-300'}`}
-                        >
-                          {option}
-                        </span>
-                      )}
-                    </Picker.Item>
-                  ))}
-                </Picker.Column>
-                <Picker.Column name="hour">
-                  {TIME_PICKER_OPTIONS.hour.map((option) => (
-                    <Picker.Item key={option} value={option}>
-                      {({ selected }) => (
-                        <span
-                          className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}
-                        >
-                          {option}
-                        </span>
-                      )}
-                    </Picker.Item>
-                  ))}
-                </Picker.Column>
-                <Picker.Column name="minute">
-                  {TIME_PICKER_OPTIONS.minute.map((option) => (
-                    <Picker.Item key={option} value={option}>
-                      {({ selected }) => (
-                        <span
-                          className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}
-                        >
-                          {option}
-                        </span>
-                      )}
-                    </Picker.Item>
-                  ))}
-                </Picker.Column>
-              </Picker>
-              <div className="pointer-events-none absolute top-[84px] right-5 left-5 border-y border-white/60">
-                <div className="h-9" />
-              </div>
-              <span className="text-head-1 pointer-events-none absolute top-[87px] left-[157px] text-white">
-                :
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="relative z-30 mt-auto px-5 pb-6">
-          <Button
-            variant={isReady ? 'primary' : 'secondary'}
-            size="full"
-            disabled={!isReady}
-            onClick={handleCreateParty}
+        )}
+        {isTimePickerOpen && (
+          <div
+            className="bg-grey-600/70 absolute top-[260px] z-30 w-[282px] rounded-[8px] px-5 py-3 text-white shadow-lg backdrop-blur-sm"
+            style={{ left: 'calc(50% - 141.5px)' }}
+            onClick={(event) => event.stopPropagation()}
           >
-            파티 생성하기
-          </Button>
-        </div>
+            <Picker
+              value={timePickerValue}
+              onChange={handleChangeTime}
+              height={180}
+              itemHeight={36}
+              wheelMode="natural"
+            >
+              <Picker.Column name="period">
+                {TIME_PICKER_OPTIONS.period.map((option) => (
+                  <Picker.Item key={option} value={option}>
+                    {({ selected }) => (
+                      <span className={`text-head-2 ${selected ? 'text-white' : 'text-grey-300'}`}>
+                        {option}
+                      </span>
+                    )}
+                  </Picker.Item>
+                ))}
+              </Picker.Column>
+              <Picker.Column name="hour">
+                {TIME_PICKER_OPTIONS.hour.map((option) => (
+                  <Picker.Item key={option} value={option}>
+                    {({ selected }) => (
+                      <span className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}>
+                        {option}
+                      </span>
+                    )}
+                  </Picker.Item>
+                ))}
+              </Picker.Column>
+              <Picker.Column name="minute">
+                {TIME_PICKER_OPTIONS.minute.map((option) => (
+                  <Picker.Item key={option} value={option}>
+                    {({ selected }) => (
+                      <span className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}>
+                        {option}
+                      </span>
+                    )}
+                  </Picker.Item>
+                ))}
+              </Picker.Column>
+            </Picker>
+            <div className="pointer-events-none absolute top-[84px] right-5 left-5 border-y border-white/60">
+              <div className="h-9" />
+            </div>
+            <span className="text-head-1 pointer-events-none absolute top-[87px] left-[157px] text-white">
+              :
+            </span>
+          </div>
+        )}
       </div>
-    </MobileLayout>
+
+      <div className="relative z-30 mt-auto px-5 pb-6">
+        <Button
+          variant={isReady ? 'primary' : 'secondary'}
+          size="full"
+          disabled={!isReady}
+          onClick={handleCreateParty}
+        >
+          파티 생성하기
+        </Button>
+      </div>
+    </div>
   );
 }

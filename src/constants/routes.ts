@@ -10,11 +10,11 @@ export const ROUTES = {
   archive: '/archive',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
-  partyInvitation: '/party/:partyId/invitation',
-  partyEnter: (partyId: string) => `/party/${partyId}/enter`,
-  rollingPaperWrite: (partyId: string) => `/party/${partyId}/rolling-paper/write`,
-} as const;
 
-export function buildRollingPaperPath(id: string) {
-  return `/rolling-paper/${id}`;
-}
+  // 초대링크 통합 진입점 (inviteToken 기반)
+  partyInvite: '/invite/:inviteToken',
+
+  // 진입점 이후 내부 작업은 partyId 기반
+  partyEnter: '/party/:partyId/enter',
+  rollingPaperWrite: '/party/:partyId/rolling-paper/write',
+} as const;

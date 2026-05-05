@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
 import { MessageCard } from '@/components/rolling-paper/MessageCard';
@@ -11,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { H1, B1 } from '@/components/ui/Typography';
-import { ROUTES, buildRollingPaperPath } from '@/constants/routes';
+import { ROUTES } from '@/constants/routes';
 import { useRollingPaper } from '@/services/rolling-paper';
 
 export default function RollingPaperPage() {
@@ -26,14 +25,14 @@ export default function RollingPaperPage() {
   const messageCount = data?.messages.length ?? 0;
 
   const shareLink = useMemo(
-    () => `${window.location.origin}${buildRollingPaperPath(id ?? '')}`,
+    () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: id ?? '' })}`,
     [id],
   );
 
   if (!data) return null;
 
   return (
-    <MobileLayout>
+    <>
       <div
         className="relative flex min-h-dvh flex-col overflow-hidden"
         style={{ background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)' }}
@@ -117,6 +116,6 @@ export default function RollingPaperPage() {
           />,
           document.body,
         )}
-    </MobileLayout>
+    </>
   );
 }
