@@ -31,7 +31,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`text-body-1 inline-flex cursor-pointer items-center justify-center gap-2 font-semibold disabled:cursor-not-allowed disabled:bg-grey-50 disabled:text-grey-300 ${sizeStyles[size]} ${variantStyles[variant]} ${className ?? ''}`}
+      className={`text-body-1 disabled:bg-grey-50 disabled:text-grey-300 inline-flex cursor-pointer items-center justify-center gap-2 font-semibold disabled:cursor-not-allowed ${sizeStyles[size]} ${variantStyles[variant]} ${className ?? ''}`}
       {...props}
     >
       {leftIcon}
