@@ -1,13 +1,12 @@
 import { useState } from 'react';
 
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { RollingPaperMessageForm } from '@/components/rolling-paper-write/RollingPaperMessageForm';
 import { RollingPaperNicknameForm } from '@/components/rolling-paper-write/RollingPaperNicknameForm';
 import { RollingPaperWriteComplete } from '@/components/rolling-paper-write/RollingPaperWriteComplete';
-import { ROUTES } from '@/constants/routes';
 import type { ToppingType } from '@/services/rolling-paper';
-import { useWriteRollingPaper } from '@/services/rolling-paper';
+import { useRollingPaper, useWriteRollingPaper } from '@/services/rolling-paper';
 
 type Step = 'nickname' | 'message' | 'complete';
 
@@ -19,7 +18,9 @@ interface FormState {
 
 export default function RollingPaperWritePage() {
   const { partyId } = useParams<{ partyId: string }>();
-  const navigate = useNavigate();
+
+  const { data } = useRollingPaper(partyId ?? '');
+  const hostName = data?.hostName ?? '';
 
   const [step, setStep] = useState<Step>('nickname');
   const [formState, setFormState] = useState<FormState>({
@@ -54,8 +55,7 @@ export default function RollingPaperWritePage() {
   }
 
   function handleComplete() {
-    // TODO: 롤링페이퍼 메인 화면으로 이동
-    navigate(generatePath(ROUTES.rollingPaper, { id: partyId ?? '' }));
+    // TODO: 롤링페이퍼_메인_참가자 화면으로 이동
   }
 
   if (step === 'nickname') {
@@ -63,11 +63,12 @@ export default function RollingPaperWritePage() {
   }
 
   if (step === 'message') {
-    return <RollingPaperMessageForm onNext={handleMessageNext} />;
+    return <RollingPaperMessageForm hostName={hostName} onNext={handleMessageNext} />;
   }
 
   return (
     <RollingPaperWriteComplete
+      hostName={hostName}
       nickname={formState.nickname}
       message={formState.message}
       toppingType={formState.toppingType!}

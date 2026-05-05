@@ -1,28 +1,37 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
-import { B2, H1 } from '@/components/ui/Typography';
+import { NavigationBar } from '@/components/ui/NavigationBar';
+import { TextInput } from '@/components/ui/TextInput';
+import { B1, H1 } from '@/components/ui/Typography';
+
+const MAX_NICKNAME_LENGTH = 10;
 
 const nicknameSchema = z.object({
   nickname: z
     .string()
     .min(1, '닉네임을 입력해주세요')
-    .max(10, '닉네임은 10자 이하로 입력해주세요'),
+    .max(MAX_NICKNAME_LENGTH, `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요`),
 });
 
 type NicknameFormValues = z.infer<typeof nicknameSchema>;
 
-interface NicknameStepProps {
+interface RollingPaperNicknameFormProps {
   onNext: (nickname: string) => void;
 }
 
-export function RollingPaperNicknameForm({ onNext }: NicknameStepProps) {
+export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormProps) {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
+    setError,
     formState: { errors },
   } = useForm<NicknameFormValues>({
     resolver: zodResolver(nicknameSchema),
@@ -30,42 +39,51 @@ export function RollingPaperNicknameForm({ onNext }: NicknameStepProps) {
   });
 
   const nickname = watch('nickname', '');
+  const charCount = Array.from(nickname ?? '').length;
+  const isError = !!errors.nickname;
+
+  const { onChange: registerOnChange, ...registerRest } = register('nickname');
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const chars = Array.from(e.target.value);
+    if (chars.length > MAX_NICKNAME_LENGTH) {
+      setValue('nickname', chars.slice(0, MAX_NICKNAME_LENGTH).join(''), { shouldValidate: false });
+      setError('nickname', { message: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요` });
+      return;
+    }
+    registerOnChange(e);
+  }
 
   function onSubmit({ nickname }: NicknameFormValues) {
     onNext(nickname);
   }
 
+  const inputStatus = isError ? 'negative' : charCount > 0 ? 'positive' : 'normal';
+
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col">
-      <section className="flex flex-1 flex-col gap-8 px-4 pt-16">
-        <H1 as="h1" className="text-center tracking-[-0.0002em] text-black">
-          롤링페이퍼에 남길
-          <br />
-          닉네임을 입력해주세요
-        </H1>
+    <main className="flex min-h-screen flex-col bg-white">
+      <NavigationBar variant="back" onBack={() => navigate(-1)} />
+
+      <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
+        <div className="flex flex-col gap-2">
+          <H1 as="h1" className="text-black">
+            어떤 이름으로
+            <br />
+            메세지를 남길까요?
+          </H1>
+          <B1 className="font-medium text-grey-500">생일자에게 보여질 이름을 입력해주세요.</B1>
+        </div>
 
         <form id="nickname-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="flex flex-col gap-2">
-            <div
-              className={`flex items-center rounded-btn-md border px-4 py-3.5 ${
-                errors.nickname ? 'border-red-500' : 'border-grey-100 focus-within:border-blue-500'
-              }`}
-            >
-              <input
-                {...register('nickname')}
-                type="text"
-                maxLength={10}
-                placeholder="닉네임 입력 (최대 10자)"
-                autoComplete="off"
-                className="w-full bg-transparent text-body-1 text-black outline-none placeholder:text-grey-300"
-              />
-            </div>
-            {errors.nickname && (
-              <B2 as="p" className="text-red-500">
-                {errors.nickname.message}
-              </B2>
-            )}
-          </div>
+          <TextInput
+            {...registerRest}
+            onChange={handleChange}
+            status={inputStatus}
+            placeholder="이름이나 별명을 입력해주세요"
+            autoComplete="off"
+            helperText={isError ? errors.nickname?.message : undefined}
+            counter={{ current: charCount, max: MAX_NICKNAME_LENGTH }}
+          />
         </form>
       </section>
 
@@ -75,7 +93,7 @@ export function RollingPaperNicknameForm({ onNext }: NicknameStepProps) {
           form="nickname-form"
           variant="primary"
           size="full"
-          disabled={!nickname || !!errors.nickname}
+          disabled={!nickname || isError}
         >
           다음
         </Button>

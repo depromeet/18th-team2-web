@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
-import { B2, Caption, H1 } from '@/components/ui/Typography';
+import { NavigationBar } from '@/components/ui/NavigationBar';
+import { H1, H3 } from '@/components/ui/Typography';
 import type { ToppingType } from '@/services/rolling-paper';
 
 import { ToppingSelector } from './ToppingSelector';
@@ -23,10 +25,12 @@ const messageSchema = z.object({
 type MessageFormValues = z.infer<typeof messageSchema>;
 
 interface RollingPaperMessageFormProps {
+  hostName: string;
   onNext: (message: string, toppingType: ToppingType) => void;
 }
 
-export function RollingPaperMessageForm({ onNext }: RollingPaperMessageFormProps) {
+export function RollingPaperMessageForm({ hostName, onNext }: RollingPaperMessageFormProps) {
+  const navigate = useNavigate();
   const [bottomOffset, setBottomOffset] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -35,7 +39,6 @@ export function RollingPaperMessageForm({ onNext }: RollingPaperMessageFormProps
     handleSubmit,
     watch,
     control,
-    formState: { errors },
   } = useForm<MessageFormValues>({
     resolver: zodResolver(messageSchema),
     mode: 'onChange',
@@ -66,23 +69,22 @@ export function RollingPaperMessageForm({ onNext }: RollingPaperMessageFormProps
   }
 
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col">
-      <section className="flex flex-1 flex-col gap-6 px-4 pt-16">
-        <H1 as="h1" className="text-center tracking-[-0.0002em] text-black">
-          마음을 담아
+    <main className="flex min-h-screen flex-col bg-white">
+      <NavigationBar variant="back" onBack={() => navigate(-1)} />
+
+      <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
+        {/* 타이틀 */}
+        <H1 as="h1" className="text-black">
+          {hostName}님에게
           <br />
-          메시지를 남겨보세요
+          생일 축하 한마디를 남겨요
         </H1>
 
         <form id="message-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-7">
             {/* 메시지 textarea */}
-            <div className="flex flex-col gap-2">
-              <div
-                className={`flex flex-col rounded-btn-md border px-4 py-3.5 ${
-                  errors.message ? 'border-red-500' : 'border-grey-100 focus-within:border-blue-500'
-                }`}
-              >
+            <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col rounded-[20px] border border-grey-100 px-6 py-6">
                 <textarea
                   {...messageRegisterRest}
                   ref={(el) => {
@@ -90,29 +92,26 @@ export function RollingPaperMessageForm({ onNext }: RollingPaperMessageFormProps
                     textareaRef.current = el;
                   }}
                   maxLength={MAX_MESSAGE_LENGTH}
-                  rows={5}
-                  placeholder="생일을 축하하는 메시지를 남겨주세요 (최대 100자)"
-                  className="w-full resize-none bg-transparent text-body-1 text-black outline-none placeholder:text-grey-300"
+                  rows={6}
+                  placeholder="태어나줘서 고마워 ♥️"
+                  className="w-full resize-none bg-transparent text-[20px] font-semibold leading-[1.4] text-blue-600 outline-none placeholder:font-semibold placeholder:text-grey-200"
                 />
-                <Caption
-                  as="span"
-                  className={`self-end ${charCount >= MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-grey-300'}`}
-                >
-                  {charCount}/{MAX_MESSAGE_LENGTH}
-                </Caption>
               </div>
-              {errors.message && (
-                <B2 as="p" className="text-red-500">
-                  {errors.message.message}
-                </B2>
-              )}
+              {/* 글자 수 카운터 */}
+              <div className="flex justify-start gap-0.5 text-[14px] leading-5">
+                <span className={`font-medium ${charCount >= MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-grey-500'}`}>
+                  {charCount}
+                </span>
+                <span className="font-normal text-grey-300">/</span>
+                <span className="font-normal text-grey-300">{MAX_MESSAGE_LENGTH}</span>
+              </div>
             </div>
 
-            {/* 토핑(편지지) 선택 */}
+            {/* 토핑(편지 봉투) 선택 */}
             <div className="flex flex-col gap-3">
-              <B2 as="p" className="font-medium text-grey-600">
-                편지지 선택
-              </B2>
+              <H3 as="p" className="font-semibold text-black">
+                편지 봉투가 될 토핑을 선택해주세요
+              </H3>
               <Controller
                 control={control}
                 name="toppingType"
@@ -135,7 +134,7 @@ export function RollingPaperMessageForm({ onNext }: RollingPaperMessageFormProps
         <Button
           type="submit"
           form="message-form"
-          variant="primary"
+          variant={isReady ? 'primary' : 'secondary'}
           size="full"
           disabled={!isReady}
         >
