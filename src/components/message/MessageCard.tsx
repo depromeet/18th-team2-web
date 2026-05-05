@@ -5,7 +5,8 @@ import 'swiper/css';
 
 import { MessageCardBox } from '@/components/message/MessageCardBox';
 import { MessageCloseButton } from '@/components/message/MessageCloseButton';
-import { ChevronSmallIcon } from '@/components/ui/icons/ChevronSmallIcon';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { B1, H2, L1 } from '@/components/ui/Typography';
 import type { RollingPaperMessage } from '@/services/rolling-paper';
 
@@ -72,7 +73,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
             onClick={handlePrev}
             disabled={currentIndex <= 0}
           >
-            <ChevronSmallIcon direction="left" />
+            <ChevronLeftIcon width={16} height={16} className="text-grey-200" />
           </button>
           <L1 className="min-w-8 text-center font-medium text-white">
             {currentIndex + 1} / {messages.length}
@@ -84,7 +85,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
             onClick={handleNext}
             disabled={currentIndex >= messages.length - 1}
           >
-            <ChevronSmallIcon direction="right" />
+            <ChevronRightIcon width={16} height={16} className="text-grey-200" />
           </button>
         </div>
       </div>

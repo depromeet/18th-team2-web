@@ -1,4 +1,5 @@
-import { ChevronSmallIcon } from '@/components/ui/icons/ChevronSmallIcon';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { L1 } from '@/components/ui/Typography';
 
 interface PageIndicatorProps {
@@ -18,7 +19,7 @@ export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorP
         onClick={onPrev}
         disabled={current <= 1}
       >
-        <ChevronSmallIcon direction="left" />
+        <ChevronLeftIcon width={16} height={16} className="text-grey-200" />
       </button>
       <L1 className="min-w-6.75 text-center font-medium text-white">
         {current} / {total}
@@ -30,7 +31,7 @@ export function PageIndicator({ current, total, onPrev, onNext }: PageIndicatorP
         onClick={onNext}
         disabled={current >= total}
       >
-        <ChevronSmallIcon direction="right" />
+        <ChevronRightIcon width={16} height={16} className="text-grey-200" />
       </button>
     </div>
   );

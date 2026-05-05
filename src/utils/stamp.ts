@@ -1,8 +1,8 @@
-import stampCandle from '@/assets/images/stamps/stamp-candle-long.svg';
-import stampDonut from '@/assets/images/stamps/stamp-donut-long.svg';
-import stampFirework from '@/assets/images/stamps/stamp-firework-long.svg';
-import stampRollcake from '@/assets/images/stamps/stamp-rollcake-long.svg';
-import stampStrawberry from '@/assets/images/stamps/stamp-strawberry-long.svg';
+import stampCandle from '@/assets/images/stamps/stamp-candle-long.png';
+import stampDonut from '@/assets/images/stamps/stamp-donut-long.png';
+import stampFirework from '@/assets/images/stamps/stamp-firework-long.png';
+import stampRollcake from '@/assets/images/stamps/stamp-rollcake-long.png';
+import stampStrawberry from '@/assets/images/stamps/stamp-strawberry-long.png';
 import type { StampType } from '@/types/archive';
 
 const STAMPS: readonly StampType[] = [

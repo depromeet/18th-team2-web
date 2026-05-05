@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
+import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, B2, H2, L1 } from '@/components/ui/Typography';
 import { SHARE_ENDPOINTS } from '@/constants/external-urls';
@@ -263,8 +264,8 @@ export function LinkShareSheet({
               isCopyToastExiting ? 'link-share-toast-exit' : ''
             }`}
           >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
-              <ToastCheckIcon />
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
+              <CheckIcon width={14} height={14} />
             </span>
             <B2 as="span" className="text-grey-100 font-semibold">
               {copySuccessMessage}
@@ -273,19 +274,5 @@ export function LinkShareSheet({
         </div>
       )}
     </div>
-  );
-}
-
-function ToastCheckIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path
-        d="M3.5 7.1L5.8 9.4L10.5 4.6"
-        stroke="white"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
