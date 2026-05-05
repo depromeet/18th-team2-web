@@ -4,6 +4,7 @@ import type { ArchiveListItem, PaperDetail, PartyDetail } from '@/types/archive'
 
 // TODO: BE API 미정 — 응답 형태 확정되면 queryFn 교체
 // 필요 엔드포인트: GET /api/v1/archive, /archive/party/:id, /archive/paper/:id
+// TODO: 실제 API에서는 role/stamp/myPaperWritten 등 응답 필드 동기화
 
 const MOCK_LIST: ArchiveListItem[] = [
   { id: 'p-1', type: 'PARTY', title: '김유빈의 파티', date: '26.11.25', stamp: 'strawberry' },
@@ -20,9 +21,27 @@ const MOCK_LIST: ArchiveListItem[] = [
   { id: 'w-5', type: 'PAPER', title: '서지원의 롤링페이퍼', date: '26.11.14', stamp: 'rollcake' },
 ];
 
+const MOCK_PARTICIPANT_NAMES = [
+  '해파리',
+  '바닷별',
+  '오징어',
+  '문어',
+  '돌고래',
+  '거북이',
+  '소라',
+  '고래',
+  '복어',
+  '꽃게',
+  '새우',
+  '멍게',
+  '미역',
+  '전복',
+  '청새치',
+];
+
 const MOCK_CHAT = Array.from({ length: 7 }, (_, i) => ({
   id: `m-${i + 1}`,
-  authorName: '해파리',
+  authorName: MOCK_PARTICIPANT_NAMES[i % MOCK_PARTICIPANT_NAMES.length],
   content:
     '생추카! 생추카!생추카!생추카!생추카!생추카!생추카!생추카!생추카!생추카!생추카!생추카!생추카!',
   sentAt: '12:00',
@@ -36,8 +55,8 @@ function createMockPartyDetail(id: string): PartyDetail {
     partyName: listItem?.title ?? '김유빈의 파티',
     date: listItem?.date ?? '26.11.25',
     time: '14:00',
-    participantCount: 20,
-    participants: Array(15).fill('해파리'),
+    participantCount: MOCK_PARTICIPANT_NAMES.length,
+    participants: MOCK_PARTICIPANT_NAMES,
     role: isHost ? 'HOST' : 'PARTICIPANT',
     myPaperWritten: !isHost,
     myPaperContent:
@@ -76,11 +95,13 @@ export const archiveQueries = {
     queryOptions({
       queryKey: ['archive', 'party', partyId],
       queryFn: () => Promise.resolve(createMockPartyDetail(partyId)),
+      enabled: !!partyId,
     }),
-  paperDetail: (wrapperId: string) =>
+  paperDetail: (paperId: string) =>
     queryOptions({
-      queryKey: ['archive', 'paper', wrapperId],
-      queryFn: () => Promise.resolve(createMockPaperDetail(wrapperId)),
+      queryKey: ['archive', 'paper', paperId],
+      queryFn: () => Promise.resolve(createMockPaperDetail(paperId)),
+      enabled: !!paperId,
     }),
 };
 
@@ -92,6 +113,6 @@ export function useArchivePartyDetail(partyId: string) {
   return useQuery(archiveQueries.partyDetail(partyId));
 }
 
-export function useArchivePaperDetail(wrapperId: string) {
-  return useQuery(archiveQueries.paperDetail(wrapperId));
+export function useArchivePaperDetail(paperId: string) {
+  return useQuery(archiveQueries.paperDetail(paperId));
 }

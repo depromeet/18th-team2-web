@@ -1,11 +1,11 @@
 import { B1, Caption, L1, L2 } from '@/components/ui/Typography';
 import type { ChatMessage } from '@/types/archive';
 
-interface Props {
+interface PartyChatSectionProps {
   messages: ChatMessage[];
 }
 
-export function PartyChatSection({ messages }: Props) {
+export function PartyChatSection({ messages }: PartyChatSectionProps) {
   return (
     <section className="flex flex-col gap-2 px-4 py-3">
       <B1 className="font-semibold text-black">파티 채팅</B1>

@@ -1,29 +1,16 @@
-import stampCandle from '@/assets/images/stamps/stamp-candle-long.svg';
-import stampDonut from '@/assets/images/stamps/stamp-donut-long.svg';
-import stampFirework from '@/assets/images/stamps/stamp-firework-long.svg';
-import stampRollcake from '@/assets/images/stamps/stamp-rollcake-long.svg';
-import stampStrawberry from '@/assets/images/stamps/stamp-strawberry-long.svg';
 import type { StampType } from '@/types/archive';
-import { getStampForId } from '@/utils/stamp';
+import { STAMP_SRC, getStampForId } from '@/utils/stamp';
 
-const STAMP_SRC: Record<StampType, string> = {
-  strawberry: stampStrawberry,
-  candle: stampCandle,
-  firework: stampFirework,
-  rollcake: stampRollcake,
-  donut: stampDonut,
-};
-
-interface Props {
+interface StampHeroCardProps {
   id: string;
   stamp?: StampType;
 }
 
-export function StampHeroCard({ id, stamp }: Props) {
+export function StampHeroCard({ id, stamp }: StampHeroCardProps) {
   const resolved = stamp ?? getStampForId(id);
   return (
     <div className="px-4 pt-3 pb-4">
-      <div className="relative w-full" style={{ aspectRatio: '343 / 165' }}>
+      <div className="relative w-full aspect-[343/165]">
         <img
           src={STAMP_SRC[resolved]}
           alt=""

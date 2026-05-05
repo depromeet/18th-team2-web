@@ -9,12 +9,13 @@ import { ROUTES } from '@/constants/routes';
 import { useArchivePaperDetail } from '@/services/archive';
 
 export default function ArchivePaperDetailPage() {
-  const { wrapperId } = useParams<{ wrapperId: string }>();
+  const { paperId } = useParams<{ paperId: string }>();
   const navigate = useNavigate();
-  const { data } = useArchivePaperDetail(wrapperId ?? '');
+  const { data, isLoading } = useArchivePaperDetail(paperId ?? '');
   const [paperOpen, setPaperOpen] = useState(false);
 
-  if (!data) return null;
+  if (!paperId) return null;
+  if (isLoading || !data) return null;
 
   const isHost = data.role === 'HOST';
   const showPaperSection = isHost || (data.myPaperWritten && data.myPaperContent);

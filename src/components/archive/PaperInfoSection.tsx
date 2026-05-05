@@ -1,12 +1,12 @@
 import { H2, L1 } from '@/components/ui/Typography';
 
-interface Props {
+interface PaperInfoSectionProps {
   title: string;
   startDate: string;
   endDate: string;
 }
 
-export function PaperInfoSection({ title, startDate, endDate }: Props) {
+export function PaperInfoSection({ title, startDate, endDate }: PaperInfoSectionProps) {
   return (
     <section className="flex flex-col gap-2 px-4 py-3">
       <H2 as="h2" className="text-black">

@@ -9,7 +9,7 @@ export const ROUTES = {
   createPartyComplete: '/create-party/complete',
   archive: '/archive',
   archivePartyDetail: '/archive/party/:partyId',
-  archivePaperDetail: '/archive/paper/:wrapperId',
+  archivePaperDetail: '/archive/paper/:paperId',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
 

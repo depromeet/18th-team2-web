@@ -1,7 +1,7 @@
 import { Caption, H2, L1 } from '@/components/ui/Typography';
 import type { PartyRole } from '@/types/archive';
 
-interface Props {
+interface PartyInfoSectionProps {
   partyName: string;
   date: string;
   time: string;
@@ -9,7 +9,7 @@ interface Props {
   role: PartyRole;
 }
 
-export function PartyInfoSection({ partyName, date, time, participantCount, role }: Props) {
+export function PartyInfoSection({ partyName, date, time, participantCount, role }: PartyInfoSectionProps) {
   return (
     <section className="flex flex-col gap-2 px-4 py-3">
       <div className="flex items-center gap-2">

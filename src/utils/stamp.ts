@@ -1,3 +1,8 @@
+import stampCandle from '@/assets/images/stamps/stamp-candle-long.svg';
+import stampDonut from '@/assets/images/stamps/stamp-donut-long.svg';
+import stampFirework from '@/assets/images/stamps/stamp-firework-long.svg';
+import stampRollcake from '@/assets/images/stamps/stamp-rollcake-long.svg';
+import stampStrawberry from '@/assets/images/stamps/stamp-strawberry-long.svg';
 import type { StampType } from '@/types/archive';
 
 const STAMPS: readonly StampType[] = [
@@ -8,6 +13,15 @@ const STAMPS: readonly StampType[] = [
   'donut',
 ] as const;
 
+export const STAMP_SRC: Record<StampType, string> = {
+  strawberry: stampStrawberry,
+  candle: stampCandle,
+  firework: stampFirework,
+  rollcake: stampRollcake,
+  donut: stampDonut,
+};
+
+// BE에서 stamp 필드가 누락된 경우 fallback. id 기반 결정적 매핑.
 export function getStampForId(id: string): StampType {
   let hash = 0;
   for (let i = 0; i < id.length; i += 1) {

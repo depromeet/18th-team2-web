@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { H3 } from '@/components/ui/Typography';
 
-interface Props {
+interface PageHeaderProps {
   title: string;
   onBack?: () => void;
 }
 
-export function PageHeader({ title, onBack }: Props) {
+export function PageHeader({ title, onBack }: PageHeaderProps) {
   const navigate = useNavigate();
   const handleBack = onBack ?? (() => navigate(-1));
 

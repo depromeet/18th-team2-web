@@ -1,28 +1,15 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 
-import stampCandle from '@/assets/images/stamps/stamp-candle-long.svg';
-import stampDonut from '@/assets/images/stamps/stamp-donut-long.svg';
-import stampFirework from '@/assets/images/stamps/stamp-firework-long.svg';
-import stampRollcake from '@/assets/images/stamps/stamp-rollcake-long.svg';
-import stampStrawberry from '@/assets/images/stamps/stamp-strawberry-long.svg';
 import { B2, Caption } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
-import type { ArchiveListItem, StampType } from '@/types/archive';
-import { getStampForId } from '@/utils/stamp';
+import type { ArchiveListItem } from '@/types/archive';
+import { STAMP_SRC, getStampForId } from '@/utils/stamp';
 
-const STAMP_SRC: Record<StampType, string> = {
-  strawberry: stampStrawberry,
-  candle: stampCandle,
-  firework: stampFirework,
-  rollcake: stampRollcake,
-  donut: stampDonut,
-};
-
-interface Props {
+interface ArchiveStampCardProps {
   item: ArchiveListItem;
 }
 
-export function ArchiveStampCard({ item }: Props) {
+export function ArchiveStampCard({ item }: ArchiveStampCardProps) {
   const navigate = useNavigate();
   const stamp = item.stamp ?? getStampForId(item.id);
 
@@ -30,7 +17,7 @@ export function ArchiveStampCard({ item }: Props) {
     if (item.type === 'PARTY') {
       navigate(generatePath(ROUTES.archivePartyDetail, { partyId: item.id }));
     } else {
-      navigate(generatePath(ROUTES.archivePaperDetail, { wrapperId: item.id }));
+      navigate(generatePath(ROUTES.archivePaperDetail, { paperId: item.id }));
     }
   };
 
@@ -38,8 +25,7 @@ export function ArchiveStampCard({ item }: Props) {
     <button
       type="button"
       onClick={handleClick}
-      className="relative block w-full cursor-pointer text-left"
-      style={{ aspectRatio: '343 / 165' }}
+      className="relative block w-full cursor-pointer aspect-[343/165] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       aria-label={`${item.title} ${item.date}`}
     >
       <img

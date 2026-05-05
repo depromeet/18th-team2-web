@@ -2,13 +2,13 @@ import { MessageCardBox } from '@/components/message/MessageCardBox';
 import { MessageCloseButton } from '@/components/message/MessageCloseButton';
 import { B1, H2 } from '@/components/ui/Typography';
 
-interface Props {
+interface SingleMessageModalProps {
   content: string;
   writerName: string;
   onClose: () => void;
 }
 
-export function SingleMessageModal({ content, writerName, onClose }: Props) {
+export function SingleMessageModal({ content, writerName, onClose }: SingleMessageModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 bg-black/70"

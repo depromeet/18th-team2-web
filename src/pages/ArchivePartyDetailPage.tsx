@@ -13,10 +13,11 @@ import { useArchivePartyDetail } from '@/services/archive';
 export default function ArchivePartyDetailPage() {
   const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
-  const { data } = useArchivePartyDetail(partyId ?? '');
+  const { data, isLoading } = useArchivePartyDetail(partyId ?? '');
   const [paperOpen, setPaperOpen] = useState(false);
 
-  if (!data) return null;
+  if (!partyId) return null;
+  if (isLoading || !data) return null;
 
   const isHost = data.role === 'HOST';
   const showPaperSection = isHost || (data.myPaperWritten && data.myPaperContent);

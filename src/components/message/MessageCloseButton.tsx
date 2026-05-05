@@ -1,10 +1,10 @@
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 
-interface Props {
+interface MessageCloseButtonProps {
   onClick: () => void;
 }
 
-export function MessageCloseButton({ onClick }: Props) {
+export function MessageCloseButton({ onClick }: MessageCloseButtonProps) {
   return (
     <button
       type="button"
