@@ -17,6 +17,18 @@ export interface ChatMessage {
   sentAt: string;
 }
 
+export interface PaperDetail {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  role: PartyRole;
+  paperCount: number;
+  myPaperWritten: boolean;
+  myPaperContent?: string;
+  stamp?: StampType;
+}
+
 export interface PartyDetail {
   id: string;
   partyName: string;
