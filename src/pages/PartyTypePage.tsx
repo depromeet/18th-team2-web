@@ -92,6 +92,11 @@ function getCardState(type: PartyType, selected: PartyType | null): CardState {
   return 'default';
 }
 
+function getLoginPromptTitlePrefix(selected: PartyType | null): string {
+  if (selected === 'rolling') return '롤링페이퍼를 만들기 위해서는';
+  return '파티를 만들기 위해서는';
+}
+
 export default function PartyTypePage() {
   const [selected, setSelected] = useState<PartyType | null>(null);
   const [showLoginSheet, setShowLoginSheet] = useState(false);
@@ -140,7 +145,11 @@ export default function PartyTypePage() {
           </Button>
         </div>
       </div>
-      <LoginPromptSheet isOpen={showLoginSheet} onClose={() => setShowLoginSheet(false)} />
+      <LoginPromptSheet
+        isOpen={showLoginSheet}
+        titlePrefix={getLoginPromptTitlePrefix(selected)}
+        onClose={() => setShowLoginSheet(false)}
+      />
     </>
   );
 }
