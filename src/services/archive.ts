@@ -1,9 +1,10 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
-import type { ArchiveListItem, PaperDetail, PartyDetail } from '@/types/archive';
+import type { ArchiveListItem, PartyDetail } from '@/types/archive';
 
 // TODO: BE API 미정 — 응답 형태 확정되면 queryFn 교체
-// 필요 엔드포인트: GET /api/v1/archive, /archive/party/:id, /archive/paper/:id
+// 필요 엔드포인트: GET /api/v1/archive, /archive/party/:id
+// 보관함 PAPER 카드 진입은 기존 /api/v1/rolling-papers/:id 재활용
 
 const MOCK_LIST: ArchiveListItem[] = [
   { id: 'p-1', type: 'PARTY', title: '김유빈의 파티', date: '26.11.25', stamp: 'strawberry' },
@@ -48,21 +49,6 @@ function createMockPartyDetail(id: string): PartyDetail {
   };
 }
 
-function createMockPaperDetail(id: string): PaperDetail {
-  const isHost = id === 'w-1';
-  return {
-    id,
-    title: isHost ? '김유빈의 롤링페이퍼' : '김유빈의 롤링페이퍼',
-    startDate: '26.11.25',
-    endDate: '26.12.03',
-    role: isHost ? 'HOST' : 'PARTICIPANT',
-    paperCount: isHost ? 17 : 0,
-    myPaperContent: !isHost
-      ? '생일 축하해!!! 이 글자의 최대 길이는 여기까지 이 글자의 최대 길이는 여기까지'
-      : undefined,
-  };
-}
-
 export const archiveQueries = {
   list: () =>
     queryOptions({
@@ -74,11 +60,6 @@ export const archiveQueries = {
       queryKey: ['archive', 'party', partyId],
       queryFn: () => Promise.resolve(createMockPartyDetail(partyId)),
     }),
-  paperDetail: (wrapperId: string) =>
-    queryOptions({
-      queryKey: ['archive', 'paper', wrapperId],
-      queryFn: () => Promise.resolve(createMockPaperDetail(wrapperId)),
-    }),
 };
 
 export function useArchiveList() {
@@ -87,8 +68,4 @@ export function useArchiveList() {
 
 export function useArchivePartyDetail(partyId: string) {
   return useQuery(archiveQueries.partyDetail(partyId));
-}
-
-export function useArchivePaperDetail(wrapperId: string) {
-  return useQuery(archiveQueries.paperDetail(wrapperId));
 }

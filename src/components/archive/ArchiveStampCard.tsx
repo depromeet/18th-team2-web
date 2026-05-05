@@ -30,7 +30,7 @@ export function ArchiveStampCard({ item }: Props) {
     if (item.type === 'PARTY') {
       navigate(generatePath(ROUTES.archivePartyDetail, { partyId: item.id }));
     } else {
-      navigate(generatePath(ROUTES.archivePaperDetail, { wrapperId: item.id }));
+      navigate(generatePath(ROUTES.rollingPaper, { id: item.id }));
     }
   };
 

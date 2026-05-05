@@ -32,12 +32,3 @@ export interface PartyDetail {
   stamp?: StampType;
 }
 
-export interface PaperDetail {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-  role: PartyRole;
-  paperCount: number;
-  myPaperContent?: string;
-}
