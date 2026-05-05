@@ -44,7 +44,7 @@ export default function RollingPaperPage() {
         <div className="relative z-20 px-4 pt-3">
           <button
             type="button"
-            onClick={() => navigate(ROUTES.home)}
+            onClick={() => navigate(-1)}
             aria-label="뒤로가기"
             className="-ml-2 flex h-12 w-12 cursor-pointer items-center justify-center"
           >
