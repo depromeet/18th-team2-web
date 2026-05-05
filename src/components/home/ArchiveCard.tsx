@@ -1,26 +1,42 @@
 import { useNavigate } from 'react-router-dom';
 
+import { ArchiveStampCard } from '@/components/archive/ArchiveStampCard';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { B1, H2 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
+import type { ArchiveListItem } from '@/types/archive';
 
 interface ArchiveCardProps {
   count: number;
+  previewItem?: ArchiveListItem;
 }
 
-export function ArchiveCard({ count }: ArchiveCardProps) {
+export function ArchiveCard({ count, previewItem }: ArchiveCardProps) {
   const navigate = useNavigate();
 
   return (
-    <button
-      type="button"
-      className="flex h-30 w-full cursor-pointer items-start justify-between rounded-[20px] p-5 text-left"
-      style={{ background: 'linear-gradient(130.25deg, #F9F6D8 0%, #FFF0F7 68.04%)' }}
-      onClick={() => navigate(ROUTES.archive)}
-    >
-      <div className="flex items-start gap-1">
-        <span className="text-head-2 font-semibold tracking-tight">보관함</span>
-        {count > 0 && <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-red-400" />}
-      </div>
-      {count > 0 && <span className="text-head-3 text-grey-600 font-medium">{count}개</span>}
-    </button>
+    <div className="flex flex-col bg-white">
+      <button
+        type="button"
+        onClick={() => navigate(ROUTES.archive)}
+        className="flex w-full cursor-pointer items-center justify-between px-5 py-5"
+      >
+        <div className="flex items-start gap-1">
+          <H2 as="span" className="text-black">
+            보관함
+          </H2>
+          {count > 0 && <span className="mt-1 h-1.5 w-1.5 rounded-full bg-red-400" />}
+        </div>
+        <div className="flex items-center gap-0">
+          <B1 className="text-grey-600 text-right font-medium">{count}</B1>
+          <ChevronLeftIcon className="text-grey-400 h-5 w-5 rotate-180" />
+        </div>
+      </button>
+      {previewItem && (
+        <div className="px-4">
+          <ArchiveStampCard item={previewItem} />
+        </div>
+      )}
+    </div>
   );
 }
