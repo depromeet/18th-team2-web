@@ -46,7 +46,7 @@ export function NavigationBar({
   onHome,
 }: NavigationBarProps) {
   return (
-    <nav className="relative flex h-12 w-full items-center bg-white">
+    <nav className="relative flex h-12 w-full items-center">
       {variant === 'back' && (
         <NavButton label="뒤로가기" onClick={onBack}>
           <span

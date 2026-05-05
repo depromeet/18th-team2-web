@@ -17,7 +17,7 @@ interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'di
 const borderStyles: Record<TextInputStatus, string> = {
   normal: 'border-grey-100',
   active: 'border-blue-500',
-  positive: 'border-blue-500',
+  positive: 'border-grey-100',
   negative: 'border-red-500',
   disabled: 'border-grey-100 bg-grey-50',
 };
@@ -78,7 +78,7 @@ export function TextInput({
               <span
                 className={
                   counter.current > 0
-                    ? counter.current >= counter.max
+                    ? counter.current > counter.max
                       ? 'font-medium text-red-500'
                       : 'font-medium text-grey-500'
                     : ''

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -25,13 +27,14 @@ interface RollingPaperNicknameFormProps {
 
 export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormProps) {
   const navigate = useNavigate();
+  const [isFocused, setIsFocused] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<NicknameFormValues>({
     resolver: zodResolver(nicknameSchema),
@@ -41,35 +44,37 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
   const nickname = watch('nickname', '');
   const charCount = Array.from(nickname ?? '').length;
   const isError = !!errors.nickname;
+  const isReady = charCount > 0 && !isError;
 
-  const { onChange: registerOnChange, ...registerRest } = register('nickname');
+  const { onChange: registerOnChange, onBlur: registerOnBlur, ...registerRest } = register('nickname');
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const chars = Array.from(e.target.value);
-    if (chars.length > MAX_NICKNAME_LENGTH) {
-      setValue('nickname', chars.slice(0, MAX_NICKNAME_LENGTH).join(''), { shouldValidate: false });
-      setError('nickname', { message: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요` });
-      return;
-    }
+    const nextValue = Array.from(e.target.value).slice(0, MAX_NICKNAME_LENGTH).join('');
+    e.target.value = nextValue;
+    clearErrors('nickname');
     registerOnChange(e);
+    setValue('nickname', nextValue, { shouldValidate: true });
+  }
+
+  function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
+    setIsFocused(false);
+    registerOnBlur(e);
   }
 
   function onSubmit({ nickname }: NicknameFormValues) {
     onNext(nickname);
   }
 
-  const inputStatus = isError ? 'negative' : charCount > 0 ? 'positive' : 'normal';
+  const inputStatus = isError ? 'negative' : isFocused ? 'active' : charCount > 0 ? 'positive' : 'normal';
 
   return (
-    <main className="flex min-h-screen flex-col bg-white">
+    <main className="flex min-h-screen flex-col bg-gradient-bg">
       <NavigationBar variant="back" onBack={() => navigate(-1)} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
         <div className="flex flex-col gap-2">
           <H1 as="h1" className="text-black">
-            어떤 이름으로
-            <br />
-            메세지를 남길까요?
+            어떤 이름으로 메세지를 남길까요?
           </H1>
           <B1 className="font-medium text-grey-500">생일자에게 보여질 이름을 입력해주세요.</B1>
         </div>
@@ -78,6 +83,8 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
           <TextInput
             {...registerRest}
             onChange={handleChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={handleBlur}
             status={inputStatus}
             placeholder="이름이나 별명을 입력해주세요"
             autoComplete="off"
@@ -87,15 +94,16 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
         </form>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-27.5 w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-150 px-4 pb-6">
         <Button
           type="submit"
           form="nickname-form"
-          variant="primary"
+          variant={isReady ? 'white-blue' : 'secondary'}
           size="full"
-          disabled={!nickname || isError}
+          disabled={!isReady}
+          className="disabled:opacity-100"
         >
-          다음
+          롤링페이퍼 작성하러 가기
         </Button>
       </div>
     </main>
