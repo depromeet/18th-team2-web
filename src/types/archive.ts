@@ -29,6 +29,7 @@ export interface PartyDetail {
   myPaperContent?: string;
   paperCount: number;
   chatMessages: ChatMessage[];
+  stamp?: StampType;
 }
 
 export interface PaperDetail {

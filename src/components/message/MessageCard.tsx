@@ -3,10 +3,11 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper/types';
 import 'swiper/css';
 
-import type { RollingPaperMessage } from '@/services/rolling-paper';
+import { MessageCardContent } from '@/components/message/MessageCardContent';
+import { MessageCloseButton } from '@/components/message/MessageCloseButton';
 import { ChevronSmallIcon } from '@/components/ui/icons/ChevronSmallIcon';
-import { CloseIcon } from '@/components/ui/icons/CloseIcon';
-import { H2, B1, L1 } from '@/components/ui/Typography';
+import { L1 } from '@/components/ui/Typography';
+import type { RollingPaperMessage } from '@/services/rolling-paper';
 
 interface MessageCardProps {
   messages: RollingPaperMessage[];
@@ -33,14 +34,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
         {/* 닫기 + 카드 영역 */}
         <div className="flex w-full flex-col items-end gap-3 pr-1">
           {/* 닫기 버튼 */}
-          <button
-            type="button"
-            aria-label="메시지 닫기"
-            className="flex h-12 w-12 cursor-pointer items-center justify-center p-2.5"
-            onClick={onClose}
-          >
-            <CloseIcon className="text-white" />
-          </button>
+          <MessageCloseButton onClick={onClose} />
 
           {/* 카드 캐러셀 */}
           <Swiper
@@ -58,12 +52,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
                 className="max-w-85.75"
                 style={{ width: 'calc(100% - 60px)' }}
               >
-                <div className="flex h-63 flex-col gap-3 rounded-[20px] bg-white p-6">
-                  <H2 className="flex-1 overflow-y-auto font-semibold tracking-tight text-blue-600 opacity-90">
-                    {msg.content}
-                  </H2>
-                  <B1 className="text-grey-700 text-right font-semibold">- {msg.writerName}</B1>
-                </div>
+                <MessageCardContent content={msg.content} writerName={msg.writerName} />
               </SwiperSlide>
             ))}
           </Swiper>

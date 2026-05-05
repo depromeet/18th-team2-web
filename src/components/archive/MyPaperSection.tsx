@@ -1,0 +1,25 @@
+import { B1 } from '@/components/ui/Typography';
+
+interface Props {
+  buttonLabel: string;
+  onClick: () => void;
+  count?: number;
+}
+
+export function MyPaperSection({ buttonLabel, onClick, count }: Props) {
+  return (
+    <section className="flex flex-col gap-2 px-4 py-3">
+      <div className="flex items-center gap-1">
+        <B1 className="font-semibold text-black">롤링페이퍼</B1>
+        {count != null && <B1 className="text-blue-500 font-semibold">{count}개</B1>}
+      </div>
+      <button
+        type="button"
+        onClick={onClick}
+        className="border-blue-200 flex h-14 w-full cursor-pointer items-center justify-center rounded-[14px] border"
+      >
+        <B1 className="font-semibold text-blue-600">{buttonLabel}</B1>
+      </button>
+    </section>
+  );
+}

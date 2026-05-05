@@ -29,11 +29,12 @@ const MOCK_CHAT = Array.from({ length: 7 }, (_, i) => ({
 }));
 
 function createMockPartyDetail(id: string): PartyDetail {
-  const isHost = id === 'p-1';
+  const listItem = MOCK_LIST.find((item) => item.id === id);
+  const isHost = id === 'p-3';
   return {
     id,
-    partyName: '김유빈의 파티',
-    date: '26.11.25',
+    partyName: listItem?.title ?? '김유빈의 파티',
+    date: listItem?.date ?? '26.11.25',
     time: '14:00',
     participantCount: 20,
     participants: Array(15).fill('해파리'),
@@ -43,6 +44,7 @@ function createMockPartyDetail(id: string): PartyDetail {
       '생일 축하해!!! 이 글자의 최대 길이는 여기까지 이 글자의 최대 길이는 여기까지 이 글자의 최대 길이는 여기까지 이 글자의 최대 길이는 여기까지 이 글자의 최대 길이는 여기까지 최대 길이는 여기',
     paperCount: isHost ? 17 : 0,
     chatMessages: MOCK_CHAT,
+    stamp: listItem?.stamp,
   };
 }
 

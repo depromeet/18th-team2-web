@@ -4,7 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
-import { MessageCard } from '@/components/rolling-paper/MessageCard';
+import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
