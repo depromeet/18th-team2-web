@@ -3,10 +3,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper/types';
 import 'swiper/css';
 
-import { MessageCardContent } from '@/components/message/MessageCardContent';
+import { MessageCardBox } from '@/components/message/MessageCardBox';
 import { MessageCloseButton } from '@/components/message/MessageCloseButton';
 import { ChevronSmallIcon } from '@/components/ui/icons/ChevronSmallIcon';
-import { L1 } from '@/components/ui/Typography';
+import { B1, H2, L1 } from '@/components/ui/Typography';
 import type { RollingPaperMessage } from '@/services/rolling-paper';
 
 interface MessageCardProps {
@@ -52,7 +52,12 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
                 className="max-w-85.75"
                 style={{ width: 'calc(100% - 60px)' }}
               >
-                <MessageCardContent content={msg.content} writerName={msg.writerName} />
+                <MessageCardBox>
+                  <H2 className="min-h-0 flex-1 overflow-y-auto font-semibold tracking-tight text-blue-600 opacity-90">
+                    {msg.content}
+                  </H2>
+                  <B1 className="text-grey-700 text-right font-semibold">- {msg.writerName}</B1>
+                </MessageCardBox>
               </SwiperSlide>
             ))}
           </Swiper>
