@@ -15,7 +15,7 @@ export function ArchiveCard({ count, previewItem }: ArchiveCardProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col bg-white">
+    <div className="flex flex-col bg-white pb-4">
       <button
         type="button"
         onClick={() => navigate(ROUTES.archive)}

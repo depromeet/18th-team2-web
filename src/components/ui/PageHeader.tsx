@@ -4,7 +4,7 @@ import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { H3 } from '@/components/ui/Typography';
 
 interface PageHeaderProps {
-  title: string;
+  title?: string;
   onBack?: () => void;
 }
 
@@ -13,7 +13,7 @@ export function PageHeader({ title, onBack }: PageHeaderProps) {
   const handleBack = onBack ?? (() => navigate(-1));
 
   return (
-    <header className="relative flex h-[42px] items-center px-4">
+    <header className="sticky top-0 z-10 flex h-[42px] items-center bg-white px-4">
       <button
         type="button"
         aria-label="뒤로가기"
@@ -22,9 +22,11 @@ export function PageHeader({ title, onBack }: PageHeaderProps) {
       >
         <ChevronLeftIcon className="text-grey-900" />
       </button>
-      <H3 as="h1" className="text-grey-900 mx-auto">
-        {title}
-      </H3>
+      {title && (
+        <H3 as="h1" className="text-grey-900 mx-auto">
+          {title}
+        </H3>
+      )}
     </header>
   );
 }
