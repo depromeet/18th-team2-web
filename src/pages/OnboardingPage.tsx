@@ -2,7 +2,6 @@ import { OnboardingContent } from '@/components/onboarding/OnboardingContent';
 import { B1 } from '@/components/ui/Typography';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import '@/styles/onboarding-swiper.css';
 import { useOnboarding } from '@/hooks/onboarding/useOnboarding';
 import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
 import { Button } from '@/components/ui/Button';
