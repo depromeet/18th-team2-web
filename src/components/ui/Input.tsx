@@ -1,5 +1,5 @@
 import { type InputHTMLAttributes, useId } from 'react';
-import { L2 } from './Typography';
+import { L2 } from '@/components/ui/Typography';
 
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'maxLength'> {
   value: string;
