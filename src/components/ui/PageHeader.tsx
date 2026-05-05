@@ -4,10 +4,10 @@ import chevronLeftSvg from '@/assets/icons/icon-chevron-left.svg?raw';
 import closeSvg from '@/assets/icons/icon-close.svg?raw';
 import homeSvg from '@/assets/icons/icon-home.svg?raw';
 
-type NavigationBarVariant = 'back' | 'close' | 'home' | 'double';
+type PageHeaderVariant = 'back' | 'close' | 'home' | 'double';
 
-interface NavigationBarProps {
-  variant?: NavigationBarVariant;
+interface PageHeaderProps {
+  variant?: PageHeaderVariant;
   title?: string;
   /** variant="double"일 때 좌측에 렌더링할 커스텀 버튼 */
   leftSlot?: ReactNode;
@@ -16,7 +16,7 @@ interface NavigationBarProps {
   onHome?: () => void;
 }
 
-function NavButton({
+function PageHeaderButton({
   onClick,
   label,
   children,
@@ -37,49 +37,49 @@ function NavButton({
   );
 }
 
-export function NavigationBar({
+export function PageHeader({
   variant = 'back',
   title,
   leftSlot,
   onBack,
   onClose,
   onHome,
-}: NavigationBarProps) {
+}: PageHeaderProps) {
   return (
-    <nav className="relative flex h-12 w-full items-center">
+    <header className="relative flex h-12 w-full items-center">
       {variant === 'back' && (
-        <NavButton label="뒤로가기" onClick={onBack}>
+        <PageHeaderButton label="뒤로가기" onClick={onBack}>
           <span
             aria-hidden
             className="text-grey-900"
             dangerouslySetInnerHTML={{ __html: chevronLeftSvg }}
           />
-        </NavButton>
+        </PageHeaderButton>
       )}
 
       {variant === 'close' && (
-        <NavButton label="닫기" onClick={onClose}>
+        <PageHeaderButton label="닫기" onClick={onClose}>
           <span aria-hidden dangerouslySetInnerHTML={{ __html: closeSvg }} />
-        </NavButton>
+        </PageHeaderButton>
       )}
 
       {variant === 'home' && (
-        <NavButton label="홈으로" onClick={onHome}>
+        <PageHeaderButton label="홈으로" onClick={onHome}>
           <span
             aria-hidden
             className="text-grey-900"
             dangerouslySetInnerHTML={{ __html: homeSvg }}
           />
-        </NavButton>
+        </PageHeaderButton>
       )}
 
       {variant === 'double' && (
         <>
           <div className="relative z-10 flex items-center">{leftSlot}</div>
           <div className="relative z-10 ml-auto">
-            <NavButton label="닫기" onClick={onClose}>
+            <PageHeaderButton label="닫기" onClick={onClose}>
               <span aria-hidden dangerouslySetInnerHTML={{ __html: closeSvg }} />
-            </NavButton>
+            </PageHeaderButton>
           </div>
         </>
       )}
@@ -89,6 +89,6 @@ export function NavigationBar({
           {title}
         </span>
       )}
-    </nav>
+    </header>
   );
 }

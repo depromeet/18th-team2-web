@@ -2,7 +2,7 @@ import candleImg from '@/assets/images/topping-candle.png';
 import cherryImg from '@/assets/images/topping-cherry.png';
 import strawberryImg from '@/assets/images/topping-strawberry.png';
 import { Button } from '@/components/ui/Button';
-import { NavigationBar } from '@/components/ui/NavigationBar';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { B1, B2, H1 } from '@/components/ui/Typography';
 import type { ToppingType } from '@/services/rolling-paper';
 
@@ -35,7 +35,7 @@ export function RollingPaperWriteComplete({
 }: RollingPaperWriteCompleteProps) {
   return (
     <main className="flex min-h-screen flex-col bg-white">
-      <NavigationBar variant="back" />
+      <PageHeader variant="back" />
 
       <section className="flex flex-1 flex-col gap-2 px-4 pt-5">
         {/* 타이틀 */}

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/Button';
-import { NavigationBar } from '@/components/ui/NavigationBar';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { TextInput } from '@/components/ui/TextInput';
 import { B1, H1 } from '@/components/ui/Typography';
 
@@ -69,7 +69,7 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
 
   return (
     <main className="flex min-h-screen flex-col bg-gradient-bg">
-      <NavigationBar variant="back" onBack={() => navigate(-1)} />
+      <PageHeader variant="back" onBack={() => navigate(-1)} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
         <div className="flex flex-col gap-2">
