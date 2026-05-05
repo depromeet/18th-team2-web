@@ -6,18 +6,18 @@ import type { ArchiveListItem, PaperDetail, PartyDetail } from '@/types/archive'
 // 필요 엔드포인트: GET /api/v1/archive, /archive/party/:id, /archive/paper/:id
 
 const MOCK_LIST: ArchiveListItem[] = [
-  { id: 'p-1', type: 'PARTY', title: '김유빈의 파티', date: '26.11.25' },
-  { id: 'w-1', type: 'PAPER', title: '정선진의 롤링페이퍼', date: '26.11.24' },
-  { id: 'p-2', type: 'PARTY', title: '한세라의 파티', date: '26.11.23' },
-  { id: 'w-2', type: 'PAPER', title: '이희주의 롤링페이퍼', date: '26.11.22' },
-  { id: 'p-3', type: 'PARTY', title: '김민수의 파티', date: '26.11.21' },
-  { id: 'p-4', type: 'PARTY', title: '현혜주의 파티', date: '26.11.20' },
-  { id: 'w-3', type: 'PAPER', title: '신현진의 롤링페이퍼', date: '26.11.19' },
-  { id: 'p-5', type: 'PARTY', title: '이윤영의 파티', date: '26.11.18' },
-  { id: 'p-6', type: 'PARTY', title: '허은정의 파티', date: '26.11.17' },
-  { id: 'w-4', type: 'PAPER', title: '최태규의 롤링페이퍼', date: '26.11.16' },
-  { id: 'p-7', type: 'PARTY', title: '박민호의 파티', date: '26.11.15' },
-  { id: 'w-5', type: 'PAPER', title: '서지원의 롤링페이퍼', date: '26.11.14' },
+  { id: 'p-1', type: 'PARTY', title: '김유빈의 파티', date: '26.11.25', stamp: 'strawberry' },
+  { id: 'w-1', type: 'PAPER', title: '정선진의 롤링페이퍼', date: '26.11.24', stamp: 'candle' },
+  { id: 'p-2', type: 'PARTY', title: '한세라의 파티', date: '26.11.23', stamp: 'firework' },
+  { id: 'w-2', type: 'PAPER', title: '이희주의 롤링페이퍼', date: '26.11.22', stamp: 'rollcake' },
+  { id: 'p-3', type: 'PARTY', title: '김민수의 파티', date: '26.11.21', stamp: 'donut' },
+  { id: 'p-4', type: 'PARTY', title: '현혜주의 파티', date: '26.11.20', stamp: 'firework' },
+  { id: 'w-3', type: 'PAPER', title: '신현진의 롤링페이퍼', date: '26.11.19', stamp: 'candle' },
+  { id: 'p-5', type: 'PARTY', title: '이윤영의 파티', date: '26.11.18', stamp: 'strawberry' },
+  { id: 'p-6', type: 'PARTY', title: '허은정의 파티', date: '26.11.17', stamp: 'donut' },
+  { id: 'w-4', type: 'PAPER', title: '최태규의 롤링페이퍼', date: '26.11.16', stamp: 'rollcake' },
+  { id: 'p-7', type: 'PARTY', title: '박민호의 파티', date: '26.11.15', stamp: 'firework' },
+  { id: 'w-5', type: 'PAPER', title: '서지원의 롤링페이퍼', date: '26.11.14', stamp: 'rollcake' },
 ];
 
 const MOCK_CHAT = Array.from({ length: 7 }, (_, i) => ({

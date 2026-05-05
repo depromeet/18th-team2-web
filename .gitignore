@@ -23,3 +23,7 @@ Thumbs.db
 
 # Vite
 *.local
+
+# Playwright MCP artifacts
+.playwright-mcp/
+/archive-*.png

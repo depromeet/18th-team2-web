@@ -7,6 +7,7 @@ export interface ArchiveListItem {
   type: ArchiveItemType;
   title: string;
   date: string;
+  stamp?: StampType;
 }
 
 export interface ChatMessage {
