@@ -1,4 +1,4 @@
 export const HOST_NAME_MAX_LENGTH = 10;
 
-// TODO: 온보딩/유저 API 연결되면 제거
+// 유저 이름 응답 전까지 생성 플로우에서 사용하는 임시 fallback
 export const DUMMY_HOST_NAME = '김이라';

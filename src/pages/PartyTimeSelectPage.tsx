@@ -13,6 +13,7 @@ import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvi
 import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
+import { useMe } from '@/services/auth';
 import { formatDisplayTime, formatDotDate, formatKoreanDate, getTodayMidnight } from '@/utils/date';
 
 const PARTY_DURATION_MINUTES = 10;
@@ -34,8 +35,9 @@ const TIME_PICKER_OPTIONS = {
 
 export default function PartyTimeSelectPage() {
   const navigate = useNavigate();
+  const { data: meData } = useMe();
 
-  const { defaultHostName, hostName, setHostName } = useCreateHostName();
+  const { defaultHostName, hostName, setHostName } = useCreateHostName(meData?.data?.name);
   const today = getTodayMidnight();
 
   const [selectedDate, setSelectedDate] = useState<Date>(today);

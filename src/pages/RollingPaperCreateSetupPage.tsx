@@ -11,6 +11,7 @@ import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvi
 import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
+import { useMe } from '@/services/auth';
 import {
   addDays,
   formatDotDate,
@@ -23,8 +24,9 @@ const ROLLING_PAPER_DURATION_DAYS = 7;
 
 export default function RollingPaperCreateSetupPage() {
   const navigate = useNavigate();
+  const { data: meData } = useMe();
 
-  const { defaultHostName, hostName, setHostName } = useCreateHostName();
+  const { defaultHostName, hostName, setHostName } = useCreateHostName(meData?.data?.name);
   const today = getTodayMidnight();
 
   const [selectedDate, setSelectedDate] = useState<Date>(today);
