@@ -265,7 +265,7 @@ export function LinkShareSheet({
             }`}
           >
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
-              <CheckIcon width={14} height={14} />
+              <CheckIcon width={14} height={14} strokeWidth={2.5} />
             </span>
             <B2 as="span" className="text-grey-100 font-semibold">
               {copySuccessMessage}
