@@ -1,13 +1,14 @@
 import type { SVGProps } from 'react';
 
-export function CloseIcon(props: SVGProps<SVGSVGElement>) {
+export function ChevronRightIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden {...props}>
       <path
-        d="M4.6 4.6L19.4 19.4M19.4 4.6L4.6 19.4"
+        d="M9.5 6L15.5 12L9.5 18"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="2"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
