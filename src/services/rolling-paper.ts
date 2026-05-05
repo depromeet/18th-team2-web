@@ -1,4 +1,6 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
+
+import { api } from '@/services/api';
 
 // ── Types ──
 
@@ -125,4 +127,25 @@ export const rollingPaperQueries = {
 
 export function useRollingPaper(partyId: string) {
   return useQuery(rollingPaperQueries.detail(partyId));
+}
+
+// ── Mutation hooks ──
+
+export interface WriteRollingPaperParams {
+  partyId: string;
+  writerName: string;
+  content: string;
+  toppingType: ToppingType;
+}
+
+export function useWriteRollingPaper() {
+  return useMutation({
+    // TODO: API 연결 시 실제 엔드포인트로 교체
+    mutationFn: (params: WriteRollingPaperParams) =>
+      api.post(`/api/v1/parties/${params.partyId}/rolling-papers`, {
+        writerName: params.writerName,
+        content: params.content,
+        toppingType: params.toppingType,
+      }),
+  });
 }
