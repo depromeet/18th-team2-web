@@ -108,7 +108,7 @@ export default function PartyTypePage() {
       setShowLoginSheet(true);
       return;
     }
-    navigate(ROUTES.createPartyIntro);
+    navigate(selected === 'rolling' ? ROUTES.createRollingPaperIntro : ROUTES.createPartyIntro);
   };
 
   return (

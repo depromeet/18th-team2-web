@@ -11,6 +11,8 @@ import PartyCreateIntroPage from '@/pages/PartyCreateIntroPage';
 import PartyTimeSelectPage from '@/pages/PartyTimeSelectPage';
 import PartyCharacterSelectPage from '@/pages/PartyCharacterSelectPage';
 import PartyCreateCompletePage from '@/pages/PartyCreateCompletePage';
+import RollingPaperCreateIntroPage from '@/pages/RollingPaperCreateIntroPage';
+import RollingPaperCreateSetupPage from '@/pages/RollingPaperCreateSetupPage';
 import ArchivePage from '@/pages/ArchivePage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
@@ -37,6 +39,8 @@ export const router = createBrowserRouter([
           { path: ROUTES.createPartyTime, element: <PartyTimeSelectPage /> },
           { path: ROUTES.createPartyCharacter, element: <PartyCharacterSelectPage /> },
           { path: ROUTES.createPartyComplete, element: <PartyCreateCompletePage /> },
+          { path: ROUTES.createRollingPaperIntro, element: <RollingPaperCreateIntroPage /> },
+          { path: ROUTES.createRollingPaperSetup, element: <RollingPaperCreateSetupPage /> },
           { path: ROUTES.archive, element: <ArchivePage /> },
           { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
           { path: ROUTES.mypage, element: <MyPage /> },
