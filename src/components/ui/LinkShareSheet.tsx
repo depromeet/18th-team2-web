@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
+import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, B2, H2, L1 } from '@/components/ui/Typography';
+import { SHARE_ENDPOINTS } from '@/constants/external-urls';
 
 const TOAST_VISIBLE_MS = 1600;
 const TOAST_EXIT_MS = 300;
@@ -36,19 +38,19 @@ function getShareUrl(serviceId: ShareServiceId, link: string, shareText: string)
   }
 
   if (serviceId === 'x') {
-    return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+    return SHARE_ENDPOINTS.x(encodedUrl, encodedTitle);
   }
 
   if (serviceId === 'naver') {
-    return `https://share.naver.com/web/shareView?url=${encodedUrl}&title=${encodedTitle}`;
+    return SHARE_ENDPOINTS.naver(encodedUrl, encodedTitle);
   }
 
   if (serviceId === 'facebook') {
-    return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    return SHARE_ENDPOINTS.facebook(encodedUrl);
   }
 
   if (serviceId === 'line') {
-    return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`;
+    return SHARE_ENDPOINTS.line(encodedUrl);
   }
 
   return null;
@@ -271,19 +273,6 @@ export function LinkShareSheet({
         </div>
       )}
     </div>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M6 6L18 18M18 6L6 18"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }
 

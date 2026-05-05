@@ -75,6 +75,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rolling-paper-wrappers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 롤링페이퍼 래퍼 목록 조회
+         * @description 롤링페이퍼 작성 시 선택 가능한 래퍼 목록을 조회한다.
+         */
+        get: operations["getRollingPaperWrappers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/party-invites/{inviteToken}": {
         parameters: {
             query?: never;
@@ -227,6 +247,36 @@ export interface components {
             token?: string;
             /** Format: int64 */
             userId?: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseListRollingPaperWrapperResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            /** @description 응답 데이터 */
+            data?: components["schemas"]["RollingPaperWrapperResponse"][];
+        };
+        /** @description 롤링페이퍼 래퍼 조회 응답 */
+        RollingPaperWrapperResponse: {
+            /**
+             * Format: int64
+             * @description 래퍼 ID. 롤링페이퍼 작성 요청의 wrapperId로 전달합니다.
+             * @example 1
+             */
+            wrapperId?: number;
+            /**
+             * @description 래퍼 이름
+             * @example Topping_Candle
+             */
+            name?: string;
+            /**
+             * @description 래퍼 이미지 URL
+             * @example /images/rolling-paper-wrappers/Topping_Candle.svg
+             */
+            wrapperImageUrl?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponsePartyInviteLookupResponse: {
@@ -549,6 +599,44 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseDevTokenResponse"];
+                };
+            };
+        };
+    };
+    getRollingPaperWrappers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 래퍼 목록 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListRollingPaperWrapperResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

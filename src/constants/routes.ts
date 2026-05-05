@@ -10,6 +10,8 @@ export const ROUTES = {
   createRollingPaperIntro: '/create-rolling-paper/intro',
   createRollingPaperSetup: '/create-rolling-paper/setup',
   archive: '/archive',
+  archivePartyDetail: '/archive/party/:partyId',
+  archivePaperDetail: '/archive/paper/:paperId',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
 

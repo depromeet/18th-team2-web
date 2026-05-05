@@ -1,6 +1,7 @@
-import { redirectToKakaoLogin } from '@/services/auth';
-import { H3 } from '@/components/ui/Typography';
 import kakaoIcon from '@/assets/icons/icon-kakao.svg';
+import { CloseIcon } from '@/components/ui/icons/CloseIcon';
+import { H3 } from '@/components/ui/Typography';
+import { redirectToKakaoLogin } from '@/services/auth';
 
 interface LoginPromptSheetProps {
   isOpen: boolean;
@@ -22,14 +23,7 @@ export function LoginPromptSheet({ isOpen, onClose }: LoginPromptSheetProps) {
         <div className="relative rounded-2xl bg-white px-5 pt-3 pb-5">
           <div className="bg-grey-100 mx-auto mb-3 h-1 w-9 rounded-full" />
           <button type="button" className="text-grey-400 absolute top-4 right-5" onClick={onClose}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path
-                d="M15 5L5 15M5 5L15 15"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CloseIcon width={20} height={20} />
           </button>
           <H3 className="text-grey-900 mb-5">
             파티를 만들기 위해서는

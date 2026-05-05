@@ -65,6 +65,19 @@ body {
   background: #84858a;
 }
 
+/* 온보딩 페이지 인디케이터 */
+.onboarding-pagination .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 1;
+  background: rgb(255 255 255 / 0.5);
+}
+
+.onboarding-pagination .swiper-pagination-bullet-active {
+  background: #fff;
+}
+
 /* iOS input focus 시 화면 확대 방지 */
 input,
 select,

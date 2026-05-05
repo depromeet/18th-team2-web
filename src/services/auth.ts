@@ -26,14 +26,17 @@ export const authQueries = {
     queryOptions({
       queryKey: ['auth', 'me'],
       queryFn: () => api.get<ApiResponseUserResponse>('/api/auth/me'),
-      enabled: !!useAuthStore.getState().accessToken,
     }),
 };
 
 // ── Query hooks ──
 
 export function useMe() {
-  return useQuery(authQueries.me());
+  const accessToken = useAuthStore((s) => s.accessToken);
+  return useQuery({
+    ...authQueries.me(),
+    enabled: !!accessToken,
+  });
 }
 
 // ── Mutation hooks ──
