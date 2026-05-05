@@ -39,7 +39,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
             className="flex h-12 w-12 cursor-pointer items-center justify-center p-2.5"
             onClick={onClose}
           >
-            <CloseIcon color="white" />
+            <CloseIcon className="text-white" />
           </button>
 
           {/* 카드 캐러셀 */}
