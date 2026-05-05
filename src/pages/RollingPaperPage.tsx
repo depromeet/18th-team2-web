@@ -4,7 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
-import { MessageCard } from '@/components/rolling-paper/MessageCard';
+import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
@@ -44,7 +44,7 @@ export default function RollingPaperPage() {
         <div className="relative z-20 px-4 pt-3">
           <button
             type="button"
-            onClick={() => navigate(ROUTES.home)}
+            onClick={() => navigate(-1)}
             aria-label="뒤로가기"
             className="-ml-2 flex h-12 w-12 cursor-pointer items-center justify-center"
           >
@@ -84,7 +84,7 @@ export default function RollingPaperPage() {
         {/* 하단 Action Area */}
         {isWritable && (
           <div
-            className="relative z-20 flex flex-col items-center gap-2 pt-4 pb-8"
+            className="relative z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-8"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}
