@@ -41,6 +41,7 @@ export function RollingPaperMessageForm({
   onNext,
 }: RollingPaperMessageFormProps) {
   const [bottomOffset, setBottomOffset] = useState(0);
+  const [maxLengthErrorMessage, setMaxLengthErrorMessage] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { register, handleSubmit, watch, control } = useForm<MessageFormValues>({
@@ -74,7 +75,23 @@ export function RollingPaperMessageForm({
     return () => vv.removeEventListener('resize', handleResize);
   }, []);
 
-  const { ref: registerRef, ...messageRegisterRest } = register('message');
+  const { ref: registerRef, onChange: registerOnChange, ...messageRegisterRest } = register('message');
+
+  function handleMessageChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const chars = Array.from(e.target.value);
+    const isOverMaxLength = chars.length > MAX_MESSAGE_LENGTH;
+    const nextValue = chars.slice(0, MAX_MESSAGE_LENGTH).join('');
+
+    e.target.value = nextValue;
+    registerOnChange(e);
+
+    if (isOverMaxLength) {
+      setMaxLengthErrorMessage(`${MAX_MESSAGE_LENGTH}자 이하로 입력해주세요`);
+      return;
+    }
+
+    setMaxLengthErrorMessage(null);
+  }
 
   function onSubmit({ message, toppingType }: MessageFormValues) {
     onNext(message, toppingType);
@@ -100,29 +117,38 @@ export function RollingPaperMessageForm({
           <div className="flex flex-col gap-7">
             {/* 메시지 textarea */}
             <div className="flex flex-col gap-1.5">
-              <div className="border-grey-100 flex flex-col rounded-[20px] border px-6 py-6">
+              <div className="flex flex-col rounded-[20px] bg-white px-6 py-6">
                 <textarea
                   {...messageRegisterRest}
                   ref={(el) => {
                     registerRef(el);
                     textareaRef.current = el;
                   }}
-                  maxLength={MAX_MESSAGE_LENGTH}
                   rows={6}
                   value={message ?? ''}
+                  onChange={handleMessageChange}
                   placeholder="태어나줘서 고마워 ♥"
                   className="placeholder:text-grey-200 w-full resize-none bg-transparent text-[20px] leading-[1.4] font-semibold text-blue-600 outline-none placeholder:font-semibold"
                 />
               </div>
               {/* 글자 수 카운터 */}
-              <div className="flex justify-end gap-0.5 text-[14px] leading-5">
-                <span
-                  className={`font-medium ${charCount >= MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-grey-500'}`}
-                >
-                  {charCount}
-                </span>
-                <span className="text-grey-300 font-normal">/</span>
-                <span className="text-grey-300 font-normal">{MAX_MESSAGE_LENGTH}</span>
+              <div className="flex items-center justify-between gap-2 text-[14px] leading-5">
+                {maxLengthErrorMessage ? (
+                  <p className="text-[12px] leading-4 text-red-500">{maxLengthErrorMessage}</p>
+                ) : (
+                  <span />
+                )}
+                <div className="flex gap-0.5">
+                  <span
+                    className={`font-medium ${
+                      charCount > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-grey-500'
+                    }`}
+                  >
+                    {charCount}
+                  </span>
+                  <span className="text-grey-300 font-normal">/</span>
+                  <span className="text-grey-300 font-normal">{MAX_MESSAGE_LENGTH}</span>
+                </div>
               </div>
             </div>
 

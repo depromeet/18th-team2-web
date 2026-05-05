@@ -34,6 +34,7 @@ export function RollingPaperNicknameForm({
 }: RollingPaperNicknameFormProps) {
   const navigate = useNavigate();
   const [isFocused, setIsFocused] = useState(false);
+  const [maxLengthErrorMessage, setMaxLengthErrorMessage] = useState<string | null>(null);
 
   const {
     register,
@@ -52,7 +53,8 @@ export function RollingPaperNicknameForm({
 
   const nickname = watch('nickname', '');
   const charCount = Array.from(nickname ?? '').length;
-  const isError = !!errors.nickname;
+  const helperText = maxLengthErrorMessage ?? errors.nickname?.message;
+  const isError = helperText !== undefined && helperText !== null;
   const isReady = charCount > 0 && !isError;
 
   useEffect(() => {
@@ -62,10 +64,21 @@ export function RollingPaperNicknameForm({
   const { onChange: registerOnChange, onBlur: registerOnBlur, ...registerRest } = register('nickname');
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const nextValue = Array.from(e.target.value).slice(0, MAX_NICKNAME_LENGTH).join('');
+    const chars = Array.from(e.target.value);
+    const isOverMaxLength = chars.length > MAX_NICKNAME_LENGTH;
+    const nextValue = chars.slice(0, MAX_NICKNAME_LENGTH).join('');
+
     e.target.value = nextValue;
-    clearErrors('nickname');
     registerOnChange(e);
+
+    if (isOverMaxLength) {
+      setValue('nickname', nextValue, { shouldValidate: false });
+      setMaxLengthErrorMessage(`닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요`);
+      return;
+    }
+
+    setMaxLengthErrorMessage(null);
+    clearErrors('nickname');
     setValue('nickname', nextValue, { shouldValidate: true });
   }
 
@@ -102,7 +115,7 @@ export function RollingPaperNicknameForm({
             status={inputStatus}
             placeholder="이름이나 별명을 입력해주세요"
             autoComplete="off"
-            helperText={isError ? errors.nickname?.message : undefined}
+            helperText={helperText}
             counter={{ current: charCount, max: MAX_NICKNAME_LENGTH }}
           />
         </form>
