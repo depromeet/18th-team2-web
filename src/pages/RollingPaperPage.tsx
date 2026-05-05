@@ -84,7 +84,7 @@ export default function RollingPaperPage() {
         {/* 하단 Action Area */}
         {isWritable && (
           <div
-            className="relative z-20 flex flex-col items-center gap-2 pt-4 pb-8"
+            className="relative z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-8"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}
