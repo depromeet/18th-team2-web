@@ -134,6 +134,8 @@ textarea {
 }
 
 .party-complete-title,
+.rolling-paper-complete-title,
+.rolling-paper-complete-open-title,
 .party-complete-card,
 .party-complete-notice,
 .party-complete-button {
@@ -146,6 +148,20 @@ textarea {
   animation-name: party-complete-fade-in;
   animation-duration: 600ms;
   animation-delay: 650ms;
+  animation-timing-function: ease-out;
+}
+
+.rolling-paper-complete-title {
+  animation-name: rolling-paper-complete-title-swap;
+  animation-duration: 2200ms;
+  animation-delay: 650ms;
+  animation-timing-function: ease-out;
+}
+
+.rolling-paper-complete-open-title {
+  animation-name: party-complete-fade-in;
+  animation-duration: 500ms;
+  animation-delay: 2850ms;
   animation-timing-function: ease-out;
 }
 
@@ -191,6 +207,19 @@ textarea {
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes rolling-paper-complete-title-swap {
+  from {
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 

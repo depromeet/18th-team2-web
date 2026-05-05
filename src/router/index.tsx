@@ -13,6 +13,7 @@ import PartyCharacterSelectPage from '@/pages/PartyCharacterSelectPage';
 import PartyCreateCompletePage from '@/pages/PartyCreateCompletePage';
 import RollingPaperCreateIntroPage from '@/pages/RollingPaperCreateIntroPage';
 import RollingPaperCreateSetupPage from '@/pages/RollingPaperCreateSetupPage';
+import RollingPaperCreateCompletePage from '@/pages/RollingPaperCreateCompletePage';
 import ArchivePage from '@/pages/ArchivePage';
 import ArchivePartyDetailPage from '@/pages/ArchivePartyDetailPage';
 import ArchivePaperDetailPage from '@/pages/ArchivePaperDetailPage';
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.createPartyComplete, element: <PartyCreateCompletePage /> },
           { path: ROUTES.createRollingPaperIntro, element: <RollingPaperCreateIntroPage /> },
           { path: ROUTES.createRollingPaperSetup, element: <RollingPaperCreateSetupPage /> },
+          { path: ROUTES.createRollingPaperComplete, element: <RollingPaperCreateCompletePage /> },
           { path: ROUTES.archive, element: <ArchivePage /> },
           { path: ROUTES.archivePartyDetail, element: <ArchivePartyDetailPage /> },
           { path: ROUTES.archivePaperDetail, element: <ArchivePaperDetailPage /> },

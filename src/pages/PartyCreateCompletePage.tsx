@@ -35,7 +35,7 @@ export default function PartyCreateCompletePage() {
   const hostName = partyState.hostName ?? DUMMY_HOST_NAME;
   const partyDate = partyState.partyDate ? new Date(partyState.partyDate) : getTodayMidnight();
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
-  // TODO: activateInviteLink API 응답의 실제 토큰으로 교체
+  // TODO: 생성 API 응답의 partyId로 activateInviteLink mutation을 호출하고 실제 inviteToken으로 교체
   const shareLink = useMemo(
     () =>
       `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: 'mock-invite-token' })}`,

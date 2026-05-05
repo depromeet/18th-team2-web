@@ -176,7 +176,7 @@ export function LinkShareSheet({
           role="dialog"
           aria-modal="true"
           aria-labelledby="link-share-title"
-          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[355px] max-w-[calc(100%-20px)] -translate-x-1/2 flex-col gap-1 rounded-[16px] bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
+          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[355px] max-w-[calc(100%-20px)] -translate-x-1/2 flex-col gap-1 rounded-2xl bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
             isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+32px)]'
           }`}
         >
@@ -221,7 +221,7 @@ export function LinkShareSheet({
               const shareUrl = getShareUrl(service.id, link, shareText);
               const content = (
                 <>
-                  <span className="bg-grey-100 text-head-2 text-grey-500 flex h-15 w-15 shrink-0 items-center justify-center rounded-[16px] font-bold">
+                  <span className="bg-grey-100 text-head-2 text-grey-500 flex h-15 w-15 shrink-0 items-center justify-center rounded-2xl font-bold">
                     {service.mark}
                   </span>
                   <L1 className="text-grey-500">{service.label}</L1>
@@ -259,7 +259,7 @@ export function LinkShareSheet({
       {isCopyToastVisible && (
         <div className="pointer-events-none absolute right-0 bottom-10 left-0 z-50 flex justify-center">
           <div
-            className={`link-share-toast flex h-[54px] w-[343px] max-w-[calc(100%-32px)] items-center justify-center gap-2 rounded-[8px] bg-black/70 px-4 py-4 text-white ${
+            className={`link-share-toast flex h-[54px] w-[343px] max-w-[calc(100%-32px)] items-center justify-center gap-2 rounded-lg bg-black/70 px-4 py-4 text-white ${
               isCopyToastExiting ? 'link-share-toast-exit' : ''
             }`}
           >

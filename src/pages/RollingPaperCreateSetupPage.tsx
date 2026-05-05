@@ -48,7 +48,14 @@ export default function RollingPaperCreateSetupPage() {
   };
 
   const handleCreateRollingPaper = () => {
-    // TODO: 롤링페이퍼 생성 API 연결 시 사용자가 수정한 hostName을 payload에 포함
+    // TODO: 생성 API 확정 시 useCreateParty(PAPER_ONLY) mutation으로 교체하고 hostName/selectedDate를 payload에 포함
+    navigate(ROUTES.createRollingPaperComplete, {
+      state: {
+        hostName,
+        startDate: selectedDate.toISOString(),
+        endDate: endDate.toISOString(),
+      },
+    });
   };
 
   return (
@@ -99,7 +106,7 @@ export default function RollingPaperCreateSetupPage() {
                 <span>부터</span>
               </div>
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                <strong className="text-blue-500 font-semibold">
+                <strong className="font-semibold text-blue-500">
                   {formatKoreanShortDate(endDate)}
                 </strong>
                 <span>까지 받아요</span>

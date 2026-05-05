@@ -54,7 +54,7 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
             cancelEditing();
           }
         }}
-        className="text-head-1 inline-flex h-11 min-w-18 max-w-56 rounded-full border-2 border-blue-600 bg-white px-5 font-semibold tracking-[-0.0002em] text-grey-800 outline-none"
+        className="text-head-1 text-grey-800 inline-flex h-11 max-w-56 min-w-18 rounded-full border-2 border-blue-600 bg-white px-5 font-semibold tracking-[-0.0002em] outline-none"
       />
     );
   }
