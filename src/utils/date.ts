@@ -42,6 +42,10 @@ export function formatKoreanShortDate(d: Date): string {
   return `${date.month() + 1}월 ${String(date.date()).padStart(2, '0')}일`;
 }
 
+export function addDays(d: Date, days: number): Date {
+  return dayjs(d).add(days, 'day').toDate();
+}
+
 export function formatDotDate(d: Date): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');

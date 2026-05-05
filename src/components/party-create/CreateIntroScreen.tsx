@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import hapalinPartyCard from '@/assets/images/hapalin-party-card.png';
+import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { H1 } from '@/components/ui/Typography';
 
 const INTRO_DURATION_MS = 4500;
@@ -8,9 +9,14 @@ const INTRO_DURATION_MS = 4500;
 interface CreateIntroScreenProps {
   title: string;
   nextRoute: string;
+  showSkipButton?: boolean;
 }
 
-export function CreateIntroScreen({ title, nextRoute }: CreateIntroScreenProps) {
+export function CreateIntroScreen({
+  title,
+  nextRoute,
+  showSkipButton = false,
+}: CreateIntroScreenProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +29,16 @@ export function CreateIntroScreen({ title, nextRoute }: CreateIntroScreenProps) 
 
   return (
     <div className="party-intro-screen relative flex w-full flex-1 flex-col items-center self-stretch overflow-hidden pt-[20vh]">
+      {showSkipButton && (
+        <button
+          type="button"
+          onClick={() => navigate(nextRoute, { replace: true })}
+          aria-label="닫기"
+          className="text-grey-900 absolute top-14 right-5 z-20 flex h-10 w-10 items-center justify-center"
+        >
+          <CloseIcon />
+        </button>
+      )}
       <H1 className="party-intro-text relative z-10 text-center tracking-[-0.02em] text-white">
         {title}
       </H1>

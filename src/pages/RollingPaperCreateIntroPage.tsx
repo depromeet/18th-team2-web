@@ -6,6 +6,7 @@ export default function RollingPaperCreateIntroPage() {
     <CreateIntroScreen
       title="내 롤링페이퍼를 만들게요!"
       nextRoute={ROUTES.createRollingPaperSetup}
+      showSkipButton
     />
   );
 }
