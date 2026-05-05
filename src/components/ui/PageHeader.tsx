@@ -18,11 +18,11 @@ export function PageHeader({ title, onBack }: PageHeaderProps) {
         type="button"
         aria-label="뒤로가기"
         onClick={handleBack}
-        className="absolute left-4 top-[9px] flex h-6 w-6 items-center justify-center"
+        className="absolute top-[9px] left-4 flex h-6 w-6 items-center justify-center"
       >
         <ChevronLeftIcon className="text-grey-900" />
       </button>
-      <H3 as="h1" className="mx-auto text-grey-900">
+      <H3 as="h1" className="text-grey-900 mx-auto">
         {title}
       </H3>
     </header>

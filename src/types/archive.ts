@@ -43,4 +43,3 @@ export interface PartyDetail {
   chatMessages: ChatMessage[];
   stamp?: StampType;
 }
-

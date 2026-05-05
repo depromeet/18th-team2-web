@@ -10,7 +10,7 @@ export function StampHeroCard({ id, stamp }: StampHeroCardProps) {
   const resolved = stamp ?? getStampForId(id);
   return (
     <div className="px-4 pt-3 pb-4">
-      <div className="relative w-full aspect-[343/165]">
+      <div className="relative aspect-[343/165] w-full">
         <img
           src={STAMP_SRC[resolved]}
           alt=""

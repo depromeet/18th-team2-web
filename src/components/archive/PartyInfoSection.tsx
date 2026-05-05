@@ -9,7 +9,13 @@ interface PartyInfoSectionProps {
   role: PartyRole;
 }
 
-export function PartyInfoSection({ partyName, date, time, participantCount, role }: PartyInfoSectionProps) {
+export function PartyInfoSection({
+  partyName,
+  date,
+  time,
+  participantCount,
+  role,
+}: PartyInfoSectionProps) {
   return (
     <section className="flex flex-col gap-2 px-4 py-3">
       <div className="flex items-center gap-2">
