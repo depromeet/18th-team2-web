@@ -7,7 +7,7 @@ export function usePartyExitDialog() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleClose = () => {
+  const handleOpenExitDialog = () => {
     setIsExitDialogOpen(true);
   };
 
@@ -22,7 +22,7 @@ export function usePartyExitDialog() {
 
   return {
     isExitDialogOpen,
-    handleClose,
+    handleOpenExitDialog,
     handleCancelExit,
     handleConfirmExit,
   };
