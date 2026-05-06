@@ -1,6 +1,8 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
 
 export const NICKNAME_MAX_LENGTH = 10;
 export const NICKNAME_REGEX = /^.{1,10}$/u;
@@ -22,6 +24,8 @@ export function usePartyEnter() {
   );
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isNicknameOverflow, setIsNicknameOverflow] = useState(false);
+
+  const navigate = useNavigate();
 
   const title = isHost
     ? '해당 닉네임과 캐릭터로\n입장하시겠어요?'
@@ -73,7 +77,7 @@ export function usePartyEnter() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // TODO: 파티 입장 API 연결
+    navigate(ROUTES.liveParty);
   };
 
   return {
