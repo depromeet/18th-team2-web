@@ -1,4 +1,3 @@
-import whiteGradient from '@/assets/images/white_gradient.svg';
 import curtainLeft from '@/assets/images/curtain-left.png';
 import curtainRight from '@/assets/images/curtain-right.png';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +8,7 @@ import { SCENES } from '@/constants/party-enter-intro';
 import { HighlightedText } from '@/components/party-enter-intro/HighlightedText';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
+import { WhiteGradientIcon } from '@/components/ui/icons/WhiteGradientIcon';
 
 export default function PartyEnterIntroPage() {
   const [step, setStep] = useState(0);
@@ -73,7 +73,7 @@ export default function PartyEnterIntroPage() {
             </Button>
           ) : (
             <>
-              <img src={whiteGradient} alt="" aria-hidden className="mb-4 h-[60px] w-[60px]" />
+              <WhiteGradientIcon className="mb-3" />
               <B1 as="p" className="font-normal text-white/60">
                 터치하면 다음으로 넘어가요
               </B1>
