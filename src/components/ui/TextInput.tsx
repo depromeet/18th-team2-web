@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
-import blueCheckIcon from '@/assets/icons/icon-blue-check.svg';
-import redErrorIcon from '@/assets/icons/icon-red-error.svg';
+import RedErrorIcon from '@/assets/icons/icon-red-error.svg?react';
+import CheckCircleFilledIcon from '@/assets/images/icons/check-circle-filled.svg?react';
 import { Caption, L2 } from '@/components/ui/Typography';
 
 export type TextInputStatus = 'normal' | 'active' | 'positive' | 'negative' | 'disabled';
@@ -52,12 +52,8 @@ export function TextInput({
           className={`w-full bg-transparent text-body-1 font-semibold text-black outline-none placeholder:font-normal placeholder:text-grey-300 ${className ?? ''}`}
         />
 
-        {status === 'positive' && !rightSlot && (
-          <img src={blueCheckIcon} alt="" className="h-5 w-5 shrink-0" />
-        )}
-        {status === 'negative' && !rightSlot && (
-          <img src={redErrorIcon} alt="" className="h-5 w-5 shrink-0" />
-        )}
+        {status === 'positive' && !rightSlot && <CheckCircleFilledIcon width={20} height={20} />}
+        {status === 'negative' && !rightSlot && <RedErrorIcon width={20} height={20} />}
         {rightSlot}
       </div>
 

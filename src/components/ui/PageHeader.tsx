@@ -13,7 +13,7 @@ export function PageHeader({ title, onBack }: PageHeaderProps) {
   const handleBack = onBack ?? (() => navigate(-1));
 
   return (
-    <header className="sticky top-0 z-10 flex h-[42px] items-center bg-white px-4">
+    <header className="sticky top-0 z-10 flex h-[42px] items-center bg-transparent px-4">
       <button
         type="button"
         aria-label="뒤로가기"
@@ -23,7 +23,7 @@ export function PageHeader({ title, onBack }: PageHeaderProps) {
         <ChevronLeftIcon className="text-grey-900" />
       </button>
       {title && (
-        <H3 as="h1" className="mx-auto text-grey-900">
+        <H3 as="h1" className="text-grey-900 mx-auto">
           {title}
         </H3>
       )}
