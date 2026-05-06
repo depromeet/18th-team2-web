@@ -3,32 +3,13 @@ import curtainRight from '@/assets/images/curtain-right.png';
 import { Button } from '@/components/ui/Button';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, T3 } from '@/components/ui/Typography';
-import { useState } from 'react';
-import { SCENES } from '@/constants/party-enter-intro';
 import { HighlightedText } from '@/components/party-enter-intro/HighlightedText';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '@/constants/routes';
 import { WhiteGradientIcon } from '@/components/ui/icons/WhiteGradientIcon';
+import { usePartyEnterIntro } from '@/hooks/party-enter-intro/usePartyEnterIntro';
 
 export default function PartyEnterIntroPage() {
-  const [step, setStep] = useState(0);
-  const currentScene = SCENES[step];
-  const isLastStep = step === SCENES.length - 1;
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    if (isLastStep) return;
-    setStep((prev) => prev + 1);
-  };
-
-  const handleClose = () => {
-    navigate(ROUTES.home);
-  };
-
-  const handleStart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // TODO: 파티 입장
-  };
+  const { step, currentScene, isLastStep, handleClick, handleClose, handleStart } =
+    usePartyEnterIntro();
 
   return (
     <div
