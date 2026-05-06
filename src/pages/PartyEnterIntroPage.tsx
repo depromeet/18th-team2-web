@@ -9,7 +9,7 @@ import { PartyEnterStage } from '@/components/party-enter-intro/PartyEnterStage'
 
 export default function PartyEnterIntroPage() {
   const {
-    currentScene,
+    currentStep,
     isLastStep,
     isExiting,
     isEntering,
@@ -45,12 +45,12 @@ export default function PartyEnterIntroPage() {
         {!isCurtainOpen && (
           <>
             <PartyIntroContent
-              text={currentScene.text}
+              text={currentStep.text}
               isEntering={isEntering}
               isExiting={isExiting}
               onAnimationEnd={handleTextAnimationEnd}
             />
-            <PartyIntroFooter showButton={!!currentScene.showButton} onStart={handleStart} />
+            <PartyIntroFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
         {isCurtainOpen && <PartyEnterStage />}

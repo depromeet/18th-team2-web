@@ -1,9 +1,10 @@
-export interface Scene {
+/** 파티 인트로 */
+export interface EntryData {
   text: string;
   showButton?: boolean;
 }
 
-export const SCENES: Scene[] = [
+export const ENTRY_DATA: EntryData[] = [
   {
     text: `현진님의\n생일파티에\n오신 걸 환영해요!`,
   },
