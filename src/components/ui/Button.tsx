@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'white' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'white' | 'white-blue' | 'ghost';
   size?: 'full' | 'lg' | 'md' | 'sm';
   leftIcon?: ReactNode;
 }
@@ -17,6 +17,7 @@ const variantStyles = {
   primary: 'bg-blue-500 text-white',
   secondary: 'bg-grey-50 text-grey-300',
   white: 'bg-white text-grey-800',
+  'white-blue': 'border border-blue-200 bg-white text-blue-600',
   ghost: 'border border-white/60 text-white',
 } as const;
 
@@ -30,7 +31,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex cursor-pointer items-center justify-center gap-2 text-body-1 font-semibold ${sizeStyles[size]} ${variantStyles[variant]} ${className ?? ''}`}
+      className={`text-body-1 inline-flex cursor-pointer items-center justify-center gap-2 font-semibold ${sizeStyles[size]} ${variantStyles[variant]} ${className ?? ''}`}
       {...props}
     >
       {leftIcon}
