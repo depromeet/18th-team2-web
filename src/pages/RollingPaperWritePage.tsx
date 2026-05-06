@@ -1,18 +1,20 @@
 import { useState } from 'react';
 
 import { FormProvider } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { RollingPaperMessageForm } from '@/components/rolling-paper-write/RollingPaperMessageForm';
 import { RollingPaperNicknameForm } from '@/components/rolling-paper-write/RollingPaperNicknameForm';
 import { RollingPaperWriteComplete } from '@/components/rolling-paper-write/RollingPaperWriteComplete';
 import { useRollingPaperWriteForm } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import { ROUTES } from '@/constants/routes';
 import { useRollingPaper, useWriteRollingPaper } from '@/services/rolling-paper';
 
 type Step = 'nickname' | 'message' | 'complete';
 
 export default function RollingPaperWritePage() {
   const { partyId } = useParams<{ partyId: string }>();
+  const navigate = useNavigate();
 
   const { data } = useRollingPaper(partyId ?? '');
   const hostName = data?.hostName ?? '';
@@ -41,7 +43,8 @@ export default function RollingPaperWritePage() {
   }
 
   function handleComplete() {
-    // TODO: 롤링페이퍼_메인_참가자 화면으로 이동
+    if (!partyId) return;
+    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), { replace: true });
   }
 
   if (step === 'complete') {
