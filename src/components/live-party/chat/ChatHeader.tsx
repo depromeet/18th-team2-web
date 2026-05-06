@@ -1,15 +1,15 @@
-import { type MouseEvent } from 'react';
+import { type PointerEvent } from 'react';
 import BottomSheetHeader from '@/assets/images/icons/bottom-sheet-header.svg';
 
 interface ChatHeaderProps {
-  onMouseDown: (e: MouseEvent) => void;
+  onPointerDown: (e: PointerEvent) => void;
 }
 
-export function ChatHeader({ onMouseDown }: ChatHeaderProps) {
+export function ChatHeader({ onPointerDown }: ChatHeaderProps) {
   return (
     <div
-      onMouseDown={onMouseDown}
-      className="flex cursor-grab justify-center py-2 active:cursor-grabbing"
+      onPointerDown={onPointerDown}
+      className="flex cursor-grab touch-none justify-center py-2 active:cursor-grabbing"
     >
       <img src={BottomSheetHeader} alt="drag" className="h-[3px]" draggable={false} />
     </div>

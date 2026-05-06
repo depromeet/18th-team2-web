@@ -5,7 +5,7 @@ import { ChatList } from '@/components/live-party/chat/ChatList';
 import { useChatBottomSheet } from '@/hooks/live-party/useChatBottomSheet';
 
 export function ChatBottomSheet() {
-  const { height, handleMouseDown, messages, addMessage } = useChatBottomSheet();
+  const { height, handlePointerDown, messages, addMessage } = useChatBottomSheet();
 
   return (
     <div
@@ -13,7 +13,7 @@ export function ChatBottomSheet() {
       style={{ height }}
     >
       <div className="flex h-full flex-col">
-        <ChatHeader onMouseDown={handleMouseDown} />
+        <ChatHeader onPointerDown={handlePointerDown} />
         <ChatList messages={messages} />
         <ChipList onChipClick={addMessage} />
         <ChatFooter onSend={addMessage} />

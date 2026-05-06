@@ -48,7 +48,7 @@ export function useChatBottomSheet() {
     ]);
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     draggingRef.current = true;
     setIsDragging(true);
 
@@ -56,7 +56,7 @@ export function useChatBottomSheet() {
     startHeightRef.current = height;
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handlePointerMove = (e: PointerEvent) => {
     if (!draggingRef.current) return;
 
     const delta = e.clientY - startYRef.current;
@@ -66,7 +66,7 @@ export function useChatBottomSheet() {
     setHeight(nextHeight);
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     if (!draggingRef.current) return;
 
     draggingRef.current = false;
@@ -77,12 +77,12 @@ export function useChatBottomSheet() {
   };
 
   useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [height]);
@@ -90,7 +90,7 @@ export function useChatBottomSheet() {
   return {
     height,
     isDragging,
-    handleMouseDown,
+    handlePointerDown,
     messages,
     addMessage,
   };
