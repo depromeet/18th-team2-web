@@ -24,7 +24,7 @@ interface ToppingSelectorProps {
 export function ToppingSelector({ value, onChange }: ToppingSelectorProps) {
   return (
     <div
-      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+      className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
       role="radiogroup"
       aria-label="토핑 선택"
     >

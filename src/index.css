@@ -189,7 +189,13 @@ textarea {
   -ms-overflow-style: none;
 }
 
-.share-scroll-hide::-webkit-scrollbar {
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.share-scroll-hide::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
