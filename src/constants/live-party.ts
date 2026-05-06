@@ -25,3 +25,11 @@ export const ENTRY_DATA: EntryData[] = [
     showButton: true,
   },
 ];
+
+/** 파티 상태  */
+export type PartyStep =
+  | 'ENTRY' // 주인공 등장
+  | 'MUSIC' // 노래
+  | 'CANDLE' // 촛불 불기
+  | 'PINATA' // 박 깨기
+  | 'END'; // 파티 종료
