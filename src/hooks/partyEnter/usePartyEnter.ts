@@ -38,6 +38,9 @@ export function usePartyEnter() {
     if (isNicknameOverflow) {
       return '닉네임은 최대 10글자까지 입력할 수 있어요.';
     }
+    if (!!inputValue && !NICKNAME_REGEX.test(inputValue)) {
+      return '닉네임 형식이 올바르지 않아요';
+    }
     if (isEditableGuest && isInputFocused) {
       return '최대 10자까지 입력 가능해요.';
     }
