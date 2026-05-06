@@ -1,11 +1,11 @@
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
-import { PartyExitDialog } from '@/components/party/PartyExitDialog';
-import { usePartyEnterIntro } from '@/hooks/party-enter-intro/usePartyEnterIntro';
+import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
+import { usePartyEnterIntro } from '@/hooks/live-party/usePartyEnterIntro';
 
-import { PartyCurtain } from '@/components/party-enter-intro/PartyCurtain';
-import { PartyIntroContent } from '@/components/party-enter-intro/PartyIntroContent';
-import { PartyIntroFooter } from '@/components/party-enter-intro/PartyIntroFooter';
-import { PartyEnterStage } from '@/components/party-enter-intro/PartyEnterStage';
+import { PartyCurtain } from '@/components/live-party/entry/PartyCurtain';
+import { PartyIntroContent } from '@/components/live-party/entry/PartyIntroContent';
+import { PartyIntroFooter } from '@/components/live-party/entry/PartyIntroFooter';
+import { PartyEnterStage } from '@/components/live-party/entry/PartyEnterStage';
 
 export default function PartyEnterIntroPage() {
   const {

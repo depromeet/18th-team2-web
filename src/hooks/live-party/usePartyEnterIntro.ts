@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePartyExitDialog } from '@/hooks/party/usePartyExitDialog';
+import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { ENTRY_DATA } from '@/constants/live-party';
 
 export function usePartyEnterIntro() {
