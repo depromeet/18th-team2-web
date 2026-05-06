@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { Controller, useFormContext } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,7 +7,6 @@ import { RollingPaperFormHeading } from '@/components/rolling-paper-write/Rollin
 import { type RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { getGraphemeLength } from '@/utils/text';
 
 interface RollingPaperNicknameFormProps {
   onNext: () => void;
@@ -17,7 +14,6 @@ interface RollingPaperNicknameFormProps {
 
 export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormProps) {
   const navigate = useNavigate();
-  const [isFocused, setIsFocused] = useState(false);
 
   const {
     watch,
@@ -27,8 +23,7 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
   } = useFormContext<RollingPaperWriteFormValues>();
 
   const nickname = watch('nickname') ?? '';
-  const charCount = getGraphemeLength(nickname);
-  const isReady = charCount > 0 && !errors.nickname;
+  const isReady = nickname.length > 0 && !errors.nickname;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,13 +46,7 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
             control={control}
             name="nickname"
             render={({ field }) => (
-              <NicknameInput
-                field={field}
-                isFocused={isFocused}
-                errorMessage={errors.nickname?.message}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-              />
+              <NicknameInput field={field} errorMessage={errors.nickname?.message} />
             )}
           />
         </form>

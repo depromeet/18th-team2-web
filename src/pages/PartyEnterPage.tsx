@@ -1,0 +1,61 @@
+import { Button } from '@/components/ui/Button';
+import { ParticipantStatus } from '@/components/party-enter/ParticipantStatus';
+import { Input } from '@/components/ui/Input';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { B2, H1 } from '@/components/ui/Typography';
+import { NICKNAME_REGEX } from '@/constants/validation';
+import { usePartyEnter } from '@/hooks/partyEnter/usePartyEnter';
+import { MOCK_PARTICIPANTS } from '@/services/party-enter';
+
+export default function PartyEnterPage() {
+  const {
+    title,
+    isHost,
+    isTimeToParty,
+    inputValue,
+    isInputDisabled,
+    inputMessage,
+    inputMaxLength,
+    handleChangeNickname,
+    handleFocusNickname,
+    handleBlurNickname,
+    handleSubmit,
+  } = usePartyEnter();
+
+  return (
+    <section className="flex min-h-screen flex-col">
+      <PageHeader />
+      <main className="flex flex-1 flex-col justify-between gap-6 p-4">
+        <form className="flex flex-1 flex-col justify-between gap-6" onSubmit={handleSubmit}>
+          <article className="flex w-full flex-col gap-4">
+            <H1 className="whitespace-pre-line">{title}</H1>
+            <Input
+              value={inputValue}
+              placeholder="파티에 등장할 닉네임을 입력해 주세요."
+              disabled={isInputDisabled}
+              regex={NICKNAME_REGEX}
+              message={inputMessage}
+              maxLength={inputMaxLength}
+              onChange={handleChangeNickname}
+              onFocus={handleFocusNickname}
+              onBlur={handleBlurNickname}
+            />
+          </article>
+          <section className="flex h-[236px] w-full flex-col items-center justify-center gap-5">
+            <figure className="h-14 w-full bg-sky-200" />
+            <figure className="h-[160px] w-[160px] bg-sky-200" />
+          </section>
+          <footer className="flex w-full flex-col items-center gap-2">
+            <B2 className="text-grey-500 font-medium">
+              파티 시작까지 <span className="text-red-500">0분 59초</span> 남았어요
+            </B2>
+            {isHost && <ParticipantStatus participants={MOCK_PARTICIPANTS} />}
+            <Button type="submit" disabled={!isTimeToParty || !inputValue}>
+              파티 입장하러 가기
+            </Button>
+          </footer>
+        </form>
+      </main>
+    </section>
+  );
+}

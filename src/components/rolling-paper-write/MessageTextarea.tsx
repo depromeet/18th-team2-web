@@ -1,10 +1,8 @@
 import type { ControllerRenderProps } from 'react-hook-form';
 
-import {
-  MAX_MESSAGE_LENGTH,
-  type RollingPaperWriteFormValues,
-} from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import type { RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
 import { InputMetaRow } from '@/components/ui/InputMetaRow';
+import { MESSAGE_MAX_LENGTH, VALIDATION_MESSAGES } from '@/constants/validation';
 import { useControlledGraphemeLimitedField } from '@/hooks/useGraphemeLimitedField';
 import { getGraphemeLength } from '@/utils/text';
 
@@ -16,8 +14,8 @@ export function MessageTextarea({ field }: MessageTextareaProps) {
   const message = field.value ?? '';
   const charCount = getGraphemeLength(message);
   const { field: limitedField, overLimitMessage } = useControlledGraphemeLimitedField(field, {
-    max: MAX_MESSAGE_LENGTH,
-    message: `${MAX_MESSAGE_LENGTH}자 이하로 입력해주세요`,
+    max: MESSAGE_MAX_LENGTH,
+    message: VALIDATION_MESSAGES.message.maxLength,
   });
 
   return (
@@ -33,7 +31,7 @@ export function MessageTextarea({ field }: MessageTextareaProps) {
       <InputMetaRow
         helperText={overLimitMessage ?? undefined}
         isError={!!overLimitMessage}
-        counter={{ current: charCount, max: MAX_MESSAGE_LENGTH }}
+        counter={{ current: charCount, max: MESSAGE_MAX_LENGTH }}
       />
     </>
   );
