@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/party-invites/{inviteToken}/rolling-papers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 롤링페이퍼 작성
+         * @description 초대 토큰으로 롤링페이퍼를 작성한다. 인증 없이도 작성 가능하다. Authorization header를 보낼 경우 유효한 Bearer token이어야 한다.
+         */
+        post: operations["createRollingPaper"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/{partyOption}": {
         parameters: {
             query?: never;
@@ -75,6 +95,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/rolling-paper-wrappers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 롤링페이퍼 래퍼 목록 조회
+         * @description 롤링페이퍼 작성 시 선택 가능한 래퍼 목록을 조회한다.
+         */
+        get: operations["getRollingPaperWrappers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/party-invites/{inviteToken}": {
         parameters: {
             query?: never;
@@ -131,28 +171,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 파티 삭제 */
+        delete: operations["deleteParty"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description 파티 생성 요청 */
-        CreatePartyRequest: {
+        /** @description 롤링페이퍼 작성 요청 */
+        CreateRollingPaperRequest: {
             /**
-             * @description 파티 주인공 이름
-             * @example 홍길동
+             * @description 작성자 닉네임
+             * @example 축하요정
              */
-            celebrantNickname?: string;
+            writerNickname: string;
             /**
-             * Format: date
-             * @description 파티 시작일
-             * @example 2024-11-26
+             * @description 롤링페이퍼 내용
+             * @example 생일 축하해!
              */
-            startedDate?: string;
+            content: string;
             /**
-             * @description 파티 시작 시간 (HH:mm). 미전송 시 00:00으로 설정됩니다.
-             * @example 14:30
+             * Format: int64
+             * @description 래퍼 ID
+             * @example 1
              */
-            startTime?: string;
+            wrapperId: number;
         };
         /** @description 에러 상세 정보 */
         ErrorDetail: {
@@ -177,6 +234,45 @@ export interface components {
             status?: number;
             /** @description 에러 상세 */
             error?: components["schemas"]["ErrorDetail"];
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseCreateRollingPaperResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            /** @description 응답 데이터 */
+            data?: components["schemas"]["CreateRollingPaperResponse"];
+        };
+        /** @description 롤링페이퍼 작성 응답 */
+        CreateRollingPaperResponse: {
+            /**
+             * Format: int64
+             * @description 생성된 롤링페이퍼 ID
+             * @example 10
+             */
+            rollingPaperId?: number;
+        };
+        /** @description 파티 생성 요청 */
+        CreatePartyRequest: {
+            /**
+             * @description 파티 주인공 이름
+             * @example 홍길동
+             */
+            celebrantNickname?: string;
+            /**
+             * Format: date
+             * @description 파티 시작일
+             * @example 2024-11-26
+             */
+            startedDate?: string;
+            /**
+             * @description 파티 시작 시간 (HH:mm). 미전송 시 00:00으로 설정됩니다.
+             * @example 14:30
+             */
+            startTime?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseCreatePartyResponse: {
@@ -227,6 +323,36 @@ export interface components {
             token?: string;
             /** Format: int64 */
             userId?: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseListRollingPaperWrapperResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            /** @description 응답 데이터 */
+            data?: components["schemas"]["RollingPaperWrapperResponse"][];
+        };
+        /** @description 롤링페이퍼 래퍼 조회 응답 */
+        RollingPaperWrapperResponse: {
+            /**
+             * Format: int64
+             * @description 래퍼 ID. 롤링페이퍼 작성 요청의 wrapperId로 전달합니다.
+             * @example 1
+             */
+            wrapperId?: number;
+            /**
+             * @description 래퍼 이름
+             * @example Topping_Candle
+             */
+            name?: string;
+            /**
+             * @description 래퍼 이미지 URL
+             * @example /images/rolling-paper-wrappers/Topping_Candle.svg
+             */
+            wrapperImageUrl?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponsePartyInviteLookupResponse: {
@@ -354,6 +480,17 @@ export interface components {
             provider?: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
             birthDay?: string;
         };
+        /** @description 공통 성공 응답 */
+        ApiResponseUnit: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            /** @description 응답 데이터 */
+            data?: unknown;
+        };
     };
     responses: never;
     parameters: never;
@@ -363,6 +500,90 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    createRollingPaper: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 초대 토큰
+                 * @example exampletoken0000
+                 */
+                inviteToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRollingPaperRequest"];
+            };
+        };
+        responses: {
+            /** @description 롤링페이퍼 작성 성공 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCreateRollingPaperResponse"];
+                };
+            };
+            /** @description 입력값 검증 실패, 만료된 초대 토큰 또는 종료된 파티 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 또는 래퍼 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 닉네임 중복 또는 이미 작성함 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     createParty: {
         parameters: {
             query?: never;
@@ -553,6 +774,44 @@ export interface operations {
             };
         };
     };
+    getRollingPaperWrappers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 래퍼 목록 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListRollingPaperWrapperResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getPartyInvite: {
         parameters: {
             query?: never;
@@ -669,6 +928,59 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseUserResponse"];
+                };
+            };
+        };
+    };
+    deleteParty: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 파티 삭제 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseUnit"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

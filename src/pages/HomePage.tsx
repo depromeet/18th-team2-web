@@ -6,12 +6,16 @@ import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
+import { useArchiveList } from '@/services/archive';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { UpcomingParty } from '@/components/home/UpcomingPartyCard';
 
 function HomePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { data: archiveItems } = useArchiveList();
+  const archiveCount = isAuthenticated ? (archiveItems?.length ?? 0) : 0;
+  const archivePreview = isAuthenticated ? archiveItems?.[0] : undefined;
 
   // TODO: BE API 연동 후 실제 데이터로 교체 — 7개 상태 확인용 mock
   const mockParties: UpcomingParty[] = isAuthenticated
@@ -117,9 +121,7 @@ function HomePage() {
         <div className="px-4">
           <PartyCard />
         </div>
-        <div className="px-4">
-          <ArchiveCard count={isAuthenticated ? 8 : 0} />
-        </div>
+        <ArchiveCard count={archiveCount} previewItem={archivePreview} />
       </div>
     </div>
   );

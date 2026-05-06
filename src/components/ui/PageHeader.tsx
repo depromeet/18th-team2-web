@@ -1,36 +1,38 @@
 import type { ReactNode } from 'react';
 
-import chevronLeftSvg from '@/assets/icons/icon-chevron-left.svg?raw';
-import closeSvg from '@/assets/icons/icon-close.svg?raw';
-import homeSvg from '@/assets/icons/icon-home.svg?raw';
+import { useNavigate } from 'react-router-dom';
+
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { CloseIcon } from '@/components/ui/icons/CloseIcon';
+import { HomeIcon } from '@/components/ui/icons/HomeIcon';
+import { H3 } from '@/components/ui/Typography';
+import { ROUTES } from '@/constants/routes';
 
 type PageHeaderVariant = 'back' | 'close' | 'home' | 'double';
 
 interface PageHeaderProps {
   variant?: PageHeaderVariant;
   title?: string;
-  /** variant="double"일 때 좌측에 렌더링할 커스텀 버튼 */
   leftSlot?: ReactNode;
   onBack?: () => void;
   onClose?: () => void;
   onHome?: () => void;
 }
 
-function PageHeaderButton({
-  onClick,
-  label,
-  children,
-}: {
-  onClick?: () => void;
+interface PageHeaderButtonProps {
   label: string;
+  onClick?: () => void;
+  className?: string;
   children: ReactNode;
-}) {
+}
+
+function PageHeaderButton({ label, onClick, className = 'left-4', children }: PageHeaderButtonProps) {
   return (
     <button
       type="button"
       aria-label={label}
-      className="relative z-10 flex h-12 w-12 cursor-pointer items-center justify-center"
       onClick={onClick}
+      className={`absolute top-[9px] flex h-6 w-6 items-center justify-center ${className}`}
     >
       {children}
     </button>
@@ -45,49 +47,43 @@ export function PageHeader({
   onClose,
   onHome,
 }: PageHeaderProps) {
+  const navigate = useNavigate();
+  const handleBack = onBack ?? (() => navigate(-1));
+  const handleHome = onHome ?? (() => navigate(ROUTES.home));
+
   return (
-    <header className="relative flex h-12 w-full items-center">
+    <header className="sticky top-0 z-10 flex h-[42px] items-center bg-white px-4">
       {variant === 'back' && (
-        <PageHeaderButton label="뒤로가기" onClick={onBack}>
-          <span
-            aria-hidden
-            className="text-grey-900"
-            dangerouslySetInnerHTML={{ __html: chevronLeftSvg }}
-          />
+        <PageHeaderButton label="뒤로가기" onClick={handleBack}>
+          <ChevronLeftIcon className="text-grey-900" />
         </PageHeaderButton>
       )}
 
       {variant === 'close' && (
         <PageHeaderButton label="닫기" onClick={onClose}>
-          <span aria-hidden dangerouslySetInnerHTML={{ __html: closeSvg }} />
+          <CloseIcon className="text-grey-900" />
         </PageHeaderButton>
       )}
 
       {variant === 'home' && (
-        <PageHeaderButton label="홈으로" onClick={onHome}>
-          <span
-            aria-hidden
-            className="text-grey-900"
-            dangerouslySetInnerHTML={{ __html: homeSvg }}
-          />
+        <PageHeaderButton label="홈으로" onClick={handleHome}>
+          <HomeIcon className="text-grey-900" />
         </PageHeaderButton>
       )}
 
       {variant === 'double' && (
         <>
-          <div className="relative z-10 flex items-center">{leftSlot}</div>
-          <div className="relative z-10 ml-auto">
-            <PageHeaderButton label="닫기" onClick={onClose}>
-              <span aria-hidden dangerouslySetInnerHTML={{ __html: closeSvg }} />
-            </PageHeaderButton>
-          </div>
+          <div className="absolute top-[9px] left-4 flex h-6 items-center">{leftSlot}</div>
+          <PageHeaderButton label="닫기" onClick={onClose} className="right-4">
+            <CloseIcon className="text-grey-900" />
+          </PageHeaderButton>
         </>
       )}
 
       {title && (
-        <span className="pointer-events-none absolute inset-x-0 text-center text-base font-semibold text-grey-900">
+        <H3 as="h1" className="mx-auto text-grey-900">
           {title}
-        </span>
+        </H3>
       )}
     </header>
   );
