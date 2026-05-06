@@ -6,10 +6,9 @@ import { redirectToKakaoLogin } from '@/services/auth';
 interface LoginPromptSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  description?: string;
 }
 
-export function LoginPromptSheet({ isOpen, onClose, description = '파티를 만들기 위해서는\n로그인이 필요해요' }: LoginPromptSheetProps) {
+export function LoginPromptSheet({ isOpen, onClose }: LoginPromptSheetProps) {
   return (
     <div
       className={`fixed inset-0 z-50 flex items-end justify-center transition-all duration-300 ${isOpen ? 'visible' : 'invisible'}`}
@@ -26,8 +25,10 @@ export function LoginPromptSheet({ isOpen, onClose, description = '파티를 만
           <button type="button" className="text-grey-400 absolute top-4 right-5" onClick={onClose}>
             <CloseIcon width={20} height={20} />
           </button>
-          <H3 className="text-grey-900 mb-5 whitespace-pre-line">
-            {description}
+          <H3 className="text-grey-900 mb-5">
+            파티를 만들기 위해서는
+            <br />
+            로그인이 필요해요
           </H3>
           <button
             type="button"
