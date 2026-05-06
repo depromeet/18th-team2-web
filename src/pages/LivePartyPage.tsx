@@ -16,8 +16,10 @@ export default function LivePartyPage() {
   };
 
   return (
-    <div className="bg-blue-1000 min-h-screen">
+    <div className="relative min-h-screen w-full max-w-[598px] bg-[url('/src/assets/images/live-party-bg.png')] bg-cover bg-center bg-no-repeat backdrop-blur-lg">
+      {/* 실시간 참여자를 보여줄 수 없기에 bg 임시  */}
       <StepRenderer step={step} />
+      {/* 파티 진행 확인을 위한 임시 버튼 */}
       <Button onClick={handleNextStep}>다음 스텝</Button>
       {/* 채팅 */}
       {step !== 'ENTRY' && <ChatBottomSheet />}
