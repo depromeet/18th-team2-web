@@ -5,9 +5,8 @@ import { RollingPaperFormFooter } from '@/components/rolling-paper-write/Rolling
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { type RollingPaperWriteFormValues } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { NicknameInput } from '@/components/ui/NicknameInput';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { NICKNAME_MAX_LENGTH } from '@/constants/validation';
 
 interface RollingPaperNicknameFormProps {
   onNext: () => void;
@@ -47,10 +46,9 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
             control={control}
             name="nickname"
             render={({ field }) => (
-              <Input
+              <NicknameInput
                 {...field}
                 value={field.value ?? ''}
-                maxLength={NICKNAME_MAX_LENGTH}
                 placeholder="이름이나 별명을 입력해주세요"
                 autoComplete="off"
                 error={!!errors.nickname}

@@ -1,8 +1,6 @@
 export const NICKNAME_MAX_LENGTH = 10;
 export const MESSAGE_MAX_LENGTH = 100;
 
-export const NICKNAME_REGEX = new RegExp(`^.{1,${NICKNAME_MAX_LENGTH}}$`, 'u');
-
 export const VALIDATION_MESSAGES = {
   nickname: {
     required: '닉네임을 입력해주세요',

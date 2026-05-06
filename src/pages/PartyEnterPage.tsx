@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/Button';
 import { ParticipantStatus } from '@/components/party-enter/ParticipantStatus';
-import { Input } from '@/components/ui/Input';
+import { NicknameInput } from '@/components/ui/NicknameInput';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { B2, H1 } from '@/components/ui/Typography';
-import { NICKNAME_REGEX } from '@/constants/validation';
 import { usePartyEnter } from '@/hooks/partyEnter/usePartyEnter';
 import { MOCK_PARTICIPANTS } from '@/services/party-enter';
 
@@ -13,12 +12,9 @@ export default function PartyEnterPage() {
     isHost,
     isTimeToParty,
     inputValue,
-    isInputDisabled,
+    isEditableGuest,
     inputMessage,
-    inputMaxLength,
     handleChangeNickname,
-    handleFocusNickname,
-    handleBlurNickname,
     handleSubmit,
   } = usePartyEnter();
 
@@ -29,16 +25,12 @@ export default function PartyEnterPage() {
         <form className="flex flex-1 flex-col justify-between gap-6" onSubmit={handleSubmit}>
           <article className="flex w-full flex-col gap-4">
             <H1 className="whitespace-pre-line">{title}</H1>
-            <Input
+            <NicknameInput
               value={inputValue}
               placeholder="파티에 등장할 닉네임을 입력해 주세요."
-              disabled={isInputDisabled}
-              regex={NICKNAME_REGEX}
+              disabled={!isEditableGuest}
               message={inputMessage}
-              maxLength={inputMaxLength}
               onChange={handleChangeNickname}
-              onFocus={handleFocusNickname}
-              onBlur={handleBlurNickname}
             />
           </article>
           <section className="flex h-[236px] w-full flex-col items-center justify-center gap-5">
