@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
     children: [
       // 공개 라우트
       { path: ROUTES.onboarding, element: <OnboardingPage /> },
-      { path: ROUTES.oauthCallback, element: <OAuthCallbackPage /> },
+      { path: ROUTES.oauthRedirect, element: <OAuthCallbackPage /> },
 
       // 공개 (비회원/회원 모두 접근, 내부 조건부 렌더링)
       { path: ROUTES.home, element: <HomePage /> },
