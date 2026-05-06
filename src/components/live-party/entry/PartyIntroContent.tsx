@@ -1,5 +1,5 @@
 import { T3 } from '@/components/ui/Typography';
-import { MultilineText } from './MultilineText';
+import { MultilineText } from '@/components/live-party/entry/MultilineText';
 
 interface PartyIntroContentProps {
   text: string;

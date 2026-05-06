@@ -1,5 +1,5 @@
 import { CHAT_CHIPS } from '@/constants/live-party';
-import { Chip } from './Chip';
+import { Chip } from '@/components/live-party/chat/Chip';
 
 interface ChipListProps {
   onChipClick?: (value: string) => void;

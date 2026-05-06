@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FirecrackerButton } from './FirecrackerButton';
+import { FirecrackerButton } from '@/components/live-party/chat/FirecrackerButton';
 
 interface ChatFooterProps {
   onSend: (text: string) => void;

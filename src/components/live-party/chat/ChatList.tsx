@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ChatItem } from './ChatItem';
+import { ChatItem } from '@/components/live-party/chat/ChatItem';
 import { type ChatMessage } from '@/hooks/live-party/useChatBottomSheet';
 
 interface ChatListProps {
