@@ -1,9 +1,10 @@
 import candleImg from '@/assets/images/topping-candle.png';
 import cherryImg from '@/assets/images/topping-cherry.png';
 import strawberryImg from '@/assets/images/topping-strawberry.png';
+import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { B1, B2, H1 } from '@/components/ui/Typography';
+import { B1, B2 } from '@/components/ui/Typography';
 import type { ToppingType } from '@/services/rolling-paper';
 
 const TOPPING_IMAGES: Record<ToppingType, string> = {
@@ -36,43 +37,41 @@ export function RollingPaperWriteComplete({
   onComplete,
 }: RollingPaperWriteCompleteProps) {
   return (
-    <main className="flex min-h-screen flex-col bg-gradient-bg">
+    <main className="bg-gradient-bg flex min-h-screen flex-col">
       <PageHeader onBack={onBack} />
 
-      <section className="flex flex-1 flex-col gap-2 px-4 pt-5">
-        {/* 타이틀 */}
-        <div className="flex flex-col gap-2">
-          <H1 as="h1" className="text-black">
-            {hostName}님에게
-            <br />
-            롤링페이퍼를 잘 전달해드릴게요
-          </H1>
-          <B1 className="font-medium text-grey-500">메세지는 파티 종료 후 생일자에게 전달돼요.</B1>
-        </div>
+      <section className="flex flex-1 flex-col px-4">
+        <RollingPaperFormHeading
+          title={
+            <>
+              {hostName}님에게
+              <br />
+              롤링페이퍼를 잘 전달해드릴게요
+            </>
+          }
+          description="메세지는 파티 종료 후 생일자에게 전달돼요."
+          className="py-5"
+        />
 
-        {/* 메시지 카드 */}
-        <div className="mt-2">
-          <div
-            className="flex flex-col gap-3 rounded-[20px] bg-white px-6 py-6"
-            style={{ boxShadow: '0px 0px 8px 0px #5892FF4D' }}
-          >
-            <img
-              src={TOPPING_IMAGES[toppingType]}
-              alt={TOPPING_LABELS[toppingType]}
-              className="h-10 w-10 object-contain"
-            />
-            <p className="text-[20px] font-semibold leading-[1.4] tracking-tight text-blue-600 whitespace-pre-wrap wrap-break-word">
+        <div className="flex flex-col items-center gap-2 py-2">
+          <img
+            src={TOPPING_IMAGES[toppingType]}
+            alt={TOPPING_LABELS[toppingType]}
+            className="h-10 w-10 object-contain"
+          />
+          <div className="flex min-h-[252px] w-full flex-col gap-3 rounded-[20px] bg-white px-6 py-6">
+            <p className="flex-1 text-[20px] leading-[1.4] font-semibold tracking-tight wrap-break-word whitespace-pre-wrap text-blue-600">
               {message}
             </p>
-            <B1 as="p" className="font-semibold text-grey-800">
+            <B1 as="p" className="text-grey-700 text-right font-semibold">
               - {nickname}
             </B1>
           </div>
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pb-6 pt-8">
-        <B2 as="p" className="font-medium text-grey-500">
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pt-8 pb-6">
+        <B2 as="p" className="text-grey-500 font-medium">
           완료를 누르면 수정이 불가합니다.
         </B2>
         <Button variant="primary" size="full" onClick={onComplete}>

@@ -2,11 +2,12 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 import { MessageTextarea } from '@/components/rolling-paper-write/MessageTextarea';
 import { RollingPaperFormFooter } from '@/components/rolling-paper-write/RollingPaperFormFooter';
+import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { ToppingSelector } from '@/components/rolling-paper-write/ToppingSelector';
 import { type RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { H1, H3 } from '@/components/ui/Typography';
+import { H3 } from '@/components/ui/Typography';
 import { useViewportBottomOffset } from '@/hooks/useViewportBottomOffset';
 import { getGraphemeLength } from '@/utils/text';
 
@@ -37,11 +38,15 @@ export function RollingPaperMessageForm({ hostName, onBack, onNext }: RollingPap
       <PageHeader onBack={onBack} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5 pb-30">
-        <H1 as="h1" className="text-black">
-          {hostName}님에게
-          <br />
-          생일 축하 한마디를 남겨요
-        </H1>
+        <RollingPaperFormHeading
+          title={
+            <>
+              {hostName}님에게
+              <br />
+              생일 축하 한마디를 남겨요
+            </>
+          }
+        />
 
         <form id="message-form" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col gap-7">
