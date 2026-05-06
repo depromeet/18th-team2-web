@@ -184,6 +184,37 @@ textarea {
   }
 }
 
+/* 파티 입장 인트로 — 텍스트 페이드인 + 위로 슬라이드 */
+.party-enter-text {
+  opacity: 0;
+  animation-name: party-enter-fade-in;
+  animation-duration: 600ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  will-change: opacity, transform;
+}
+
+.party-enter-button {
+  opacity: 1;
+  animation-name: party-enter-fade-in;
+  animation-duration: 500ms;
+  animation-delay: 600ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+  will-change: opacity, transform;
+}
+
+@keyframes party-enter-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .share-scroll-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
