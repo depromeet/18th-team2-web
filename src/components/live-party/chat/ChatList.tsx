@@ -1,19 +1,18 @@
+import { useEffect, useRef } from 'react';
 import { ChatItem } from './ChatItem';
-
-interface Message {
-  id: number;
-  user: {
-    name: string;
-    profileImage: string;
-  };
-  text: string;
-}
+import { type ChatMessage } from '@/hooks/live-party/useChatBottomSheet';
 
 interface ChatListProps {
-  messages: Message[];
+  messages: ChatMessage[];
 }
 
 export function ChatList({ messages }: ChatListProps) {
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   return (
     <div className="share-scroll-hide relative mb-5 flex-1 space-y-4 overflow-y-auto pt-4">
       <div className="pointer-events-none absolute top-0 right-0 left-0 h-10 bg-linear-to-b from-[#26295D] to-transparent" />
@@ -25,6 +24,7 @@ export function ChatList({ messages }: ChatListProps) {
           text={msg.text}
         />
       ))}
+      <div ref={bottomRef} />
     </div>
   );
 }
