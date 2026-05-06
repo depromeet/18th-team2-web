@@ -40,7 +40,7 @@ export function PartyExitDialog({ isOpen, onCancel, onConfirm }: PartyExitDialog
         </H3>
         <div className="flex w-full items-center justify-center gap-1.5 px-3">
           <Button
-            //ref={confirmButtonRef}
+            buttonRef={confirmButtonRef}
             type="button"
             onClick={onConfirm}
             variant="white-grey"
