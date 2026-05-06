@@ -1,5 +1,7 @@
 import { type InputHTMLAttributes, useId } from 'react';
 import { L2 } from '@/components/ui/Typography';
+import { CheckCircleFilledIcon } from './icons/CheckCircleFilledIcon';
+import { ErrorCircleFilledIcon } from './icons/ErrorCircleFilledIcon';
 
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'maxLength'> {
   value: string;
@@ -39,12 +41,13 @@ export function Input({
           className={`text-body-1 rounded-btn-md placeholder:text-grey-300 w-full border bg-white px-4 py-3 font-semibold shadow-xs outline-none placeholder:font-normal disabled:bg-black/5 disabled:opacity-50 ${borderClass} ${className ?? ''}`}
           {...props}
         />
-        {!disabled && (isSuccess || isError) && (
-          //TODO: 민수님 아이콘 svg pr merge 이후 수정
-          <span
-            className={`absolute top-1/2 right-4 size-4 -translate-y-1/2 rounded-full ${isError ? 'bg-red-500' : 'bg-blue-500'}`}
-          />
-        )}
+        {!disabled &&
+          (isSuccess || isError) &&
+          (isError ? (
+            <ErrorCircleFilledIcon className="absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2" />
+          ) : (
+            <CheckCircleFilledIcon className="absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2" />
+          ))}
       </div>
 
       {(message || maxLength !== undefined) && (
