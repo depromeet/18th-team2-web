@@ -37,7 +37,7 @@ export function RollingPaperWriteComplete({
 }: RollingPaperWriteCompleteProps) {
   return (
     <main className="flex min-h-screen flex-col bg-gradient-bg">
-      <PageHeader variant="back" onBack={onBack} />
+      <PageHeader onBack={onBack} />
 
       <section className="flex flex-1 flex-col gap-2 px-4 pt-5">
         {/* 타이틀 */}

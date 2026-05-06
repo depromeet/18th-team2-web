@@ -103,7 +103,7 @@ export function RollingPaperMessageForm({
 
   return (
     <main className="flex min-h-screen flex-col bg-gradient-bg">
-      <PageHeader variant="back" onBack={handleBack} />
+      <PageHeader onBack={handleBack} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
         {/* 타이틀 */}
