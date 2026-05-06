@@ -1,97 +1,44 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, type ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
 
+import { RollingPaperFormFooter } from '@/components/rolling-paper-write/RollingPaperFormFooter';
+import {
+  MAX_NICKNAME_LENGTH,
+  type RollingPaperWriteFormValues,
+} from '@/components/rolling-paper-write/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { TextInput } from '@/components/ui/TextInput';
 import { B1, H1 } from '@/components/ui/Typography';
-
-const MAX_NICKNAME_LENGTH = 10;
-
-const nicknameSchema = z.object({
-  nickname: z
-    .string()
-    .min(1, '닉네임을 입력해주세요')
-    .max(MAX_NICKNAME_LENGTH, `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요`),
-});
-
-type NicknameFormValues = z.infer<typeof nicknameSchema>;
+import { useControlledGraphemeLimitedField } from '@/hooks/useGraphemeLimitedField';
+import { getGraphemeLength } from '@/utils/text';
 
 interface RollingPaperNicknameFormProps {
-  initialNickname?: string;
-  onChange?: (nickname: string) => void;
-  onNext: (nickname: string) => void;
+  onNext: () => void;
 }
 
-export function RollingPaperNicknameForm({
-  initialNickname = '',
-  onChange,
-  onNext,
-}: RollingPaperNicknameFormProps) {
+export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormProps) {
   const navigate = useNavigate();
   const [isFocused, setIsFocused] = useState(false);
-  const [maxLengthErrorMessage, setMaxLengthErrorMessage] = useState<string | null>(null);
 
   const {
-    register,
-    handleSubmit,
     watch,
-    setValue,
-    clearErrors,
+    trigger,
+    control,
     formState: { errors },
-  } = useForm<NicknameFormValues>({
-    resolver: zodResolver(nicknameSchema),
-    mode: 'onChange',
-    defaultValues: {
-      nickname: initialNickname,
-    },
-  });
+  } = useFormContext<RollingPaperWriteFormValues>();
 
-  const nickname = watch('nickname', '');
-  const charCount = Array.from(nickname ?? '').length;
-  const helperText = maxLengthErrorMessage ?? errors.nickname?.message;
-  const isError = helperText !== undefined && helperText !== null;
-  const isReady = charCount > 0 && !isError;
+  const nickname = watch('nickname') ?? '';
+  const charCount = getGraphemeLength(nickname);
+  const isReady = charCount > 0 && !errors.nickname;
 
-  useEffect(() => {
-    onChange?.(nickname ?? '');
-  }, [nickname, onChange]);
-
-  const { onChange: registerOnChange, onBlur: registerOnBlur, ...registerRest } = register('nickname');
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const chars = Array.from(e.target.value);
-    const isOverMaxLength = chars.length > MAX_NICKNAME_LENGTH;
-    const nextValue = chars.slice(0, MAX_NICKNAME_LENGTH).join('');
-
-    e.target.value = nextValue;
-    registerOnChange(e);
-
-    if (isOverMaxLength) {
-      setValue('nickname', nextValue, { shouldValidate: false });
-      setMaxLengthErrorMessage(`닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요`);
-      return;
-    }
-
-    setMaxLengthErrorMessage(null);
-    clearErrors('nickname');
-    setValue('nickname', nextValue, { shouldValidate: true });
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const ok = await trigger('nickname');
+    if (ok) onNext();
   }
-
-  function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
-    setIsFocused(false);
-    registerOnBlur(e);
-  }
-
-  function onSubmit({ nickname }: NicknameFormValues) {
-    onNext(nickname);
-  }
-
-  const inputStatus = isError ? 'negative' : isFocused ? 'active' : charCount > 0 ? 'positive' : 'normal';
 
   return (
     <main className="flex min-h-screen flex-col bg-gradient-bg">
@@ -105,23 +52,24 @@ export function RollingPaperNicknameForm({
           <B1 className="font-medium text-grey-500">생일자에게 보여질 이름을 입력해주세요.</B1>
         </div>
 
-        <form id="nickname-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <TextInput
-            {...registerRest}
-            onChange={handleChange}
-            onFocus={() => setIsFocused(true)}
-            onBlur={handleBlur}
-            value={nickname}
-            status={inputStatus}
-            placeholder="이름이나 별명을 입력해주세요"
-            autoComplete="off"
-            helperText={helperText}
-            counter={{ current: charCount, max: MAX_NICKNAME_LENGTH }}
+        <form id="nickname-form" onSubmit={handleSubmit} noValidate>
+          <Controller
+            control={control}
+            name="nickname"
+            render={({ field }) => (
+              <NicknameInput
+                field={field}
+                isFocused={isFocused}
+                errorMessage={errors.nickname?.message}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+              />
+            )}
           />
         </form>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-150 px-4 pb-6">
+      <RollingPaperFormFooter>
         <Button
           type="submit"
           form="nickname-form"
@@ -132,7 +80,44 @@ export function RollingPaperNicknameForm({
         >
           롤링페이퍼 작성하러 가기
         </Button>
-      </div>
+      </RollingPaperFormFooter>
     </main>
+  );
+}
+
+interface NicknameInputProps {
+  field: ControllerRenderProps<RollingPaperWriteFormValues, 'nickname'>;
+  isFocused: boolean;
+  errorMessage?: string;
+  onFocus: () => void;
+  onBlur: () => void;
+}
+
+function NicknameInput({ field, isFocused, errorMessage, onFocus, onBlur }: NicknameInputProps) {
+  const nickname = field.value ?? '';
+  const charCount = getGraphemeLength(nickname);
+  const { field: limitedField, overLimitMessage } = useControlledGraphemeLimitedField(field, {
+    max: MAX_NICKNAME_LENGTH,
+    message: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요`,
+  });
+  const helperText = overLimitMessage ?? errorMessage;
+  const isError = !!helperText;
+  const inputStatus = isError ? 'negative' : isFocused ? 'active' : charCount > 0 ? 'positive' : 'normal';
+
+  return (
+    <TextInput
+      {...limitedField}
+      value={nickname}
+      onFocus={onFocus}
+      onBlur={() => {
+        onBlur();
+        limitedField.onBlur();
+      }}
+      status={inputStatus}
+      placeholder="이름이나 별명을 입력해주세요"
+      autoComplete="off"
+      helperText={helperText}
+      counter={{ current: charCount, max: MAX_NICKNAME_LENGTH }}
+    />
   );
 }
