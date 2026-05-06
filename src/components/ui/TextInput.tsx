@@ -2,7 +2,8 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 
 import RedErrorIcon from '@/assets/icons/icon-red-error.svg?react';
 import CheckCircleFilledIcon from '@/assets/images/icons/check-circle-filled.svg?react';
-import { Caption, L2 } from '@/components/ui/Typography';
+import { InputMetaRow } from '@/components/ui/InputMetaRow';
+import { L2 } from '@/components/ui/Typography';
 
 export type TextInputStatus = 'normal' | 'active' | 'positive' | 'negative' | 'disabled';
 
@@ -33,7 +34,6 @@ export function TextInput({
   ...inputProps
 }: TextInputProps) {
   const isDisabled = status === 'disabled';
-  const showHelperRow = helperText !== undefined || counter !== undefined;
 
   return (
     <div className="flex flex-col gap-2">
@@ -57,36 +57,7 @@ export function TextInput({
         {rightSlot}
       </div>
 
-      {showHelperRow && (
-        <div className="flex items-center justify-between gap-2">
-          {helperText !== undefined ? (
-            <Caption
-              as="p"
-              className={status === 'negative' ? 'text-red-500' : 'text-grey-500'}
-            >
-              {helperText}
-            </Caption>
-          ) : (
-            <span />
-          )}
-          {counter !== undefined && (
-            <Caption className="shrink-0 text-grey-300">
-              <span
-                className={
-                  counter.current > 0
-                    ? counter.current > counter.max
-                      ? 'font-medium text-red-500'
-                      : 'font-medium text-grey-500'
-                    : ''
-                }
-              >
-                {counter.current}
-              </span>
-              /{counter.max}
-            </Caption>
-          )}
-        </div>
-      )}
+      <InputMetaRow helperText={helperText} isError={status === 'negative'} counter={counter} />
     </div>
   );
 }

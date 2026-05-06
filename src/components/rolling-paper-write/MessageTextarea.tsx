@@ -4,6 +4,7 @@ import {
   MAX_MESSAGE_LENGTH,
   type RollingPaperWriteFormValues,
 } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import { InputMetaRow } from '@/components/ui/InputMetaRow';
 import { useControlledGraphemeLimitedField } from '@/hooks/useGraphemeLimitedField';
 import { getGraphemeLength } from '@/utils/text';
 
@@ -30,24 +31,11 @@ export function MessageTextarea({ field }: MessageTextareaProps) {
           className="placeholder:text-grey-200 w-full resize-none bg-transparent text-[20px] leading-[1.4] font-semibold text-blue-600 outline-none placeholder:font-semibold"
         />
       </div>
-      <div className="flex items-center justify-between gap-2 text-[14px] leading-5">
-        {overLimitMessage ? (
-          <p className="text-[12px] leading-4 text-red-500">{overLimitMessage}</p>
-        ) : (
-          <span />
-        )}
-        <div className="flex gap-0.5">
-          <span
-            className={`font-medium ${
-              charCount > MAX_MESSAGE_LENGTH ? 'text-red-500' : 'text-grey-500'
-            }`}
-          >
-            {charCount}
-          </span>
-          <span className="text-grey-300 font-normal">/</span>
-          <span className="text-grey-300 font-normal">{MAX_MESSAGE_LENGTH}</span>
-        </div>
-      </div>
+      <InputMetaRow
+        helperText={overLimitMessage ?? undefined}
+        isError={!!overLimitMessage}
+        counter={{ current: charCount, max: MAX_MESSAGE_LENGTH }}
+      />
     </>
   );
 }
