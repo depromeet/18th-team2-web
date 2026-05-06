@@ -30,7 +30,7 @@ export function useChatBottomSheet() {
   const startYRef = useRef(0);
   const startHeightRef = useRef(0);
 
-  const MAX_HEIGHT = window.innerHeight - 20;
+  const MAX_HEIGHT = window.innerHeight - 160;
   const MID = (MIN_HEIGHT + MAX_HEIGHT) / 2;
 
   const addMessage = (text: string) => {
