@@ -6,6 +6,7 @@ export function usePartyEnterIntro() {
   const [step, setStep] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
+  const [isCurtainOpen, setIsCurtainOpen] = useState(false);
   const exitDialog = usePartyExitDialog();
 
   const currentScene = SCENES[step];
@@ -28,7 +29,7 @@ export function usePartyEnterIntro() {
 
   const handleStart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: 파티 입장
+    setIsCurtainOpen(true);
   };
 
   return {
@@ -37,6 +38,7 @@ export function usePartyEnterIntro() {
     isLastStep,
     isExiting,
     isEntering,
+    isCurtainOpen,
     handleClick,
     handleTextAnimationEnd,
     handleStart,
