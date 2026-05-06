@@ -10,14 +10,16 @@ import { usePartyEnterIntro } from '@/hooks/party-enter-intro/usePartyEnterIntro
 
 export default function PartyEnterIntroPage() {
   const {
-    step,
     currentScene,
     isLastStep,
+    isExiting,
+    isEntering,
     isExitDialogOpen,
     handleClick,
     handleClose,
     handleCancelExit,
     handleConfirmExit,
+    handleTextAnimationEnd,
     handleStart,
   } = usePartyEnterIntro();
 
@@ -48,7 +50,10 @@ export default function PartyEnterIntroPage() {
           </button>
         </header>
         <div className="relative z-10 flex h-full flex-col items-center justify-center px-6">
-          <T3 key={step} className="party-enter-text text-center text-white">
+          <T3
+            className={`text-center text-white ${isExiting ? 'party-enter-text' : isEntering ? 'party-enter-text-in' : ''}`}
+            onAnimationEnd={handleTextAnimationEnd}
+          >
             {currentScene.text.split('\n').map((string, index) => (
               <span key={index}>
                 <HighlightedText string={string} />

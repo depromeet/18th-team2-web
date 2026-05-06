@@ -184,20 +184,30 @@ textarea {
   }
 }
 
-/* 파티 입장 인트로 — 텍스트 페이드인 + 위로 슬라이드 */
+/* 파티 입장 인트로 — 텍스트 페이드아웃 */
 .party-enter-text {
-  opacity: 0;
-  animation-name: party-enter-fade-in;
-  animation-duration: 600ms;
+  opacity: 1;
+  animation-name: party-enter-fade-out;
+  animation-duration: 400ms;
   animation-timing-function: ease-out;
   animation-fill-mode: forwards;
-  will-change: opacity, transform;
+  will-change: opacity;
+}
+
+/* 파티 입장 인트로 — 텍스트 페이드인 */
+.party-enter-text-in {
+  opacity: 0;
+  animation-name: party-enter-fade-in-text;
+  animation-duration: 300ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  will-change: opacity;
 }
 
 .party-enter-button {
   opacity: 1;
   animation-name: party-enter-fade-in;
-  animation-duration: 500ms;
+  animation-duration: 600ms;
   animation-delay: 600ms;
   animation-timing-function: ease-out;
   animation-fill-mode: both;
@@ -212,6 +222,24 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes party-enter-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes party-enter-fade-in-text {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
