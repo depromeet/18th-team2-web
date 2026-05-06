@@ -1,12 +1,13 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import { NicknameInput } from '@/components/rolling-paper-write/NicknameInput';
 import { RollingPaperFormFooter } from '@/components/rolling-paper-write/RollingPaperFormFooter';
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { type RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { NICKNAME_MAX_LENGTH } from '@/constants/validation';
 
 interface RollingPaperNicknameFormProps {
   onNext: () => void;
@@ -46,7 +47,15 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
             control={control}
             name="nickname"
             render={({ field }) => (
-              <NicknameInput field={field} errorMessage={errors.nickname?.message} />
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                maxLength={NICKNAME_MAX_LENGTH}
+                placeholder="이름이나 별명을 입력해주세요"
+                autoComplete="off"
+                error={!!errors.nickname}
+                message={errors.nickname?.message}
+              />
             )}
           />
         </form>
