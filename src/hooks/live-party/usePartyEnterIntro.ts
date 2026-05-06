@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { ENTRY_DATA } from '@/constants/live-party';
 
@@ -27,7 +27,7 @@ export function usePartyEnterIntro() {
     }
   };
 
-  const handleStart = (e: React.MouseEvent) => {
+  const handleStart = (e: MouseEvent) => {
     e.stopPropagation();
     setIsCurtainOpen(true);
   };

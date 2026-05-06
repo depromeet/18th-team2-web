@@ -1,10 +1,8 @@
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { Button } from '@/components/ui/Button';
-import { type PartyStep } from '@/constants/live-party';
+import { STEP_ORDER, type PartyStep } from '@/constants/live-party';
 import { useState } from 'react';
-
-const STEP_ORDER: PartyStep[] = ['ENTRY', 'MUSIC', 'CANDLE', 'PINATA', 'END'];
 
 export default function LivePartyPage() {
   const [step, setStep] = useState<PartyStep>('ENTRY');

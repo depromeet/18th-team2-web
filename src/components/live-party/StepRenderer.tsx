@@ -1,9 +1,9 @@
-import { PartyEntryStep } from './entry/PartyEntryStep';
+import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
 import { type PartyStep } from '@/constants/live-party';
-import { PartyMusicStep } from './music/PartyMusicStep';
-import { PartyCandleStep } from './candle/PartyCandleStep';
-import { PartyPinataStep } from './pinata/PartyPinataStep';
-import { PartyEndStep } from './end/PartyEndStep';
+import { PartyMusicStep } from '@/components/live-party/music/PartyMusicStep';
+import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep';
+import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
+import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
 
 interface StepRendererProps {
   step: PartyStep;

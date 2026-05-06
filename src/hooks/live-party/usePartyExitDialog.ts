@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 
@@ -7,11 +7,13 @@ export function usePartyExitDialog() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleOpenExitDialog = () => {
+  const handleOpenExitDialog = (e: MouseEvent) => {
+    e.stopPropagation();
     setIsExitDialogOpen(true);
   };
 
-  const handleCancelExit = () => {
+  const handleCancelExit = (e: MouseEvent) => {
+    e.stopPropagation();
     setIsExitDialogOpen(false);
   };
 

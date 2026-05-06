@@ -34,4 +34,6 @@ export type PartyStep =
   | 'PINATA' // 박 깨기
   | 'END'; // 파티 종료
 
+export const STEP_ORDER: PartyStep[] = ['ENTRY', 'MUSIC', 'CANDLE', 'PINATA', 'END'];
+
 export const CHAT_CHIPS = ['🎉', '👏', '❤️', '🥳', '생일축하해'];

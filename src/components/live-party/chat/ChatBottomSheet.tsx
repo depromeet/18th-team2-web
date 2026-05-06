@@ -1,7 +1,7 @@
-import { ChatFooter } from './ChatFooter';
-import { ChipList } from './ChipList';
-import { ChatHeader } from './ChatHeader';
-import { ChatList } from './ChatList';
+import { ChatFooter } from '@/components/live-party/chat/ChatFooter';
+import { ChipList } from '@/components/live-party/chat/ChipList';
+import { ChatHeader } from '@/components/live-party/chat/ChatHeader';
+import { ChatList } from '@/components/live-party/chat/ChatList';
 import { useChatBottomSheet } from '@/hooks/live-party/useChatBottomSheet';
 
 export function ChatBottomSheet() {
