@@ -38,7 +38,7 @@ export function PartyEntryStep() {
         />
         <PartyCurtain isOpen={isCurtainOpen} />
         <header className="absolute top-0 right-0 left-0 z-11 flex justify-end p-4">
-          <button onClick={handleOpenExitDialog}>
+          <button onClick={handleOpenExitDialog} aria-label="파티 나가기">
             <CloseIcon className="text-white" />
           </button>
         </header>

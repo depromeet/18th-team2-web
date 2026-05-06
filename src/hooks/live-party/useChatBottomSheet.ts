@@ -1,4 +1,3 @@
-// useChatBottomSheet.ts
 import { useEffect, useRef, useState } from 'react';
 
 const MIN_HEIGHT = 320;

@@ -3,6 +3,7 @@ import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { Button } from '@/components/ui/Button';
 import { STEP_ORDER, type PartyStep } from '@/constants/live-party';
 import { useState } from 'react';
+import livePartyBg from '@/assets/images/live-party-bg.png';
 
 export default function LivePartyPage() {
   const [step, setStep] = useState<PartyStep>('ENTRY');
@@ -14,7 +15,12 @@ export default function LivePartyPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full max-w-[598px] bg-[url('/src/assets/images/live-party-bg.png')] bg-cover bg-center bg-no-repeat backdrop-blur-lg">
+    <div
+      className="relative min-h-screen w-full max-w-[598px] bg-cover bg-center bg-no-repeat backdrop-blur-lg"
+      style={{
+        backgroundImage: `url(${livePartyBg})`,
+      }}
+    >
       {/* 실시간 참여자를 보여줄 수 없기에 bg 임시  */}
       <StepRenderer step={step} />
       {/* 파티 진행 확인을 위한 임시 버튼 */}
