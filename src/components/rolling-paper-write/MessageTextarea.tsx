@@ -22,13 +22,12 @@ export function MessageTextarea({ field }: MessageTextareaProps) {
 
   return (
     <>
-      <div className="flex flex-col rounded-[20px] bg-white px-6 py-6">
+      <div className="flex h-[240px] flex-col rounded-[20px] bg-white px-6 py-6">
         <textarea
           {...limitedField}
-          rows={6}
           value={message}
           placeholder="태어나줘서 고마워 ♥"
-          className="placeholder:text-grey-200 w-full resize-none bg-transparent text-[20px] leading-[1.4] font-semibold text-blue-600 outline-none placeholder:font-semibold"
+          className="placeholder:text-grey-200 h-full w-full resize-none bg-transparent text-[20px] leading-[1.4] font-semibold text-blue-600 outline-none placeholder:font-semibold"
         />
       </div>
       <InputMetaRow

@@ -36,7 +36,7 @@ export function RollingPaperMessageForm({ hostName, onBack, onNext }: RollingPap
     <main className="flex min-h-screen flex-col bg-gradient-bg">
       <PageHeader onBack={onBack} />
 
-      <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
+      <section className="flex flex-1 flex-col gap-7 px-4 pt-5 pb-30">
         <H1 as="h1" className="text-black">
           {hostName}님에게
           <br />

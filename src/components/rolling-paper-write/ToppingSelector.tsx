@@ -1,3 +1,4 @@
+import CheckCircleFilledIcon from '@/assets/images/icons/check-circle-filled.svg?react';
 import candleImg from '@/assets/images/topping-candle.png';
 import cherryImg from '@/assets/images/topping-cherry.png';
 import strawberryImg from '@/assets/images/topping-strawberry.png';
@@ -22,7 +23,11 @@ interface ToppingSelectorProps {
 
 export function ToppingSelector({ value, onChange }: ToppingSelectorProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-label="토핑 선택">
+    <div
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+      role="radiogroup"
+      aria-label="토핑 선택"
+    >
       {TOPPINGS.map((topping) => {
         const isSelected = value === topping.id;
         return (
@@ -40,6 +45,14 @@ export function ToppingSelector({ value, onChange }: ToppingSelectorProps) {
             }}
           >
             <img src={topping.image} alt={topping.label} className="h-22.5 w-22.5 object-contain" />
+            {isSelected && (
+              <CheckCircleFilledIcon
+                width={28}
+                height={28}
+                className="absolute right-2.5 bottom-2.5"
+                aria-hidden
+              />
+            )}
           </button>
         );
       })}
