@@ -49,7 +49,7 @@ export default function PartyEnterPage() {
               파티 시작까지 <span className="text-red-500">0분 59초</span> 남았어요
             </B2>
             {isHost && <ParticipantStatus participants={MOCK_PARTICIPANTS} />}
-            <Button type="submit" disabled={!isTimeToParty}>
+            <Button type="submit" disabled={!isTimeToParty || !inputValue}>
               파티 입장하러 가기
             </Button>
           </footer>
