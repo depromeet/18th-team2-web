@@ -5,11 +5,21 @@ import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, T3 } from '@/components/ui/Typography';
 import { HighlightedText } from '@/components/party-enter-intro/HighlightedText';
 import { WhiteGradientIcon } from '@/components/ui/icons/WhiteGradientIcon';
+import { PartyExitDialog } from '@/components/party/PartyExitDialog';
 import { usePartyEnterIntro } from '@/hooks/party-enter-intro/usePartyEnterIntro';
 
 export default function PartyEnterIntroPage() {
-  const { step, currentScene, isLastStep, handleClick, handleClose, handleStart } =
-    usePartyEnterIntro();
+  const {
+    step,
+    currentScene,
+    isLastStep,
+    isExitDialogOpen,
+    handleClick,
+    handleClose,
+    handleCancelExit,
+    handleConfirmExit,
+    handleStart,
+  } = usePartyEnterIntro();
 
   return (
     <div
@@ -62,6 +72,11 @@ export default function PartyEnterIntroPage() {
           )}
         </footer>
       </div>
+      <PartyExitDialog
+        isOpen={isExitDialogOpen}
+        onCancel={handleCancelExit}
+        onConfirm={handleConfirmExit}
+      />
     </div>
   );
 }

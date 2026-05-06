@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { SCENES } from '@/constants/party-enter-intro';
-import { ROUTES } from '@/constants/routes';
+import { usePartyExitDialog } from '@/hooks/party/usePartyExitDialog';
 
 export function usePartyEnterIntro() {
   const [step, setStep] = useState(0);
-  const navigate = useNavigate();
+  const exitDialog = usePartyExitDialog();
 
   const currentScene = SCENES[step];
   const isLastStep = step === SCENES.length - 1;
@@ -13,10 +12,6 @@ export function usePartyEnterIntro() {
   const handleClick = () => {
     if (isLastStep) return;
     setStep((prev) => prev + 1);
-  };
-
-  const handleClose = () => {
-    navigate(ROUTES.home);
   };
 
   const handleStart = (e: React.MouseEvent) => {
@@ -29,7 +24,7 @@ export function usePartyEnterIntro() {
     currentScene,
     isLastStep,
     handleClick,
-    handleClose,
     handleStart,
+    ...exitDialog,
   };
 }
