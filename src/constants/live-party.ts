@@ -33,3 +33,5 @@ export type PartyStep =
   | 'CANDLE' // 촛불 불기
   | 'PINATA' // 박 깨기
   | 'END'; // 파티 종료
+
+export const CHAT_CHIPS = ['🎉', '👏', '❤️', '🥳', '생일축하해'];
