@@ -7,6 +7,7 @@ import 'swiper/css';
 
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { H1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 
@@ -129,6 +130,7 @@ interface CarouselButtonProps {
 }
 
 function CarouselButton({ label, direction, onClick }: CarouselButtonProps) {
+  const Icon = direction === 'prev' ? ChevronLeftIcon : ChevronRightIcon;
   return (
     <button
       type="button"
@@ -136,23 +138,7 @@ function CarouselButton({ label, direction, onClick }: CarouselButtonProps) {
       onClick={onClick}
       className="flex h-13 w-13 items-center justify-center rounded-full bg-blue-50 text-blue-600"
     >
-      <ChevronIcon direction={direction} />
+      <Icon width={20} height={20} />
     </button>
-  );
-}
-
-function ChevronIcon({ direction }: { direction: 'prev' | 'next' }) {
-  const path = direction === 'prev' ? 'M11.9 8.2L4.1 16L11.9 23.8' : 'M4.1 8.2L11.9 16L4.1 23.8';
-
-  return (
-    <svg width="16" height="32" viewBox="0 0 16 32" fill="none" aria-hidden>
-      <path
-        d={path}
-        stroke="currentColor"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
