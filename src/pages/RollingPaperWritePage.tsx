@@ -6,7 +6,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { RollingPaperMessageForm } from '@/components/rolling-paper-write/RollingPaperMessageForm';
 import { RollingPaperNicknameForm } from '@/components/rolling-paper-write/RollingPaperNicknameForm';
 import { RollingPaperWriteComplete } from '@/components/rolling-paper-write/RollingPaperWriteComplete';
-import { useRollingPaperWriteForm } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import { useRollingPaperWriteForm } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { ROUTES } from '@/constants/routes';
 import { useRollingPaper, useWriteRollingPaper } from '@/services/rolling-paper';
 

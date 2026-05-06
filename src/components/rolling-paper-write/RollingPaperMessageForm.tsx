@@ -4,7 +4,7 @@ import { MessageTextarea } from '@/components/rolling-paper-write/MessageTextare
 import { RollingPaperFormFooter } from '@/components/rolling-paper-write/RollingPaperFormFooter';
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { ToppingSelector } from '@/components/rolling-paper-write/ToppingSelector';
-import { type RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import { type RollingPaperWriteFormValues } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H3 } from '@/components/ui/Typography';

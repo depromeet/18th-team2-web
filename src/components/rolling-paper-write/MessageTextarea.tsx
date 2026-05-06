@@ -1,6 +1,6 @@
 import type { ControllerRenderProps } from 'react-hook-form';
 
-import type { RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import type { RollingPaperWriteFormValues } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { InputMetaRow } from '@/components/ui/InputMetaRow';
 import { MESSAGE_MAX_LENGTH, VALIDATION_MESSAGES } from '@/constants/validation';
 import { useControlledGraphemeLimitedField } from '@/hooks/useGraphemeLimitedField';

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { RollingPaperFormFooter } from '@/components/rolling-paper-write/RollingPaperFormFooter';
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
-import { type RollingPaperWriteFormValues } from '@/components/rolling-paper-write/useRollingPaperWriteForm';
+import { type RollingPaperWriteFormValues } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PageHeader } from '@/components/ui/PageHeader';
