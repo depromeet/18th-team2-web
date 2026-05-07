@@ -19,9 +19,12 @@ export function LivePartyHeader({ onNextStep, onExitClick, step }: LivePartyHead
     setPlayMusic((v) => !v);
   };
 
+  {
+    /* TODO: 노래가 나오기 시작할 때 play/mute 버튼 보이는 것으로 수정 필요 */
+  }
   return (
     <header className="absolute top-0 right-0 left-0 z-11 flex items-center justify-between p-4">
-      {step === LIVE_PARTY_STEP.MUSIC && (
+      {step !== LIVE_PARTY_STEP.ENTRY && (
         <button onClick={handleMusicIcon}>
           {playMusic ? <MusicPlayIconSvg /> : <MusicMutedIconSvg />}
         </button>
