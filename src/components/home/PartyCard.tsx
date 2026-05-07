@@ -1,7 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import hapalinPartyCard from '@/assets/images/hapalin-party-card.png';
 import { B1, L1 } from '@/components/ui/Typography';
+import { ROUTES } from '@/constants/routes';
 
 export function PartyCard() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative w-full overflow-hidden rounded-2xl">
       <img src={hapalinPartyCard} alt="파티 카드" className="w-full" />
@@ -17,7 +21,11 @@ export function PartyCard() {
             maskComposite: 'exclude',
           }}
         />
-        <button className="flex h-9 w-24.5 items-center justify-center gap-2.5 rounded-[40px] bg-white/20 px-3 py-1.5 text-white">
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.createParty)}
+          className="flex h-9 w-24.5 cursor-pointer items-center justify-center gap-2.5 rounded-[40px] bg-white/20 px-3 py-1.5 text-white transition-colors hover:bg-white/30 active:bg-white/25"
+        >
           <B1 as="span" className="font-medium">
             파티 만들기
           </B1>
