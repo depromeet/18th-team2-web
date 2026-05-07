@@ -5,6 +5,7 @@ import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, B2, H2, L1 } from '@/components/ui/Typography';
 import { SHARE_ENDPOINTS } from '@/constants/external-urls';
+import { shareToKakao } from '@/utils/kakao';
 
 const TOAST_VISIBLE_MS = 1600;
 const TOAST_EXIT_MS = 300;
@@ -15,10 +16,11 @@ interface LinkShareSheetProps {
   title: string;
   onClose: () => void;
   shareText?: string;
+  shareDescription?: string;
   copySuccessMessage?: string;
 }
 
-// TODO: 브랜드 SVG 아이콘으로 mark 교체, 카카오 SDK 연동 추가
+// TODO: 브랜드 SVG 아이콘으로 mark 교체
 const SHARE_SERVICES = [
   { id: 'kakao', label: '카카오톡', mark: 'K' },
   { id: 'x', label: 'X', mark: 'X' },
@@ -63,6 +65,7 @@ export function LinkShareSheet({
   title,
   onClose,
   shareText = '링크가 도착했어요',
+  shareDescription,
   copySuccessMessage = '링크가 복사되었어요',
 }: LinkShareSheetProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -118,6 +121,22 @@ export function LinkShareSheet({
     } catch {
       onClose();
     }
+  };
+
+  const handleShareServiceClick = async (serviceId: ShareServiceId) => {
+    if (serviceId !== 'kakao') return;
+
+    try {
+      const shared = await shareToKakao(link, shareText, shareDescription);
+      if (shared) {
+        onClose();
+        return;
+      }
+    } catch {
+      // SDK 설정 또는 브라우저 환경 문제 시 링크 복사로 대체
+    }
+
+    await handleCopyLink();
   };
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
@@ -234,7 +253,8 @@ export function LinkShareSheet({
                   <button
                     key={service.id}
                     type="button"
-                    className="flex w-15 shrink-0 flex-col items-center gap-2"
+                    className="flex w-15 shrink-0 cursor-pointer flex-col items-center gap-2"
+                    onClick={() => handleShareServiceClick(service.id)}
                   >
                     {content}
                   </button>
@@ -247,7 +267,7 @@ export function LinkShareSheet({
                   href={shareUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex w-15 shrink-0 flex-col items-center gap-2"
+                  className="flex w-15 shrink-0 cursor-pointer flex-col items-center gap-2"
                 >
                   {content}
                 </a>
