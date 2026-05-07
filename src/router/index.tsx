@@ -20,6 +20,8 @@ import ArchivePaperDetailPage from '@/pages/ArchivePaperDetailPage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
 import PartyInviteEntryPage from '@/pages/PartyInviteEntryPage';
+import PartyEnterPage from '@/pages/PartyEnterPage';
+import PartyEnterIntroPage from '@/pages/PartyEnterIntroPage';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +35,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.home, element: <HomePage /> },
       { path: ROUTES.createParty, element: <PartyTypePage /> },
       { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
+      { path: ROUTES.partyEnter, element: <PartyEnterPage /> },
+      { path: ROUTES.partyEnterIntro, element: <PartyEnterIntroPage /> },
 
       // 보호 라우트
       {

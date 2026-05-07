@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import CheckCircleFilledSvg from '@/assets/images/icons/check-circle-filled.svg?react';
 import { Button } from '@/components/ui/Button';
-import { T4, B1 } from '@/components/ui/Typography';
+import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
+import { T4, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -11,21 +14,10 @@ type CardState = 'default' | 'selected' | 'inactive';
 
 function CheckCircle({ state }: { state: CardState }) {
   if (state === 'selected') {
-    return (
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="16" fill="#5892ff" />
-        <path
-          d="M9.5 16.5L14 21L22.5 12"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    return <CheckCircleFilledSvg />;
   }
 
-  const checkColor = state === 'inactive' ? '#bebebf' : '#6b6c70';
+  const checkColorClass = state === 'inactive' ? 'text-grey-200' : 'text-grey-500';
 
   return (
     <div className="relative shrink-0" style={{ width: 32, height: 32 }}>
@@ -33,15 +25,7 @@ function CheckCircle({ state }: { state: CardState }) {
         className="absolute rounded-full bg-white"
         style={{ width: 26.67, height: 26.67, top: 2.67, left: 2.67 }}
       />
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="absolute inset-0">
-        <path
-          d="M9.5 16.5L14 21L22.5 12"
-          stroke={checkColor}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <CheckIcon width={32} height={32} className={`absolute inset-0 ${checkColorClass}`} />
     </div>
   );
 }
