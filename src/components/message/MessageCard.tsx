@@ -31,7 +31,7 @@ export function MessageCard({ messages, initialIndex, onClose }: MessageCardProp
       }}
     >
       {/* 컨텐츠 — 수직 중앙 */}
-      <div className="absolute top-1/2 left-1/2 flex w-full max-w-107.5 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-15">
+      <div className="absolute top-1/2 left-1/2 flex w-full max-w-150 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-15">
         {/* 닫기 + 카드 영역 */}
         <div className="flex w-full flex-col items-end gap-3 pr-1">
           {/* 닫기 버튼 */}

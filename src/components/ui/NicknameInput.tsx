@@ -4,8 +4,7 @@ import { Input, type InputProps } from '@/components/ui/Input';
 import { NICKNAME_MAX_LENGTH, VALIDATION_MESSAGES } from '@/constants/validation';
 import { getGraphemeLength, truncateByGrapheme } from '@/utils/text';
 
-interface NicknameInputProps
-  extends Omit<InputProps, 'maxLength' | 'message' | 'onChange'> {
+interface NicknameInputProps extends Omit<InputProps, 'maxLength' | 'message' | 'onChange'> {
   message?: string;
   maxLength?: number;
   onChange?: ChangeEventHandler<HTMLInputElement>;

@@ -5,8 +5,10 @@ import { HostActions } from '@/components/party-invitation/HostActions';
 import { HostTitle, ParticipantTitle } from '@/components/party-invitation/InvitationTitle';
 import { InvitationCard } from '@/components/party-invitation/InvitationCard';
 import { ParticipantActions } from '@/components/party-invitation/ParticipantActions';
+import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
 import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
+import { useDeleteParty } from '@/services/party';
 
 interface PartyInvitationViewProps {
   partyId: string;
@@ -27,6 +29,8 @@ export function PartyInvitationView({
   const { isWithin5Minutes } = usePartyCountdown(startsAt);
 
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
 
   function handleEnterParty() {
     navigate(generatePath(ROUTES.partyEnter, { partyId }));
@@ -34,30 +38,57 @@ export function PartyInvitationView({
 
   function handleWriteRollingPaper() {
     setHasWrittenRollingPaper(true);
-    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }));
+    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+      state: { completeCta: 'invite', invitePath: window.location.pathname },
+    });
+  }
+
+  function handleDeleteParty() {
+    if (startsAt.getTime() <= Date.now()) return;
+
+    deleteParty(partyId, {
+      onSuccess: () => {
+        setIsDeleteDialogOpen(false);
+        navigate(ROUTES.home, { replace: true });
+      },
+    });
   }
 
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col">
-      <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
-        {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
-        <InvitationCard hostName={hostName} startsAt={startsAt} isHost={isHost} />
-      </section>
+    <>
+      <main className="bg-gradient-bg flex min-h-screen flex-col">
+        <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
+          {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
+          <InvitationCard
+            hostName={hostName}
+            startsAt={startsAt}
+            isHost={isHost}
+            onDeleteClick={() => setIsDeleteDialogOpen(true)}
+          />
+        </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-27.5 w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
-        <div className="w-full">
-          {isHost ? (
-            <HostActions isWithin5Minutes={isWithin5Minutes} onEnterParty={handleEnterParty} />
-          ) : (
-            <ParticipantActions
-              isWithin5Minutes={isWithin5Minutes}
-              hasWrittenRollingPaper={hasWrittenRollingPaper}
-              onEnterParty={handleEnterParty}
-              onWriteRollingPaper={handleWriteRollingPaper}
-            />
-          )}
+        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-27.5 w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
+          <div className="w-full">
+            {isHost ? (
+              <HostActions isWithin5Minutes={isWithin5Minutes} onEnterParty={handleEnterParty} />
+            ) : (
+              <ParticipantActions
+                isWithin5Minutes={isWithin5Minutes}
+                hasWrittenRollingPaper={hasWrittenRollingPaper}
+                onEnterParty={handleEnterParty}
+                onWriteRollingPaper={handleWriteRollingPaper}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <PartyDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        isPending={isDeletingParty}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteParty}
+      />
+    </>
   );
 }

@@ -38,7 +38,6 @@ export const router = createBrowserRouter([
       { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
       { path: ROUTES.partyEnter, element: <PartyEnterPage /> },
       { path: ROUTES.liveParty, element: <LivePartyPage /> },
-
       // 보호 라우트
       {
         element: <ProtectedRoute />,

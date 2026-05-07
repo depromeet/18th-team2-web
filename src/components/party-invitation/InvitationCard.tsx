@@ -7,9 +7,17 @@ interface InvitationCardProps {
   hostName: string;
   startsAt: Date;
   isHost?: boolean;
+  onDeleteClick?: () => void;
 }
 
-export function InvitationCard({ hostName, startsAt, isHost = false }: InvitationCardProps) {
+export function InvitationCard({
+  hostName,
+  startsAt,
+  isHost = false,
+  onDeleteClick,
+}: InvitationCardProps) {
+  const canDelete = isHost && startsAt.getTime() > Date.now();
+
   return (
     <article
       className="flex w-full flex-col gap-10 rounded-lg bg-white px-7.5 py-9"
@@ -25,7 +33,11 @@ export function InvitationCard({ hostName, startsAt, isHost = false }: Invitatio
       {/* 카드 하단: 구분선 + 날짜 뱃지 */}
       <div className="flex flex-col gap-6">
         <hr className="w-full border-blue-50" />
-        <InvitationDateBadge startsAt={startsAt} showDeleteButton={isHost} />
+        <InvitationDateBadge
+          startsAt={startsAt}
+          showDeleteButton={canDelete}
+          onDeleteClick={onDeleteClick}
+        />
       </div>
     </article>
   );
