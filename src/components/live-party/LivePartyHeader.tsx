@@ -2,8 +2,8 @@ import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { Button } from '@/components/ui/Button';
 import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
 import { useState } from 'react';
-import { MusicPlayIcon } from '../ui/icons/MusicPlayIcon';
-import { MusicMutedIcon } from '../ui/icons/MusicMutedIcon';
+import { MusicPlayIcon } from '@/components/ui/icons/MusicPlayIcon';
+import { MusicMutedIcon } from '@/components/ui/icons/MusicMutedIcon';
 
 //임시? 추후 공통 컴포넌트로 교체 후 삭제될 가능성 있음
 interface LivePartyHeaderProps {

@@ -15,11 +15,7 @@ export function StepRenderer({ step, onStepComplete }: StepRendererProps) {
     case 'ENTRY':
       return <PartyEntryStep />;
     case 'MUSIC':
-      return (
-        <div className="fixed bottom-[320px] left-0 right-0 z-10 mx-auto w-full max-w-[600px]">
-          <PartyMusicText onComplete={onStepComplete} />
-        </div>
-      );
+      return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':
       return <PartyCandleStep />;
     case 'PINATA':

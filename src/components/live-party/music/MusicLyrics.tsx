@@ -1,14 +1,6 @@
 import { B1, Caption } from '@/components/ui/Typography';
-import { MUSIC_LYRICS } from '@/constants/live-party';
+import { MUSIC_LYRICS, MUSIC_LYRICS_TIMINGS } from '@/constants/live-party';
 import { useEffect, useRef, useState } from 'react';
-
-const LYRIC_TIMINGS = [
-  { start: 0, end: 16 },
-  { start: 17, end: 20 },
-  { start: 21, end: 24 },
-  { start: 25, end: 28 },
-  { start: 29, end: 32 },
-];
 
 interface MusicLyricsProps {
   onComplete?: () => void;
@@ -20,7 +12,7 @@ export function MusicLyrics({ onComplete }: MusicLyricsProps) {
   const completedRef = useRef(false);
 
   useEffect(() => {
-    const lastTiming = LYRIC_TIMINGS[LYRIC_TIMINGS.length - 1];
+    const lastTiming = MUSIC_LYRICS_TIMINGS[MUSIC_LYRICS_TIMINGS.length - 1];
 
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
@@ -32,7 +24,7 @@ export function MusicLyrics({ onComplete }: MusicLyricsProps) {
         return;
       }
 
-      const nextIndex = LYRIC_TIMINGS.findIndex(
+      const nextIndex = MUSIC_LYRICS_TIMINGS.findIndex(
         ({ start, end }) => elapsed >= start && elapsed <= end,
       );
 
@@ -47,13 +39,10 @@ export function MusicLyrics({ onComplete }: MusicLyricsProps) {
   }, [onComplete]);
 
   const lyricDuration =
-    (LYRIC_TIMINGS[currentIndex].end - LYRIC_TIMINGS[currentIndex].start) * 1000;
+    (MUSIC_LYRICS_TIMINGS[currentIndex].end - MUSIC_LYRICS_TIMINGS[currentIndex].start) * 1000;
 
   return (
-    <div
-      className="flex h-21 flex-col items-center justify-center gap-2 bg-white/1 backdrop-blur-xs"
-      style={{ maskImage: 'linear-gradient(to bottom, transparent 0%, black 35%)' }}
-    >
+    <div className="flex h-21 flex-col items-center justify-center gap-2 bg-white/1 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] backdrop-blur-xs">
       <B1
         key={currentIndex}
         as="p"

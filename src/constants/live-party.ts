@@ -64,3 +64,11 @@ export const MUSIC_LYRICS = [
   '사랑하는 현진님의',
   '생일축하합니다',
 ];
+
+export const MUSIC_LYRICS_TIMINGS = [
+  { start: 0, end: 16 },
+  { start: 17, end: 20 },
+  { start: 21, end: 24 },
+  { start: 25, end: 28 },
+  { start: 29, end: 32 },
+];
