@@ -25,7 +25,7 @@ export function CakeBackground() {
         }}
       />
       <div
-        className="absolute left-1/2 h-[87px] w-[156%] min-w-[585px] max-w-[699px] -translate-x-1/2"
+        className="absolute left-1/2 h-[87px] w-[156%] max-w-[699px] min-w-[585px] -translate-x-1/2"
         style={{
           top: 'calc(var(--rolling-paper-art-offset) + 629px)',
           background:

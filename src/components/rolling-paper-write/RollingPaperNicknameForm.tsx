@@ -32,7 +32,7 @@ export function RollingPaperNicknameForm({ onNext }: RollingPaperNicknameFormPro
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-gradient-bg">
+    <main className="bg-gradient-bg flex min-h-screen flex-col">
       <PageHeader onBack={() => navigate(-1)} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5">
