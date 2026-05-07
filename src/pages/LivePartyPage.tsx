@@ -2,7 +2,7 @@ import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { LIVE_PARTY_STEP_ARRAY, type PartyStep } from '@/constants/live-party';
 import { useState } from 'react';
-import livePartyBg from '@/assets/images/live-party-bg.png';
+import livePartyBg from '@/assets/images/live-party/live-party-bg.png';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';

@@ -1,4 +1,4 @@
-import whiteGradientBig from '@/assets/images/white-gradient-big.png';
+import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png';
 import { T3 } from '@/components/ui/Typography';
 
 export function PartyEnterStage() {
