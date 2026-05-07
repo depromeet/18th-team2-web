@@ -17,7 +17,11 @@ interface RollingPaperMessageFormProps {
   onNext: () => void;
 }
 
-export function RollingPaperMessageForm({ hostName, onBack, onNext }: RollingPaperMessageFormProps) {
+export function RollingPaperMessageForm({
+  hostName,
+  onBack,
+  onNext,
+}: RollingPaperMessageFormProps) {
   const bottomOffset = useViewportBottomOffset();
 
   const { watch, control, trigger } = useFormContext<RollingPaperWriteFormValues>();
@@ -34,7 +38,7 @@ export function RollingPaperMessageForm({ hostName, onBack, onNext }: RollingPap
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-gradient-bg">
+    <main className="bg-gradient-bg flex min-h-screen flex-col">
       <PageHeader onBack={onBack} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5 pb-30">
