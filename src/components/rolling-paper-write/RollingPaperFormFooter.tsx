@@ -19,7 +19,7 @@ export function RollingPaperFormFooter({
     <div
       className={`fixed inset-x-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-2 px-4 pb-6 ${
         withGradient
-          ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] pt-8'
+          ? 'pt-8 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)]'
           : ''
       } ${className ?? ''}`}
       style={{ bottom: bottomOffset }}
