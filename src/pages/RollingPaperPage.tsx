@@ -157,7 +157,7 @@ export default function RollingPaperPage() {
           isOpen={isShareSheetOpen}
           link={shareLink}
           title="롤링페이퍼 링크 공유하기"
-          shareText="롤링페이퍼가 도착했어요"
+          shareText="롤링페이퍼 작성 초대장이 왔어요"
           onClose={() => setIsShareSheetOpen(false)}
         />
       </div>

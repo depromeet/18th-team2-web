@@ -85,6 +85,16 @@ textarea {
   font-size: 16px;
 }
 
+.party-intro-screen {
+  background: linear-gradient(180deg, #e8f0ff 0%, var(--color-blue-700) 70%);
+}
+
+.party-intro-overlay {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 35%) 0%, rgb(255 255 255 / 0%) 25%),
+    radial-gradient(100% 100% at 50% 0%, rgb(64 93 243 / 50%) 0%, rgb(255 255 255 / 50%) 100%);
+}
+
 /* 파티 생성 인트로 — 텍스트 좌→우 페이드인 */
 .party-intro-text {
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 20%, transparent 60%, transparent 100%);
@@ -124,6 +134,8 @@ textarea {
 }
 
 .party-complete-title,
+.rolling-paper-complete-title,
+.rolling-paper-complete-open-title,
 .party-complete-card,
 .party-complete-notice,
 .party-complete-button {
@@ -136,6 +148,20 @@ textarea {
   animation-name: party-complete-fade-in;
   animation-duration: 600ms;
   animation-delay: 650ms;
+  animation-timing-function: ease-out;
+}
+
+.rolling-paper-complete-title {
+  animation-name: rolling-paper-complete-title-swap;
+  animation-duration: 2200ms;
+  animation-delay: 650ms;
+  animation-timing-function: ease-out;
+}
+
+.rolling-paper-complete-open-title {
+  animation-name: party-complete-fade-in;
+  animation-duration: 500ms;
+  animation-delay: 2850ms;
   animation-timing-function: ease-out;
 }
 
@@ -287,6 +313,19 @@ textarea {
   }
 
   100% {
+    opacity: 0;
+  }
+}
+
+@keyframes rolling-paper-complete-title-swap {
+  from {
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  to {
     opacity: 0;
   }
 }

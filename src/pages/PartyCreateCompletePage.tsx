@@ -6,12 +6,10 @@ import { CompletedInvitationCard } from '@/components/party-create/CompletedInvi
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
+import { DUMMY_HOST_NAME, PARTY_DURATION_MINUTES } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { getTodayMidnight } from '@/utils/date';
-
-const PARTY_DURATION_MINUTES = 10;
 // TODO: 새로고침/직접 진입 대비 — 파티 ID 기반 조회로 교체
-const DEFAULT_HOST_NAME = '김이라';
 const DEFAULT_PARTY_TIME = '오후 4:00';
 
 interface PartyCompleteState {
@@ -32,10 +30,10 @@ export default function PartyCreateCompletePage() {
   const partyState = getPartyCompleteState(location.state);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
-  const hostName = partyState.hostName ?? DEFAULT_HOST_NAME;
+  const hostName = partyState.hostName ?? DUMMY_HOST_NAME;
   const partyDate = partyState.partyDate ? new Date(partyState.partyDate) : getTodayMidnight();
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
-  // TODO: activateInviteLink API 응답의 실제 토큰으로 교체
+  // TODO: 생성 API 응답의 partyId로 activateInviteLink mutation을 호출하고 실제 inviteToken으로 교체
   const shareLink = useMemo(
     () =>
       `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: 'mock-invite-token' })}`,

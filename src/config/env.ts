@@ -12,4 +12,5 @@ const getEnvVar = (key: string, required = true): string => {
 export const config = {
   apiBaseUrl: getEnvVar('VITE_API_BASE_URL'),
   appEnv: getEnvVar('VITE_APP_ENV', false) || 'development',
+  kakaoJavascriptKey: getEnvVar('VITE_KAKAO_JAVASCRIPT_KEY', false),
 } as const;

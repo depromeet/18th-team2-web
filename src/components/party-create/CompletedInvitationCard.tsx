@@ -21,7 +21,7 @@ export function CompletedInvitationCard({
   const footerText = `${formatDotDate(partyDate)}  |  ${partyTime}`;
 
   return (
-    <div className={`rounded-[8px] bg-white px-9 pt-10 pb-9 ${className ?? ''}`}>
+    <div className={`rounded-lg bg-white px-9 pt-10 pb-9 ${className ?? ''}`}>
       <H2 className="text-center">{title}</H2>
       <div className="border-grey-50 mt-7 border-t" />
 
