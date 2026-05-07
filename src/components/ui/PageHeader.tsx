@@ -13,7 +13,7 @@ export function PageHeader({ title, onBack }: PageHeaderProps) {
   const handleBack = onBack ?? (() => navigate(-1));
 
   return (
-    <header className="sticky top-0 z-10 flex h-[42px] items-center bg-white px-4">
+    <header className="sticky top-0 z-10 flex h-[42px] items-center bg-transparent px-4">
       <button
         type="button"
         aria-label="뒤로가기"
