@@ -1,6 +1,12 @@
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
-import { LIVE_PARTY_STEP, LIVE_PARTY_STEP_ARRAY, type PartyStep } from '@/constants/live-party';
+import {
+  LIVE_PARTY_STEP,
+  LIVE_PARTY_STEP_ARRAY,
+  PARTY_USER,
+  type PartyStep,
+  type PartyUserRole,
+} from '@/constants/live-party';
 import { useState } from 'react';
 import livePartyBg from '@/assets/images/live-party/live-party-bg.png';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
@@ -8,7 +14,8 @@ import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 
 export default function LivePartyPage() {
-  const [step, setStep] = useState<PartyStep>('ENTRY');
+  const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
+  const [userRole, _setUserRole] = useState<PartyUserRole>(PARTY_USER.PARTICIPANT_WRITTEN);
 
   const handleNextStep = () => {
     const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
@@ -25,16 +32,31 @@ export default function LivePartyPage() {
   {
     /* 실제 음악 나오는 건 추후 개발 예정 */
   }
+  const showChatBottomSheet = step !== LIVE_PARTY_STEP.ENTRY && step !== LIVE_PARTY_STEP.END;
+
+  const partyEnd = step === LIVE_PARTY_STEP.END;
+
   return (
     <div
-      className="relative min-h-screen w-full max-w-[598px] bg-cover bg-center bg-no-repeat backdrop-blur-lg"
-      style={{
-        backgroundImage: `url(${livePartyBg})`,
-      }}
+      className={`relative min-h-screen w-full max-w-[598px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
+      style={
+        partyEnd
+          ? undefined
+          : {
+              backgroundImage: `url(${livePartyBg})`,
+            }
+      }
     >
-      <LivePartyHeader onNextStep={handleNextStep} onExitClick={handleOpenExitDialog} step={step} />
-      <StepRenderer step={step} onStepComplete={handleNextStep} />
-      {step !== LIVE_PARTY_STEP.ENTRY && step !== LIVE_PARTY_STEP.CANDLE && <ChatBottomSheet />}
+      {!partyEnd && (
+        <LivePartyHeader
+          onNextStep={handleNextStep}
+          onExitClick={handleOpenExitDialog}
+          step={step}
+        />
+      )}
+
+      <StepRenderer step={step} onStepComplete={handleNextStep} userRole={userRole} />
+      {showChatBottomSheet && <ChatBottomSheet />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
         onCancel={handleCancelExit}

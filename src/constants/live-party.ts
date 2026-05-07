@@ -126,3 +126,11 @@ export const CANDLES = [
     off: candleOffPurple,
   },
 ];
+
+export const PARTY_USER = {
+  PARTICIPANT_NOT_WRITTEN: 'PARTICIPANT_NOT_WRITTEN',
+  PARTICIPANT_WRITTEN: 'PARTICIPANT_WRITTEN',
+  HOST: 'HOST',
+} as const;
+
+export type PartyUserRole = keyof typeof PARTY_USER;

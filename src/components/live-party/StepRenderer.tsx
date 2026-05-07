@@ -1,16 +1,17 @@
 import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
-import { type PartyStep } from '@/constants/live-party';
+import { type PartyStep, type PartyUserRole } from '@/constants/live-party';
 import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep';
 import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
 import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
-import { PartyMusicText } from './music/PartyMusicText';
+import { PartyMusicText } from '@/components/live-party/music/PartyMusicText';
 
 interface StepRendererProps {
   step: PartyStep;
   onStepComplete?: () => void;
+  userRole: PartyUserRole;
 }
 
-export function StepRenderer({ step, onStepComplete }: StepRendererProps) {
+export function StepRenderer({ step, onStepComplete, userRole }: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
       return <PartyEntryStep />;
@@ -21,7 +22,7 @@ export function StepRenderer({ step, onStepComplete }: StepRendererProps) {
     case 'PINATA':
       return <PartyPinataStep />;
     case 'END':
-      return <PartyEndStep />;
+      return <PartyEndStep role={userRole} />;
     default:
       return null;
   }
