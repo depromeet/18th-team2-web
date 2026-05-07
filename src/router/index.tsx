@@ -35,9 +35,6 @@ export const router = createBrowserRouter([
       { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
       { path: ROUTES.partyEnter, element: <PartyEnterPage /> },
       { path: ROUTES.liveParty, element: <LivePartyPage /> },
-      { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
-      { path: ROUTES.rollingPaperWrite, element: <RollingPaperWritePage /> },
-
       // 보호 라우트
       {
         element: <ProtectedRoute />,
@@ -49,6 +46,8 @@ export const router = createBrowserRouter([
           { path: ROUTES.archive, element: <ArchivePage /> },
           { path: ROUTES.archivePartyDetail, element: <ArchivePartyDetailPage /> },
           { path: ROUTES.archivePaperDetail, element: <ArchivePaperDetailPage /> },
+          { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
+          { path: ROUTES.rollingPaperWrite, element: <RollingPaperWritePage /> },
           { path: ROUTES.mypage, element: <MyPage /> },
         ],
       },
