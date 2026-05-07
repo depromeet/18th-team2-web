@@ -1,6 +1,6 @@
 import { type MouseEvent } from 'react';
 import { Button } from '@/components/ui/Button';
-import { WhiteGradientIcon } from '@/components/ui/icons/WhiteGradientIcon';
+import WhiteGradientIconSvg from '@/assets/images/live-party/white-gradient.svg?react';
 import { B1 } from '@/components/ui/Typography';
 
 interface PartyIntroFooterProps {
@@ -17,7 +17,7 @@ export function PartyIntroFooter({ showButton, onStart }: PartyIntroFooterProps)
         </Button>
       ) : (
         <>
-          <WhiteGradientIcon className="mb-3" />
+          <WhiteGradientIconSvg className="mb-3" />
           <B1 as="p" className="font-normal text-white/60">
             터치하면 다음으로 넘어가요
           </B1>

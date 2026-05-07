@@ -2,8 +2,8 @@ import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { Button } from '@/components/ui/Button';
 import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
 import { useState } from 'react';
-import { MusicPlayIcon } from '@/components/ui/icons/MusicPlayIcon';
-import { MusicMutedIcon } from '@/components/ui/icons/MusicMutedIcon';
+import MusicPlayIconSvg from '@/assets/images/live-party/music-play.svg?react';
+import MusicMutedIconSvg from '@/assets/images/live-party/music-muted.svg?react';
 
 //임시? 추후 공통 컴포넌트로 교체 후 삭제될 가능성 있음
 interface LivePartyHeaderProps {
@@ -23,7 +23,7 @@ export function LivePartyHeader({ onNextStep, onExitClick, step }: LivePartyHead
     <header className="absolute top-0 right-0 left-0 z-11 flex items-center justify-between p-4">
       {step === LIVE_PARTY_STEP.MUSIC && (
         <button onClick={handleMusicIcon}>
-          {playMusic ? <MusicPlayIcon /> : <MusicMutedIcon />}
+          {playMusic ? <MusicPlayIconSvg /> : <MusicMutedIconSvg />}
         </button>
       )}
 
