@@ -18,6 +18,6 @@ export const ROUTES = {
 
   // 진입점 이후 내부 작업은 partyId 기반
   partyEnter: '/party/:partyId/enter',
-  partyEnterIntro: '/party/:partyId/enter/intro',
+  liveParty: '/party/:partyId/live',
   rollingPaperWrite: '/party/:partyId/rolling-paper/write',
 } as const;

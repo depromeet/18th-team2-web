@@ -1,9 +1,10 @@
-export interface Scene {
+/** 파티 인트로 */
+export interface EntryData {
   text: string;
   showButton?: boolean;
 }
 
-export const SCENES: Scene[] = [
+export const ENTRY_DATA: EntryData[] = [
   {
     text: `현진님의\n생일파티에\n오신 걸 환영해요!`,
   },
@@ -24,3 +25,15 @@ export const SCENES: Scene[] = [
     showButton: true,
   },
 ];
+
+/** 파티 상태  */
+export type PartyStep =
+  | 'ENTRY' // 주인공 등장
+  | 'MUSIC' // 노래
+  | 'CANDLE' // 촛불 불기
+  | 'PINATA' // 박 깨기
+  | 'END'; // 파티 종료
+
+export const STEP_ORDER: PartyStep[] = ['ENTRY', 'MUSIC', 'CANDLE', 'PINATA', 'END'];
+
+export const CHAT_CHIPS = ['🎉', '👏', '❤️', '🥳', '생일축하해'];

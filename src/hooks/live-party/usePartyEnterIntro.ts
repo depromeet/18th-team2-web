@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { SCENES } from '@/constants/party-enter-intro';
-import { usePartyExitDialog } from '@/hooks/party/usePartyExitDialog';
+import { useState, type MouseEvent } from 'react';
+import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
+import { ENTRY_DATA } from '@/constants/live-party';
 
 export function usePartyEnterIntro() {
   const [step, setStep] = useState(0);
@@ -9,8 +9,8 @@ export function usePartyEnterIntro() {
   const [isCurtainOpen, setIsCurtainOpen] = useState(false);
   const exitDialog = usePartyExitDialog();
 
-  const currentScene = SCENES[step];
-  const isLastStep = step === SCENES.length - 1;
+  const currentStep = ENTRY_DATA[step];
+  const isLastStep = step === ENTRY_DATA.length - 1;
 
   const handleClick = () => {
     if (isLastStep || isExiting) return;
@@ -27,14 +27,14 @@ export function usePartyEnterIntro() {
     }
   };
 
-  const handleStart = (e: React.MouseEvent) => {
+  const handleStart = (e: MouseEvent) => {
     e.stopPropagation();
     setIsCurtainOpen(true);
   };
 
   return {
     step,
-    currentScene,
+    currentStep,
     isLastStep,
     isExiting,
     isEntering,

@@ -1,15 +1,15 @@
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
-import { PartyExitDialog } from '@/components/party/PartyExitDialog';
-import { usePartyEnterIntro } from '@/hooks/party-enter-intro/usePartyEnterIntro';
+import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
+import { usePartyEnterIntro } from '@/hooks/live-party/usePartyEnterIntro';
 
-import { PartyCurtain } from '@/components/party-enter-intro/PartyCurtain';
-import { PartyIntroContent } from '@/components/party-enter-intro/PartyIntroContent';
-import { PartyIntroFooter } from '@/components/party-enter-intro/PartyIntroFooter';
-import { PartyEnterStage } from '@/components/party-enter-intro/PartyEnterStage';
+import { PartyCurtain } from '@/components/live-party/entry/PartyCurtain';
+import { PartyIntroContent } from '@/components/live-party/entry/PartyIntroContent';
+import { PartyIntroFooter } from '@/components/live-party/entry/PartyIntroFooter';
+import { PartyEnterStage } from '@/components/live-party/entry/PartyEnterStage';
 
-export default function PartyEnterIntroPage() {
+export function PartyEntryStep() {
   const {
-    currentScene,
+    currentStep,
     isLastStep,
     isExiting,
     isEntering,
@@ -38,19 +38,19 @@ export default function PartyEnterIntroPage() {
         />
         <PartyCurtain isOpen={isCurtainOpen} />
         <header className="absolute top-0 right-0 left-0 z-11 flex justify-end p-4">
-          <button onClick={handleOpenExitDialog}>
+          <button onClick={handleOpenExitDialog} aria-label="파티 나가기">
             <CloseIcon className="text-white" />
           </button>
         </header>
         {!isCurtainOpen && (
           <>
             <PartyIntroContent
-              text={currentScene.text}
+              text={currentStep.text}
               isEntering={isEntering}
               isExiting={isExiting}
               onAnimationEnd={handleTextAnimationEnd}
             />
-            <PartyIntroFooter showButton={!!currentScene.showButton} onStart={handleStart} />
+            <PartyIntroFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
         {isCurtainOpen && <PartyEnterStage />}
