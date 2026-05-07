@@ -7,7 +7,7 @@ interface ChipListProps {
 
 export function ChipList({ onChipClick }: ChipListProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 py-2">
+    <div className="flex gap-2 overflow-x-auto py-2">
       {CHAT_CHIPS.map((chip) => (
         <Chip key={chip} label={chip} onClick={(v) => onChipClick?.(v)} />
       ))}
