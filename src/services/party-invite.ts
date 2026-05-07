@@ -6,7 +6,10 @@ import { formatIsoDate } from '@/utils/date';
 // ── Types (from OpenAPI) ──
 
 // BE 응답 + FE 임시 확장 (partyId, isHost는 BE 추가 요청 중)
-export type PartyInviteLookup = components['schemas']['PartyInviteLookupResponse'] & {
+export type PartyInviteLookup = Omit<
+  components['schemas']['PartyInviteLookupResponse'],
+  'host' | 'partyId'
+> & {
   partyId: string;
   isHost: boolean;
 };
