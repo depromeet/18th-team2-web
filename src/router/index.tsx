@@ -17,7 +17,6 @@ import ArchivePaperDetailPage from '@/pages/ArchivePaperDetailPage';
 import RollingPaperPage from '@/pages/RollingPaperPage';
 import MyPage from '@/pages/MyPage';
 import PartyInviteEntryPage from '@/pages/PartyInviteEntryPage';
-import RollingPaperWritePage from '@/pages/RollingPaperWritePage';
 import PartyEnterPage from '@/pages/PartyEnterPage';
 import LivePartyPage from '@/pages/LivePartyPage';
 
@@ -48,7 +47,6 @@ export const router = createBrowserRouter([
           { path: ROUTES.archivePartyDetail, element: <ArchivePartyDetailPage /> },
           { path: ROUTES.archivePaperDetail, element: <ArchivePaperDetailPage /> },
           { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
-          { path: ROUTES.rollingPaperWrite, element: <RollingPaperWritePage /> },
           { path: ROUTES.mypage, element: <MyPage /> },
         ],
       },
