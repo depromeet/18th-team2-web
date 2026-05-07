@@ -27,13 +27,48 @@ export const ENTRY_DATA: EntryData[] = [
 ];
 
 /** 파티 상태  */
-export type PartyStep =
-  | 'ENTRY' // 주인공 등장
-  | 'MUSIC' // 노래
-  | 'CANDLE' // 촛불 불기
-  | 'PINATA' // 박 깨기
-  | 'END'; // 파티 종료
+export const LIVE_PARTY_STEP = {
+  ENTRY: 'ENTRY', // 주인공 등장
+  MUSIC: 'MUSIC', // 노래
+  CANDLE: 'CANDLE', // 촛불 불기
+  PINATA: 'PINATA', // 박 깨기
+  END: 'END', // 파티 종료
+} as const;
 
-export const STEP_ORDER: PartyStep[] = ['ENTRY', 'MUSIC', 'CANDLE', 'PINATA', 'END'];
+export type PartyStep = keyof typeof LIVE_PARTY_STEP;
+
+export const LIVE_PARTY_STEP_ARRAY: PartyStep[] = [
+  LIVE_PARTY_STEP.ENTRY,
+  LIVE_PARTY_STEP.MUSIC,
+  LIVE_PARTY_STEP.CANDLE,
+  LIVE_PARTY_STEP.PINATA,
+  LIVE_PARTY_STEP.END,
+];
 
 export const CHAT_CHIPS = ['🎉', '👏', '❤️', '🥳', '생일축하해'];
+
+/** 음악 안내 멘트 */
+export const MUSIC_GUIDE_TEXT = [
+  '지금부터 생일축하 노래가 나올 예정이에요',
+  '무음모드라면 해제해야 노래를 들을 수 있어요',
+];
+
+export const MUSIC_GUIDE_TEXT_DURATION = 4500;
+
+export const MUSIC_GUIDE_DURATION = MUSIC_GUIDE_TEXT.length * MUSIC_GUIDE_TEXT_DURATION;
+
+export const MUSIC_LYRICS = [
+  '~♬~',
+  '생일축하합니다',
+  '생일축하합니다',
+  '사랑하는 현진님의',
+  '생일축하합니다',
+];
+
+export const MUSIC_LYRICS_TIMINGS = [
+  { start: 0, end: 16 },
+  { start: 17, end: 20 },
+  { start: 21, end: 24 },
+  { start: 25, end: 28 },
+  { start: 29, end: 32 },
+];

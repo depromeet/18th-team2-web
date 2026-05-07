@@ -1,7 +1,4 @@
-import { CloseIcon } from '@/components/ui/icons/CloseIcon';
-import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { usePartyEnterIntro } from '@/hooks/live-party/usePartyEnterIntro';
-
 import { PartyCurtain } from '@/components/live-party/entry/PartyCurtain';
 import { PartyIntroContent } from '@/components/live-party/entry/PartyIntroContent';
 import { PartyIntroFooter } from '@/components/live-party/entry/PartyIntroFooter';
@@ -14,11 +11,7 @@ export function PartyEntryStep() {
     isExiting,
     isEntering,
     isCurtainOpen,
-    isExitDialogOpen,
     handleClick,
-    handleOpenExitDialog,
-    handleCancelExit,
-    handleConfirmExit,
     handleTextAnimationEnd,
     handleStart,
   } = usePartyEnterIntro();
@@ -37,11 +30,6 @@ export function PartyEntryStep() {
           }`}
         />
         <PartyCurtain isOpen={isCurtainOpen} />
-        <header className="absolute top-0 right-0 left-0 z-11 flex justify-end p-4">
-          <button onClick={handleOpenExitDialog} aria-label="파티 나가기">
-            <CloseIcon className="text-white" />
-          </button>
-        </header>
         {!isCurtainOpen && (
           <>
             <PartyIntroContent
@@ -55,12 +43,6 @@ export function PartyEntryStep() {
         )}
         {isCurtainOpen && <PartyEnterStage />}
       </div>
-
-      <PartyExitDialog
-        isOpen={isExitDialogOpen}
-        onCancel={handleCancelExit}
-        onConfirm={handleConfirmExit}
-      />
     </div>
   );
 }
