@@ -29,7 +29,10 @@ function loadKakaoSdk(): Promise<boolean> {
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.onload = () => resolve(Boolean(window.Kakao));
-    script.onerror = () => resolve(false);
+    script.onerror = () => {
+      sdkLoadPromise = null;
+      resolve(false);
+    };
     document.head.appendChild(script);
   });
 

@@ -6,11 +6,9 @@ import { CompletedRollingPaperCard } from '@/components/party-create/CompletedRo
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
-import { DUMMY_HOST_NAME } from '@/constants/partyCreate';
+import { DUMMY_HOST_NAME, ROLLING_PAPER_DURATION_DAYS } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { addDays, formatKoreanShortDate, getTodayMidnight } from '@/utils/date';
-
-const ROLLING_PAPER_DURATION_DAYS = 7;
 const ROLLING_PAPER_OPEN_TIME = '오후 10시';
 
 interface RollingPaperCompleteState {

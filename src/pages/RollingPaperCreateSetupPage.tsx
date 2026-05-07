@@ -8,6 +8,7 @@ import { EditableNamePill } from '@/components/party-create/EditableNamePill';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { InvitationCard } from '@/components/party-create/InvitationCard';
 import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvitationBackdrop';
+import { ROLLING_PAPER_DURATION_DAYS } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
@@ -20,14 +21,13 @@ import {
   getTodayMidnight,
 } from '@/utils/date';
 
-const ROLLING_PAPER_DURATION_DAYS = 7;
-
 export default function RollingPaperCreateSetupPage() {
   const navigate = useNavigate();
   const { data: meData } = useMe();
 
   const { defaultHostName, hostName, setHostName } = useCreateHostName(meData?.data?.name);
   const today = getTodayMidnight();
+  const isReady = Boolean(hostName);
 
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -127,7 +127,7 @@ export default function RollingPaperCreateSetupPage() {
       )}
 
       <div className="relative z-30 mt-auto px-5 pb-6">
-        <Button variant="primary" size="full" onClick={handleCreateRollingPaper}>
+        <Button variant="primary" size="full" disabled={!isReady} onClick={handleCreateRollingPaper}>
           롤링페이퍼 생성하기
         </Button>
       </div>

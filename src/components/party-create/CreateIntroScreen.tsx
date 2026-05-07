@@ -33,7 +33,7 @@ export function CreateIntroScreen({
         <button
           type="button"
           onClick={() => navigate(nextRoute, { replace: true })}
-          aria-label="닫기"
+          aria-label="인트로 화면 건너뛰기"
           className="text-grey-900 absolute top-14 right-5 z-20 flex h-10 w-10 items-center justify-center"
         >
           <CloseIcon />

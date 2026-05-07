@@ -10,13 +10,12 @@ import { EditableNamePill } from '@/components/party-create/EditableNamePill';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { InvitationCard } from '@/components/party-create/InvitationCard';
 import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvitationBackdrop';
+import { PARTY_DURATION_MINUTES } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
 import { useMe } from '@/services/auth';
 import { formatDisplayTime, formatDotDate, formatKoreanDate, getTodayMidnight } from '@/utils/date';
-
-const PARTY_DURATION_MINUTES = 10;
 
 type PickerMode = 'date' | 'time' | null;
 

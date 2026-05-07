@@ -6,11 +6,9 @@ import { CompletedInvitationCard } from '@/components/party-create/CompletedInvi
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
-import { DUMMY_HOST_NAME } from '@/constants/partyCreate';
+import { DUMMY_HOST_NAME, PARTY_DURATION_MINUTES } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { getTodayMidnight } from '@/utils/date';
-
-const PARTY_DURATION_MINUTES = 10;
 // TODO: 새로고침/직접 진입 대비 — 파티 ID 기반 조회로 교체
 const DEFAULT_PARTY_TIME = '오후 4:00';
 

@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { HOST_NAME_MAX_LENGTH } from '@/constants/partyCreate';
-
-function clampName(value: string): string {
-  return Array.from(value).slice(0, HOST_NAME_MAX_LENGTH).join('');
-}
+import { clampHostName } from '@/hooks/useCreateHostName';
 
 interface EditableNamePillProps {
   value: string;
@@ -25,7 +22,7 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
 
   const commitName = () => {
     const nextName = draftName.trim() ? draftName : fallbackValue;
-    onChange(clampName(nextName));
+    onChange(clampHostName(nextName));
     setIsEditing(false);
   };
 
@@ -42,7 +39,7 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
         size={Math.max(2, Math.min(HOST_NAME_MAX_LENGTH, draftName.length || 2))}
         maxLength={HOST_NAME_MAX_LENGTH}
         aria-label="이름 입력"
-        onChange={(event) => setDraftName(clampName(event.target.value))}
+        onChange={(event) => setDraftName(clampHostName(event.target.value))}
         onBlur={commitName}
         onKeyDown={(event) => {
           if (event.key === 'Enter') {
