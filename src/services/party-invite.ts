@@ -17,6 +17,7 @@ export type PartyInviteLookup = components['schemas']['PartyInviteLookupResponse
 // - 'expired'  → 작성 마감
 // - 'ended'    → 파티 종료 + 작성 가능
 // - 'starting' → 파티 시작 임박 (3분 후) — 입장 가능 버튼 활성화
+// - 'my-invite' → 내 초대장 (주최자 시점)
 // - 'host-*'   → 주최자 시점 (PartyInviteEntryPage에서 토큰 prefix로 판단)
 // - 그 외      → 파티 시작 전 (내일)
 
@@ -33,6 +34,7 @@ const MOCK_OVERRIDES: Record<string, MockOverride> = {
   expired: { partyEnded: true, startsInMinutes: -10 * 24 * 60 },
   ended: { partyEnded: true, startsInMinutes: -1 * 24 * 60 },
   starting: { partyEnded: false, startsInMinutes: 3 },
+  'my-invite': { partyEnded: false, startsInMinutes: 24 * 60 },
 };
 
 function createMockData(inviteToken: string): PartyInviteLookup {
@@ -43,7 +45,7 @@ function createMockData(inviteToken: string): PartyInviteLookup {
   return {
     // FE 임시 확장 — BE 명세 확정 시 응답에서 그대로 받기
     partyId: `mock-party-${inviteToken}`,
-    isHost: inviteToken.includes('host'),
+    isHost: inviteToken === 'my-invite' || inviteToken.includes('host'),
     celebrantNickname: '김이라',
     partyOption: 'REALTIME',
     partyEnded: override.partyEnded,
