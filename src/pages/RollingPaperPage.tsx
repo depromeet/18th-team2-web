@@ -98,12 +98,13 @@ export default function RollingPaperPage() {
               ? '롤링페이퍼 작성이 완료되었어요'
               : `${data.hostName}님의 롤링페이퍼`}
           </H1>
-          <B1 className="mt-2 font-medium text-blue-100">
+          <B1 className="mt-2 text-blue-100">
             {isWriteCompleteMode ? (
               '남겨주신 롤링페이퍼가 잘 저장되었어요.'
             ) : messageCount > 0 ? (
               <>
-                총 {messageCount}개의 메시지가 도착했어요!
+                총 <span className="font-medium text-white">{messageCount}</span>개의 메시지가
+                도착했어요!
                 <br />
                 카드를 눌러 확인해보세요.
               </>
