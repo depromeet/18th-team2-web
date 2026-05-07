@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/Button';
@@ -50,6 +50,18 @@ export function ConfirmDialog({
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const focusAction = confirmAction.autoFocus === false ? cancelAction : confirmAction;
 
+  const [mounted, setMounted] = useState(isOpen);
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      setIsClosing(false);
+    } else {
+      setIsClosing(true);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -67,7 +79,7 @@ export function ConfirmDialog({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [cancelAction, confirmAction, focusAction, isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!mounted) return null;
 
   const dialog = (
     <div
@@ -79,10 +91,18 @@ export function ConfirmDialog({
       <button
         type="button"
         aria-label="팝업 닫기"
-        className="absolute inset-0 cursor-default bg-black/50"
+        className={`absolute inset-0 cursor-default bg-black/50 ${isClosing ? 'dialog-overlay-out' : 'dialog-overlay-in'}`}
         onClick={onClose}
       />
-      <div className="relative mx-auto flex w-[calc(100%-32px)] max-w-[343px] flex-col items-center gap-8 overflow-hidden rounded-[20px] bg-white pt-6 pb-4">
+      <div
+        className={`relative mx-auto flex w-[calc(100%-32px)] max-w-[343px] flex-col items-center gap-8 overflow-hidden rounded-[20px] bg-white pt-6 pb-4 ${isClosing ? 'dialog-panel-out' : 'dialog-panel-in'}`}
+        onAnimationEnd={() => {
+          if (isClosing) {
+            setMounted(false);
+            setIsClosing(false);
+          }
+        }}
+      >
         <div className="flex w-full flex-col items-center gap-3 px-3 text-center">
           <H3 id={labelledById} className="text-grey-700">
             {title}
