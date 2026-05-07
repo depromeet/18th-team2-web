@@ -18,16 +18,16 @@ const TOPPING_IMAGES: Record<ToppingType, string> = {
   candle: toppingCandle,
 };
 
-// 피그마 기준 375x350 토핑 영역 내 비율 (%)
+// 피그마 기준 375x350 고정 토핑 무대 내 좌표(px)
 // 1행 4개, 2행 3개 지그재그 배치
 const TOPPING_POSITIONS = [
-  { left: '2%', top: '14%' },
-  { left: '25%', top: '2%' },
-  { left: '48%', top: '18%' },
-  { left: '73%', top: '0%' },
-  { left: '5%', top: '50%' },
-  { left: '34%', top: '56%' },
-  { left: '71%', top: '48%' },
+  { left: 16, top: 68 },
+  { left: 104, top: 20 },
+  { left: 192, top: 90 },
+  { left: 279, top: 0 },
+  { left: 36, top: 186 },
+  { left: 148, top: 206 },
+  { left: 260, top: 178 },
 ] as const;
 
 interface ToppingGridProps {
@@ -52,48 +52,53 @@ export function ToppingGrid({ messages, onToppingClick, initialPage = 0 }: Toppi
   const handleNext = () => swiperInstance?.slideNext();
 
   return (
-    <div className="relative z-10 flex flex-1 flex-col justify-center">
-      <Swiper
-        slidesPerView={1}
-        initialSlide={safeInitialPage}
-        onSwiper={setSwiperInstance}
-        onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
-        className="aspect-375/350 w-full"
+    <div className="pointer-events-none absolute inset-0 z-10">
+      <div
+        className="pointer-events-auto absolute left-0 h-[350px] w-full"
+        style={{ top: 'calc(var(--rolling-paper-art-offset) + 240px)' }}
       >
-        {pages.map((pageMessages, pageIndex) => (
-          <SwiperSlide key={pageIndex}>
-            <div className="relative h-full w-full">
-              {/* 토핑 크기: 80/375 ≈ 21.3% */}
-              {pageMessages.map((message, index) => {
-                const pos = TOPPING_POSITIONS[index];
-                const globalIndex = pageIndex * TOPPINGS_PER_PAGE + index;
+        <Swiper
+          slidesPerView={1}
+          initialSlide={safeInitialPage}
+          onSwiper={setSwiperInstance}
+          onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
+          className="h-full w-full"
+        >
+          {pages.map((pageMessages, pageIndex) => (
+            <SwiperSlide key={pageIndex}>
+              <div className="relative h-full w-full">
+                {pageMessages.map((message, index) => {
+                  const pos = TOPPING_POSITIONS[index];
+                  const globalIndex = pageIndex * TOPPINGS_PER_PAGE + index;
 
-                return (
-                  <button
-                    key={message.id}
-                    type="button"
-                    className="absolute z-10 flex w-[21.3%] cursor-pointer flex-col items-center gap-1"
-                    style={{ left: pos.left, top: pos.top }}
-                    onClick={() => onToppingClick(globalIndex)}
-                  >
-                    <img
-                      src={TOPPING_IMAGES[message.toppingType]}
-                      alt={message.writerName}
-                      className="aspect-square w-full"
-                      draggable={false}
-                    />
-                    <L1 className="w-full truncate text-center text-white">{message.writerName}</L1>
-                  </button>
-                );
-              })}
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+                  return (
+                    <button
+                      key={message.id}
+                      type="button"
+                      className="absolute z-10 flex w-20 cursor-pointer flex-col items-center gap-1"
+                      style={{ left: `calc(50% - 187.5px + ${pos.left}px)`, top: `${pos.top}px` }}
+                      onClick={() => onToppingClick(globalIndex)}
+                    >
+                      <img
+                        src={TOPPING_IMAGES[message.toppingType]}
+                        alt={message.writerName}
+                        className="aspect-square w-full"
+                        draggable={false}
+                      />
+                      <L1 className="w-full truncate text-center text-white">
+                        {message.writerName}
+                      </L1>
+                    </button>
+                  );
+                })}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
-      {/* 페이지 인디케이터 — 하단에서 60px */}
       {showIndicator && (
-        <div className="absolute bottom-15 left-1/2 z-20 -translate-x-1/2">
+        <div className="pointer-events-auto absolute bottom-[197px] left-1/2 z-20 -translate-x-1/2">
           <PageIndicator
             current={currentPage + 1}
             total={totalPages}

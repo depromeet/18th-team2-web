@@ -73,8 +73,11 @@ export default function RollingPaperPage() {
   return (
     <>
       <div
-        className="relative flex min-h-dvh flex-col overflow-hidden"
-        style={{ background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)' }}
+        className="relative h-dvh overflow-hidden"
+        style={{
+          background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
+          ['--rolling-paper-art-offset' as string]: 'clamp(-81px, calc(100dvh - 812px), 0px)',
+        }}
       >
         {/* 케이크 배경 */}
         <CakeBackground />
@@ -114,21 +117,18 @@ export default function RollingPaperPage() {
           </B1>
         </div>
 
-        {/* 토핑 영역 — flex-1로 남은 공간 채움 */}
-        {messageCount > 0 ? (
+        {messageCount > 0 && (
           <ToppingGrid
             messages={messages}
             onToppingClick={(index) => setSelectedMessageIndex(index)}
             initialPage={initialToppingPage}
           />
-        ) : (
-          <div className="flex-1" />
         )}
 
         {/* 하단 Action Area */}
         {isWriteCompleteMode ? (
           <div
-            className="relative z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-8"
+            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-12"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}
@@ -139,7 +139,7 @@ export default function RollingPaperPage() {
           </div>
         ) : isWritable ? (
           <div
-            className="relative z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-8"
+            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-12"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}
