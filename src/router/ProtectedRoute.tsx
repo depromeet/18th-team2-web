@@ -6,8 +6,8 @@ import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const ROUTE_PREFIXES = {
-  createRollingPaper: '/create-rolling-paper',
-  createParty: '/create-party',
+  createRollingPaper: ROUTES.createRollingPaper,
+  createParty: ROUTES.createParty,
   archive: ROUTES.archive,
   mypage: ROUTES.mypage,
   rollingPaper: '/rolling-paper',
