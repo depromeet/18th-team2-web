@@ -127,7 +127,12 @@ export default function RollingPaperCreateSetupPage() {
       )}
 
       <div className="relative z-30 mt-auto px-5 pb-6">
-        <Button variant="primary" size="full" disabled={!isReady} onClick={handleCreateRollingPaper}>
+        <Button
+          variant="primary"
+          size="full"
+          disabled={!isReady}
+          onClick={handleCreateRollingPaper}
+        >
           롤링페이퍼 생성하기
         </Button>
       </div>
