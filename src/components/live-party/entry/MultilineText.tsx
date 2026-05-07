@@ -1,4 +1,4 @@
-import { HighlightedText } from '@/components/party-enter-intro/HighlightedText';
+import { HighlightedText } from '@/components/live-party/entry/HighlightedText';
 
 interface MultilineTextProps {
   text: string;
