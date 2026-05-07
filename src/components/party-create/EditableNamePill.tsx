@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { HOST_NAME_MAX_LENGTH } from '@/constants/partyCreate';
-import { clampHostName } from '@/hooks/useCreateHostName';
+import { clampHostName } from '@/utils/string';
 
 interface EditableNamePillProps {
   value: string;

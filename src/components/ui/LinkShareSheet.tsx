@@ -36,7 +36,6 @@ function getShareUrl(serviceId: ShareServiceId, link: string, shareText: string)
   const encodedTitle = encodeURIComponent(shareText);
 
   if (serviceId === 'kakao') {
-    // TODO: Kakao JavaScript SDK 연결 후 카카오톡 공유창 열기
     return null;
   }
 
