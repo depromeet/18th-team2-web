@@ -25,7 +25,9 @@ export function PartyEndedView({
     if (isExpired) {
       navigate(ROUTES.home);
     } else {
-      navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }));
+      navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+        state: { completeCta: 'home', invitePath: window.location.pathname },
+      });
     }
   }
 
