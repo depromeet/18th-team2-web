@@ -24,13 +24,13 @@ export function InputMetaRow({ helperText, isError = false, counter }: InputMeta
         <span />
       )}
       {counter !== undefined && (
-        <Caption className="text-grey-300 shrink-0">
+        <Caption className="shrink-0 text-grey-300">
           <span
             className={
               counter.current > 0
                 ? counter.current > counter.max
                   ? 'font-medium text-red-500'
-                  : 'text-grey-500 font-medium'
+                  : 'font-medium text-grey-500'
                 : ''
             }
           >

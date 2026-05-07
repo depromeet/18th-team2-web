@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
-import facebookIcon from '@/assets/images/facebook.png';
-import kakaoIcon from '@/assets/images/kakao.png';
-import lineIcon from '@/assets/images/line.png';
-import naverIcon from '@/assets/images/naver.png';
-import xIcon from '@/assets/images/x.png';
 import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, B2, H2, L1 } from '@/components/ui/Typography';
@@ -25,12 +20,13 @@ interface LinkShareSheetProps {
   copySuccessMessage?: string;
 }
 
+// TODO: 브랜드 SVG 아이콘으로 mark 교체
 const SHARE_SERVICES = [
-  { id: 'kakao', label: '카카오톡', icon: kakaoIcon },
-  { id: 'x', label: 'X', icon: xIcon },
-  { id: 'naver', label: '네이버', icon: naverIcon },
-  { id: 'facebook', label: '페이스북', icon: facebookIcon },
-  { id: 'line', label: '라인', icon: lineIcon },
+  { id: 'kakao', label: '카카오톡', mark: 'K' },
+  { id: 'x', label: 'X', mark: 'X' },
+  { id: 'naver', label: '네이버', mark: 'N' },
+  { id: 'facebook', label: '페이스북', mark: 'f' },
+  { id: 'line', label: '라인', mark: 'L' },
 ] as const;
 
 type ShareServiceId = (typeof SHARE_SERVICES)[number]['id'];
@@ -181,7 +177,7 @@ export function LinkShareSheet({
   };
 
   return (
-    <div className="pointer-events-none fixed inset-y-0 left-1/2 z-50 w-full max-w-150 -translate-x-1/2">
+    <div className="pointer-events-none fixed inset-0 z-50">
       <div
         className={`absolute inset-0 transition-all duration-300 ${
           isOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible'
@@ -199,7 +195,7 @@ export function LinkShareSheet({
           role="dialog"
           aria-modal="true"
           aria-labelledby="link-share-title"
-          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-1 rounded-2xl bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
+          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[355px] max-w-[calc(100%-20px)] -translate-x-1/2 flex-col gap-1 rounded-2xl bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
             isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+32px)]'
           }`}
         >
@@ -233,7 +229,7 @@ export function LinkShareSheet({
 
           <div
             ref={scrollRef}
-            className="share-scroll-hide -mx-5 mt-6 flex h-[90px] cursor-grab touch-pan-x items-start gap-5 overflow-x-auto overflow-y-hidden px-5 select-none active:cursor-grabbing"
+            className="share-scroll-hide mt-6 flex h-[90px] cursor-grab touch-pan-x items-start gap-5 overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing"
             onClickCapture={handleShareClickCapture}
             onMouseDown={handleMouseDown}
             onMouseLeave={handleMouseUp}
@@ -244,12 +240,9 @@ export function LinkShareSheet({
               const shareUrl = getShareUrl(service.id, link, shareText);
               const content = (
                 <>
-                  <img
-                    src={service.icon}
-                    alt=""
-                    className="h-15 w-15 shrink-0 rounded-2xl object-cover"
-                    draggable={false}
-                  />
+                  <span className="bg-grey-100 text-head-2 text-grey-500 flex h-15 w-15 shrink-0 items-center justify-center rounded-2xl font-bold">
+                    {service.mark}
+                  </span>
                   <L1 className="text-grey-500">{service.label}</L1>
                 </>
               );
