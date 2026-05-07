@@ -33,7 +33,7 @@ export default function LivePartyPage() {
       }}
     >
       <LivePartyHeader onNextStep={handleNextStep} onExitClick={handleOpenExitDialog} step={step} />
-      <StepRenderer step={step} />
+      <StepRenderer step={step} onStepComplete={handleNextStep} />
       {step !== 'ENTRY' && <ChatBottomSheet />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
