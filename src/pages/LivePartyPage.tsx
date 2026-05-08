@@ -35,7 +35,10 @@ export default function LivePartyPage() {
   {
     /* 실제 음악 나오는 건 추후 개발 예정 */
   }
-  const showChatBottomSheet = step !== LIVE_PARTY_STEP.ENTRY && step !== LIVE_PARTY_STEP.END;
+  const showChatBottomSheet =
+    step !== LIVE_PARTY_STEP.ENTRY &&
+    step !== LIVE_PARTY_STEP.END &&
+    step !== LIVE_PARTY_STEP.CANDLE;
 
   const partyEnd = step === LIVE_PARTY_STEP.END;
 
