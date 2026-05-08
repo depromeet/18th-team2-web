@@ -1,5 +1,5 @@
 import { type PointerEvent } from 'react';
-import BottomSheetHeader from '@/assets/images/icons/bottom-sheet-header.svg';
+import BottomSheetHeader from '@/assets/images/live-party/bottom-sheet-header.svg';
 
 interface ChatHeaderProps {
   onPointerDown: (e: PointerEvent) => void;

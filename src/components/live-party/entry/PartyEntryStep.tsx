@@ -1,8 +1,8 @@
 import { usePartyEnterIntro } from '@/hooks/live-party/usePartyEnterIntro';
 import { PartyCurtain } from '@/components/live-party/entry/PartyCurtain';
-import { PartyIntroContent } from '@/components/live-party/entry/PartyIntroContent';
-import { PartyIntroFooter } from '@/components/live-party/entry/PartyIntroFooter';
-import { PartyEnterStage } from '@/components/live-party/entry/PartyEnterStage';
+import { PartyEntryContent } from '@/components/live-party/entry/PartyEntryContent';
+import { PartyEntryFooter } from '@/components/live-party/entry/PartyEntryFooter';
+import { PartyEntryStage } from '@/components/live-party/entry/PartyEntryStage';
 
 export function PartyEntryStep() {
   const {
@@ -32,16 +32,16 @@ export function PartyEntryStep() {
         <PartyCurtain isOpen={isCurtainOpen} />
         {!isCurtainOpen && (
           <>
-            <PartyIntroContent
+            <PartyEntryContent
               text={currentStep.text}
               isEntering={isEntering}
               isExiting={isExiting}
               onAnimationEnd={handleTextAnimationEnd}
             />
-            <PartyIntroFooter showButton={!!currentStep.showButton} onStart={handleStart} />
+            <PartyEntryFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
-        {isCurtainOpen && <PartyEnterStage />}
+        {isCurtainOpen && <PartyEntryStage />}
       </div>
     </div>
   );

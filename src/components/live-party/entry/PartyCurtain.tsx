@@ -1,5 +1,5 @@
-import curtainLeft from '@/assets/images/curtain-left.png';
-import curtainRight from '@/assets/images/curtain-right.png';
+import curtainLeft from '@/assets/images/live-party/curtain-left.png';
+import curtainRight from '@/assets/images/live-party/curtain-right.png';
 
 interface PartyCurtainProps {
   isOpen: boolean;

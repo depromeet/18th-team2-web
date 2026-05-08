@@ -1,5 +1,5 @@
-import { FirecrackerFilledIcon } from '@/components/ui/icons/FirecrackerFilledIcon';
-import { FirecrackerLineIcon } from '@/components/ui/icons/FirecrackerLineIcon';
+import FirecrackerFilledIconSvg from '@/assets/images/live-party/firecracker-filled.svg?react';
+import FirecrackerLineIconSvg from '@/assets/images/live-party/firecracker-line.svg?react';
 import { useState } from 'react';
 
 export function FirecrackerButton() {
@@ -19,9 +19,9 @@ export function FirecrackerButton() {
       className="cursor-pointer transition-all duration-150 active:scale-90"
     >
       {active ? (
-        <FirecrackerFilledIcon className="h-9 w-9" />
+        <FirecrackerFilledIconSvg className="h-9 w-9" />
       ) : (
-        <FirecrackerLineIcon className="h-9 w-9" />
+        <FirecrackerLineIconSvg className="h-9 w-9" />
       )}
     </button>
   );

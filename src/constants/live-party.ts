@@ -1,3 +1,10 @@
+import candleOnBlue from '@/assets/images/live-party/candle-on-blue.svg';
+import candleOnGreen from '@/assets/images/live-party/candle-on-green.svg';
+import candleOnPurple from '@/assets/images/live-party/candle-on-purple.svg';
+import candleOffBlue from '@/assets/images/live-party/candle-off-blue.svg';
+import candleOffGreen from '@/assets/images/live-party/candle-off-green.svg';
+import candleOffPurple from '@/assets/images/live-party/candle-off-purple.svg';
+
 /** 파티 인트로 */
 export interface EntryData {
   text: string;
@@ -71,4 +78,51 @@ export const MUSIC_LYRICS_TIMINGS = [
   { start: 21, end: 24 },
   { start: 25, end: 28 },
   { start: 29, end: 32 },
+];
+
+export const CANDLES = [
+  {
+    on: candleOnGreen,
+    off: candleOffGreen,
+  },
+
+  {
+    on: candleOnPurple,
+    off: candleOffPurple,
+  },
+
+  {
+    on: candleOnBlue,
+    off: candleOffBlue,
+  },
+
+  {
+    on: candleOnPurple,
+    off: candleOffPurple,
+  },
+
+  {
+    on: candleOnBlue,
+    off: candleOffBlue,
+  },
+
+  {
+    on: candleOnGreen,
+    off: candleOffGreen,
+  },
+
+  {
+    on: candleOnBlue,
+    off: candleOffBlue,
+  },
+
+  {
+    on: candleOnGreen,
+    off: candleOffGreen,
+  },
+
+  {
+    on: candleOnPurple,
+    off: candleOffPurple,
+  },
 ];

@@ -1,8 +1,8 @@
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
-import { LIVE_PARTY_STEP_ARRAY, type PartyStep } from '@/constants/live-party';
+import { LIVE_PARTY_STEP, LIVE_PARTY_STEP_ARRAY, type PartyStep } from '@/constants/live-party';
 import { useState } from 'react';
-import livePartyBg from '@/assets/images/live-party-bg.png';
+import livePartyBg from '@/assets/images/live-party/live-party-bg.png';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
@@ -34,7 +34,7 @@ export default function LivePartyPage() {
     >
       <LivePartyHeader onNextStep={handleNextStep} onExitClick={handleOpenExitDialog} step={step} />
       <StepRenderer step={step} onStepComplete={handleNextStep} />
-      {step !== 'ENTRY' && <ChatBottomSheet />}
+      {step !== LIVE_PARTY_STEP.ENTRY && step !== LIVE_PARTY_STEP.CANDLE && <ChatBottomSheet />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
         onCancel={handleCancelExit}

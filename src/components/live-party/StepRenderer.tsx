@@ -17,7 +17,7 @@ export function StepRenderer({ step, onStepComplete }: StepRendererProps) {
     case 'MUSIC':
       return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':
-      return <PartyCandleStep />;
+      return <PartyCandleStep onComplete={onStepComplete} />;
     case 'PINATA':
       return <PartyPinataStep />;
     case 'END':
