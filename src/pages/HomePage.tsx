@@ -1,3 +1,4 @@
+import { generatePath, useNavigate } from 'react-router-dom';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -6,12 +7,17 @@ import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
+import { ROUTES } from '@/constants/routes';
 import { useArchiveList } from '@/services/archive';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { UpcomingParty } from '@/components/home/UpcomingPartyCard';
 
+// pre-launch: 하드코딩 partyId
+const HARDCODED_PARTY_ID = '1';
+
 function HomePage() {
+  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: archiveItems } = useArchiveList();
   const archiveCount = isAuthenticated ? (archiveItems?.length ?? 0) : 0;
@@ -25,7 +31,7 @@ function HomePage() {
           date: '26.11.23',
           time: '오후 2:00',
           role: 'participant',
-          status: 'default',
+          status: 'soon',
         },
         {
           partyName: '내 생일파티',
@@ -72,6 +78,18 @@ function HomePage() {
       ]
     : [];
 
+  const handleEnterParty = (party: UpcomingParty) => {
+    if (party.status !== 'soon') {
+      return;
+    }
+
+    navigate(
+      generatePath(ROUTES.partyEnter, {
+        partyId: HARDCODED_PARTY_ID,
+      }),
+    );
+  };
+
   return (
     <div className="bg-gradient-bg flex min-h-screen flex-col">
       <HomeHeader />
@@ -80,7 +98,10 @@ function HomePage() {
           <div className="flex flex-col items-center gap-3 py-2">
             {mockParties.length === 1 ? (
               <div className="w-full px-4">
-                <UpcomingPartyCard party={mockParties[0]} />
+                <UpcomingPartyCard
+                  party={mockParties[0]}
+                  onAction={() => handleEnterParty(mockParties[0])}
+                />
               </div>
             ) : (
               <>
@@ -99,7 +120,19 @@ function HomePage() {
                 >
                   {mockParties.map((party, index) => (
                     <SwiperSlide key={`party-${index}`} style={{ width: 'calc(100% - 32px)' }}>
-                      <UpcomingPartyCard party={party} />
+                      <UpcomingPartyCard
+                        party={party}
+                        onAction={
+                          party.status === 'soon'
+                            ? () =>
+                                navigate(
+                                  generatePath(ROUTES.partyEnter, {
+                                    partyId: HARDCODED_PARTY_ID,
+                                  }),
+                                )
+                            : undefined
+                        }
+                      />
                     </SwiperSlide>
                   ))}
                 </Swiper>

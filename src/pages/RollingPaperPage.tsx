@@ -12,6 +12,7 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { useRollingPaper, type RollingPaperMessage } from '@/services/rolling-paper';
+import { HomeIcon } from '@/components/ui/icons/HomeIcon';
 
 const TOPPINGS_PER_PAGE = 7;
 
@@ -83,15 +84,27 @@ export default function RollingPaperPage() {
         <CakeBackground />
 
         {/* 네비게이션 + 타이틀 */}
+        {/* 홈 버튼은 프리런칭을 위한 임시 */}
         <div className="relative z-20 px-4 pt-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            aria-label="뒤로가기"
-            className="-ml-2 flex h-12 w-12 cursor-pointer items-center justify-center"
-          >
-            <ChevronLeftIcon className="text-white" />
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              aria-label="뒤로가기"
+              className="-ml-2 flex h-12 w-12 items-center justify-center"
+            >
+              <ChevronLeftIcon className="text-white" />
+            </button>
+
+            <button
+              type="button"
+              aria-label="메인으로"
+              onClick={() => navigate(ROUTES.home)}
+              className="flex h-12 w-12 items-center justify-center"
+            >
+              <HomeIcon />
+            </button>
+          </div>
 
           <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
             {isWriteCompleteMode
