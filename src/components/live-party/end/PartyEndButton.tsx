@@ -13,8 +13,10 @@ export function PartyEndButton({ role }: PartyEndButtonProps) {
 
   const handleHome = () => navigate(ROUTES.home);
 
-  const handleRollingPaperCheck = () =>
-    navigate(ROUTES.rollingPaper.replace(':partyId', partyId ?? ''));
+  const handleRollingPaperCheck = () => navigate(ROUTES.rollingPaper.replace(':id', partyId ?? ''));
+  {
+    /* TODO: partyId와 라우트로 지정해둔 id가 일치하는지 확인 */
+  }
 
   const handleRollingPaperWrite = () =>
     navigate(ROUTES.rollingPaperWrite.replace(':partyId', partyId ?? ''));
