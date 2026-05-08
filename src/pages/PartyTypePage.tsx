@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CheckCircleFilledSvg from '@/assets/images/icons/check-circle-filled.svg?react';
 import { Button } from '@/components/ui/Button';
 import { CheckIcon } from '@/components/ui/icons/CheckIcon';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { T4, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
@@ -103,6 +104,7 @@ export default function PartyTypePage() {
   return (
     <>
       <div className="flex min-h-screen flex-col">
+        <PageHeader onBack={() => navigate(-1)} />
         <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
           <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
           <div className="flex justify-center gap-3">

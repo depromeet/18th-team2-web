@@ -13,6 +13,7 @@ import characterYellow from '@/assets/images/character/character-yellow-full.png
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 
@@ -43,16 +44,7 @@ export default function PartyCharacterSelectPage() {
 
   return (
     <div className="bg-gradient-bg flex min-h-screen flex-col overflow-hidden">
-      <header className="px-5 pt-3">
-        <button
-          type="button"
-          onClick={() => navigate(ROUTES.createPartyTime)}
-          aria-label="뒤로가기"
-          className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
-        >
-          <ChevronLeftIcon />
-        </button>
-      </header>
+      <PageHeader onBack={() => navigate(ROUTES.createPartyTime)} />
 
       <H1 className="mt-12 px-5">
         내 파티날,
