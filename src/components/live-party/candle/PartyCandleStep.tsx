@@ -26,13 +26,7 @@ export function PartyCandleStep({ onComplete }: PartyCandleStepProps) {
 
   const handleClickCandle = (index: number) => {
     setIsCandleOffList((prev) =>
-      prev.map((isOff, currentIndex) => {
-        if (currentIndex !== index) {
-          return isOff;
-        }
-
-        return true;
-      }),
+      prev.map((isOff, currentIndex) => currentIndex === index || isOff),
     );
   };
 
