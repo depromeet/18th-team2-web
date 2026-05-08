@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'white' | 'white-blue' | 'white-grey' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'white' | 'white-blue' | 'white-grey' | 'ghost';
   size?: 'full' | 'lg' | 'md' | 'sm';
   leftIcon?: ReactNode;
   buttonRef?: Ref<HTMLButtonElement>;
@@ -17,6 +17,7 @@ const sizeStyles = {
 const variantStyles = {
   primary: 'bg-blue-500 text-white',
   secondary: 'bg-grey-50 text-grey-300',
+  danger: 'bg-red-30 text-red-500',
   white: 'bg-white text-grey-800',
   'white-blue': 'border border-blue-200 bg-white text-blue-600',
   'white-grey': 'border border-grey-100 bg-white text-grey-900',
