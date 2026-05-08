@@ -57,27 +57,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * 회원 초대장 참여
-         * @description 로그인 회원을 초대 토큰의 파티 참여자로 생성하거나 기존 참여자를 반환한다. 만료된 초대 토큰 또는 종료된 파티에는 참여자를 생성하지 않는다.
-         */
-        post: operations["joinPartyInvite"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/parties/{partyType}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["createPartyUnknownType"];
+        /** 파티 생성 (REALTIME | PAPER_ONLY) */
+        post: operations["createParty"];
         delete?: never;
         options?: never;
         head?: never;
@@ -98,40 +79,6 @@ export interface paths {
          * @description 초대 토큰을 발급하거나 기존 유효 토큰을 재사용한다. 현재 파티 조회/참여 API가 보류되어 토큰 소비 경로는 새 기획 확정 후 다시 연결한다.
          */
         post: operations["activateInviteLink"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/parties/realtime": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 실시간 파티 생성 */
-        post: operations["createRealtimeParty"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/parties/paper-only": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 롤링페이퍼 파티 생성 */
-        post: operations["createPaperOnlyParty"];
         delete?: never;
         options?: never;
         head?: never;
@@ -426,16 +373,10 @@ export interface components {
              */
             startedDate?: string;
             /**
-             * @description 파티 시작 시간 (HH:mm)
+             * @description 파티 시작 시간 (HH:mm). 미전송 시 00:00으로 설정됩니다.
              * @example 14:30
              */
             startTime?: string;
-            /**
-             * Format: int64
-             * @description 캐릭터 ID
-             * @example 1
-             */
-            characterId?: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseCreatePartyResponse: {
@@ -452,19 +393,24 @@ export interface components {
             /** Format: int64 */
             partyId?: number;
         };
-        /** @description 롤링페이퍼 파티 생성 요청 */
-        CreatePaperOnlyPartyRequest: {
+        /** @description 초대링크 활성화 응답 */
+        ActivateInviteLinkResponse: {
             /**
-             * @description 파티 주인공 이름
-             * @example 홍길동
+             * @description 초대 토큰
+             * @example example-token-0000
              */
-            celebrantNickname?: string;
+            token?: string;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseActivateInviteLinkResponse: {
             /**
-             * Format: date
-             * @description 파티 시작일
-             * @example 2024-11-26
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
              */
-            startedDate?: string;
+            status?: number;
+            /** @description 응답 데이터 */
+            data?: components["schemas"]["ActivateInviteLinkResponse"];
         };
         /** @description 공통 성공 응답 */
         ApiResponseDevTokenResponse: {
@@ -1155,31 +1101,26 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 초대 토큰
-                 * @example exampletoken0000
+                 * @description 파티 옵션
+                 * @example REALTIME
                  */
-                inviteToken: string;
+                partyOption: "REALTIME" | "PAPER_ONLY";
             };
             cookie?: never;
         };
-        requestBody?: never;
-        responses: {
-            /** @description 회원 참여자 생성 또는 조회 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponsePartyInviteParticipationResponse"];
-                };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePartyRequest"];
             };
-            /** @description 만료된 초대 토큰 또는 종료된 파티 */
-            400: {
+        };
+        responses: {
+            /** @description 파티 생성 성공 */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
+                    "*/*": components["schemas"]["ApiResponseCreatePartyResponse"];
                 };
             };
             /** @description 인증 실패 */
@@ -1188,24 +1129,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 존재하지 않는 초대 토큰 */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 404,
-                     *       "error": {
-                     *         "code": "PARTY_NOT_FOUND",
-                     *         "message": "파티를 찾을 수 없습니다"
-                     *       }
-                     *     }
-                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
@@ -1226,24 +1149,6 @@ export interface operations {
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
-            };
-        };
-    };
-    createPartyUnknownType: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -1313,108 +1218,6 @@ export interface operations {
                      *       }
                      *     }
                      */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    createRealtimeParty: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateRealtimePartyRequest"];
-            };
-        };
-        responses: {
-            /** @description 파티 생성 성공 */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseCreatePartyResponse"];
-                };
-            };
-            /** @description 인증 실패 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    createPaperOnlyParty: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePaperOnlyPartyRequest"];
-            };
-        };
-        responses: {
-            /** @description 파티 생성 성공 */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseCreatePartyResponse"];
-                };
-            };
-            /** @description 인증 실패 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
