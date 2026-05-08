@@ -60,7 +60,7 @@ export default function RollingPaperCreateSetupPage() {
 
   return (
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
-      <PageHeader onBack={() => navigate(ROUTES.createParty)} />
+      <PageHeader />
 
       <H1 className="mt-2 px-5 tracking-[-0.0002em]">일주일 동안 롤링페이퍼를 받아요</H1>
 

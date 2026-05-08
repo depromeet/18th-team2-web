@@ -44,7 +44,7 @@ export default function PartyCharacterSelectPage() {
 
   return (
     <div className="bg-gradient-bg flex min-h-screen flex-col overflow-hidden">
-      <PageHeader onBack={() => navigate(ROUTES.createPartyTime)} />
+      <PageHeader />
 
       <H1 className="mt-12 px-5">
         내 파티날,
