@@ -46,12 +46,12 @@ export default function PartyCreateCompletePage() {
 
   return (
     <div className="party-complete-page relative flex min-h-screen flex-col overflow-hidden px-5">
-      <header className="flex justify-end pt-16">
+      <header className="relative h-[42px]">
         <button
           type="button"
           onClick={() => navigate(ROUTES.home)}
           aria-label="홈으로 이동"
-          className="flex h-10 w-10 items-center justify-center"
+          className="absolute top-[9px] right-0 flex h-6 w-6 items-center justify-center"
         >
           <img src={homeIcon} alt="" className="h-6 w-6 opacity-20" />
         </button>

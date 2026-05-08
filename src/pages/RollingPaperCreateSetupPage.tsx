@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
 import { DatePickerPopover } from '@/components/party-create/DatePickerPopover';
 import { EditableNamePill } from '@/components/party-create/EditableNamePill';
@@ -60,16 +60,7 @@ export default function RollingPaperCreateSetupPage() {
 
   return (
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
-      <header className="px-5 pt-3">
-        <button
-          type="button"
-          onClick={() => navigate(ROUTES.createParty)}
-          aria-label="뒤로가기"
-          className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
-        >
-          <ChevronLeftIcon />
-        </button>
-      </header>
+      <PageHeader onBack={() => navigate(ROUTES.createParty)} />
 
       <H1 className="mt-2 px-5 tracking-[-0.0002em]">일주일 동안 롤링페이퍼를 받아요</H1>
 
