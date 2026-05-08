@@ -15,7 +15,10 @@ import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 
 export default function LivePartyPage() {
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
-  const [userRole, _setUserRole] = useState<PartyUserRole>(PARTY_USER.PARTICIPANT_WRITTEN);
+  {
+    /* 프리런칭 데이에 맞춘 하드코딩 (파티 주최자) */
+  }
+  const [userRole, _setUserRole] = useState<PartyUserRole>(PARTY_USER.HOST);
 
   const handleNextStep = () => {
     const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
