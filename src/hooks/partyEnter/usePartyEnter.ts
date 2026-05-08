@@ -5,12 +5,12 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 
-const MOCK_HOST_USER_NAME = '하파린호스트';
+const MOCK_HOST_USER_NAME = '김이라';
 const MOCK_WRITTEN_MEMBER_NICKNAME = '이미쓴참여자';
 
 export function usePartyEnter() {
   // TODO: API 연결 후 제거
-  const isHost = false;
+  const isHost = true;
   const isAlreadyWrittenMember = false;
   const isTimeToParty = true;
 
