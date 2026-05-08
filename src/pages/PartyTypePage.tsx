@@ -5,10 +5,8 @@ import CheckCircleFilledSvg from '@/assets/images/icons/check-circle-filled.svg?
 import { Button } from '@/components/ui/Button';
 import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { T4, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
-import { useAuthStore } from '@/stores/useAuthStore';
 
 type PartyType = 'live' | 'rolling';
 type CardState = 'default' | 'selected' | 'inactive';
@@ -77,16 +75,9 @@ function getCardState(type: PartyType, selected: PartyType | null): CardState {
   return 'default';
 }
 
-function getLoginPromptTitlePrefix(selected: PartyType | null): string {
-  if (selected === 'rolling') return '롤링페이퍼를 만들기 위해서는';
-  return '파티를 만들기 위해서는';
-}
-
 export default function PartyTypePage() {
   const [selected, setSelected] = useState<PartyType | null>(null);
-  const [showLoginSheet, setShowLoginSheet] = useState(false);
   const navigate = useNavigate();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const toggle = (type: PartyType) => {
     setSelected((prev) => (prev === type ? null : type));
@@ -94,48 +85,37 @@ export default function PartyTypePage() {
 
   const handleComplete = () => {
     if (!selected) return;
-    if (!isAuthenticated) {
-      setShowLoginSheet(true);
-      return;
-    }
     navigate(selected === 'rolling' ? ROUTES.createRollingPaperIntro : ROUTES.createPartyIntro);
   };
 
   return (
-    <>
-      <div className="flex min-h-screen flex-col">
-        <PageHeader onBack={() => navigate(-1)} />
-        <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
-          <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
-          <div className="flex justify-center gap-3">
-            <PartyTypeCard
-              label={'라이브 파티와\n롤링페이퍼 받기'}
-              state={getCardState('live', selected)}
-              onClick={() => toggle('live')}
-            />
-            <PartyTypeCard
-              label="롤링페이퍼만 받기"
-              state={getCardState('rolling', selected)}
-              onClick={() => toggle('rolling')}
-            />
-          </div>
-        </div>
-        <div className="mt-auto px-5 pb-6">
-          <Button
-            variant={selected ? 'primary' : 'secondary'}
-            size="full"
-            disabled={!selected}
-            onClick={handleComplete}
-          >
-            선택 완료
-          </Button>
+    <div className="flex min-h-screen flex-col">
+      <PageHeader />
+      <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
+        <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
+        <div className="flex justify-center gap-3">
+          <PartyTypeCard
+            label={'라이브 파티와\n롤링페이퍼 받기'}
+            state={getCardState('live', selected)}
+            onClick={() => toggle('live')}
+          />
+          <PartyTypeCard
+            label="롤링페이퍼만 받기"
+            state={getCardState('rolling', selected)}
+            onClick={() => toggle('rolling')}
+          />
         </div>
       </div>
-      <LoginPromptSheet
-        isOpen={showLoginSheet}
-        titlePrefix={getLoginPromptTitlePrefix(selected)}
-        onClose={() => setShowLoginSheet(false)}
-      />
-    </>
+      <div className="mt-auto px-5 pb-6">
+        <Button
+          variant={selected ? 'primary' : 'secondary'}
+          size="full"
+          disabled={!selected}
+          onClick={handleComplete}
+        >
+          선택 완료
+        </Button>
+      </div>
+    </div>
   );
 }
