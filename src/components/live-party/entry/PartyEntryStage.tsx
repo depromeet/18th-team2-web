@@ -11,7 +11,7 @@ export function PartyEntryStage() {
       <T3 className="absolute right-0 bottom-32 left-0 text-center text-white">
         오늘의 주인공
         <br />
-        현진님이
+        이라님이
         <br />
         등장했어요!
       </T3>

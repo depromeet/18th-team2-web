@@ -13,7 +13,7 @@ export interface EntryData {
 
 export const ENTRY_DATA: EntryData[] = [
   {
-    text: `현진님의\n생일파티에\n오신 걸 환영해요!`,
+    text: `이라님의\n생일파티에\n오신 걸 환영해요!`, //TODO: host 이름으로 변경
   },
   {
     text: `소중한 시간을 내어\n방문해 주셔서 고마워요`,
@@ -68,7 +68,7 @@ export const MUSIC_LYRICS = [
   '~♬~',
   '생일축하합니다',
   '생일축하합니다',
-  '사랑하는 현진님의',
+  '사랑하는 이라님의', // TODO: 호스트 이름으로 변경
   '생일축하합니다',
 ];
 
