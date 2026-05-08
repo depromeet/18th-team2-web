@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/Button';
+import { CharacterSelect } from '@/components/party-enter/CharacterSelect';
 import { ParticipantStatus } from '@/components/party-enter/ParticipantStatus';
 import { NicknameInput } from '@/components/ui/NicknameInput';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -34,8 +35,7 @@ export default function PartyEnterPage() {
             />
           </article>
           <section className="flex h-[236px] w-full flex-col items-center justify-center gap-5">
-            <figure className="h-14 w-full bg-sky-200" />
-            <figure className="h-[160px] w-[160px] bg-sky-200" />
+            <CharacterSelect />
           </section>
           <footer className="flex w-full flex-col items-center gap-2">
             <B2 className="text-grey-500 font-medium">
