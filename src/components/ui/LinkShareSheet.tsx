@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
+import facebookIcon from '@/assets/images/facebook.png';
+import kakaoIcon from '@/assets/images/kakao.png';
+import lineIcon from '@/assets/images/line.png';
+import naverIcon from '@/assets/images/naver.png';
+import xIcon from '@/assets/images/x.png';
 import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, B2, H2, L1 } from '@/components/ui/Typography';
 import { SHARE_ENDPOINTS } from '@/constants/external-urls';
+import { shareToKakao } from '@/utils/kakao';
 
 const TOAST_VISIBLE_MS = 1600;
 const TOAST_EXIT_MS = 300;
@@ -15,16 +21,16 @@ interface LinkShareSheetProps {
   title: string;
   onClose: () => void;
   shareText?: string;
+  shareDescription?: string;
   copySuccessMessage?: string;
 }
 
-// TODO: 브랜드 SVG 아이콘으로 mark 교체, 카카오 SDK 연동 추가
 const SHARE_SERVICES = [
-  { id: 'kakao', label: '카카오톡', mark: 'K' },
-  { id: 'x', label: 'X', mark: 'X' },
-  { id: 'naver', label: '네이버', mark: 'N' },
-  { id: 'facebook', label: '페이스북', mark: 'f' },
-  { id: 'line', label: '라인', mark: 'L' },
+  { id: 'kakao', label: '카카오톡', icon: kakaoIcon },
+  { id: 'x', label: 'X', icon: xIcon },
+  { id: 'naver', label: '네이버', icon: naverIcon },
+  { id: 'facebook', label: '페이스북', icon: facebookIcon },
+  { id: 'line', label: '라인', icon: lineIcon },
 ] as const;
 
 type ShareServiceId = (typeof SHARE_SERVICES)[number]['id'];
@@ -34,7 +40,6 @@ function getShareUrl(serviceId: ShareServiceId, link: string, shareText: string)
   const encodedTitle = encodeURIComponent(shareText);
 
   if (serviceId === 'kakao') {
-    // TODO: Kakao JavaScript SDK 연결 후 카카오톡 공유창 열기
     return null;
   }
 
@@ -63,6 +68,7 @@ export function LinkShareSheet({
   title,
   onClose,
   shareText = '링크가 도착했어요',
+  shareDescription,
   copySuccessMessage = '링크가 복사되었어요',
 }: LinkShareSheetProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -120,6 +126,22 @@ export function LinkShareSheet({
     }
   };
 
+  const handleShareServiceClick = async (serviceId: ShareServiceId) => {
+    if (serviceId !== 'kakao') return;
+
+    try {
+      const shared = await shareToKakao(link, shareText, shareDescription);
+      if (shared) {
+        onClose();
+        return;
+      }
+    } catch {
+      // SDK 설정 또는 브라우저 환경 문제 시 링크 복사로 대체
+    }
+
+    await handleCopyLink();
+  };
+
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
     if (event.button !== 0 || !scrollRef.current) return;
 
@@ -159,7 +181,7 @@ export function LinkShareSheet({
   };
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-50">
+    <div className="pointer-events-none fixed inset-y-0 left-1/2 z-50 w-full max-w-150 -translate-x-1/2">
       <div
         className={`absolute inset-0 transition-all duration-300 ${
           isOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible'
@@ -177,7 +199,7 @@ export function LinkShareSheet({
           role="dialog"
           aria-modal="true"
           aria-labelledby="link-share-title"
-          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[355px] max-w-[calc(100%-20px)] -translate-x-1/2 flex-col gap-1 rounded-[16px] bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
+          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-1 rounded-2xl bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
             isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+32px)]'
           }`}
         >
@@ -211,7 +233,7 @@ export function LinkShareSheet({
 
           <div
             ref={scrollRef}
-            className="share-scroll-hide mt-6 flex h-[90px] cursor-grab touch-pan-x items-start gap-5 overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing"
+            className="share-scroll-hide -mx-5 mt-6 flex h-[90px] cursor-grab touch-pan-x items-start gap-5 overflow-x-auto overflow-y-hidden px-5 select-none active:cursor-grabbing"
             onClickCapture={handleShareClickCapture}
             onMouseDown={handleMouseDown}
             onMouseLeave={handleMouseUp}
@@ -222,9 +244,12 @@ export function LinkShareSheet({
               const shareUrl = getShareUrl(service.id, link, shareText);
               const content = (
                 <>
-                  <span className="bg-grey-100 text-head-2 text-grey-500 flex h-15 w-15 shrink-0 items-center justify-center rounded-[16px] font-bold">
-                    {service.mark}
-                  </span>
+                  <img
+                    src={service.icon}
+                    alt=""
+                    className="h-15 w-15 shrink-0 rounded-2xl object-cover"
+                    draggable={false}
+                  />
                   <L1 className="text-grey-500">{service.label}</L1>
                 </>
               );
@@ -234,7 +259,8 @@ export function LinkShareSheet({
                   <button
                     key={service.id}
                     type="button"
-                    className="flex w-15 shrink-0 flex-col items-center gap-2"
+                    className="flex w-15 shrink-0 cursor-pointer flex-col items-center gap-2"
+                    onClick={() => handleShareServiceClick(service.id)}
                   >
                     {content}
                   </button>
@@ -247,7 +273,7 @@ export function LinkShareSheet({
                   href={shareUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex w-15 shrink-0 flex-col items-center gap-2"
+                  className="flex w-15 shrink-0 cursor-pointer flex-col items-center gap-2"
                 >
                   {content}
                 </a>
@@ -260,7 +286,7 @@ export function LinkShareSheet({
       {isCopyToastVisible && (
         <div className="pointer-events-none absolute right-0 bottom-10 left-0 z-50 flex justify-center">
           <div
-            className={`link-share-toast flex h-[54px] w-[343px] max-w-[calc(100%-32px)] items-center justify-center gap-2 rounded-[8px] bg-black/70 px-4 py-4 text-white ${
+            className={`link-share-toast flex h-[54px] w-[343px] max-w-[calc(100%-32px)] items-center justify-center gap-2 rounded-lg bg-black/70 px-4 py-4 text-white ${
               isCopyToastExiting ? 'link-share-toast-exit' : ''
             }`}
           >

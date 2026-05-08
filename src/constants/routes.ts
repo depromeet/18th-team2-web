@@ -7,6 +7,10 @@ export const ROUTES = {
   createPartyTime: '/create-party/time',
   createPartyCharacter: '/create-party/character',
   createPartyComplete: '/create-party/complete',
+  createRollingPaper: '/create-rolling-paper',
+  createRollingPaperIntro: '/create-rolling-paper/intro',
+  createRollingPaperSetup: '/create-rolling-paper/setup',
+  createRollingPaperComplete: '/create-rolling-paper/complete',
   archive: '/archive',
   archivePartyDetail: '/archive/party/:partyId',
   archivePaperDetail: '/archive/paper/:paperId',
@@ -18,5 +22,6 @@ export const ROUTES = {
 
   // 진입점 이후 내부 작업은 partyId 기반
   partyEnter: '/party/:partyId/enter',
+  liveParty: '/party/:partyId/live',
   rollingPaperWrite: '/party/:partyId/rolling-paper/write',
 } as const;

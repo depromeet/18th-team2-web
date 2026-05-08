@@ -5,18 +5,25 @@ import type { Swiper as SwiperType } from 'swiper/types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 
+import characterBlue from '@/assets/images/character/character-blue-full.png';
+import characterBrown from '@/assets/images/character/character-brown-full.png';
+import characterPink from '@/assets/images/character/character-pink-full.png';
+import characterWhite from '@/assets/images/character/character-white-full.png';
+import characterYellow from '@/assets/images/character/character-yellow-full.png';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 
-// TODO: 캐릭터 조회 API 연결 시 제거
-const TEMP_CHARACTERS = [
-  { id: 'character-1', name: '임시 캐릭터 1' },
-  { id: 'character-2', name: '임시 캐릭터 2' },
-  { id: 'character-3', name: '임시 캐릭터 3' },
-  { id: 'character-4', name: '임시 캐릭터 4' },
+// TODO: 캐릭터 조회 API 연결 시 교체
+const CHARACTERS = [
+  { id: 'character-blue', name: '파란 캐릭터', image: characterBlue },
+  { id: 'character-brown', name: '갈색 캐릭터', image: characterBrown },
+  { id: 'character-pink', name: '분홍 캐릭터', image: characterPink },
+  { id: 'character-white', name: '하얀 캐릭터', image: characterWhite },
+  { id: 'character-yellow', name: '노란 캐릭터', image: characterYellow },
 ];
 
 export default function PartyCharacterSelectPage() {
@@ -30,23 +37,14 @@ export default function PartyCharacterSelectPage() {
     navigate(ROUTES.createPartyComplete, {
       state: {
         ...(typeof location.state === 'object' && location.state ? location.state : {}),
-        characterId: TEMP_CHARACTERS[selectedIndex].id,
+        characterId: CHARACTERS[selectedIndex].id,
       },
     });
   };
 
   return (
     <div className="bg-gradient-bg flex min-h-screen flex-col overflow-hidden">
-      <header className="px-5 pt-3">
-        <button
-          type="button"
-          onClick={() => navigate(ROUTES.createPartyTime)}
-          aria-label="뒤로가기"
-          className="text-grey-800 -ml-2 flex h-10 w-10 items-center justify-center"
-        >
-          <ChevronLeftIcon />
-        </button>
-      </header>
+      <PageHeader onBack={() => navigate(ROUTES.createPartyTime)} />
 
       <H1 className="mt-12 px-5">
         내 파티날,
@@ -76,26 +74,26 @@ export default function PartyCharacterSelectPage() {
           onSlideChange={(swiper) => setSelectedIndex(swiper.realIndex)}
           className="w-full overflow-visible"
         >
-          {TEMP_CHARACTERS.map((character, index) => (
+          {CHARACTERS.map((character, index) => (
             <SwiperSlide
               key={character.id}
               aria-label={character.name}
               style={{ width: 200 }}
               className="flex items-center justify-center"
             >
-              {/* TODO: 캐릭터 에셋 연결 시 더미 체크무늬 교체 */}
               <div
-                className={`h-50 w-50 border border-black transition-opacity duration-200 ${
-                  index === selectedIndex ? 'opacity-100' : 'opacity-25'
+                className={`h-50 w-50 rounded-2xl p-3 transition-all duration-200 ${
+                  index === selectedIndex
+                    ? 'border-2 border-blue-500 bg-white'
+                    : 'border-2 border-transparent bg-[#EEEEEE]'
                 }`}
-                style={{
-                  backgroundColor: '#fff',
-                  backgroundImage:
-                    'linear-gradient(45deg, #eeeeee 25%, transparent 25%), linear-gradient(-45deg, #eeeeee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eeeeee 75%), linear-gradient(-45deg, transparent 75%, #eeeeee 75%)',
-                  backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                  backgroundSize: '20px 20px',
-                }}
-              />
+              >
+                <img
+                  src={character.image}
+                  alt={character.name}
+                  className="h-full w-full object-contain"
+                />
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
