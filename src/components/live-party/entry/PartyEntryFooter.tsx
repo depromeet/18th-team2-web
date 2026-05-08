@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/Button';
 import WhiteGradientIconSvg from '@/assets/images/live-party/white-gradient.svg?react';
 import { B1 } from '@/components/ui/Typography';
 
-interface PartyIntroFooterProps {
+interface PartyEntryFooterProps {
   showButton: boolean;
   onStart: (e: MouseEvent) => void;
 }
 
-export function PartyIntroFooter({ showButton, onStart }: PartyIntroFooterProps) {
+export function PartyEntryFooter({ showButton, onStart }: PartyEntryFooterProps) {
   return (
     <footer className="absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center pb-48">
       {showButton ? (

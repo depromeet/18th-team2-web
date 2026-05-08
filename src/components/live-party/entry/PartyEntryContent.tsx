@@ -1,19 +1,19 @@
 import { T3 } from '@/components/ui/Typography';
 import { MultilineText } from '@/components/live-party/entry/MultilineText';
 
-interface PartyIntroContentProps {
+interface PartyEntryContentProps {
   text: string;
   isEntering: boolean;
   isExiting: boolean;
   onAnimationEnd: () => void;
 }
 
-export function PartyIntroContent({
+export function PartyEntryContent({
   text,
   isEntering,
   isExiting,
   onAnimationEnd,
-}: PartyIntroContentProps) {
+}: PartyEntryContentProps) {
   return (
     <div className="relative z-10 flex h-full flex-col items-center justify-center px-6">
       <T3

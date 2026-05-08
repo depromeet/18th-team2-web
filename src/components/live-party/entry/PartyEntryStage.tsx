@@ -2,7 +2,7 @@ import DefaultHost from '@/assets/images/live-party/default-host.svg?react';
 import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png';
 import { T3 } from '@/components/ui/Typography';
 
-export function PartyEnterStage() {
+export function PartyEntryStage() {
   return (
     <div className="absolute inset-0 z-10">
       <img src={whiteGradientBig} className="absolute top-0 left-0 w-full" />
