@@ -97,7 +97,7 @@ export default function PartyTimeSelectPage() {
 
   return (
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
-      <PageHeader onBack={() => navigate(ROUTES.createParty)} />
+      <PageHeader />
 
       <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 시간을 선택해 주세요</H1>
 
