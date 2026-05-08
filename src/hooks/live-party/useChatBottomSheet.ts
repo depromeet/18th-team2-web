@@ -1,5 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 
+import characterBlue from '@/assets/images/character/character-blue-circle-thumbnail.png';
+import characterBrown from '@/assets/images/character/character-brown-circle-thumbnail.png';
+import characterPink from '@/assets/images/character/character-pink-circle-thumbnail.png';
+import characterWhite from '@/assets/images/character/character-white-circle-thumbnail.png';
+import characterYellow from '@/assets/images/character/character-yellow-circle-thumbnail.png';
+
+const CHARACTER_THUMBNAILS = [
+  characterBlue,
+  characterBrown,
+  characterPink,
+  characterWhite,
+  characterYellow,
+];
+
+const randomThumbnail = () =>
+  CHARACTER_THUMBNAILS[Math.floor(Math.random() * CHARACTER_THUMBNAILS.length)];
+
 const MIN_HEIGHT = 320;
 
 export interface ChatMessage {
@@ -14,7 +31,7 @@ export interface ChatMessage {
 const MOCK_MESSAGES: ChatMessage[] = [
   {
     id: 1,
-    user: { name: '하파린', profileImage: '/profile1.png' },
+    user: { name: '하파린', profileImage: randomThumbnail() },
     text: '생일 축하해!! 🎉',
   },
 ];
@@ -41,7 +58,7 @@ export function useChatBottomSheet() {
         id: Date.now(),
         user: {
           name: '사용자', // 임시
-          profileImage: '/profile1.png',
+          profileImage: randomThumbnail(),
         },
         text,
       },

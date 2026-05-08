@@ -1,4 +1,4 @@
-import onboardingFirstImage from '@/assets/images/onboarding_first.svg';
+import onboardingFirstImage from '@/assets/images/onboarding/onboarding-first.png';
 
 export const ONBOARDING_CONTENTS = [
   //TODO: 2,3번째 이미지 추후 디자인팀에서 추가 예정
