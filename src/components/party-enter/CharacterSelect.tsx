@@ -4,15 +4,15 @@ import { Caption } from '@/components/ui/Typography';
 import { CHARACTERS, type CharacterType } from '@/constants/party-enter';
 
 export function CharacterSelect() {
-  const [selected, setSelected] = useState<CharacterType>('default');
+  const [selected, setSelected] = useState<CharacterType>('blue');
 
-  const { Character: SelectedCharacter } = CHARACTERS.find((c) => c.type === selected)!;
+  const selectedCharacter = CHARACTERS.find((c) => c.type === selected)!;
 
   return (
     <>
       <figure className="h-14 w-full">
         <ul className="flex h-full items-center justify-center gap-4">
-          {CHARACTERS.map(({ type, label, Thumbnail }) => {
+          {CHARACTERS.map(({ type, label, thumbnail }) => {
             const isSelected = selected === type;
             return (
               <li
@@ -23,7 +23,7 @@ export function CharacterSelect() {
                 <div
                   className={`rounded-full border-2 p-0.5 ${isSelected ? 'border-blue-600' : 'border-transparent'}`}
                 >
-                  <Thumbnail className="h-8 w-8" />
+                  <img src={thumbnail} alt={label} className="h-8 w-8 rounded-full" />
                 </div>
                 <Caption className={isSelected ? 'text-blue-600' : 'text-grey-500'}>
                   {label}
@@ -34,7 +34,11 @@ export function CharacterSelect() {
         </ul>
       </figure>
       <figure className="h-[160px] w-[160px]">
-        <SelectedCharacter className="h-full w-full" />
+        <img
+          src={selectedCharacter.character}
+          alt={selectedCharacter.label}
+          className="h-full w-full object-contain"
+        />
       </figure>
     </>
   );

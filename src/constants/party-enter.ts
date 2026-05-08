@@ -1,45 +1,46 @@
-import CandleCharacter from '@/assets/images/party-enter/candle-character.svg?react';
-import CandleThumbnail from '@/assets/images/party-enter/candle-thumbnail.svg?react';
-import ChocoCharacter from '@/assets/images/party-enter/choco-character.svg?react';
-import ChocoThumbnail from '@/assets/images/party-enter/choco-thumbnail.svg?react';
-import CloudCharacter from '@/assets/images/party-enter/cloud-character.svg?react';
-import CloudThumbnail from '@/assets/images/party-enter/cloud-thumbnail.svg?react';
-import DefaultCharacter from '@/assets/images/party-enter/default-character.svg?react';
-import DefaultThumbnail from '@/assets/images/party-enter/default-thumbnail.svg?react';
-import RibbonCharacter from '@/assets/images/party-enter/ribbon-character.svg?react';
-import RibbonThumbnail from '@/assets/images/party-enter/ribbon-thumbnail.svg?react';
+import characterBlueCircle from '@/assets/images/character/character-blue-circle-thumbnail.png';
+import characterBlueFull from '@/assets/images/character/character-blue-full.png';
+import characterBrownCircle from '@/assets/images/character/character-brown-circle-thumbnail.png';
+import characterBrownFull from '@/assets/images/character/character-brown-full.png';
+import characterPinkCircle from '@/assets/images/character/character-pink-circle-thumbnail.png';
+import characterPinkFull from '@/assets/images/character/character-pink-full.png';
+import characterWhiteCircle from '@/assets/images/character/character-white-circle-thumbnail.png';
+import characterWhiteFull from '@/assets/images/character/character-white-full.png';
+import characterYellowCircle from '@/assets/images/character/character-yellow-circle-thumbnail.png';
+import characterYellowFull from '@/assets/images/character/character-yellow-full.png';
 
-export type CharacterType = 'default' | 'ribbon' | 'choco' | 'candle' | 'cloud';
+export type CharacterType = 'blue' | 'brown' | 'pink' | 'white' | 'yellow';
 
 export const CHARACTERS = [
   {
-    type: 'default' as CharacterType,
+    type: 'blue' as CharacterType,
     label: '기본',
-    Thumbnail: DefaultThumbnail,
-    Character: DefaultCharacter,
+    thumbnail: characterBlueCircle,
+    character: characterBlueFull,
   },
+
   {
-    type: 'ribbon' as CharacterType,
+    type: 'pink' as CharacterType,
     label: '리본',
-    Thumbnail: RibbonThumbnail,
-    Character: RibbonCharacter,
+    thumbnail: characterPinkCircle,
+    character: characterPinkFull,
   },
   {
-    type: 'choco' as CharacterType,
+    type: 'brown' as CharacterType,
     label: '초코',
-    Thumbnail: ChocoThumbnail,
-    Character: ChocoCharacter,
+    thumbnail: characterBrownCircle,
+    character: characterBrownFull,
   },
   {
-    type: 'candle' as CharacterType,
+    type: 'yellow' as CharacterType,
     label: '양초',
-    Thumbnail: CandleThumbnail,
-    Character: CandleCharacter,
+    thumbnail: characterYellowCircle,
+    character: characterYellowFull,
   },
   {
-    type: 'cloud' as CharacterType,
+    type: 'white' as CharacterType,
     label: '구름',
-    Thumbnail: CloudThumbnail,
-    Character: CloudCharacter,
+    thumbnail: characterWhiteCircle,
+    character: characterWhiteFull,
   },
 ] as const;
