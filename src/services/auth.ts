@@ -15,8 +15,8 @@ type ApiResponseDevTokenResponse = components['schemas']['ApiResponseDevTokenRes
 // ── 카카오 OAuth ──
 
 export function redirectToKakaoLogin() {
-  const callbackUrl = `${window.location.origin}/oauth/callback`;
-  window.location.href = `${config.apiBaseUrl}/oauth2/authorization/kakao?redirect_uri=${encodeURIComponent(callbackUrl)}`;
+  const redirectUri = `${window.location.origin}/oauth/redirect`;
+  window.location.href = `${config.apiBaseUrl}/oauth2/authorization/kakao?redirect_uri=${encodeURIComponent(redirectUri)}`;
 }
 
 // ── queryOptions 팩토리 ──
