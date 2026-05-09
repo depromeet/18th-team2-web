@@ -32,7 +32,7 @@ export default function MyPage() {
 
   return (
     <div className="bg-grey-30 flex min-h-screen flex-col">
-      <PageHeader title="계정 관리" />
+      <PageHeader title="계정 관리" onBack={() => navigate(ROUTES.home, { replace: true })} />
       <section className="flex flex-col gap-3 px-4 pt-4 pb-3">
         {isLoading || !userName ? (
           <div className="bg-grey-100 h-7 w-24 animate-pulse rounded" />
