@@ -8,11 +8,11 @@ export function MusicGuideText() {
   useEffect(() => {
     if (currentIndex >= MUSIC_GUIDE_TEXT.length - 1) return;
 
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setCurrentIndex((prev) => prev + 1);
     }, MUSIC_GUIDE_TEXT_DURATION);
 
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   }, [currentIndex]);
 
   return (
