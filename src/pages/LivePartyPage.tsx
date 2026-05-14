@@ -10,7 +10,8 @@ export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
 
-  const { step, userRole, partyEnd, showChatBottomSheet, handleNextStep } = useLivePartyStep();
+  const { step, userRole, partyEnd, showChatBottomSheet, handleNextStep, isTransitioning } =
+    useLivePartyStep();
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
 
@@ -29,6 +30,12 @@ export default function LivePartyPage() {
       )}
 
       <StepRenderer step={step} onStepComplete={handleNextStep} userRole={userRole} />
+      <div
+        aria-hidden
+        className={`bg-blue-1000 pointer-events-none absolute inset-0 z-50 transition-opacity duration-500 ${
+          isTransitioning ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
       {showChatBottomSheet && <ChatBottomSheet />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
