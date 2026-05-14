@@ -137,3 +137,4 @@ export type PartyUserRole = keyof typeof PARTY_USER;
 
 export const OVERLAY_TRANSITION_STEPS: PartyStep[] = [LIVE_PARTY_STEP.ENTRY, LIVE_PARTY_STEP.MUSIC];
 export const OVERLAY_FADE_DURATION = 500;
+export const STEP_DELAY_DURATION = 1000;

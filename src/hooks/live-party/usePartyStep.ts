@@ -6,6 +6,7 @@ import {
   OVERLAY_FADE_DURATION,
   OVERLAY_TRANSITION_STEPS,
   PARTY_USER,
+  STEP_DELAY_DURATION,
   type PartyStep,
   type PartyUserRole,
 } from '@/constants/live-party';
@@ -25,7 +26,10 @@ export function useLivePartyStep() {
       setIsTransitioning(true);
       window.setTimeout(() => {
         setStep(nextStep);
-        setTimeout(() => setIsTransitioning(false), 50);
+
+        window.setTimeout(() => {
+          setIsTransitioning(false);
+        }, STEP_DELAY_DURATION);
       }, OVERLAY_FADE_DURATION);
     } else {
       setStep(nextStep);
