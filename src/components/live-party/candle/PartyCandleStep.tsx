@@ -1,40 +1,32 @@
-import { CANDLES } from '@/constants/live-party';
-import { useState, useMemo } from 'react';
+import ReactCanvasConfetti from 'react-canvas-confetti';
+
 import { CandleList } from '@/components/live-party/candle/CandleList';
 import { CandleOverlay } from '@/components/live-party/candle/CandleOverlay';
 import { CandleTitle } from '@/components/live-party/candle/CandleTitle';
 import { Button } from '@/components/ui/Button';
+import { CANDLES } from '@/constants/live-party';
+import { useCandleStep } from '@/hooks/live-party/useCandleStep';
+import { useFallConfetti } from '@/hooks/live-party/useFallConfetti';
 
 interface PartyCandleStepProps {
   onComplete?: () => void;
 }
 
 export function PartyCandleStep({ onComplete }: PartyCandleStepProps) {
-  const [isCandleOffList, setIsCandleOffList] = useState<boolean[]>(() =>
-    Array(CANDLES.length).fill(false),
-  );
+  const { handleInitConfetti, fireConfetti } = useFallConfetti();
 
-  const offCount = useMemo(
-    () => isCandleOffList.filter(Boolean).length,
+  const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
+    candleCount: CANDLES.length,
+    onComplete: fireConfetti,
+  });
 
-    [isCandleOffList],
-  );
-
-  const allCandleOff = offCount === CANDLES.length;
-
-  const glowOpacity = 1 - Math.floor(offCount / 3) / 3;
-
-  const handleClickCandle = (index: number) => {
-    setIsCandleOffList((prev) =>
-      prev.map((isOff, currentIndex) => currentIndex === index || isOff),
-    );
-  };
-
-  {
-    /* TODO: 촛불이 다 꺼졌을 경우 컨페티 요소+애니메이션 추가 필요 */
-  }
   return (
     <div className="bg-blue-1000 relative flex h-screen w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14">
+      <ReactCanvasConfetti
+        onInit={handleInitConfetti}
+        className="pointer-events-none absolute inset-0 z-30 h-full w-full"
+      />
+
       <CandleOverlay opacity={glowOpacity} />
       <CandleTitle allCandleOff={allCandleOff} />
       <CandleList
@@ -42,8 +34,9 @@ export function PartyCandleStep({ onComplete }: PartyCandleStepProps) {
         isCandleOffList={isCandleOffList}
         onClickCandle={handleClickCandle}
       />
+
       {allCandleOff && (
-        <div className="absolute right-4 bottom-8 left-4 animate-[party-complete-fade-in_300ms_ease-out_forwards]">
+        <div className="absolute right-4 bottom-8 left-4 z-40 animate-[party-complete-fade-in_300ms_ease-out_forwards]">
           <Button onClick={onComplete}>다음</Button>
         </div>
       )}
