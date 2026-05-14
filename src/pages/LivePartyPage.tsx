@@ -1,6 +1,5 @@
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
-import livePartyBg from '@/assets/images/live-party/live-party-bg.png';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
@@ -18,13 +17,6 @@ export default function LivePartyPage() {
   return (
     <div
       className={`relative min-h-screen w-full max-w-[598px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
-      style={
-        partyEnd
-          ? undefined
-          : {
-              backgroundImage: `url(${livePartyBg})`,
-            }
-      }
     >
       {!partyEnd && (
         <LivePartyHeader
