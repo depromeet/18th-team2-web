@@ -15,7 +15,7 @@ export function useLivePartyStep() {
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
   // 프리런칭 데이용 하드코딩
-  const [userRole] = useState<PartyUserRole>(PARTY_USER.HOST);
+  const [userRole] = useState<PartyUserRole>(PARTY_USER.PARTICIPANT_NOT_WRITTEN);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleNextStep = () => {
