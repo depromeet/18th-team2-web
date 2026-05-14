@@ -13,9 +13,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { UpcomingParty } from '@/components/home/UpcomingPartyCard';
 
-// pre-launch: 하드코딩 partyId
-const HARDCODED_PARTY_ID = '1';
-
 function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -27,6 +24,7 @@ function HomePage() {
   const mockParties: UpcomingParty[] = isAuthenticated
     ? [
         {
+          partyId: '1',
           partyName: '홍길동님의 생일파티',
           date: '26.11.23',
           time: '오후 2:00',
@@ -34,6 +32,7 @@ function HomePage() {
           status: 'soon',
         },
         {
+          partyId: '2',
           partyName: '내 생일파티',
           date: '26.11.23',
           time: '오후 2:00',
@@ -41,6 +40,7 @@ function HomePage() {
           status: 'default',
         },
         {
+          partyId: '3',
           partyName: '홍길동님의 생일파티',
           date: '26.11.23',
           time: '오후 2:00',
@@ -48,6 +48,7 @@ function HomePage() {
           status: 'soon',
         },
         {
+          partyId: '4',
           partyName: '내 생일파티',
           date: '26.11.23',
           time: '오후 2:00',
@@ -79,15 +80,11 @@ function HomePage() {
     : [];
 
   const handleEnterParty = (party: UpcomingParty) => {
-    if (party.status !== 'soon') {
+    if (party.status !== 'soon' || !party.partyId) {
       return;
     }
 
-    navigate(
-      generatePath(ROUTES.partyEnter, {
-        partyId: HARDCODED_PARTY_ID,
-      }),
-    );
+    navigate(generatePath(ROUTES.partyEnter, { partyId: party.partyId }));
   };
 
   return (
@@ -123,12 +120,10 @@ function HomePage() {
                       <UpcomingPartyCard
                         party={party}
                         onAction={
-                          party.status === 'soon'
+                          party.status === 'soon' && party.partyId
                             ? () =>
                                 navigate(
-                                  generatePath(ROUTES.partyEnter, {
-                                    partyId: HARDCODED_PARTY_ID,
-                                  }),
+                                  generatePath(ROUTES.partyEnter, { partyId: party.partyId! }),
                                 )
                             : undefined
                         }

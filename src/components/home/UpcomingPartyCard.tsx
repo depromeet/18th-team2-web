@@ -5,6 +5,7 @@ type PartyRole = 'host' | 'participant';
 type PartyStatus = 'default' | 'soon' | 'rollingPaper' | 'rollingPaperOpen';
 
 export interface UpcomingParty {
+  partyId?: string;
   partyName: string;
   date: string;
   time?: string;
