@@ -1,46 +1,19 @@
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
-import {
-  LIVE_PARTY_STEP,
-  LIVE_PARTY_STEP_ARRAY,
-  PARTY_USER,
-  type PartyStep,
-  type PartyUserRole,
-} from '@/constants/live-party';
-import { useState } from 'react';
 import livePartyBg from '@/assets/images/live-party/live-party-bg.png';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
+import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
+import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 
 export default function LivePartyPage() {
-  const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
-  {
-    /* 프리런칭 데이에 맞춘 하드코딩 (파티 주최자) */
-  }
-  const [userRole, _setUserRole] = useState<PartyUserRole>(PARTY_USER.HOST);
-
-  const handleNextStep = () => {
-    const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
-    const nextIndex = (currentIndex + 1) % LIVE_PARTY_STEP_ARRAY.length;
-    setStep(LIVE_PARTY_STEP_ARRAY[nextIndex]);
-  };
-
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
 
-  {
-    /* 실시간 참여자를 보여줄 수 없기에 bg 임시  */
-  }
-  {
-    /* 실제 음악 나오는 건 추후 개발 예정 */
-  }
-  const showChatBottomSheet =
-    step !== LIVE_PARTY_STEP.ENTRY &&
-    step !== LIVE_PARTY_STEP.END &&
-    step !== LIVE_PARTY_STEP.CANDLE;
+  const { step, userRole, partyEnd, showChatBottomSheet, handleNextStep } = useLivePartyStep();
 
-  const partyEnd = step === LIVE_PARTY_STEP.END;
+  const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
 
   return (
     <div
@@ -57,6 +30,8 @@ export default function LivePartyPage() {
         <LivePartyHeader
           onNextStep={handleNextStep}
           onExitClick={handleOpenExitDialog}
+          musicIsMuted={musicIsMuted}
+          handleToggleMute={handleToggleMute}
           step={step}
         />
       )}

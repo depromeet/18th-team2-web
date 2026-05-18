@@ -11,12 +11,12 @@ export function PartyMusicText({ onComplete }: PartyMusicTextProps) {
   const [showLyrics, setShowLyrics] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setShowLyrics(true);
     }, MUSIC_GUIDE_DURATION);
 
     return () => {
-      clearTimeout(timer);
+      window.clearTimeout(timer);
     };
   }, []);
 
