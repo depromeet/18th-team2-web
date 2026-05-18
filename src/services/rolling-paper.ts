@@ -1,5 +1,8 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
+import { api } from '@/services/api';
+import type { components } from '@/types/api';
+
 // ── Types ──
 
 export type ToppingType = 'cherry' | 'strawberry' | 'candle';
@@ -15,130 +18,99 @@ export interface RollingPaperData {
   partyId: string;
   hostName: string;
   messages: RollingPaperMessage[];
-  partyStartedAt: string;
-  writableUntil: string;
+  partyStartedAt: string | null;
+  writableUntil: string | null;
+  totalCount: number;
 }
 
-// ── Mock Data ──
+export interface WriteRollingPaperParams {
+  inviteToken: string;
+  writerNickname: string;
+  content: string;
+  toppingType: ToppingType;
+}
 
-const MOCK_MESSAGES: RollingPaperMessage[] = [
-  {
-    id: '1',
-    content: '생일 축하해!!! 올해도 건강하고 행복한 한 해 보내길 바랄게 🎂',
-    writerName: '해파링링',
-    toppingType: 'cherry',
-  },
-  {
-    id: '2',
-    content: '우리 같이 보낸 시간들이 너무 소중해. 앞으로도 좋은 추억 많이 만들자!',
-    writerName: '해파링링',
-    toppingType: 'strawberry',
-  },
-  {
-    id: '3',
-    content: '항상 응원하고 있어! 하고 싶은 거 다 이루는 한 해가 되길 바라!',
-    writerName: '해파링링',
-    toppingType: 'cherry',
-  },
-  {
-    id: '4',
-    content: '생일 진심으로 축하해~ 맛있는 거 많이 먹고 좋은 하루 보내!',
-    writerName: '해파링링',
-    toppingType: 'candle',
-  },
-  {
-    id: '5',
-    content: '너랑 친구여서 정말 다행이야. 생일 축하하고, 올해도 잘 부탁해!',
-    writerName: '해파링링',
-    toppingType: 'strawberry',
-  },
-  {
-    id: '6',
-    content: '생일 축하해! 네가 웃고 있으면 나도 행복해 😊',
-    writerName: '해파링링',
-    toppingType: 'cherry',
-  },
-  {
-    id: '7',
-    content: '오늘 하루가 너에게 특별한 날이 되길! 생일 축하해!',
-    writerName: '해파링링',
-    toppingType: 'candle',
-  },
-  {
-    id: '8',
-    content: '매번 고마워! 올해 생일은 더 특별하게 보내자~',
-    writerName: '해파링링',
-    toppingType: 'strawberry',
-  },
-  {
-    id: '9',
-    content: '생일 축하합니다! 항상 밝은 에너지 고마워요 :)',
-    writerName: '해파링링',
-    toppingType: 'cherry',
-  },
-  {
-    id: '10',
-    content: '함께해서 즐거워! 생일 축하하고 올해도 파이팅!',
-    writerName: '해파링링',
-    toppingType: 'candle',
-  },
-  {
-    id: '11',
-    content: '생축!! 다음에 같이 맛집 가자~ 🍕',
-    writerName: '해파링링',
-    toppingType: 'strawberry',
-  },
-  {
-    id: '12',
-    content: '너무너무 축하해!! 오늘 주인공은 너야~ 🎉',
-    writerName: '해파링링',
-    toppingType: 'cherry',
-  },
-];
+// wrapperId는 BE wrapper 목록 기준 고정값
+const WRAPPER_ID: Record<ToppingType, number> = { candle: 1, cherry: 2, strawberry: 3 };
 
-function createMockData(): RollingPaperData {
-  const now = new Date();
-  const partyStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0, 0);
-  const writableEnd = new Date(partyStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+function toppingTypeFromUrl(url: string | null | undefined): ToppingType {
+  if (!url) return 'cherry';
+  const u = url.toLowerCase();
+  if (u.includes('candle')) return 'candle';
+  if (u.includes('strawberry')) return 'strawberry';
+  return 'cherry';
+}
 
-  return {
-    partyId: 'mock-party-id',
-    hostName: '김이라',
-    messages: MOCK_MESSAGES,
-    partyStartedAt: partyStart.toISOString(),
-    writableUntil: writableEnd.toISOString(),
-  };
+function mapItems(
+  items: components['schemas']['RollingPaperListItemResponse'][] | undefined,
+): RollingPaperMessage[] {
+  return (items ?? []).map((item) => ({
+    id: String(item.rollingPaperId),
+    content: item.content ?? '',
+    writerName: item.writerNickname ?? '',
+    toppingType: toppingTypeFromUrl(item.wrapperImageUrl),
+  }));
 }
 
 // ── queryOptions 팩토리 ──
 
 export const rollingPaperQueries = {
-  detail: (partyId: string) =>
+  // 참가자: inviteToken 기반, 주최자: partyId 기반
+  list: (partyId: string, inviteToken?: string, page = 1) =>
     queryOptions({
-      queryKey: ['rolling-paper', partyId],
-      // TODO: API 연결 시 queryFn 교체
-      queryFn: () => Promise.resolve(createMockData()),
+      queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`, page],
+      queryFn: async (): Promise<RollingPaperData> => {
+        if (inviteToken) {
+          const res = await api.get<
+            components['schemas']['ApiResponseParticipantRollingPaperListResponse']
+          >(`/api/v1/party-invites/${inviteToken}/rolling-papers?page=${page}`);
+          const raw = res.data;
+          if (!raw) throw new Error('no data');
+          return {
+            partyId,
+            hostName: '',
+            messages: mapItems(raw.items),
+            partyStartedAt: null,
+            writableUntil: null,
+            totalCount: raw.totalCount ?? 0,
+          };
+        }
+
+        const res = await api.get<
+          components['schemas']['ApiResponseOwnerRollingPaperListResponse']
+        >(`/api/v1/parties/${partyId}/rolling-papers?page=${page}`);
+        const raw = res.data;
+        if (!raw) throw new Error('no data');
+        return {
+          partyId,
+          hostName: raw.celebrantNickname ?? '',
+          messages: mapItems(raw.items),
+          partyStartedAt: null,
+          writableUntil: raw.partyEndAt ?? null,
+          totalCount: raw.totalCount ?? 0,
+        };
+      },
     }),
 };
 
 // ── Query hooks ──
 
-export function useRollingPaper(partyId: string) {
-  return useQuery(rollingPaperQueries.detail(partyId));
+export function useRollingPaper(partyId: string, inviteToken?: string, page = 1) {
+  return useQuery(rollingPaperQueries.list(partyId, inviteToken, page));
 }
 
 // ── Mutation hooks ──
 
-export interface WriteRollingPaperParams {
-  partyId: string;
-  writerName: string;
-  content: string;
-  toppingType: ToppingType;
-}
-
 export function useWriteRollingPaper() {
   return useMutation({
-    // TODO: API 연결 시 실제 엔드포인트로 교체
-    mutationFn: (_params: WriteRollingPaperParams) => Promise.resolve(undefined),
+    mutationFn: ({ inviteToken, writerNickname, content, toppingType }: WriteRollingPaperParams) =>
+      api.post<components['schemas']['ApiResponseCreateRollingPaperResponse']>(
+        `/api/v1/party-invites/${inviteToken}/rolling-papers`,
+        {
+          writerNickname,
+          content,
+          wrapperId: WRAPPER_ID[toppingType],
+        } satisfies components['schemas']['CreateRollingPaperRequest'],
+      ),
   });
 }

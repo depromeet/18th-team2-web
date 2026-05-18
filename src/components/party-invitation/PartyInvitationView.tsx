@@ -56,7 +56,12 @@ export function PartyInvitationView({
   function handleWriteRollingPaper() {
     setHasWrittenRollingPaper(true);
     navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
-      state: { completeCta: 'invite', invitePath: window.location.pathname },
+      state: {
+        completeCta: 'invite',
+        invitePath: window.location.pathname,
+        inviteToken,
+        hostName,
+      },
     });
   }
 

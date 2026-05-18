@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 import { PartyEndedView } from '@/components/party-ended/PartyEndedView';
 import { PartyInvitationView } from '@/components/party-invitation/PartyInvitationView';
@@ -6,6 +6,8 @@ import { usePartyInvite } from '@/services/party-invite';
 
 export default function PartyInviteEntryPage() {
   const { inviteToken } = useParams<{ inviteToken: string }>();
+  const location = useLocation();
+  const locationState = location.state as { rollingPaperWritten?: boolean } | null;
   const { data, isLoading, isError } = usePartyInvite(inviteToken ?? '');
 
   if (!inviteToken) {
@@ -56,7 +58,7 @@ export default function PartyInviteEntryPage() {
           : undefined
       }
       isHost={data.isHost}
-      rollingPaperWritten={data.rollingPaperWritten ?? false}
+      rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten ?? false}
       partyOption={data.partyOption ?? 'REALTIME'}
     />
   );

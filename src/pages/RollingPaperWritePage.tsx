@@ -8,7 +8,7 @@ import { RollingPaperNicknameForm } from '@/components/rolling-paper-write/Rolli
 import { RollingPaperWriteComplete } from '@/components/rolling-paper-write/RollingPaperWriteComplete';
 import { useRollingPaperWriteForm } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { ROUTES } from '@/constants/routes';
-import { useRollingPaper, useWriteRollingPaper } from '@/services/rolling-paper';
+import { useWriteRollingPaper } from '@/services/rolling-paper';
 import type { RollingPaperMessage } from '@/services/rolling-paper';
 
 type Step = 'nickname' | 'message' | 'complete';
@@ -16,6 +16,8 @@ type Step = 'nickname' | 'message' | 'complete';
 interface RollingPaperWriteLocationState {
   completeCta?: 'invite' | 'home';
   invitePath?: string;
+  inviteToken?: string;
+  hostName?: string;
 }
 
 export default function RollingPaperWritePage() {
@@ -24,8 +26,8 @@ export default function RollingPaperWritePage() {
   const location = useLocation();
   const locationState = location.state as RollingPaperWriteLocationState | null;
 
-  const { data } = useRollingPaper(partyId ?? '');
-  const hostName = data?.hostName ?? '';
+  const hostName = locationState?.hostName ?? '';
+  const inviteToken = locationState?.inviteToken ?? '';
 
   const [step, setStep] = useState<Step>('nickname');
 
@@ -33,20 +35,13 @@ export default function RollingPaperWritePage() {
   const { mutate: writeRollingPaper, isPending } = useWriteRollingPaper();
 
   function handleMessageSubmit() {
-    if (!partyId) return;
+    if (!partyId || !inviteToken) return;
     const { nickname, message, toppingType } = methods.getValues();
     if (!toppingType) return;
 
     writeRollingPaper(
-      {
-        partyId,
-        writerName: nickname,
-        content: message,
-        toppingType,
-      },
-      {
-        onSuccess: () => setStep('complete'),
-      },
+      { inviteToken, writerNickname: nickname, content: message, toppingType },
+      { onSuccess: () => setStep('complete') },
     );
   }
 
@@ -69,6 +64,7 @@ export default function RollingPaperWritePage() {
         completeCta: locationState?.completeCta,
         completedMessage,
         invitePath: locationState?.invitePath,
+        inviteToken,
       },
     });
   }
