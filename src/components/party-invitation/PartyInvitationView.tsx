@@ -10,33 +10,47 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
+import { useJoinPartyInvite } from '@/services/party-invite';
 
 interface PartyInvitationViewProps {
   partyId: string;
+  inviteToken: string;
   hostName: string;
   startsAt: Date;
+  enterableFrom?: Date;
   isHost: boolean;
   rollingPaperWritten: boolean;
+  partyOption: 'REALTIME' | 'PAPER_ONLY';
 }
 
 export function PartyInvitationView({
   partyId,
+  inviteToken,
   hostName,
   startsAt,
+  enterableFrom,
   isHost,
   rollingPaperWritten,
+  partyOption,
 }: PartyInvitationViewProps) {
   const navigate = useNavigate();
-  const { isWithin5Minutes } = usePartyCountdown(startsAt);
+  const { isWithin5Minutes } = usePartyCountdown(enterableFrom ?? startsAt);
 
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
+  const { mutate: joinPartyInvite, isPending: isJoining } = useJoinPartyInvite();
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const inviteLink = `${window.location.origin}${window.location.pathname}`;
 
   function handleEnterParty() {
-    navigate(generatePath(ROUTES.partyEnter, { partyId }));
+    if (isHost) {
+      navigate(generatePath(ROUTES.partyEnter, { partyId }));
+      return;
+    }
+    joinPartyInvite(inviteToken, {
+      onSuccess: () => navigate(generatePath(ROUTES.partyEnter, { partyId })),
+    });
   }
 
   function handleWriteRollingPaper() {
@@ -82,6 +96,8 @@ export function PartyInvitationView({
               <ParticipantActions
                 isWithin5Minutes={isWithin5Minutes}
                 hasWrittenRollingPaper={hasWrittenRollingPaper}
+                canEnterParty={partyOption === 'REALTIME'}
+                isJoining={isJoining}
                 onEnterParty={handleEnterParty}
                 onWriteRollingPaper={handleWriteRollingPaper}
               />

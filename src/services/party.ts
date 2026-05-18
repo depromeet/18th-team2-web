@@ -6,13 +6,7 @@ export function useDeleteParty() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (partyId: string) => {
-      if (partyId.startsWith('mock-')) {
-        return Promise.resolve(undefined);
-      }
-
-      return api.delete(`/api/v1/parties/${partyId}`);
-    },
+    mutationFn: (partyId: string) => api.delete(`/api/v1/parties/${partyId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['party-invite'] });
     },
