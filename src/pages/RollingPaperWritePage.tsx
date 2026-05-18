@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FormProvider } from 'react-hook-form';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -30,6 +30,14 @@ export default function RollingPaperWritePage() {
   const inviteToken = locationState?.inviteToken ?? '';
 
   const [step, setStep] = useState<Step>('nickname');
+  const [writeError, setWriteError] = useState<string | null>(null);
+
+  // inviteToken 없이 직접 URL 접근 시 홈으로 이동
+  useEffect(() => {
+    if (!inviteToken) {
+      navigate(ROUTES.home, { replace: true });
+    }
+  }, [inviteToken, navigate]);
 
   const methods = useRollingPaperWriteForm();
   const { mutate: writeRollingPaper, isPending } = useWriteRollingPaper();
@@ -39,9 +47,13 @@ export default function RollingPaperWritePage() {
     const { nickname, message, toppingType } = methods.getValues();
     if (!toppingType) return;
 
+    setWriteError(null);
     writeRollingPaper(
       { inviteToken, writerNickname: nickname, content: message, toppingType },
-      { onSuccess: () => setStep('complete') },
+      {
+        onSuccess: () => setStep('complete'),
+        onError: () => setWriteError('롤링페이퍼 작성에 실패했어요. 초대장을 다시 확인해주세요.'),
+      },
     );
   }
 
@@ -87,6 +99,11 @@ export default function RollingPaperWritePage() {
 
   return (
     <FormProvider {...methods}>
+      {writeError && (
+        <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-3 text-sm text-white">
+          {writeError}
+        </div>
+      )}
       {step === 'nickname' && <RollingPaperNicknameForm onNext={() => setStep('message')} />}
       {step === 'message' && (
         <RollingPaperMessageForm
