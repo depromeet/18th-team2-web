@@ -29,6 +29,7 @@ export function ChatList({ messages, isExpanded }: ChatListProps) {
             name={item.user.name}
             profileImage={item.user.profileImage}
             text={item.text}
+            senderRole={item.user.senderRole}
           />
         ),
       )}

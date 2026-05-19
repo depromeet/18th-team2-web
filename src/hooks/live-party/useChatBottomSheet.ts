@@ -24,20 +24,26 @@ export interface ChatMessage {
   user: {
     name: string;
     profileImage: string;
+    senderRole: 'PARTICIPANT' | 'CELEBRANT'; //스웨거 참고
   };
   text: string;
 }
 
 export type ChatListItem =
-  | { type: 'message'; id: number; user: { name: string; profileImage: string }; text: string }
+  | {
+      type: 'message';
+      id: number;
+      user: { name: string; profileImage: string; senderRole: 'PARTICIPANT' | 'CELEBRANT' };
+      text: string;
+    }
   | { type: 'entry'; id: number; userName: string };
 
 const MOCK_MESSAGES: ChatListItem[] = [
   {
     type: 'message',
     id: 1,
-    user: { name: '하파린', profileImage: randomThumbnail() },
-    text: '생일 축하해!! 🎉',
+    user: { name: '하파린', profileImage: randomThumbnail(), senderRole: 'CELEBRANT' },
+    text: '다들 고마워~~',
   },
   {
     type: 'entry',
@@ -47,7 +53,7 @@ const MOCK_MESSAGES: ChatListItem[] = [
   {
     type: 'message',
     id: 3,
-    user: { name: '소다', profileImage: randomThumbnail() },
+    user: { name: '소다', profileImage: randomThumbnail(), senderRole: 'PARTICIPANT' },
     text: '같이 축하해요 🥳',
   },
 ];
@@ -78,6 +84,7 @@ export function useChatBottomSheet() {
         user: {
           name: '사용자', // 임시
           profileImage: randomThumbnail(),
+          senderRole: 'CELEBRANT',
         },
         text,
       },
