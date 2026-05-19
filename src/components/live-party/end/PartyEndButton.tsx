@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { PARTY_USER, type PartyUserRole } from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-import LaterWriteRollingPaperDialog from '@/components/live-party/end/LaterWriteRollingPaperDialog';
+import { LaterWriteRollingPaperDialog } from '@/components/live-party/end/LaterWriteRollingPaperDialog';
 import { useLaterWriteDialog } from '@/hooks/live-party/useLaterWriteDialog';
 
 interface PartyEndButtonProps {

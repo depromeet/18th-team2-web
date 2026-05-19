@@ -7,7 +7,7 @@ interface LaterWriteRollingPaperDialogProps {
   onConfirm: () => void;
 }
 
-export default function LaterWriteRollingPaperDialog({
+export function LaterWriteRollingPaperDialog({
   isOpen,
   onClose,
   onCancel,
