@@ -1,6 +1,6 @@
 import { B2, L2 } from '@/components/ui/Typography';
 import StarIconSvg from '@/assets/images/live-party/star.svg?react';
-import PartyHatSvg from '@/assets/images/live-party/partyHat.svg?react';
+import PartyHatSvg from '@/assets/images/live-party/party-hat.svg?react';
 
 interface ChatItemProps {
   name: string;
