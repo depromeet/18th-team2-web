@@ -3,7 +3,10 @@ import { useState } from 'react';
 import {
   LIVE_PARTY_STEP,
   LIVE_PARTY_STEP_ARRAY,
+  OVERLAY_FADE_DURATION,
+  OVERLAY_TRANSITION_STEPS,
   PARTY_USER,
+  STEP_DELAY_DURATION,
   type PartyStep,
   type PartyUserRole,
 } from '@/constants/live-party';
@@ -12,13 +15,25 @@ export function useLivePartyStep() {
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
   // 프리런칭 데이용 하드코딩
-  const [userRole] = useState<PartyUserRole>(PARTY_USER.HOST);
+  const [userRole] = useState<PartyUserRole>(PARTY_USER.PARTICIPANT_NOT_WRITTEN);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleNextStep = () => {
     const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
-    const nextIndex = (currentIndex + 1) % LIVE_PARTY_STEP_ARRAY.length;
+    const nextStep = LIVE_PARTY_STEP_ARRAY[(currentIndex + 1) % LIVE_PARTY_STEP_ARRAY.length];
 
-    setStep(LIVE_PARTY_STEP_ARRAY[nextIndex]);
+    if (OVERLAY_TRANSITION_STEPS.includes(step)) {
+      setIsTransitioning(true);
+      window.setTimeout(() => {
+        setStep(nextStep);
+
+        window.setTimeout(() => {
+          setIsTransitioning(false);
+        }, STEP_DELAY_DURATION);
+      }, OVERLAY_FADE_DURATION);
+    } else {
+      setStep(nextStep);
+    }
   };
 
   const showChatBottomSheet =
@@ -31,6 +46,7 @@ export function useLivePartyStep() {
   return {
     step,
     userRole,
+    isTransitioning,
     partyEnd,
     showChatBottomSheet,
     handleNextStep,

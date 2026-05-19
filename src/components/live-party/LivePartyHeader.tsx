@@ -21,7 +21,7 @@ export function LivePartyHeader({
   musicIsMuted,
 }: LivePartyHeaderProps) {
   return (
-    <header className="absolute top-0 right-0 left-0 z-11 flex items-center justify-between p-4">
+    <header className="absolute top-0 right-0 left-0 z-30 flex items-center justify-between p-4">
       {step !== LIVE_PARTY_STEP.ENTRY && (
         <button onClick={handleToggleMute}>
           {musicIsMuted ? <MusicMutedIconSvg /> : <MusicPlayIconSvg />}
