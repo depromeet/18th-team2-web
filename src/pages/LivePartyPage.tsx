@@ -7,7 +7,7 @@ import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import { LIVE_PARTY_STEP } from '@/constants/live-party';
-import TransitionEffect from '@/components/live-party/TransitionEffect';
+import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 
 export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =

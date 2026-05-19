@@ -2,7 +2,7 @@ interface TransitionEffectProps {
   isTransitioning: boolean;
 }
 
-export default function TransitionEffect({ isTransitioning }: TransitionEffectProps) {
+export function TransitionEffect({ isTransitioning }: TransitionEffectProps) {
   return (
     <div
       aria-hidden
