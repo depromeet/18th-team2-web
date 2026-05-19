@@ -25,7 +25,10 @@ export function FloatingCharacter({
   initStyle,
 }: FloatingCharacterProps) {
   return (
-    <div className="absolute" style={{ left: initStyle.left, top: initStyle.top, bottom: initStyle.bottom }}>
+    <div
+      className="absolute"
+      style={{ left: initStyle.left, top: initStyle.top, bottom: initStyle.bottom }}
+    >
       <div
         className={`character-float flex flex-col items-center`}
         style={{
