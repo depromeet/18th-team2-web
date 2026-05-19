@@ -26,7 +26,7 @@ export default function LivePartyPage() {
 
   return (
     <div
-      className={`relative h-svh w-full max-w-[598px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
+      className={`relative h-svh w-full max-w-[600px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
     >
       {!partyEnd && (
         <LivePartyHeader
