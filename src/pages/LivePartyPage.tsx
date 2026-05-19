@@ -17,9 +17,6 @@ export default function LivePartyPage() {
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
 
-  {
-    /* 실제 음악 나오는 건 추후 개발 예정 */
-  }
   const showPartyMain =
     step !== LIVE_PARTY_STEP.ENTRY &&
     step !== LIVE_PARTY_STEP.END &&
