@@ -1,10 +1,20 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useInfiniteQuery,
+  useQuery,
+} from '@tanstack/react-query';
 
+import { api } from '@/services/api';
+import type { components } from '@/types/api';
 import type { ArchiveListItem, PaperDetail, PartyDetail } from '@/types/archive';
+import { formatArchiveDate } from '@/utils/date';
 
-// TODO: BE API 미정 — 응답 형태 확정되면 queryFn 교체
-// 필요 엔드포인트: GET /api/v1/archive, /archive/party/:id, /archive/paper/:id
-// TODO: 실제 API에서는 role/stamp/myPaperWritten 등 응답 필드 동기화
+// TODO: 상세(파티/롤페) BE 엔드포인트 미정 — 확정되면 partyDetail/paperDetail queryFn 교체
+// 필요 엔드포인트: GET /api/v1/archive/party/:id, /archive/paper/:id
+// TODO: 상세 응답에서 role/stamp/myPaperWritten 등 필드 동기화
+
+const ARCHIVE_PAGE_SIZE = 20;
 
 const MOCK_LIST: ArchiveListItem[] = [
   { id: 'p-1', type: 'PARTY', title: '김유빈의 파티', date: '26.11.25', stamp: 'strawberry' },
@@ -85,11 +95,36 @@ function createMockPaperDetail(id: string): PaperDetail {
   };
 }
 
+type ArchiveListResponse = components['schemas']['ArchiveListResponse'];
+type ArchiveItemResponse = components['schemas']['ArchiveListItemResponse'];
+
+function mapArchiveItem(item: ArchiveItemResponse): ArchiveListItem {
+  return {
+    id: item.id ?? '',
+    type: item.type ?? 'PARTY',
+    title: item.title ?? '',
+    celebrantName: item.celebrantName ?? null,
+    date: item.date ? formatArchiveDate(item.date) : '',
+  };
+}
+
+async function fetchArchivePage(cursor: string | null): Promise<ArchiveListResponse> {
+  const query = new URLSearchParams({ size: String(ARCHIVE_PAGE_SIZE) });
+  if (cursor) query.set('cursor', cursor);
+
+  const res = await api.get<components['schemas']['ApiResponseArchiveListResponse']>(
+    `/api/v1/archive?${query.toString()}`,
+  );
+  return res.data ?? { items: [], nextCursor: null, totalCount: 0 };
+}
+
 export const archiveQueries = {
   list: () =>
-    queryOptions({
+    infiniteQueryOptions({
       queryKey: ['archive', 'list'],
-      queryFn: () => Promise.resolve(MOCK_LIST),
+      queryFn: ({ pageParam }) => fetchArchivePage(pageParam),
+      initialPageParam: null as string | null,
+      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     }),
   partyDetail: (partyId: string) =>
     queryOptions({
@@ -106,7 +141,13 @@ export const archiveQueries = {
 };
 
 export function useArchiveList() {
-  return useQuery(archiveQueries.list());
+  return useInfiniteQuery({
+    ...archiveQueries.list(),
+    select: (data) => ({
+      items: data.pages.flatMap((page) => (page.items ?? []).map(mapArchiveItem)),
+      totalCount: data.pages[0]?.totalCount ?? 0,
+    }),
+  });
 }
 
 export function useArchivePartyDetail(partyId: string) {

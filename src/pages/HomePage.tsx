@@ -16,9 +16,9 @@ import type { UpcomingParty } from '@/components/home/UpcomingPartyCard';
 function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { data: archiveItems } = useArchiveList();
-  const archiveCount = isAuthenticated ? (archiveItems?.length ?? 0) : 0;
-  const archivePreview = isAuthenticated ? archiveItems?.[0] : undefined;
+  const { data: archiveData } = useArchiveList();
+  const archiveCount = isAuthenticated ? (archiveData?.totalCount ?? 0) : 0;
+  const archivePreview = isAuthenticated ? archiveData?.items[0] : undefined;
 
   // TODO: BE API 연동 후 실제 데이터로 교체 — 7개 상태 확인용 mock
   const mockParties: UpcomingParty[] = isAuthenticated

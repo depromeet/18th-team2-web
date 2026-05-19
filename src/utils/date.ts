@@ -55,3 +55,8 @@ export function formatDotDate(d: Date): string {
 export function formatDisplayTime(value: { period: string; hour: string; minute: string }): string {
   return `${value.period} ${value.hour}:${value.minute}`;
 }
+
+// 보관함 카드 표기용. ISO date-time → `YY.MM.DD` (예: 2026-05-12T22:10:00+09:00 → 26.05.12)
+export function formatArchiveDate(isoDate: string): string {
+  return dayjs(isoDate).tz(KST).format('YY.MM.DD');
+}
