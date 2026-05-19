@@ -8,6 +8,7 @@ import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import { LIVE_PARTY_STEP } from '@/constants/live-party';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
+import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
 
 export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
@@ -26,6 +27,7 @@ export default function LivePartyPage() {
     <div
       className={`relative h-svh w-full max-w-[600px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
     >
+      {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
           onNextStep={handleNextStep}
