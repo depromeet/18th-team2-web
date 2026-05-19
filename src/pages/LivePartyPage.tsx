@@ -7,6 +7,7 @@ import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import { LIVE_PARTY_STEP } from '@/constants/live-party';
+import TransitionEffect from '@/components/live-party/TransitionEffect';
 
 export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
@@ -37,16 +38,9 @@ export default function LivePartyPage() {
           step={step}
         />
       )}
-
       {showPartyMain && <PartyMainBackground userRole={userRole} />}
       <StepRenderer step={step} onStepComplete={handleNextStep} userRole={userRole} />
-      {/** TODO: 전환효과 컴포넌트로 분리 */}
-      <div
-        aria-hidden
-        className={`bg-blue-1000 pointer-events-none absolute inset-0 z-100 transition-opacity duration-500 ${
-          isTransitioning ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
+      <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && <ChatBottomSheet />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
