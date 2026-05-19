@@ -363,6 +363,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}/participants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 파티 참여자 목록 조회
+         * @description 실시간 파티 진행 기본화면용. 입장 순서로 정렬된 참여자 목록을 반환한다. RealtimeParty 전용, 참여자만 조회 가능.
+         *
+         *     **인증**
+         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참가자는 `X-Participant-Token: {participantToken}` 헤더를 사용한다. 둘 중 하나는 반드시 포함해야 한다.
+         */
+        get: operations["getPartyParticipants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/upcoming-parties": {
         parameters: {
             query?: never;
@@ -962,6 +985,64 @@ export interface components {
              * @example 12
              */
             totalCount?: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponsePartyParticipantsResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["PartyParticipantsResponse"] | null;
+        };
+        /** @description 파티 참여자 항목 */
+        PartyParticipantResponse: {
+            /**
+             * Format: int64
+             * @description 참여자 ID
+             * @example 17
+             */
+            participantId?: number;
+            /**
+             * Format: int32
+             * @description 입장 순서 (1부터)
+             * @example 1
+             */
+            joinOrder?: number;
+            /**
+             * @description 닉네임
+             * @example 주최자닉
+             */
+            nickname?: string;
+            /**
+             * Format: int64
+             * @description 캐릭터 ID
+             * @example 3
+             */
+            characterId?: number | null;
+            /** @description 캐릭터 메인 이미지 URL */
+            characterImageUrl?: string | null;
+            owner?: boolean;
+            me?: boolean;
+            celebrant?: boolean;
+        };
+        /** @description 파티 참여자 목록 응답 */
+        PartyParticipantsResponse: {
+            /**
+             * Format: int32
+             * @description 현재 참여자 수
+             * @example 4
+             */
+            totalCount?: number;
+            /**
+             * Format: int32
+             * @description 최대 참여자 수
+             * @example 14
+             */
+            maxCount?: number;
+            /** @description 입장 순서대로 정렬된 참여자 목록 */
+            participants?: components["schemas"]["PartyParticipantResponse"][];
         };
         /** @description 공통 성공 응답 */
         ApiResponseListUpcomingPartyResponse: {
@@ -2051,6 +2132,80 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPartyParticipants: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 참여자 목록 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePartyParticipantsResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 권한 없음 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
