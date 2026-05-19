@@ -29,6 +29,7 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
 
   const firecrackerId = useFirecrackerStore((s) => s.firecrackerId);
   const [fireworks, setFireworks] = useState<Firework[]>([]);
+  const [isJumping, setIsJumping] = useState(false);
   const prevFirecrackerIdRef = useRef(firecrackerId);
 
   useEffect(() => {
@@ -47,12 +48,20 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
     }));
 
     setFireworks((prev) => [...prev, ...newFireworks]);
+    setIsJumping(true);
 
-    const timer = window.setTimeout(() => {
+    const fireworkTimer = window.setTimeout(() => {
       setFireworks((prev) => prev.filter((fw) => !newFireworks.some((nfw) => nfw.id === fw.id)));
     }, FIREWORK_DURATION);
 
-    return () => clearTimeout(timer);
+    const jumpTimer = window.setTimeout(() => {
+      setIsJumping(false);
+    }, 700);
+
+    return () => {
+      clearTimeout(fireworkTimer);
+      clearTimeout(jumpTimer);
+    };
   }, [firecrackerId]);
 
   const hostParticipant = useMemo(() => MOCK_PARTY_PARTICIPANTS.find((p) => p.role === 'host'), []);
@@ -128,6 +137,7 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
             name={hostParticipant.name}
             size="xl"
             isHost
+            isJumping={isJumping}
             initStyle={hostInitStyle}
           />
         )}
@@ -137,6 +147,7 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
             image={featuredParticipant.image}
             name={featuredParticipant.name}
             size="lg"
+            isJumping={isJumping}
             initStyle={featuredInitStyle}
           />
         )}
@@ -146,6 +157,7 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
             image={participant.image}
             name={participant.name}
             size="sm"
+            isJumping={isJumping}
             initStyle={participantInitStyles[index]}
           />
         ))}

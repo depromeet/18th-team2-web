@@ -14,6 +14,7 @@ interface FloatingCharacterProps {
   name?: string;
   size?: 'xl' | 'lg' | 'sm';
   isHost?: boolean;
+  isJumping?: boolean;
   initStyle: CharacterInitStyle;
 }
 
@@ -22,6 +23,7 @@ export function FloatingCharacter({
   name,
   size = 'sm',
   isHost = false,
+  isJumping = false,
   initStyle,
 }: FloatingCharacterProps) {
   return (
@@ -29,8 +31,9 @@ export function FloatingCharacter({
       className="absolute"
       style={{ left: initStyle.left, top: initStyle.top, bottom: initStyle.bottom }}
     >
+      <div className={isJumping ? (size === 'xl' ? 'character-jump-xl' : size === 'lg' ? 'character-jump-lg' : 'character-jump') : ''}>
       <div
-        className={`character-float flex flex-col items-center`}
+        className="character-float flex flex-col items-center"
         style={{
           animationDuration: initStyle.animationDuration,
           animationDelay: initStyle.animationDelay,
@@ -45,6 +48,7 @@ export function FloatingCharacter({
         <Caption as="p" className={`${isHost ? 'text-yellow-400' : 'text-grey-100'} font-semibold`}>
           {name}
         </Caption>
+      </div>
       </div>
     </div>
   );

@@ -348,6 +348,99 @@ textarea {
   }
 }
 
+.character-jump {
+  animation-name: character-jump;
+  animation-duration: 0.9s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes character-jump {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-14px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.character-jump-lg {
+  animation-name: character-jump-lg;
+  animation-duration: 0.7s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes character-jump-lg {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-24px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-17px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.character-jump-xl {
+  animation-name: character-jump-xl;
+  animation-duration: 0.7s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes character-jump-xl {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-32px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-22px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-13px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .firework-fade {
   animation-name: firework-fade;
   animation-duration: 1.4s;
