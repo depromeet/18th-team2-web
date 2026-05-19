@@ -9,7 +9,9 @@ export default function ArchivePage() {
   const sentinelRef = useInfiniteScroll<HTMLDivElement>({
     hasNextPage: hasNextPage ?? false,
     isFetching: isFetchingNextPage,
-    onLoadMore: fetchNextPage,
+    onLoadMore: () => {
+      fetchNextPage();
+    },
   });
 
   if (isLoading || !data) {

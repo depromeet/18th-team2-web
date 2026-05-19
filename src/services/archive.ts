@@ -99,6 +99,7 @@ type ArchiveListResponse = components['schemas']['ArchiveListResponse'];
 type ArchiveItemResponse = components['schemas']['ArchiveListItemResponse'];
 
 function mapArchiveItem(item: ArchiveItemResponse): ArchiveListItem {
+  // stamp는 BE 미제공 — ArchiveStampCard에서 id 해시(getStampForId)로 채운다.
   return {
     id: item.id ?? '',
     type: item.type ?? 'PARTY',
@@ -124,7 +125,8 @@ export const archiveQueries = {
       queryKey: ['archive', 'list'],
       queryFn: ({ pageParam }) => fetchArchivePage(pageParam),
       initialPageParam: null as string | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      // nextCursor가 null·빈 문자열이면 다음 페이지 없음으로 처리
+      getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
     }),
   partyDetail: (partyId: string) =>
     queryOptions({
