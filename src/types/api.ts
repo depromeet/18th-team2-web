@@ -63,6 +63,10 @@ export interface paths {
          *     | 이벤트 이름 | 설명 |
          *     |---|---|
          *     | `message` | 새로 전송된 메시지 1건 |
+         *     | `user-entered` | 참여자 입장 알림 |
+         *     | `user-left` | 참여자 퇴장 알림 |
+         *     | `party-ending` | 파티 종료 1분 전 알림 |
+         *     | `party-ended` | 파티 종료 및 스트림 종료 알림 |
          *
          *     ---
          *
@@ -76,6 +80,8 @@ export interface paths {
          *           "content": "안녕하세요!",
          *           "senderNickname": "토끼왕",
          *           "senderCharacterId": 2,
+         *           "senderCharacterImageUrl": "https://example.com/rabbit.png",
+         *           "senderRole": "PARTICIPANT",
          *           "sentAt": "2026-05-07T10:00:00"
          *         }
          *       ]
@@ -89,6 +95,8 @@ export interface paths {
          *       "content": "반갑습니다!",
          *       "senderNickname": "곰돌이",
          *       "senderCharacterId": null,
+         *       "senderCharacterImageUrl": null,
+         *       "senderRole": "CELEBRANT",
          *       "sentAt": "2026-05-07T10:01:00"
          *     }
          *     ```
@@ -395,6 +403,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 보관함 리스트 조회
+         * @description 사용자가 호스트로 만들었거나 참여한 파티 목록을 최신순으로 조회한다. 비로그인은 200 빈 응답을 반환한다.
+         */
+        get: operations["getArchive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -423,6 +451,29 @@ export interface paths {
         post?: never;
         /** 파티 삭제 */
         delete: operations["deleteParty"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/realtime-participants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 실시간 파티 퇴장
+         * @description 실시간 파티 채팅에서 퇴장합니다.
+         *
+         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참여자는 `X-Participant-Token: {participantToken}` 헤더를 사용합니다.
+         *     퇴장하면 현재 SSE 연결이 종료되고, 다른 구독자에게 `user-left` 이벤트가 발송됩니다.
+         */
+        delete: operations["leaveParty"];
         options?: never;
         head?: never;
         patch?: never;
@@ -557,6 +608,9 @@ export interface components {
             senderNickname?: string;
             /** Format: int64 */
             senderCharacterId?: number | null;
+            senderCharacterImageUrl?: string | null;
+            /** @enum {string} */
+            senderRole?: "CELEBRANT" | "PARTICIPANT";
             /** Format: date-time */
             sentAt?: string;
         };
@@ -1021,6 +1075,62 @@ export interface components {
              * @example /images/character-thumbnails/Type=Default, Shape=Circle.png
              */
             characterThumbnailImageUrl?: string | null;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseArchiveListResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["ArchiveListResponse"] | null;
+        };
+        /** @description 보관함 항목 */
+        ArchiveListItemResponse: {
+            /**
+             * @description 항목 ID (participant.id)
+             * @example 1024
+             */
+            id?: string;
+            /**
+             * @description 항목 타입
+             * @example PARTY
+             * @enum {string}
+             */
+            type?: "PARTY" | "PAPER";
+            /**
+             * @description 파티 이름. 없으면 빈 문자열
+             * @example 김루카 생일 파티
+             */
+            title?: string;
+            /**
+             * @description 파티 주인공 닉네임. 없으면 null
+             * @example 김루카
+             */
+            celebrantName?: string | null;
+            /**
+             * Format: date-time
+             * @description 파티 종료 시각 (KST 오프셋)
+             * @example 2026-05-12T22:10:00+09:00
+             */
+            date?: string;
+        };
+        /** @description 보관함 리스트 응답 */
+        ArchiveListResponse: {
+            /** @description 보관함 항목 */
+            items?: components["schemas"]["ArchiveListItemResponse"][];
+            /**
+             * @description 다음 페이지 cursor. 없으면 null
+             * @example 1024
+             */
+            nextCursor?: string | null;
+            /**
+             * Format: int64
+             * @description 보관함 전체 개수 (헤더 표시용)
+             * @example 37
+             */
+            totalCount?: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseUserResponse: {
@@ -2049,6 +2159,67 @@ export interface operations {
             };
         };
     };
+    getArchive: {
+        parameters: {
+            query?: {
+                /** @description 마지막으로 받은 항목의 id. 첫 페이지면 생략 */
+                cursor?: number;
+                /** @description 페이지 크기. 1~50, 기본 20 */
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 보관함 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseArchiveListResponse"];
+                };
+            };
+            /** @description 입력값 검증 실패 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "nickname: 닉네임은 필수입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     me: {
         parameters: {
             query?: never;
@@ -2092,6 +2263,57 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["ApiResponseUnit"];
                 };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leaveParty: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 퇴장 성공 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description 인증 실패 */
             401: {
