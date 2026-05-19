@@ -1,19 +1,59 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import cake from '@/assets/images/live-party/cake.svg';
+import fireworkBig from '@/assets/images/live-party/firework-big.svg';
+import fireworkSmall from '@/assets/images/live-party/firework-small.svg';
 import partyLight from '@/assets/images/live-party/party-light.png';
 
 import { FloatingCharacter } from '@/components/live-party/main-background/FloatingCharacter';
 
 import { PARTY_USER, type PartyUserRole } from '@/constants/live-party';
 import { MOCK_PARTY_PARTICIPANTS } from '@/services/live-party';
+import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 interface PartyMainBackgroundProps {
   userRole: PartyUserRole;
 }
 
+interface Firework {
+  id: number;
+  image: string;
+  left: string;
+  top: string;
+}
+
+const FIREWORK_DURATION = 1400;
+
 export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
   const isHost = userRole === PARTY_USER.HOST;
+
+  const firecrackerId = useFirecrackerStore((s) => s.firecrackerId);
+  const [fireworks, setFireworks] = useState<Firework[]>([]);
+  const prevFirecrackerIdRef = useRef(firecrackerId);
+
+  useEffect(() => {
+    if (!firecrackerId || firecrackerId === prevFirecrackerIdRef.current) {
+      prevFirecrackerIdRef.current = firecrackerId;
+      return;
+    }
+    prevFirecrackerIdRef.current = firecrackerId;
+
+    const count = 3 + Math.floor(Math.random() * 3);
+    const newFireworks: Firework[] = Array.from({ length: count }, (_, i) => ({
+      id: firecrackerId + i,
+      image: Math.random() > 0.5 ? fireworkBig : fireworkSmall,
+      left: `${10 + Math.random() * 75}%`,
+      top: `${10 + Math.random() * 60}%`,
+    }));
+
+    setFireworks((prev) => [...prev, ...newFireworks]);
+
+    const timer = window.setTimeout(() => {
+      setFireworks((prev) => prev.filter((fw) => !newFireworks.some((nfw) => nfw.id === fw.id)));
+    }, FIREWORK_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [firecrackerId]);
 
   const hostParticipant = useMemo(() => MOCK_PARTY_PARTICIPANTS.find((p) => p.role === 'host'), []);
 
@@ -107,6 +147,16 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
             name={participant.name}
             size="sm"
             initStyle={participantInitStyles[index]}
+          />
+        ))}
+        {fireworks.map((fw) => (
+          <img
+            key={fw.id}
+            src={fw.image}
+            aria-hidden
+            alt=""
+            className="firework-fade pointer-events-none absolute"
+            style={{ left: fw.left, top: fw.top }}
           />
         ))}
       </div>

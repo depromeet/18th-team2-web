@@ -348,6 +348,32 @@ textarea {
   }
 }
 
+.firework-fade {
+  animation-name: firework-fade;
+  animation-duration: 1.4s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes firework-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  65% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
 .share-scroll-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
