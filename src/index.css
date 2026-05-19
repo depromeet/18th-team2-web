@@ -330,6 +330,24 @@ textarea {
   }
 }
 
+/* 파티 참가자 캐릭터 애니메이션 */
+.character-float {
+  animation-name: character-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes character-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.04);
+  }
+}
+
 .share-scroll-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
