@@ -9,9 +9,30 @@ import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
 import { ROUTES } from '@/constants/routes';
 import { useArchiveList } from '@/services/archive';
+import { useUpcomingParties } from '@/services/me';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-import type { UpcomingParty } from '@/components/home/UpcomingPartyCard';
+import type { UpcomingParty } from '@/types/home';
+
+// 카드 CTA → 이동 경로. 디자인상 primary 버튼만 목적지가 있고, 비활성 안내문은 null.
+function getCardRoutePath(party: UpcomingParty): string | null {
+  const { role, partyOption, isOpen, partyId, inviteToken } = party;
+
+  if (partyOption === 'REALTIME') {
+    // 입장 가능: 입장/시작하기 → 파티 입장
+    if (isOpen) return partyId ? generatePath(ROUTES.partyEnter, { partyId }) : null;
+    // 입장 전: 참가자만 초대장 확인, 주최자는 비활성
+    return role === 'participant' && inviteToken
+      ? generatePath(ROUTES.partyInvite, { inviteToken })
+      : null;
+  }
+
+  // PAPER_ONLY — 참가자: 롤페 작성 / 주최자: 공개 후 롤페 확인
+  if (role === 'participant') {
+    return partyId ? generatePath(ROUTES.rollingPaperWrite, { partyId }) : null;
+  }
+  return isOpen && partyId ? generatePath(ROUTES.rollingPaper, { id: partyId }) : null;
+}
 
 function HomePage() {
   const navigate = useNavigate();
@@ -20,84 +41,25 @@ function HomePage() {
   const archiveCount = isAuthenticated ? (archiveData?.totalCount ?? 0) : 0;
   const archivePreview = isAuthenticated ? archiveData?.items[0] : undefined;
 
-  // TODO: BE API 연동 후 실제 데이터로 교체 — 7개 상태 확인용 mock
-  const mockParties: UpcomingParty[] = isAuthenticated
-    ? [
-        {
-          partyId: '1',
-          partyName: '홍길동님의 생일파티',
-          date: '26.11.23',
-          time: '오후 2:00',
-          role: 'participant',
-          status: 'soon',
-        },
-        {
-          partyId: '2',
-          partyName: '내 생일파티',
-          date: '26.11.23',
-          time: '오후 2:00',
-          role: 'host',
-          status: 'default',
-        },
-        {
-          partyId: '3',
-          partyName: '홍길동님의 생일파티',
-          date: '26.11.23',
-          time: '오후 2:00',
-          role: 'participant',
-          status: 'soon',
-        },
-        {
-          partyId: '4',
-          partyName: '내 생일파티',
-          date: '26.11.23',
-          time: '오후 2:00',
-          role: 'host',
-          status: 'soon',
-        },
-        {
-          partyName: '홍길동님의 롤링페이퍼',
-          date: '26.11.23',
-          endDate: '26.11.23',
-          role: 'participant',
-          status: 'rollingPaper',
-        },
-        {
-          partyName: '내 롤링페이퍼',
-          date: '26.11.23',
-          endDate: '26.11.23',
-          role: 'host',
-          status: 'rollingPaper',
-        },
-        {
-          partyName: '내 롤링페이퍼',
-          date: '26.11.23',
-          endDate: '26.11.23',
-          role: 'host',
-          status: 'rollingPaperOpen',
-        },
-      ]
-    : [];
+  const { data: upcomingParties } = useUpcomingParties();
+  const parties = upcomingParties ?? [];
 
-  const handleEnterParty = (party: UpcomingParty) => {
-    if (party.status !== 'soon' || !party.partyId) {
-      return;
-    }
-
-    navigate(generatePath(ROUTES.partyEnter, { partyId: party.partyId }));
+  const handleCardAction = (party: UpcomingParty) => {
+    const path = getCardRoutePath(party);
+    if (path) navigate(path);
   };
 
   return (
     <div className="bg-gradient-bg flex min-h-screen flex-col">
       <HomeHeader />
       <div className="flex flex-col gap-2">
-        {mockParties.length > 0 && (
+        {parties.length > 0 && (
           <div className="flex flex-col items-center gap-3 py-2">
-            {mockParties.length === 1 ? (
+            {parties.length === 1 ? (
               <div className="w-full px-4">
                 <UpcomingPartyCard
-                  party={mockParties[0]}
-                  onAction={() => handleEnterParty(mockParties[0])}
+                  party={parties[0]}
+                  onAction={() => handleCardAction(parties[0])}
                 />
               </div>
             ) : (
@@ -115,19 +77,12 @@ function HomePage() {
                   }}
                   className="upcoming-party-swiper w-full"
                 >
-                  {mockParties.map((party, index) => (
-                    <SwiperSlide key={`party-${index}`} style={{ width: 'calc(100% - 32px)' }}>
-                      <UpcomingPartyCard
-                        party={party}
-                        onAction={
-                          party.status === 'soon' && party.partyId
-                            ? () =>
-                                navigate(
-                                  generatePath(ROUTES.partyEnter, { partyId: party.partyId! }),
-                                )
-                            : undefined
-                        }
-                      />
+                  {parties.map((party, index) => (
+                    <SwiperSlide
+                      key={party.partyId ?? `party-${index}`}
+                      style={{ width: 'calc(100% - 32px)' }}
+                    >
+                      <UpcomingPartyCard party={party} onAction={() => handleCardAction(party)} />
                     </SwiperSlide>
                   ))}
                 </Swiper>

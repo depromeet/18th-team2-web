@@ -60,3 +60,13 @@ export function formatDisplayTime(value: { period: string; hour: string; minute:
 export function formatArchiveDate(isoDate: string): string {
   return dayjs(isoDate).tz(KST).format('YY.MM.DD');
 }
+
+// ISO date-time 끝의 타임존 오프셋(Z 또는 ±HH:MM) 여부
+const ISO_TZ_OFFSET = /(?:Z|[+-]\d{2}:?\d{2})$/;
+
+// ISO date-time을 KST 기준 dayjs로 파싱한다.
+// - 오프셋 있음: 절대 시각으로 파싱 후 KST로 변환 (dayjs.tz(v, KST)는 오프셋을 오해석함)
+// - 오프셋 없음: KST 벽시계 시각으로 해석 (로컬 타임존 오해석 방지)
+export function parseKstDateTime(isoDateTime: string) {
+  return ISO_TZ_OFFSET.test(isoDateTime) ? dayjs(isoDateTime).tz(KST) : dayjs.tz(isoDateTime, KST);
+}
