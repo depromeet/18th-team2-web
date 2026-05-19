@@ -1,5 +1,5 @@
 import { characterSizeStyles } from '@/constants/live-party';
-import { Caption } from '../../ui/Typography';
+import { Caption } from '@/components/ui/Typography';
 
 interface CharacterInitStyle {
   left: string;
