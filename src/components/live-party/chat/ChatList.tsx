@@ -5,9 +5,10 @@ import { type ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 
 interface ChatListProps {
   messages: ChatListItem[];
+  isExpanded: boolean;
 }
 
-export function ChatList({ messages }: ChatListProps) {
+export function ChatList({ messages, isExpanded }: ChatListProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -16,7 +17,9 @@ export function ChatList({ messages }: ChatListProps) {
 
   return (
     <div className="share-scroll-hide relative mb-5 flex-1 space-y-4 overflow-y-auto pt-4">
-      <div className="pointer-events-none absolute top-0 right-0 left-0 h-10 bg-linear-to-b from-[#26295D] to-transparent" />
+      <div
+        className={`pointer-events-none absolute top-0 right-0 left-0 h-10 ${isExpanded ? 'bg-none' : 'bg-linear-to-b from-[#26295D] to-transparent'}`}
+      />
       {messages.map((item) =>
         item.type === 'entry' ? (
           <EntryNoticeText key={item.id} userName={item.userName} />

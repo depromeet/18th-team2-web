@@ -65,6 +65,8 @@ export function useChatBottomSheet() {
   const MAX_HEIGHT = window.innerHeight - 160;
   const MID = (MIN_HEIGHT + MAX_HEIGHT) / 2;
 
+  const isExpanded = height > MIN_HEIGHT;
+
   const addMessage = (text: string) => {
     if (!text.trim()) return;
 
@@ -134,6 +136,7 @@ export function useChatBottomSheet() {
 
   return {
     height,
+    isExpanded,
     isDragging,
     handlePointerDown,
     messages,
