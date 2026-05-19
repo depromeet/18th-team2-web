@@ -17,7 +17,7 @@ export function PartyEndButton({ role }: PartyEndButtonProps) {
   const handleRollingPaperCheck = () =>
     navigate(generatePath(ROUTES.rollingPaper, { id: partyId ?? '' }));
 
-  const { isOpen, handleOpen, handleWriteNow, handleWriteLater } = useLaterWriteDialog();
+  const { isOpen, handleOpen, handleClose, handleWriteNow, handleWriteLater } = useLaterWriteDialog();
 
   return (
     <>
@@ -50,6 +50,7 @@ export function PartyEndButton({ role }: PartyEndButtonProps) {
       </footer>
       <LaterWriteRollingPaperDialog
         isOpen={isOpen}
+        onClose={handleClose}
         onCancel={handleWriteNow}
         onConfirm={handleWriteLater}
       />
