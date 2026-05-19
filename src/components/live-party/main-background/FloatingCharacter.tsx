@@ -1,5 +1,6 @@
 import { characterSizeStyles } from '@/constants/live-party';
 import { Caption } from '@/components/ui/Typography';
+import StarIconSvg from '@/assets/images/live-party/star.svg?react';
 
 interface CharacterInitStyle {
   left: string;
@@ -57,9 +58,10 @@ export function FloatingCharacter({
           />
           <Caption
             as="p"
-            className={`${isHost ? 'text-yellow-400' : 'text-grey-100'} font-semibold`}
+            className={`${isHost ? 'text-yellow-400' : 'text-grey-100'} flex items-center gap-0.5 font-semibold`}
           >
             {name}
+            {isHost && <StarIconSvg />}
           </Caption>
         </div>
       </div>
