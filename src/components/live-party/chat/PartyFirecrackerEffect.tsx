@@ -4,15 +4,24 @@ import { useEffect, useRef } from 'react';
 import { CONFETTI_COLORS } from '@/constants/live-party';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
+let lastHandledId = 0;
+
 export function PartyFirecrackerEffect() {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
 
-  const triggerCount = useFirecrackerStore((state) => state.triggerCount);
+  const firecrackerId = useFirecrackerStore((state) => state.firecrackerId);
 
   useEffect(() => {
-    if (!confettiRef.current || triggerCount === 0) {
+    if (!confettiRef.current) {
       return;
     }
+
+    // 이미 처리한 이벤트면 무시
+    if (firecrackerId === 0 || firecrackerId === lastHandledId) {
+      return;
+    }
+
+    lastHandledId = firecrackerId;
 
     const firework = () => {
       const x = 0.15 + Math.random() * 0.7;
@@ -27,37 +36,14 @@ export function PartyFirecrackerEffect() {
         decay: 0.94,
         ticks: 220,
         scalar: 1.2,
-        drift: 0,
-        shapes: ['square'],
-        origin: {
-          x,
-          y,
-        },
-        colors: CONFETTI_COLORS,
-      });
-
-      // 중심 밝은 코어 느낌
-      confettiRef.current?.({
-        particleCount: 20,
-        spread: 50,
-        startVelocity: 10,
-        gravity: 0.6,
-        decay: 0.92,
-        ticks: 180,
-        scalar: 0.6,
-        shapes: ['square'],
-        origin: {
-          x,
-          y,
-        },
+        origin: { x, y },
         colors: CONFETTI_COLORS,
       });
     };
 
     firework();
-
     setTimeout(firework, 400);
-  }, [triggerCount]);
+  }, [firecrackerId]);
 
   return (
     <ReactCanvasConfetti

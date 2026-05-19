@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 
 interface FirecrackerState {
-  triggerCount: number;
+  firecrackerId: number;
   fire: () => void;
 }
 
 export const useFirecrackerStore = create<FirecrackerState>((set) => ({
-  triggerCount: 0,
+  firecrackerId: 0,
 
   fire: () =>
-    set((state) => ({
-      triggerCount: state.triggerCount + 1,
-    })),
+    set({
+      firecrackerId: Date.now(),
+    }),
 }));
