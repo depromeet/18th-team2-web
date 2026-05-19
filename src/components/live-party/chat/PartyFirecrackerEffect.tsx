@@ -4,10 +4,9 @@ import { useEffect, useRef } from 'react';
 import { CONFETTI_COLORS } from '@/constants/live-party';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
-let lastHandledId = 0;
-
 export function PartyFirecrackerEffect() {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
+  const lastHandledIdRef = useRef(0);
 
   const firecrackerId = useFirecrackerStore((state) => state.firecrackerId);
 
@@ -16,12 +15,11 @@ export function PartyFirecrackerEffect() {
       return;
     }
 
-    // 이미 처리한 이벤트면 무시
-    if (firecrackerId === 0 || firecrackerId === lastHandledId) {
+    if (firecrackerId === 0 || firecrackerId === lastHandledIdRef.current) {
       return;
     }
 
-    lastHandledId = firecrackerId;
+    lastHandledIdRef.current = firecrackerId;
 
     const firework = () => {
       const x = 0.15 + Math.random() * 0.7;
@@ -42,7 +40,9 @@ export function PartyFirecrackerEffect() {
     };
 
     firework();
-    setTimeout(firework, 400);
+    const timer = window.setTimeout(firework, 400);
+
+    return () => clearTimeout(timer);
   }, [firecrackerId]);
 
   return (
