@@ -21,6 +21,7 @@ interface RollingPaperLocationState {
   completeCta?: 'invite' | 'home';
   completedMessage?: RollingPaperMessage;
   invitePath?: string;
+  inviteToken?: string;
 }
 
 export default function RollingPaperPage() {
@@ -28,13 +29,18 @@ export default function RollingPaperPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as RollingPaperLocationState | null;
-  const { data } = useRollingPaper(id ?? '');
+  const inviteToken = locationState?.inviteToken;
+  const { data } = useRollingPaper(id ?? '', inviteToken);
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
-  const isWritable = data ? new Date(data.writableUntil).getTime() > Date.now() : false;
-  const isBeforeParty = data ? new Date(data.partyStartedAt).getTime() > Date.now() : false;
+  const isWritable = data?.writableUntil
+    ? new Date(data.writableUntil).getTime() > Date.now()
+    : false;
+  const isBeforeParty = data?.partyStartedAt
+    ? new Date(data.partyStartedAt).getTime() > Date.now()
+    : false;
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
   const messages = useMemo(() => {
     if (!data) return [];
@@ -57,7 +63,7 @@ export default function RollingPaperPage() {
 
   function handleCompleteAction() {
     if (completeCta === 'invite' && locationState?.invitePath) {
-      navigate(locationState.invitePath, { replace: true });
+      navigate(locationState.invitePath, { replace: true, state: { rollingPaperWritten: true } });
       return;
     }
 
@@ -158,7 +164,7 @@ export default function RollingPaperPage() {
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}
           >
-            <CountdownTimer targetDate={data.writableUntil} />
+            {data.writableUntil && <CountdownTimer targetDate={data.writableUntil} />}
             <Button variant="primary" size="full" onClick={() => setIsShareSheetOpen(true)}>
               롤링페이퍼 공유하기
             </Button>
