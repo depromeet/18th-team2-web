@@ -15,20 +15,20 @@ import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
+import { config } from '@/config/env';
 import { ROUTES } from '@/constants/routes';
+import type { CharacterResult } from '@/services/character';
 import { useCharacters } from '@/services/character';
 import { useActivateInviteLink, useCreateRealtimeParty } from '@/services/party-create';
 
 // TODO: 캐릭터 조회 API 연결 시 교체
-const CHARACTERS = [
-  { id: 'character-blue', name: '파란 캐릭터', image: characterBlue },
-  { id: 'character-brown', name: '갈색 캐릭터', image: characterBrown },
-  { id: 'character-pink', name: '분홍 캐릭터', image: characterPink },
-  { id: 'character-white', name: '하얀 캐릭터', image: characterWhite },
-  { id: 'character-yellow', name: '노란 캐릭터', image: characterYellow },
+const FALLBACK_CHARACTERS = [
+  { id: 1, name: '파란 캐릭터', image: characterBlue },
+  { id: 2, name: '갈색 캐릭터', image: characterBrown },
+  { id: 3, name: '분홍 캐릭터', image: characterPink },
+  { id: 4, name: '하얀 캐릭터', image: characterWhite },
+  { id: 5, name: '노란 캐릭터', image: characterYellow },
 ];
-
-const CHARACTER_API_IDS = [1, 2, 3, 4, 5] as const;
 
 interface PartyCharacterLocationState {
   hostName?: string;
@@ -36,6 +36,32 @@ interface PartyCharacterLocationState {
   partyTime?: string | null;
   startedDate?: string;
   startTime?: string;
+}
+
+interface CharacterOption {
+  id: number;
+  name: string;
+  image: string;
+}
+
+function resolveImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
+function mapCharacterOption(character: CharacterResult, index: number): CharacterOption | null {
+  const id = character.characterId;
+  if (id == null) return null;
+
+  return {
+    id,
+    name: character.name ?? FALLBACK_CHARACTERS[index]?.name ?? '캐릭터',
+    image:
+      resolveImageUrl(character.characterImageUrl) ??
+      resolveImageUrl(character.characterThumbnailImageUrl) ??
+      FALLBACK_CHARACTERS[index % FALLBACK_CHARACTERS.length].image,
+  };
 }
 
 export default function PartyCharacterSelectPage() {
@@ -49,6 +75,11 @@ export default function PartyCharacterSelectPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [createError, setCreateError] = useState<string | null>(null);
   const { data: characterOptions } = useCharacters();
+  const characters =
+    characterOptions
+      ?.map((character, index) => mapCharacterOption(character, index))
+      .filter((character): character is CharacterOption => character !== null) ?? [];
+  const visibleCharacters = characters.length > 0 ? characters : FALLBACK_CHARACTERS;
   const { mutate: createRealtimeParty, isPending: isCreatingParty } = useCreateRealtimeParty();
   const { mutate: activateInviteLink, isPending: isActivatingInviteLink } = useActivateInviteLink();
   const isPending = isCreatingParty || isActivatingInviteLink;
@@ -61,15 +92,18 @@ export default function PartyCharacterSelectPage() {
     }
 
     setCreateError(null);
-    const characterApiId =
-      characterOptions?.[selectedIndex]?.characterId ?? CHARACTER_API_IDS[selectedIndex];
+    const selectedCharacter = visibleCharacters[selectedIndex];
+    if (!selectedCharacter) {
+      setCreateError('캐릭터를 선택할 수 없어요.');
+      return;
+    }
 
     createRealtimeParty(
       {
         celebrantNickname: hostName,
         startedDate,
         startTime,
-        characterId: characterApiId,
+        characterId: selectedCharacter.id,
       },
       {
         onSuccess: (createRes) => {
@@ -90,7 +124,7 @@ export default function PartyCharacterSelectPage() {
               navigate(ROUTES.createPartyComplete, {
                 state: {
                   ...locationState,
-                  characterId: CHARACTERS[selectedIndex].id,
+                  characterId: String(selectedCharacter.id),
                   partyId,
                   inviteToken,
                 },
@@ -142,7 +176,7 @@ export default function PartyCharacterSelectPage() {
           onSlideChange={(swiper) => setSelectedIndex(swiper.realIndex)}
           className="w-full overflow-visible"
         >
-          {CHARACTERS.map((character, index) => (
+          {visibleCharacters.map((character, index) => (
             <SwiperSlide
               key={character.id}
               aria-label={character.name}
