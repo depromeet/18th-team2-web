@@ -22,11 +22,11 @@ import { useCharacters } from '@/services/character';
 import { useActivateInviteLink, useCreateRealtimeParty } from '@/services/party-create';
 
 const FALLBACK_CHARACTERS = [
-  { id: 1, name: '파란 캐릭터', image: characterBlue },
-  { id: 2, name: '갈색 캐릭터', image: characterBrown },
-  { id: 3, name: '분홍 캐릭터', image: characterPink },
-  { id: 4, name: '하얀 캐릭터', image: characterWhite },
-  { id: 5, name: '노란 캐릭터', image: characterYellow },
+  { id: 1, name: 'Default', image: characterBlue },
+  { id: 2, name: 'Choco', image: characterBrown },
+  { id: 3, name: 'Girl', image: characterPink },
+  { id: 4, name: 'Cloud', image: characterWhite },
+  { id: 5, name: 'Candle', image: characterYellow },
 ];
 
 interface PartyCharacterLocationState {
