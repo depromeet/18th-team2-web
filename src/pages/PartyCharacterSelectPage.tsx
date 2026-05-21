@@ -21,7 +21,6 @@ import type { CharacterResult } from '@/services/character';
 import { useCharacters } from '@/services/character';
 import { useActivateInviteLink, useCreateRealtimeParty } from '@/services/party-create';
 
-// TODO: 캐릭터 조회 API 연결 시 교체
 const FALLBACK_CHARACTERS = [
   { id: 1, name: '파란 캐릭터', image: characterBlue },
   { id: 2, name: '갈색 캐릭터', image: characterBrown },

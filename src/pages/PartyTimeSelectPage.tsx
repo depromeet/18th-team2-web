@@ -98,7 +98,6 @@ export default function PartyTimeSelectPage() {
   };
 
   const handleCreateParty = () => {
-    // TODO: 생성 API 확정 시 useCreateParty mutation으로 교체하고 hostName/selectedDate/selectedTime을 payload에 포함
     navigate(ROUTES.createPartyCharacter, {
       state: {
         hostName,
