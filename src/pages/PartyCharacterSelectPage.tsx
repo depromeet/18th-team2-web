@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EffectCoverflow } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper/types';
@@ -75,11 +75,12 @@ export default function PartyCharacterSelectPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [createError, setCreateError] = useState<string | null>(null);
   const { data: characterOptions } = useCharacters();
-  const characters =
-    characterOptions
-      ?.map((character, index) => mapCharacterOption(character, index))
-      .filter((character): character is CharacterOption => character !== null) ?? [];
-  const visibleCharacters = characters.length > 0 ? characters : FALLBACK_CHARACTERS;
+  const visibleCharacters = useMemo(() => {
+    const mapped = (characterOptions ?? [])
+      .map((c, i) => mapCharacterOption(c, i))
+      .filter((c): c is CharacterOption => c !== null);
+    return mapped.length > 0 ? mapped : FALLBACK_CHARACTERS;
+  }, [characterOptions]);
   const { mutate: createRealtimeParty, isPending: isCreatingParty } = useCreateRealtimeParty();
   const { mutate: activateInviteLink, isPending: isActivatingInviteLink } = useActivateInviteLink();
   const isPending = isCreatingParty || isActivatingInviteLink;
