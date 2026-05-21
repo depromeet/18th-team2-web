@@ -15,6 +15,8 @@ interface RollingPaperCompleteState {
   hostName?: string;
   startDate?: string;
   endDate?: string;
+  partyId?: number;
+  inviteToken?: string;
 }
 
 function getRollingPaperCompleteState(state: unknown): RollingPaperCompleteState {
@@ -37,11 +39,11 @@ export default function RollingPaperCreateCompletePage() {
     : addDays(startDate, ROLLING_PAPER_DURATION_DAYS);
   const openDateLabel = formatKoreanShortDate(startDate);
 
-  // TODO: 생성 API 응답의 partyId/rollingPaperId 기준 실제 공유 링크로 교체
+  const inviteToken = rollingPaperState.inviteToken ?? 'mock-invite-token';
   const shareLink = useMemo(
     () =>
-      `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: 'mock-rolling-paper-id' })}`,
-    [],
+      `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`,
+    [inviteToken],
   );
 
   return (

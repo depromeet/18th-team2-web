@@ -13,9 +13,11 @@ import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
 import { useMe } from '@/services/auth';
+import { useActivateInviteLink, useCreatePaperOnlyParty } from '@/services/party-create';
 import {
   addDays,
   formatDotDate,
+  formatIsoDate,
   formatKoreanDate,
   formatKoreanShortDate,
   getTodayMidnight,
@@ -28,6 +30,10 @@ export default function RollingPaperCreateSetupPage() {
   const { defaultHostName, hostName, setHostName } = useCreateHostName(meData?.data?.name);
   const today = getTodayMidnight();
   const isReady = Boolean(hostName);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const { mutate: createPaperOnlyParty, isPending: isCreatingParty } = useCreatePaperOnlyParty();
+  const { mutate: activateInviteLink, isPending: isActivatingInviteLink } = useActivateInviteLink();
+  const isPending = isCreatingParty || isActivatingInviteLink;
 
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -48,19 +54,57 @@ export default function RollingPaperCreateSetupPage() {
   };
 
   const handleCreateRollingPaper = () => {
-    // TODO: 생성 API 확정 시 useCreateParty(PAPER_ONLY) mutation으로 교체하고 hostName/selectedDate를 payload에 포함
-    navigate(ROUTES.createRollingPaperComplete, {
-      state: {
-        hostName,
-        startDate: selectedDate.toISOString(),
-        endDate: endDate.toISOString(),
+    if (!hostName) return;
+
+    setCreateError(null);
+    createPaperOnlyParty(
+      {
+        celebrantNickname: hostName,
+        startedDate: formatIsoDate(selectedDate),
       },
-    });
+      {
+        onSuccess: (createRes) => {
+          const partyId = createRes.data?.partyId;
+          if (partyId == null) {
+            setCreateError('롤링페이퍼 생성 응답을 확인할 수 없어요.');
+            return;
+          }
+
+          activateInviteLink(partyId, {
+            onSuccess: (inviteRes) => {
+              const inviteToken = inviteRes.data?.token;
+              if (!inviteToken) {
+                setCreateError('초대장 링크 응답을 확인할 수 없어요.');
+                return;
+              }
+
+              navigate(ROUTES.createRollingPaperComplete, {
+                state: {
+                  hostName,
+                  startDate: selectedDate.toISOString(),
+                  endDate: endDate.toISOString(),
+                  partyId,
+                  inviteToken,
+                },
+              });
+            },
+            onError: () => setCreateError('초대장 링크를 생성하지 못했어요.'),
+          });
+        },
+        onError: () => setCreateError('롤링페이퍼를 생성하지 못했어요.'),
+      },
+    );
   };
 
   return (
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
       <PageHeader />
+
+      {createError && (
+        <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-3 text-sm text-white">
+          {createError}
+        </div>
+      )}
 
       <H1 className="mt-2 px-5 tracking-[-0.0002em]">일주일 동안 롤링페이퍼를 받아요</H1>
 
@@ -121,7 +165,7 @@ export default function RollingPaperCreateSetupPage() {
         <Button
           variant="primary"
           size="full"
-          disabled={!isReady}
+          disabled={!isReady || isPending}
           onClick={handleCreateRollingPaper}
         >
           롤링페이퍼 생성하기

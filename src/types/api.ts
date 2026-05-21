@@ -4,6 +4,30 @@
  */
 
 export interface paths {
+    "/api/v1/party-invites/{inviteToken}/participants/me/realtime-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 실시간 파티 입장 프로필 조회
+         * @description 회원이 실시간 파티에 입장하기 전에 자신의 닉네임/캐릭터 상태를 조회한다. 회원 participant가 없으면 생성한다. 만료된 토큰 또는 종료된 파티에는 실패한다.
+         */
+        get: operations["getMyRealtimeProfile"];
+        /**
+         * 실시간 파티 입장 프로필 작성·수정
+         * @description 회원의 실시간 파티 입장 프로필을 작성하거나 수정한다. 주최자는 닉네임을 변경할 수 없다 (같은 값 재전송은 허용). 캐릭터는 모든 참가자가 변경 가능하다.
+         */
+        put: operations["upsertMyRealtimeProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/party-invites/{inviteToken}/rolling-papers": {
         parameters: {
             query?: never;
@@ -446,6 +470,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/archive/party/{partyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 보관함 파티 상세 조회
+         * @description 보관함에서 한 파티 상세를 조회한다. 본인이 작성한 롤페가 있으면 모달용 4개 필드가 함께 채워진다.
+         *                 PAPER_ONLY 파티는 participants/chatMessages 가 빈 배열, participantCount=0, chatHasMore=false 로 응답한다.
+         */
+        get: operations["getArchivedPartyDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAccount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -506,24 +567,19 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description 롤링페이퍼 작성 요청 */
-        CreateRollingPaperRequest: {
+        /** @description 실시간 파티 입장 프로필 작성·수정 요청 */
+        UpsertParticipantRealtimeProfileRequest: {
             /**
-             * @description 작성자 닉네임
-             * @example 축하요정
+             * @description 파티 내 표시 닉네임. 최대 10자. trim된 값이 저장됩니다.
+             * @example 안녕용가리
              */
-            writerNickname: string | null;
-            /**
-             * @description 롤링페이퍼 내용
-             * @example 생일 축하해!
-             */
-            content: string | null;
+            nickname: string;
             /**
              * Format: int64
-             * @description 래퍼 ID
+             * @description 선택한 캐릭터 ID
              * @example 1
              */
-            wrapperId: number | null;
+            characterId: number | null;
         };
         /** @description 에러 상세 정보 */
         ErrorDetail: {
@@ -548,6 +604,80 @@ export interface components {
             status?: number;
             /** @description 에러 상세 */
             error?: components["schemas"]["ErrorDetail"];
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseParticipantRealtimeProfileResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["ParticipantRealtimeProfileResult"] | null;
+        };
+        /** @description 캐릭터 조회 응답 */
+        CharacterResult: {
+            /**
+             * Format: int64
+             * @description 캐릭터 ID. 파티 참여 요청의 characterId로 전달합니다.
+             * @example 1
+             */
+            characterId?: number;
+            /**
+             * @description 캐릭터 이름
+             * @example Default
+             */
+            name?: string;
+            /**
+             * @description 캐릭터 이미지 URL
+             * @example /images/characters/Type=Default, Shape=Default.png
+             */
+            characterImageUrl?: string | null;
+            /**
+             * @description 캐릭터 썸네일 이미지 URL
+             * @example /images/character-thumbnails/Type=Default, Shape=Circle.png
+             */
+            characterThumbnailImageUrl?: string | null;
+        };
+        /** @description 실시간 파티 입장 프로필 응답 */
+        ParticipantRealtimeProfileResult: {
+            /**
+             * Format: int64
+             * @description 회원 participant ID
+             * @example 1
+             */
+            participantId?: number;
+            /**
+             * @description 현재 저장된 닉네임. 미설정이면 null
+             * @example 안녕용가리
+             */
+            nickname?: string | null;
+            character?: components["schemas"]["CharacterResult"] | null;
+            host?: boolean;
+            /**
+             * @description 닉네임 수정 가능 여부. 주최자는 false
+             * @example true
+             */
+            nicknameEditable?: boolean;
+        };
+        /** @description 롤링페이퍼 작성 요청 */
+        CreateRollingPaperRequest: {
+            /**
+             * @description 작성자 닉네임
+             * @example 축하요정
+             */
+            writerNickname: string | null;
+            /**
+             * @description 롤링페이퍼 내용
+             * @example 생일 축하해!
+             */
+            content: string | null;
+            /**
+             * Format: int64
+             * @description 래퍼 ID
+             * @example 1
+             */
+            wrapperId: number | null;
         };
         /** @description 공통 성공 응답 */
         ApiResponseCreateRollingPaperResponse: {
@@ -1123,7 +1253,7 @@ export interface components {
             liveEndAt?: string;
         };
         /** @description 공통 성공 응답 */
-        ApiResponseListCharacterResponse: {
+        ApiResponseListCharacterResult: {
             /**
              * Format: int32
              * @description HTTP 상태 코드
@@ -1131,31 +1261,7 @@ export interface components {
              */
             status?: number;
             /** @description 응답 데이터 */
-            data?: components["schemas"]["CharacterResponse"][] | null;
-        };
-        /** @description 캐릭터 조회 응답 */
-        CharacterResponse: {
-            /**
-             * Format: int64
-             * @description 캐릭터 ID. 파티 참여 요청의 characterId로 전달합니다.
-             * @example 1
-             */
-            characterId?: number;
-            /**
-             * @description 캐릭터 이름
-             * @example Default
-             */
-            name?: string;
-            /**
-             * @description 캐릭터 이미지 URL
-             * @example /images/characters/Type=Default, Shape=Default.png
-             */
-            characterImageUrl?: string | null;
-            /**
-             * @description 캐릭터 썸네일 이미지 URL
-             * @example /images/character-thumbnails/Type=Default, Shape=Circle.png
-             */
-            characterThumbnailImageUrl?: string | null;
+            data?: components["schemas"]["CharacterResult"][] | null;
         };
         /** @description 공통 성공 응답 */
         ApiResponseArchiveListResponse: {
@@ -1174,6 +1280,12 @@ export interface components {
              * @example 1024
              */
             id?: string;
+            /**
+             * Format: int64
+             * @description 파티 ID (상세 조회 API 호출용)
+             * @example 42
+             */
+            partyId?: number;
             /**
              * @description 항목 타입
              * @example PARTY
@@ -1214,6 +1326,110 @@ export interface components {
             totalCount?: number;
         };
         /** @description 공통 성공 응답 */
+        ApiResponseArchivePartyDetailResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["ArchivePartyDetailResponse"] | null;
+        };
+        /** @description 보관함 파티 상세 - 채팅 메시지 항목 */
+        ArchiveChatMessageResponse: {
+            /**
+             * Format: int64
+             * @description 메시지 ID
+             */
+            id?: number;
+            /** @description 작성자 닉네임 (RealtimeParticipantProfile.nickname) */
+            authorName?: string;
+            /** @description 메시지 본문 */
+            content?: string;
+            /**
+             * Format: date-time
+             * @description 전송 시각 (KST)
+             */
+            sentAt?: string;
+        };
+        /** @description 보관함 파티 상세 - 참가자 항목 */
+        ArchiveParticipantResponse: {
+            /** @description 참가자 닉네임 (RealtimeParticipantProfile.nickname) */
+            nickname?: string;
+        };
+        /** @description 보관함 파티 상세 응답 */
+        ArchivePartyDetailResponse: {
+            /**
+             * Format: int64
+             * @description 파티 ID
+             */
+            partyId?: number;
+            /** @description 파티 이름. Party.name이 null이면 빈 문자열 */
+            partyName?: string;
+            /**
+             * @description REALTIME 또는 PAPER_ONLY
+             * @enum {string}
+             */
+            partyOption?: "REALTIME" | "PAPER_ONLY";
+            /**
+             * @description 조회자 역할
+             * @enum {string}
+             */
+            role?: "HOST" | "PARTICIPANT";
+            /**
+             * Format: date-time
+             * @description 파티 시작 시각 (KST)
+             */
+            partyStartedAt?: string;
+            /**
+             * Format: date-time
+             * @description 파티 종료 시각 (KST) = startedAt + 7일
+             */
+            partyEndedAt?: string;
+            /**
+             * Format: int64
+             * @description RealtimeParticipantProfile 수. PAPER_ONLY는 0
+             */
+            participantCount?: number;
+            /**
+             * Format: int64
+             * @description 롤링페이퍼 총 개수
+             */
+            paperCount?: number;
+            /** @description 참가자 닉네임 목록. PAPER_ONLY는 빈 배열 */
+            participants?: components["schemas"]["ArchiveParticipantResponse"][];
+            /** @description 최근 50개 채팅 메시지 (createdAt DESC). PAPER_ONLY는 빈 배열 */
+            chatMessages?: components["schemas"]["ArchiveChatMessageResponse"][];
+            /** @description 응답에 담지 못한 추가 메시지 존재 여부 */
+            chatHasMore?: boolean;
+            /** @description 본인이 롤페를 작성했는지 */
+            myPaperWritten?: boolean;
+            /** @description 본인 롤페 본문. 미작성이면 null */
+            myPaperContent?: string | null;
+            /** @description 본인 롤페 작성 시 닉네임 스냅샷. 미작성이면 null */
+            myPaperWriterNickname?: string | null;
+            /** @description 본인 롤페 wrapper 이미지 URL. 미작성이면 null */
+            myPaperWrapperImageUrl?: string | null;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseMeAccountResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["MeAccountResult"] | null;
+        };
+        MeAccountResult: {
+            nickname?: string;
+            /** @enum {string} */
+            provider?: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
+            /** Format: date */
+            connectedAt?: string;
+            supportChatUrl?: string;
+        };
+        /** @description 공통 성공 응답 */
         ApiResponseUserResponse: {
             /**
              * Format: int32
@@ -1252,6 +1468,152 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getMyRealtimeProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 초대 토큰
+                 * @example exampletoken0000
+                 */
+                inviteToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 프로필 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseParticipantRealtimeProfileResult"];
+                };
+            };
+            /** @description 초대 링크 만료, 파티 종료, 비-실시간 파티 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 존재하지 않는 초대 토큰 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    upsertMyRealtimeProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 초대 토큰
+                 * @example exampletoken0000
+                 */
+                inviteToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertParticipantRealtimeProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description 프로필 작성·수정 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseParticipantRealtimeProfileResult"];
+                };
+            };
+            /** @description 검증 실패, 초대 링크 만료, 파티 종료, 비-실시간 파티, 주최자 닉네임 변경 시도 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 존재하지 않는 초대 토큰 또는 캐릭터 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getParticipantRollingPapers: {
         parameters: {
             query?: {
@@ -2291,7 +2653,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseListCharacterResponse"];
+                    "*/*": components["schemas"]["ApiResponseListCharacterResult"];
                 };
             };
             /** @description 서버 내부 오류 */
@@ -2371,6 +2733,94 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getArchivedPartyDetail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 보관함 파티 상세 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseArchivePartyDetailResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 권한 없음 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseMeAccountResult"];
                 };
             };
         };
