@@ -2,12 +2,14 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface LaterWriteRollingPaperDialogProps {
   isOpen: boolean;
+  onClose: () => void;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-export default function LaterWriteRollingPaperDialog({
+export function LaterWriteRollingPaperDialog({
   isOpen,
+  onClose,
   onCancel,
   onConfirm,
 }: LaterWriteRollingPaperDialogProps) {
@@ -30,7 +32,7 @@ export default function LaterWriteRollingPaperDialog({
       }
       cancelAction={{ label: '나중에 하기', onClick: onConfirm }}
       confirmAction={{ label: '지금 작성하기', onClick: onCancel }}
-      onClose={onCancel}
+      onClose={onClose}
     />
   );
 }

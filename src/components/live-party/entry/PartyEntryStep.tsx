@@ -4,7 +4,11 @@ import { PartyEntryContent } from '@/components/live-party/entry/PartyEntryConte
 import { PartyEntryFooter } from '@/components/live-party/entry/PartyEntryFooter';
 import { PartyEntryStage } from '@/components/live-party/entry/PartyEntryStage';
 
-export function PartyEntryStep() {
+interface PartyEntryStepProps {
+  onComplete?: () => void;
+}
+
+export function PartyEntryStep({ onComplete }: PartyEntryStepProps) {
   const {
     currentStep,
     isLastStep,
@@ -41,7 +45,7 @@ export function PartyEntryStep() {
             <PartyEntryFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
-        {isCurtainOpen && <PartyEntryStage />}
+        {isCurtainOpen && <PartyEntryStage onComplete={onComplete} />}
       </div>
     </div>
   );

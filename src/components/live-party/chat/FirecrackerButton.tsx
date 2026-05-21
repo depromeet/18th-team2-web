@@ -1,12 +1,17 @@
 import FirecrackerFilledIconSvg from '@/assets/images/live-party/firecracker-filled.svg?react';
 import FirecrackerLineIconSvg from '@/assets/images/live-party/firecracker-line.svg?react';
+import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 import { useState } from 'react';
 
 export function FirecrackerButton() {
   const [active, setActive] = useState(false);
 
+  const fire = useFirecrackerStore((state) => state.fire);
+
   const handleClick = () => {
     setActive(true);
+
+    fire();
 
     setTimeout(() => {
       setActive(false);

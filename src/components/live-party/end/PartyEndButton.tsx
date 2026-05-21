@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { PARTY_USER, type PartyUserRole } from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-import LaterWriteRollingPaperDialog from '@/components/live-party/end/LaterWriteRollingPaperDialog';
+import { LaterWriteRollingPaperDialog } from '@/components/live-party/end/LaterWriteRollingPaperDialog';
 import { useLaterWriteDialog } from '@/hooks/live-party/useLaterWriteDialog';
 
 interface PartyEndButtonProps {
@@ -17,7 +17,8 @@ export function PartyEndButton({ role }: PartyEndButtonProps) {
   const handleRollingPaperCheck = () =>
     navigate(generatePath(ROUTES.rollingPaper, { id: partyId ?? '' }));
 
-  const { isOpen, handleOpen, handleWriteNow, handleWriteLater } = useLaterWriteDialog();
+  const { isOpen, handleOpen, handleClose, handleWriteNow, handleWriteLater } =
+    useLaterWriteDialog();
 
   return (
     <>
@@ -50,6 +51,7 @@ export function PartyEndButton({ role }: PartyEndButtonProps) {
       </footer>
       <LaterWriteRollingPaperDialog
         isOpen={isOpen}
+        onClose={handleClose}
         onCancel={handleWriteNow}
         onConfirm={handleWriteLater}
       />
