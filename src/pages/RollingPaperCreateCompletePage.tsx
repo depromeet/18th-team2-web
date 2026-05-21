@@ -15,6 +15,8 @@ interface RollingPaperCompleteState {
   hostName?: string;
   startDate?: string;
   endDate?: string;
+  partyId?: number;
+  inviteToken?: string;
 }
 
 function getRollingPaperCompleteState(state: unknown): RollingPaperCompleteState {
@@ -37,12 +39,15 @@ export default function RollingPaperCreateCompletePage() {
     : addDays(startDate, ROLLING_PAPER_DURATION_DAYS);
   const openDateLabel = formatKoreanShortDate(startDate);
 
-  // TODO: 생성 API 응답의 partyId/rollingPaperId 기준 실제 공유 링크로 교체
+  const inviteToken = rollingPaperState.inviteToken;
   const shareLink = useMemo(
     () =>
-      `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: 'mock-rolling-paper-id' })}`,
-    [],
+      inviteToken
+        ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`
+        : '',
+    [inviteToken],
   );
+  const canShare = Boolean(inviteToken);
 
   return (
     <div className="party-complete-page relative flex min-h-screen flex-col overflow-hidden px-5">
@@ -79,7 +84,12 @@ export default function RollingPaperCreateCompletePage() {
         </B1>
 
         <div className="party-complete-button mt-auto pb-6">
-          <Button variant="white" size="full" onClick={() => setIsShareSheetOpen(true)}>
+          <Button
+            variant="white"
+            size="full"
+            disabled={!canShare}
+            onClick={() => setIsShareSheetOpen(true)}
+          >
             링크 공유하기
           </Button>
         </div>
