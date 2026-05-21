@@ -1,5 +1,6 @@
 import { characterSizeStyles } from '@/constants/live-party';
-import { Caption } from '../../ui/Typography';
+import { Caption } from '@/components/ui/Typography';
+import StarIconSvg from '@/assets/images/live-party/star.svg?react';
 
 interface CharacterInitStyle {
   left: string;
@@ -14,6 +15,7 @@ interface FloatingCharacterProps {
   name?: string;
   size?: 'xl' | 'lg' | 'sm';
   isHost?: boolean;
+  isJumping?: boolean;
   initStyle: CharacterInitStyle;
 }
 
@@ -22,6 +24,7 @@ export function FloatingCharacter({
   name,
   size = 'sm',
   isHost = false,
+  isJumping = false,
   initStyle,
 }: FloatingCharacterProps) {
   return (
@@ -30,21 +33,37 @@ export function FloatingCharacter({
       style={{ left: initStyle.left, top: initStyle.top, bottom: initStyle.bottom }}
     >
       <div
-        className={`character-float flex flex-col items-center`}
-        style={{
-          animationDuration: initStyle.animationDuration,
-          animationDelay: initStyle.animationDelay,
-        }}
+        className={
+          isJumping
+            ? size === 'xl'
+              ? 'character-jump-xl'
+              : size === 'lg'
+                ? 'character-jump-lg'
+                : 'character-jump'
+            : ''
+        }
       >
-        <img
-          src={image}
-          alt={name ?? '파티 참여자'}
-          draggable={false}
-          className={`object-contain select-none ${characterSizeStyles[size].imageWidth}`}
-        />
-        <Caption as="p" className={`${isHost ? 'text-yellow-400' : 'text-grey-100'} font-semibold`}>
-          {name}
-        </Caption>
+        <div
+          className="character-float flex flex-col items-center"
+          style={{
+            animationDuration: initStyle.animationDuration,
+            animationDelay: initStyle.animationDelay,
+          }}
+        >
+          <img
+            src={image}
+            alt={name ?? '파티 참여자'}
+            draggable={false}
+            className={`object-contain select-none ${characterSizeStyles[size].imageWidth}`}
+          />
+          <Caption
+            as="p"
+            className={`${isHost ? 'text-yellow-400' : 'text-grey-100'} flex items-center gap-0.5 font-semibold`}
+          >
+            {name}
+            {isHost && <StarIconSvg />}
+          </Caption>
+        </div>
       </div>
     </div>
   );

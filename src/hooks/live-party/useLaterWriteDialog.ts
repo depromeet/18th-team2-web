@@ -9,6 +9,7 @@ export function useLaterWriteDialog() {
   const { partyId } = useParams<{ partyId: string }>();
 
   const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
 
   const handleWriteNow = () => {
     setIsOpen(false);
@@ -22,6 +23,7 @@ export function useLaterWriteDialog() {
   return {
     isOpen,
     handleOpen,
+    handleClose,
     handleWriteNow,
     handleWriteLater,
   };
