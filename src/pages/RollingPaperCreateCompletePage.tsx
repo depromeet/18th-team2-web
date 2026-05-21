@@ -41,7 +41,10 @@ export default function RollingPaperCreateCompletePage() {
 
   const inviteToken = rollingPaperState.inviteToken;
   const shareLink = useMemo(
-    () => (inviteToken ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}` : ''),
+    () =>
+      inviteToken
+        ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`
+        : '',
     [inviteToken],
   );
   const canShare = Boolean(inviteToken);

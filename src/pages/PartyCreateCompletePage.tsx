@@ -37,7 +37,10 @@ export default function PartyCreateCompletePage() {
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
   const inviteToken = partyState.inviteToken;
   const shareLink = useMemo(
-    () => (inviteToken ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}` : ''),
+    () =>
+      inviteToken
+        ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`
+        : '',
     [inviteToken],
   );
   const canShare = Boolean(inviteToken);
