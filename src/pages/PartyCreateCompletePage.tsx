@@ -35,12 +35,12 @@ export default function PartyCreateCompletePage() {
   const hostName = partyState.hostName ?? DUMMY_HOST_NAME;
   const partyDate = partyState.partyDate ? new Date(partyState.partyDate) : getTodayMidnight();
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
-  const inviteToken = partyState.inviteToken ?? 'mock-invite-token';
+  const inviteToken = partyState.inviteToken;
   const shareLink = useMemo(
-    () =>
-      `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`,
+    () => (inviteToken ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}` : ''),
     [inviteToken],
   );
+  const canShare = Boolean(inviteToken);
 
   const handleShareLink = () => {
     setIsShareSheetOpen(true);
@@ -76,7 +76,7 @@ export default function PartyCreateCompletePage() {
         </B1>
 
         <div className="party-complete-button mt-auto pb-6">
-          <Button variant="white" size="full" onClick={handleShareLink}>
+          <Button variant="white" size="full" disabled={!canShare} onClick={handleShareLink}>
             링크 공유하기
           </Button>
         </div>
