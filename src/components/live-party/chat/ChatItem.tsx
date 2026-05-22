@@ -21,7 +21,11 @@ export function ChatItem({ name, profileImage, text, senderRole }: ChatItemProps
             isCelebrant ? 'bg-linear-to-b from-[#E8B55D] to-[#F0409B]' : 'bg-white'
           }`}
         >
-          <img src={profileImage} alt={name} className="h-8 w-8 rounded-full object-cover" />
+          <img
+            src={profileImage}
+            alt={name}
+            className="h-[30px] w-[30px] rounded-full object-cover"
+          />
         </div>
 
         {isCelebrant && (
