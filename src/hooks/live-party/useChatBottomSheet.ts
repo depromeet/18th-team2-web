@@ -24,15 +24,37 @@ export interface ChatMessage {
   user: {
     name: string;
     profileImage: string;
+    senderRole: 'PARTICIPANT' | 'CELEBRANT'; //스웨거 참고
   };
   text: string;
 }
 
-const MOCK_MESSAGES: ChatMessage[] = [
+export type ChatListItem =
+  | {
+      type: 'message';
+      id: number;
+      user: { name: string; profileImage: string; senderRole: 'PARTICIPANT' | 'CELEBRANT' };
+      text: string;
+    }
+  | { type: 'entry'; id: number; userName: string };
+
+const MOCK_MESSAGES: ChatListItem[] = [
   {
+    type: 'message',
     id: 1,
-    user: { name: '하파린', profileImage: randomThumbnail() },
-    text: '생일 축하해!! 🎉',
+    user: { name: '하파린', profileImage: randomThumbnail(), senderRole: 'CELEBRANT' },
+    text: '다들 고마워~~',
+  },
+  {
+    type: 'entry',
+    id: 2,
+    userName: '소다',
+  },
+  {
+    type: 'message',
+    id: 3,
+    user: { name: '소다', profileImage: randomThumbnail(), senderRole: 'PARTICIPANT' },
+    text: '같이 축하해요 🥳',
   },
 ];
 
@@ -40,7 +62,7 @@ export function useChatBottomSheet() {
   const [height, setHeight] = useState(MIN_HEIGHT);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [messages, setMessages] = useState<ChatMessage[]>(MOCK_MESSAGES);
+  const [messages, setMessages] = useState<ChatListItem[]>(MOCK_MESSAGES);
 
   const draggingRef = useRef(false);
   const startYRef = useRef(0);
@@ -49,18 +71,33 @@ export function useChatBottomSheet() {
   const MAX_HEIGHT = window.innerHeight - 160;
   const MID = (MIN_HEIGHT + MAX_HEIGHT) / 2;
 
+  const isExpanded = height > MIN_HEIGHT;
+
   const addMessage = (text: string) => {
     if (!text.trim()) return;
 
     setMessages((prev) => [
       ...prev,
       {
+        type: 'message' as const,
         id: Date.now(),
         user: {
           name: '사용자', // 임시
           profileImage: randomThumbnail(),
+          senderRole: 'CELEBRANT',
         },
         text,
+      },
+    ]);
+  };
+
+  const addEntryNotice = (userName: string) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        type: 'entry' as const,
+        id: Date.now(),
+        userName,
       },
     ]);
   };
@@ -106,9 +143,11 @@ export function useChatBottomSheet() {
 
   return {
     height,
+    isExpanded,
     isDragging,
     handlePointerDown,
     messages,
     addMessage,
+    addEntryNotice,
   };
 }

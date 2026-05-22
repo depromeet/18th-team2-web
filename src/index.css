@@ -330,6 +330,143 @@ textarea {
   }
 }
 
+/* 파티 참가자 캐릭터 애니메이션 */
+.character-float {
+  animation-name: character-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes character-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.04);
+  }
+}
+
+.character-jump {
+  animation-name: character-jump;
+  animation-duration: 0.9s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes character-jump {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-14px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.character-jump-lg {
+  animation-name: character-jump-lg;
+  animation-duration: 0.7s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes character-jump-lg {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-24px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-17px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.character-jump-xl {
+  animation-name: character-jump-xl;
+  animation-duration: 0.7s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes character-jump-xl {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-32px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-22px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-13px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.firework-fade {
+  animation-name: firework-fade;
+  animation-duration: 1.4s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes firework-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  65% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
 .share-scroll-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;

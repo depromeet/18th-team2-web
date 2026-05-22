@@ -14,7 +14,7 @@ interface StepRendererProps {
 export function StepRenderer({ step, onStepComplete, userRole }: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
-      return <PartyEntryStep />;
+      return <PartyEntryStep onComplete={onStepComplete} />;
     case 'MUSIC':
       return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':

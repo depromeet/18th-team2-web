@@ -16,7 +16,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit",
-    "api:types": "openapi-typescript http://suker.iptime.org:8081/v3/api-docs -o src/types/api.ts"
+    "api:types": "openapi-typescript https://dev-api.hapalin.com/v3/api-docs -o src/types/api.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -25,6 +25,7 @@
     "dayjs": "^1.11.20",
     "openapi-fetch": "^0.17.0",
     "react": "^18.3.1",
+    "react-canvas-confetti": "^2.0.7",
     "react-day-picker": "^9.14.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.75.0",

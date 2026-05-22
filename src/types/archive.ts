@@ -6,6 +6,8 @@ export interface ArchiveListItem {
   id: string;
   type: ArchiveItemType;
   title: string;
+  /** 파티 주인공 닉네임. BE 응답 `celebrantName`. 없으면 null */
+  celebrantName?: string | null;
   date: string;
   stamp?: StampType;
 }

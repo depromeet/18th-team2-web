@@ -134,3 +134,18 @@ export const PARTY_USER = {
 } as const;
 
 export type PartyUserRole = keyof typeof PARTY_USER;
+
+export const OVERLAY_TRANSITION_STEPS: PartyStep[] = [LIVE_PARTY_STEP.ENTRY, LIVE_PARTY_STEP.MUSIC];
+export const OVERLAY_FADE_DURATION = 500;
+export const STEP_DELAY_DURATION = 1000;
+
+export const CONFETTI_COLORS = ['#33E3BD', '#909BFF', '#E3BD33', '#FF73F8'];
+
+export const CHAT_SHEET_MIN_HEIGHT = 320;
+export const MUSIC_TEXT_HEIGHT = 84;
+
+export const characterSizeStyles = {
+  lg: { imageWidth: 'w-[98px]' },
+  sm: { imageWidth: 'w-10' },
+  xl: { imageWidth: 'w-[125px]' },
+} as const;

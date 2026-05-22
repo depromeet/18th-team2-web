@@ -2,7 +2,7 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { VALIDATION_MESSAGES } from '@/constants/validation';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 
 const MOCK_HOST_USER_NAME = '김이라';
@@ -14,6 +14,7 @@ export function usePartyEnter() {
   const isAlreadyWrittenMember = false;
   const isTimeToParty = true;
 
+  const { partyId } = useParams<{ partyId: string }>();
   const user = useAuthStore((state) => state.user);
   const hostUserName = user?.name ?? MOCK_HOST_USER_NAME;
 
@@ -38,7 +39,8 @@ export function usePartyEnter() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate(ROUTES.liveParty);
+    if (!partyId) return;
+    navigate(generatePath(ROUTES.liveParty, { partyId }));
   };
 
   return {

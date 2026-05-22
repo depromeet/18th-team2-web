@@ -15,7 +15,13 @@ import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
 import { useMe } from '@/services/auth';
-import { formatDisplayTime, formatDotDate, formatKoreanDate, getTodayMidnight } from '@/utils/date';
+import {
+  formatDisplayTime,
+  formatDotDate,
+  formatIsoDate,
+  formatKoreanDate,
+  getTodayMidnight,
+} from '@/utils/date';
 
 type PickerMode = 'date' | 'time' | null;
 
@@ -31,6 +37,13 @@ const TIME_PICKER_OPTIONS = {
   hour: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
   minute: ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'],
 } as const;
+
+function formatStartTime(value: TimePickerValue): string {
+  const hour = Number(value.hour);
+  const isPm = value.period.includes('후');
+  const hour24 = isPm ? (hour === 12 ? 12 : hour + 12) : hour === 12 ? 0 : hour;
+  return `${String(hour24).padStart(2, '0')}:${value.minute}`;
+}
 
 export default function PartyTimeSelectPage() {
   const navigate = useNavigate();
@@ -85,12 +98,13 @@ export default function PartyTimeSelectPage() {
   };
 
   const handleCreateParty = () => {
-    // TODO: 생성 API 확정 시 useCreateParty mutation으로 교체하고 hostName/selectedDate/selectedTime을 payload에 포함
     navigate(ROUTES.createPartyCharacter, {
       state: {
         hostName,
         partyDate: selectedDate.toISOString(),
         partyTime: selectedTime,
+        startedDate: formatIsoDate(selectedDate),
+        startTime: formatStartTime(timePickerValue),
       },
     });
   };

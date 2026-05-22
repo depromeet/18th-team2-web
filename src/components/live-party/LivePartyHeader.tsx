@@ -1,7 +1,6 @@
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { Button } from '@/components/ui/Button';
 import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
-import { useState } from 'react';
 import MusicPlayIconSvg from '@/assets/images/live-party/music-play.svg?react';
 import MusicMutedIconSvg from '@/assets/images/live-party/music-muted.svg?react';
 
@@ -10,23 +9,22 @@ interface LivePartyHeaderProps {
   onNextStep: () => void;
   onExitClick: () => void;
   step: PartyStep;
+  handleToggleMute: () => void;
+  musicIsMuted: boolean;
 }
 
-export function LivePartyHeader({ onNextStep, onExitClick, step }: LivePartyHeaderProps) {
-  const [playMusic, setPlayMusic] = useState(true);
-
-  const handleMusicIcon = () => {
-    setPlayMusic((v) => !v);
-  };
-
-  {
-    /* TODO: 노래가 나오기 시작할 때 play/mute 버튼 보이는 것으로 수정 필요 */
-  }
+export function LivePartyHeader({
+  onNextStep,
+  onExitClick,
+  step,
+  handleToggleMute,
+  musicIsMuted,
+}: LivePartyHeaderProps) {
   return (
-    <header className="absolute top-0 right-0 left-0 z-11 flex items-center justify-between p-4">
+    <header className="absolute top-0 right-0 left-0 z-30 flex items-center justify-between p-4">
       {step !== LIVE_PARTY_STEP.ENTRY && (
-        <button onClick={handleMusicIcon}>
-          {playMusic ? <MusicPlayIconSvg /> : <MusicMutedIconSvg />}
+        <button onClick={handleToggleMute}>
+          {musicIsMuted ? <MusicMutedIconSvg /> : <MusicPlayIconSvg />}
         </button>
       )}
 
