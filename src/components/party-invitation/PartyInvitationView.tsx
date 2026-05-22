@@ -44,12 +44,13 @@ export function PartyInvitationView({
   const inviteLink = `${window.location.origin}${window.location.pathname}`;
 
   function handleEnterParty() {
+    const partyEnterPath = generatePath(ROUTES.partyEnter, { partyId });
     if (isHost) {
-      navigate(generatePath(ROUTES.partyEnter, { partyId }));
+      navigate(partyEnterPath, { state: { inviteToken } });
       return;
     }
     joinPartyInvite(inviteToken, {
-      onSuccess: () => navigate(generatePath(ROUTES.partyEnter, { partyId })),
+      onSuccess: () => navigate(partyEnterPath, { state: { inviteToken } }),
     });
   }
 

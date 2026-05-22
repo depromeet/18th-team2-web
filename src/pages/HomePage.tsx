@@ -46,7 +46,12 @@ function HomePage() {
 
   const handleCardAction = (party: UpcomingParty) => {
     const path = getCardRoutePath(party);
-    if (path) navigate(path);
+    if (!path) return;
+    if (party.partyOption === 'REALTIME' && party.isOpen && party.partyId) {
+      navigate(path, { state: { inviteToken: party.inviteToken } });
+    } else {
+      navigate(path);
+    }
   };
 
   return (
