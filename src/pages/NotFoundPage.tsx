@@ -7,9 +7,6 @@ export default function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <ErrorView
-      variant="notFound"
-      onPrimaryClick={() => navigate(ROUTES.home, { replace: true })}
-    />
+    <ErrorView variant="notFound" onPrimaryClick={() => navigate(ROUTES.home, { replace: true })} />
   );
 }

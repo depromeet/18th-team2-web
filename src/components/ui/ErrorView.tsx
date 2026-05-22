@@ -57,7 +57,7 @@ export function ErrorView({
           {resolvedTitle}
         </H2>
 
-        <B1 className="text-grey-400 mt-5 whitespace-pre-line font-medium">
+        <B1 className="text-grey-400 mt-5 font-medium whitespace-pre-line">
           {resolvedDescription}
         </B1>
       </section>

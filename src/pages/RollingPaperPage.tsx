@@ -7,12 +7,14 @@ import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
 import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
+import { ErrorView } from '@/components/ui/ErrorView';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { useRollingPaper, type RollingPaperMessage } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
+import { isApiErrorStatus } from '@/utils/api-error';
 
 const TOPPINGS_PER_PAGE = 7;
 
@@ -30,7 +32,7 @@ export default function RollingPaperPage() {
   const location = useLocation();
   const locationState = location.state as RollingPaperLocationState | null;
   const inviteToken = locationState?.inviteToken;
-  const { data } = useRollingPaper(id ?? '', inviteToken);
+  const { data, isLoading, isError, error, refetch } = useRollingPaper(id ?? '', inviteToken);
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
@@ -73,6 +75,22 @@ export default function RollingPaperPage() {
     }
 
     navigate(ROUTES.home, { replace: true });
+  }
+
+  if (isLoading) return null;
+
+  if (isError) {
+    if (isApiErrorStatus(error, 404) || isApiErrorStatus(error, 403)) {
+      return <ErrorView variant="notFound" onPrimaryClick={() => navigate(ROUTES.home)} />;
+    }
+
+    return (
+      <ErrorView
+        variant="retry"
+        onPrimaryClick={() => void refetch()}
+        onSecondaryClick={() => navigate(-1)}
+      />
+    );
   }
 
   if (!data) return null;

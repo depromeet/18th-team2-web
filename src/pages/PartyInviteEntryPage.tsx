@@ -1,14 +1,18 @@
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { PartyEndedView } from '@/components/party-ended/PartyEndedView';
 import { PartyInvitationView } from '@/components/party-invitation/PartyInvitationView';
+import { ErrorView } from '@/components/ui/ErrorView';
+import { ROUTES } from '@/constants/routes';
 import { usePartyInvite } from '@/services/party-invite';
+import { isApiErrorStatus } from '@/utils/api-error';
 
 export default function PartyInviteEntryPage() {
   const { inviteToken } = useParams<{ inviteToken: string }>();
+  const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as { rollingPaperWritten?: boolean } | null;
-  const { data, isLoading, isError } = usePartyInvite(inviteToken ?? '');
+  const { data, isLoading, isError, error, refetch } = usePartyInvite(inviteToken ?? '');
 
   if (!inviteToken) {
     return <InvalidLinkLayout message="잘못된 초대링크예요." />;
@@ -19,7 +23,28 @@ export default function PartyInviteEntryPage() {
   }
 
   if (isError || !data) {
-    return <InvalidLinkLayout message="만료되었거나 잘못된 초대링크예요." />;
+    if (isApiErrorStatus(error, 404) || isApiErrorStatus(error, 403)) {
+      return <ErrorView variant="notFound" onPrimaryClick={() => navigate(ROUTES.home)} />;
+    }
+
+    if (isApiErrorStatus(error, 400)) {
+      return (
+        <ErrorView
+          variant="notFound"
+          title="사용할 수 없는 초대링크예요"
+          description="만료되었거나 잘못된 초대링크예요."
+          onPrimaryClick={() => navigate(ROUTES.home)}
+        />
+      );
+    }
+
+    return (
+      <ErrorView
+        variant="retry"
+        onPrimaryClick={() => void refetch()}
+        onSecondaryClick={() => navigate(-1)}
+      />
+    );
   }
 
   const hostName = data.celebrantNickname ?? '';
