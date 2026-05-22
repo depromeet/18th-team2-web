@@ -6,6 +6,7 @@ import { CHARACTER_LABEL_MAP } from '@/constants/character';
 import { useCharacters } from '@/services/character';
 
 interface CharacterSelectProps {
+  value?: number | null;
   onSelect?: (characterId: number) => void;
 }
 
@@ -15,20 +16,23 @@ function resolveImageUrl(url: string | null | undefined): string | null {
   return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
-export function CharacterSelect({ onSelect }: CharacterSelectProps) {
+export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {
   const { data: characters = [], isLoading } = useCharacters();
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [internalId, setInternalId] = useState<number | null>(null);
+
+  const isControlled = value !== undefined;
+  const selectedId = isControlled ? value : internalId;
 
   useEffect(() => {
     if (characters.length > 0 && selectedId === null) {
       const firstId = characters[0].characterId ?? null;
-      setSelectedId(firstId);
+      if (!isControlled) setInternalId(firstId);
       if (firstId != null) onSelect?.(firstId);
     }
-  }, [characters, selectedId, onSelect]);
+  }, [characters, selectedId, onSelect, isControlled]);
 
   const handleSelect = (characterId: number) => {
-    setSelectedId(characterId);
+    if (!isControlled) setInternalId(characterId);
     onSelect?.(characterId);
   };
 
