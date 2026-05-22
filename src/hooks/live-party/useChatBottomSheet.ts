@@ -33,10 +33,23 @@ export type ChatListItem =
   | {
       type: 'message';
       id: number;
-      user: { name: string; profileImage: string; senderRole: 'PARTICIPANT' | 'CELEBRANT' };
+      user: {
+        name: string;
+        profileImage: string;
+        senderRole: 'PARTICIPANT' | 'CELEBRANT';
+      };
       text: string;
     }
-  | { type: 'entry'; id: number; userName: string };
+  | {
+      type: 'entry';
+      id: number;
+      userName: string;
+    }
+  | {
+      type: 'exit';
+      id: number;
+      userName: string;
+    };
 
 const MOCK_MESSAGES: ChatListItem[] = [
   {
@@ -91,13 +104,14 @@ export function useChatBottomSheet() {
     ]);
   };
 
-  const addEntryNotice = (userName: string) => {
+  const addEntryNotice = (userName: string, noticeType: 'entry' | 'exit' = 'entry') => {
     setMessages((prev) => [
       ...prev,
       {
-        type: 'entry' as const,
+        type: noticeType,
         id: Date.now(),
         userName,
+        noticeType,
       },
     ]);
   };

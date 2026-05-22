@@ -239,6 +239,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}/burst-game/taps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 박터뜨리기 터치 batch 제출
+         * @description 파티의 진행 중인 박터뜨리기 라운드에 터치 batch를 제출합니다.
+         *
+         *     `tapCount`는 1~30, `clientSequence`는 참가자별 batch 멱등성 키입니다.
+         *     중복 sequence와 종료 후 submit은 200 응답에서 `accepted=false`로 표현합니다.
+         */
+        post: operations["submitTaps"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/burst-game/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 박터뜨리기 시작
+         * @description 실시간 파티의 박터뜨리기 라운드를 시작합니다.
+         *
+         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참여자는 `X-Participant-Token: {participantToken}` 헤더를 사용합니다.
+         *     이미 active 라운드가 있으면 현재 상태를 반환하고, 종료된 라운드가 TTL 안에 남아 있으면 재시작을 막습니다.
+         */
+        post: operations["start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/realtime": {
         parameters: {
             query?: never;
@@ -402,6 +448,28 @@ export interface paths {
          *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참가자는 `X-Participant-Token: {participantToken}` 헤더를 사용한다. 둘 중 하나는 반드시 포함해야 한다.
          */
         get: operations["getPartyParticipants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/burst-game": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 박터뜨리기 상태 및 결과 조회
+         * @description partyId 기준으로 진행 중인 라운드의 현재 상태 또는 TTL 안에 남아 있는 종료 결과를 조회합니다.
+         *     진행 중에는 rankings를, 종료 후에는 공동 1등 winners만 반환합니다.
+         *     ended=false이면 아직 결과가 확정되지 않은 상태이며 winners는 빈 배열입니다.
+         */
+        get: operations["getState"];
         put?: never;
         post?: never;
         delete?: never;
@@ -766,6 +834,186 @@ export interface components {
             senderRole?: "CELEBRANT" | "PARTICIPANT";
             /** Format: date-time */
             sentAt?: string;
+        };
+        SubmitBurstGameTapRequest: {
+            /**
+             * Format: int32
+             * @description 이번 batch에 포함된 터치 수. 1~30 사이 값만 허용합니다.
+             * @example 7
+             */
+            tapCount?: number;
+            /**
+             * Format: int64
+             * @description 참가자별로 증가시키는 batch 멱등성 키입니다. 이미 처리한 값은 중복 요청으로 무시됩니다.
+             * @example 12
+             */
+            clientSequence?: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseSubmitBurstGameTapResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["SubmitBurstGameTapResponse"] | null;
+        };
+        BurstGameRankingResponse: {
+            /**
+             * Format: int32
+             * @description 공동 순위를 허용하는 현재 순위입니다.
+             * @example 1
+             */
+            rank?: number;
+            /**
+             * Format: int64
+             * @description 랭킹에 표시할 실시간 파티 참여자 ID입니다.
+             * @example 37
+             */
+            participantId?: number;
+            /**
+             * @description 실시간 파티 프로필 닉네임입니다.
+             * @example 토끼왕
+             */
+            nickname?: string;
+            /**
+             * Format: int64
+             * @description 선택한 캐릭터 ID입니다.
+             * @example 2
+             */
+            characterId?: number | null;
+            /**
+             * @description 선택한 캐릭터 이미지 URL입니다.
+             * @example https://example.com/rabbit.png
+             */
+            characterImageUrl?: string | null;
+            /**
+             * @description 실시간 파티 참여자 역할입니다.
+             * @example CELEBRANT
+             * @enum {string}
+             */
+            role?: "CELEBRANT" | "PARTICIPANT";
+            /**
+             * Format: int32
+             * @description 해당 참여자의 현재 라운드 누적 터치 수입니다.
+             * @example 11
+             */
+            tapCount?: number;
+        };
+        SubmitBurstGameTapResponse: {
+            /**
+             * Format: int64
+             * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
+             * @example 10
+             */
+            partyId?: number;
+            /**
+             * Format: int64
+             * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
+             * @example 37
+             */
+            myParticipantId?: number;
+            /**
+             * @description 이번 터치 batch가 집계에 반영되었는지 여부입니다.
+             * @example true
+             */
+            accepted?: boolean;
+            /**
+             * @description 터치 batch가 반영되지 않은 이유입니다. accepted=true이면 null입니다.
+             * @enum {string|null}
+             */
+            ignoredReason?: "DUPLICATE_SEQUENCE" | "ROUND_ENDED" | null;
+            /**
+             * Format: int32
+             * @description 현재까지 반영된 전체 터치 수입니다.
+             * @example 42
+             */
+            totalTapCount?: number;
+            /**
+             * Format: int32
+             * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
+             * @example 11
+             */
+            myTapCount?: number;
+            /**
+             * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
+             * @example false
+             */
+            colorChanged?: boolean;
+            /**
+             * Format: int64
+             * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
+             * @example 13
+             */
+            stateVersion?: number;
+            /**
+             * Format: date-time
+             * @description 응답 생성 시점의 서버 시각입니다.
+             * @example 2026-05-14T20:10:07.120
+             */
+            serverTime?: string;
+            /** @description 진행 중 상태에서 제공되는 상위 3개 rank group입니다. */
+            rankings?: components["schemas"]["BurstGameRankingResponse"][];
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseStartBurstGameResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["StartBurstGameResponse"] | null;
+        };
+        StartBurstGameResponse: {
+            /**
+             * Format: int64
+             * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
+             * @example 10
+             */
+            partyId?: number;
+            /**
+             * Format: int64
+             * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
+             * @example 37
+             */
+            myParticipantId?: number;
+            /**
+             * Format: date-time
+             * @description 서버 기준 라운드 시작 시각입니다.
+             * @example 2026-05-14T20:10:00
+             */
+            startedAt?: string;
+            /**
+             * Format: date-time
+             * @description 서버 기준 라운드 종료 시각입니다.
+             * @example 2026-05-14T20:10:20
+             */
+            endsAt?: string;
+            /**
+             * Format: int32
+             * @description 현재까지 반영된 전체 터치 수입니다.
+             * @example 0
+             */
+            totalTapCount?: number;
+            /**
+             * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
+             * @example false
+             */
+            colorChanged?: boolean;
+            /**
+             * Format: int64
+             * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
+             * @example 0
+             */
+            stateVersion?: number;
+            /**
+             * Format: date-time
+             * @description 응답 생성 시점의 서버 시각입니다.
+             * @example 2026-05-14T20:10:00
+             */
+            serverTime?: string;
         };
         /** @description 실시간 파티 생성 요청 */
         CreateRealtimePartyRequest: {
@@ -1173,6 +1421,122 @@ export interface components {
             maxCount?: number;
             /** @description 입장 순서대로 정렬된 참여자 목록 */
             participants?: components["schemas"]["PartyParticipantResponse"][];
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseBurstGameStateResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["BurstGameStateResponse"] | null;
+        };
+        BurstGameStateResponse: {
+            /**
+             * Format: int64
+             * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
+             * @example 10
+             */
+            partyId?: number;
+            /**
+             * Format: int64
+             * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
+             * @example 37
+             */
+            myParticipantId?: number;
+            /**
+             * @description 박터뜨리기 라운드 종료 여부입니다.
+             * @example false
+             */
+            ended?: boolean;
+            /**
+             * Format: date-time
+             * @description 서버 기준 라운드 시작 시각입니다.
+             * @example 2026-05-14T20:10:00
+             */
+            startedAt?: string;
+            /**
+             * Format: date-time
+             * @description 서버 기준 라운드 종료 시각입니다.
+             * @example 2026-05-14T20:10:20
+             */
+            endsAt?: string;
+            /**
+             * Format: int32
+             * @description 현재까지 반영된 전체 터치 수입니다.
+             * @example 42
+             */
+            totalTapCount?: number;
+            /**
+             * Format: int32
+             * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
+             * @example 11
+             */
+            myTapCount?: number;
+            /**
+             * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
+             * @example false
+             */
+            colorChanged?: boolean;
+            /**
+             * Format: int64
+             * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
+             * @example 13
+             */
+            stateVersion?: number;
+            /**
+             * Format: date-time
+             * @description 응답 생성 시점의 서버 시각입니다.
+             * @example 2026-05-14T20:10:07.120
+             */
+            serverTime?: string;
+            /**
+             * Format: int64
+             * @description 서버 기준 남은 라운드 시간입니다. 종료 상태에서는 0입니다.
+             * @example 13
+             */
+            remainingSeconds?: number;
+            /** @description 진행 중 상태에서만 제공되는 상위 3개 rank group입니다. 종료 상태에서는 비어 있습니다. */
+            rankings?: components["schemas"]["BurstGameRankingResponse"][];
+            /** @description 종료 상태에서만 제공되는 공동 1등 목록입니다. 진행 중에는 비어 있습니다. */
+            winners?: components["schemas"]["BurstGameWinnerResponse"][];
+        };
+        BurstGameWinnerResponse: {
+            /**
+             * Format: int64
+             * @description 공동 1등 참여자 ID입니다.
+             * @example 37
+             */
+            participantId?: number;
+            /**
+             * @description 공동 1등 참여자 닉네임입니다.
+             * @example 토끼왕
+             */
+            nickname?: string;
+            /**
+             * Format: int64
+             * @description 공동 1등 참여자의 선택 캐릭터 ID입니다.
+             * @example 2
+             */
+            characterId?: number | null;
+            /**
+             * @description 공동 1등 참여자의 캐릭터 이미지 URL입니다.
+             * @example https://example.com/rabbit.png
+             */
+            characterImageUrl?: string | null;
+            /**
+             * @description 공동 1등 참여자 역할입니다.
+             * @example CELEBRANT
+             * @enum {string}
+             */
+            role?: "CELEBRANT" | "PARTICIPANT";
+            /**
+             * Format: int32
+             * @description 공동 1등 참여자의 최종 누적 터치 수입니다.
+             * @example 52
+             */
+            tapCount?: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseListUpcomingPartyResponse: {
@@ -2118,6 +2482,188 @@ export interface operations {
             };
         };
     };
+    submitTaps: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitBurstGameTapRequest"];
+            };
+        };
+        responses: {
+            /** @description 터치 batch 처리 성공. 중복 sequence 또는 종료 후 submit도 accepted=false로 반환합니다. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseSubmitBurstGameTapResponse"];
+                };
+            };
+            /** @description 입력값 검증 실패 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "nickname: 닉네임은 필수입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티에 진행 중이거나 TTL 안에 남은 라운드 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description rate limit 초과 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    start: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 라운드 시작 또는 active 라운드 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseStartBurstGameResponse"];
+                };
+            };
+            /** @description 입력값 검증 실패 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "nickname: 닉네임은 필수입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 이미 종료된 라운드 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     createRealtimeParty: {
         parameters: {
             query?: never;
@@ -2569,6 +3115,68 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getState: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 상태 및 결과 조회 성공. 종료 상태에서는 winners만 채워지고 rankings는 비어 있습니다. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseBurstGameStateResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 라운드 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description 서버 내부 오류 */
