@@ -6,16 +6,23 @@ import { MyPaperSection } from '@/components/archive/MyPaperSection';
 import { PaperInfoSection } from '@/components/archive/PaperInfoSection';
 import { SingleMessageModal } from '@/components/message/SingleMessageModal';
 import { ROUTES } from '@/constants/routes';
-import { useArchivePaperDetail } from '@/services/archive';
+import { useArchiveDetail } from '@/services/archive';
 
 export default function ArchivePaperDetailPage() {
-  const { paperId } = useParams<{ paperId: string }>();
+  const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
-  const { data, isLoading } = useArchivePaperDetail(paperId ?? '');
+  const { data, isLoading, isError } = useArchiveDetail(partyId ?? '');
   const [paperOpen, setPaperOpen] = useState(false);
 
-  if (!paperId) return null;
-  if (isLoading || !data) return null;
+  if (!partyId) return null;
+  if (isLoading) return null;
+  if (isError || !data) {
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-4">
+        <p className="text-grey-700 text-center">보관함 정보를 불러올 수 없어요.</p>
+      </main>
+    );
+  }
 
   const isHost = data.role === 'HOST';
   const showPaperSection = isHost || (data.myPaperWritten && data.myPaperContent);
@@ -29,8 +36,8 @@ export default function ArchivePaperDetailPage() {
   };
 
   return (
-    <ArchiveDetailLayout title={data.title} id={data.id} stamp={data.stamp}>
-      <PaperInfoSection title={data.title} startDate={data.startDate} endDate={data.endDate} />
+    <ArchiveDetailLayout title={data.partyName} id={data.id} stamp={data.stamp}>
+      <PaperInfoSection title={data.partyName} startDate={data.date} endDate={data.endDate} />
 
       {showPaperSection && (
         <MyPaperSection
@@ -43,7 +50,7 @@ export default function ArchivePaperDetailPage() {
       {paperOpen && data.myPaperContent && (
         <SingleMessageModal
           content={data.myPaperContent}
-          writerName="나"
+          writerName={data.myPaperWriterNickname ?? '나'}
           onClose={() => setPaperOpen(false)}
         />
       )}

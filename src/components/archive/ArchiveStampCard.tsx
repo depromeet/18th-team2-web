@@ -11,13 +11,15 @@ interface ArchiveStampCardProps {
 
 export function ArchiveStampCard({ item }: ArchiveStampCardProps) {
   const navigate = useNavigate();
-  const stamp = item.stamp ?? getStampForId(item.id);
+  const stamp = item.stamp ?? getStampForId(item.partyId);
 
   const handleClick = () => {
+    // 상세 조회는 partyId 필수 — 누락 시 이동하지 않음
+    if (!item.partyId) return;
     if (item.type === 'PARTY') {
-      navigate(generatePath(ROUTES.archivePartyDetail, { partyId: item.id }));
+      navigate(generatePath(ROUTES.archivePartyDetail, { partyId: item.partyId }));
     } else {
-      navigate(generatePath(ROUTES.archivePaperDetail, { paperId: item.id }));
+      navigate(generatePath(ROUTES.archivePaperDetail, { partyId: item.partyId }));
     }
   };
 
