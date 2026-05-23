@@ -17,6 +17,7 @@ export default function PartyEnterPage() {
     inputValue,
     isNicknameEditable,
     inputMessage,
+    isInputError,
     selectedCharacterId,
     handleChangeNickname,
     handleSelectCharacter,
@@ -34,6 +35,7 @@ export default function PartyEnterPage() {
               value={inputValue}
               placeholder="파티에 등장할 닉네임을 입력해 주세요."
               disabled={!isNicknameEditable}
+              error={isInputError}
               message={inputMessage}
               onChange={handleChangeNickname}
             />
