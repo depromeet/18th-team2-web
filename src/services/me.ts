@@ -58,9 +58,24 @@ export const meQueries = {
         return (res.data ?? []).map(mapUpcomingParty);
       },
     }),
+  account: () =>
+    queryOptions({
+      queryKey: ['me', 'account'],
+      queryFn: async () => {
+        const res =
+          await api.get<components['schemas']['ApiResponseMeAccountResult']>('/api/me/account');
+        if (!res.data) throw new Error('계정 정보를 불러올 수 없습니다');
+        return res.data;
+      },
+    }),
 };
 
 export function useUpcomingParties() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useQuery({ ...meQueries.upcomingParties(), enabled: isAuthenticated });
+}
+
+export function useMeAccount() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({ ...meQueries.account(), enabled: isAuthenticated });
 }
