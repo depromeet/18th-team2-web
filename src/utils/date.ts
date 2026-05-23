@@ -46,6 +46,12 @@ export function addDays(d: Date, days: number): Date {
   return dayjs(d).add(days, 'day').toDate();
 }
 
+/** 주어진 시각이 현재보다 미래인지. 값이 없거나 무효하면 false. */
+export function isFuture(value: Date | string | null | undefined): boolean {
+  if (!value) return false;
+  return new Date(value).getTime() > Date.now();
+}
+
 export function formatDotDate(d: Date): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');

@@ -4,7 +4,7 @@ import { PartyEndedView } from '@/components/party-ended/PartyEndedView';
 import { PartyInvitationView } from '@/components/party-invitation/PartyInvitationView';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { ROUTES } from '@/constants/routes';
-import { usePartyInvite } from '@/services/party-invite';
+import { getRollingPaperWritableUntil, usePartyInvite } from '@/services/party-invite';
 import { isApiErrorStatus } from '@/utils/api-error';
 
 export default function PartyInviteEntryPage() {
@@ -60,7 +60,7 @@ export default function PartyInviteEntryPage() {
         partyId={data.partyId}
         hostName={hostName}
         writableFrom={new Date(data.partyStartDate)}
-        writableUntil={new Date(data.partyEndDate)}
+        writableUntil={getRollingPaperWritableUntil(data)}
       />
     );
   }

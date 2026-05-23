@@ -4,6 +4,7 @@ import { RollingPaperInvitationCard } from '@/components/party-ended/RollingPape
 import { Button } from '@/components/ui/Button';
 import { H1, H3 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
+import { isFuture } from '@/utils/date';
 
 interface PartyEndedViewProps {
   partyId: string;
@@ -19,7 +20,7 @@ export function PartyEndedView({
   writableUntil,
 }: PartyEndedViewProps) {
   const navigate = useNavigate();
-  const isExpired = writableUntil.getTime() <= Date.now();
+  const isExpired = !isFuture(writableUntil);
 
   function handlePrimaryClick() {
     if (isExpired) {
