@@ -5,6 +5,7 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 
+import { PARTY_ROLE } from '@/constants/party';
 import { api } from '@/services/api';
 import type { components } from '@/types/api';
 import type { ArchiveListItem, PartyDetail } from '@/types/archive';
@@ -46,7 +47,7 @@ function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
     endDate: formatKstOrEmpty(res.partyEndedAt, 'YY.MM.DD'),
     participantCount: res.participantCount ?? 0,
     participants: (res.participants ?? []).map((p) => p.nickname ?? ''),
-    role: res.role ?? 'PARTICIPANT',
+    role: res.role ?? PARTY_ROLE.PARTICIPANT,
     myPaperWritten: res.myPaperWritten ?? false,
     myPaperContent: res.myPaperContent ?? undefined,
     myPaperWriterNickname: res.myPaperWriterNickname ?? undefined,

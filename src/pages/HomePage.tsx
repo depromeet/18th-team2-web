@@ -7,6 +7,7 @@ import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
+import { PARTY_ROLE } from '@/constants/party';
 import { ROUTES } from '@/constants/routes';
 import { useArchiveList } from '@/services/archive';
 import { useUpcomingParties } from '@/services/me';
@@ -22,13 +23,13 @@ function getCardRoutePath(party: UpcomingParty): string | null {
     // 입장 가능: 입장/시작하기 → 파티 입장
     if (isOpen) return partyId ? generatePath(ROUTES.partyEnter, { partyId }) : null;
     // 입장 전: 참가자만 초대장 확인, 주최자는 비활성
-    return role === 'participant' && inviteToken
+    return role === PARTY_ROLE.PARTICIPANT && inviteToken
       ? generatePath(ROUTES.partyInvite, { inviteToken })
       : null;
   }
 
   // PAPER_ONLY — 참가자: 롤페 작성 / 주최자: 공개 후 롤페 확인
-  if (role === 'participant') {
+  if (role === PARTY_ROLE.PARTICIPANT) {
     return partyId ? generatePath(ROUTES.rollingPaperWrite, { partyId }) : null;
   }
   return isOpen && partyId ? generatePath(ROUTES.rollingPaper, { id: partyId }) : null;

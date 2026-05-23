@@ -1,5 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
+import { PARTY_ROLE } from '@/constants/party';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import type { components } from '@/types/api';
@@ -41,7 +42,7 @@ function mapUpcomingParty(party: UpcomingPartyResponse): UpcomingParty {
     date: startedAt?.isValid() ? startedAt.format('YY.MM.DD') : '',
     time: startedAt?.isValid() ? formatKoreanTime(startedAt.toDate()) : undefined,
     endDate: endedAt?.isValid() ? endedAt.format('YY.MM.DD') : undefined,
-    role: party.host ? 'host' : 'participant',
+    role: party.host ? PARTY_ROLE.HOST : PARTY_ROLE.PARTICIPANT,
     partyOption: party.partyOption ?? 'REALTIME',
     isOpen: deriveIsOpen(party),
   };
