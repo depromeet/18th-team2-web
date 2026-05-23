@@ -1,10 +1,12 @@
 language: ko-KR
 reviews:
-  request_changes_workflow: false
+  request_changes_workflow: true
   high_level_summary: true
+  poem: false
   path_filters: []
   auto_review:
     enabled: true
+    drafts: false
     base_branches:
       - dev
       - main
