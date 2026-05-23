@@ -15,6 +15,7 @@ import { ROUTES } from '@/constants/routes';
 import { useRollingPaper, type RollingPaperMessage } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
 import { isApiErrorStatus } from '@/utils/api-error';
+import { isFuture } from '@/utils/date';
 
 const TOPPINGS_PER_PAGE = 7;
 
@@ -37,9 +38,7 @@ export default function RollingPaperPage() {
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
-  const isWritable = data?.writableUntil
-    ? new Date(data.writableUntil).getTime() > Date.now()
-    : false;
+  const isWritable = isFuture(data?.writableUntil);
   const isBeforeParty = data?.partyStartedAt
     ? new Date(data.partyStartedAt).getTime() > Date.now()
     : false;

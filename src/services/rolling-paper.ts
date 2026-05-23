@@ -86,6 +86,8 @@ export const rollingPaperQueries = {
           hostName: raw.celebrantNickname ?? '',
           messages: mapItems(raw.items),
           partyStartedAt: null,
+          // partyEndAt = startedAt + 7일 = 작성 마감 (BE Party.endedAt 기준).
+          // OpenAPI 설명("파티 자체 종료 시각")은 오해 소지 — 실제 파티 종료는 liveEndAt. +7일 금지.
           writableUntil: raw.partyEndAt ?? null,
           totalCount: raw.totalCount ?? 0,
         };
