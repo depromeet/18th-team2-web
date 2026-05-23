@@ -77,6 +77,12 @@ export default function RollingPaperPage() {
     navigate(ROUTES.home, { replace: true });
   }
 
+  // 작성 완료 화면에선 본인 외 메시지 열람 차단 — 토핑 클릭 무반응
+  function handleToppingClick(index: number) {
+    if (isWriteCompleteMode) return;
+    setSelectedMessageIndex(index);
+  }
+
   if (isLoading) return null;
 
   if (isError) {
@@ -158,7 +164,7 @@ export default function RollingPaperPage() {
         {messageCount > 0 && (
           <ToppingGrid
             messages={messages}
-            onToppingClick={(index) => setSelectedMessageIndex(index)}
+            onToppingClick={handleToppingClick}
             initialPage={initialToppingPage}
           />
         )}
