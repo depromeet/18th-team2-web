@@ -1,6 +1,7 @@
+import type { PartyRole } from '@/constants/party';
+
 export type ArchiveItemType = 'PARTY' | 'PAPER';
 export type StampType = 'strawberry' | 'candle' | 'firework' | 'rollcake' | 'donut';
-export type PartyRole = 'HOST' | 'PARTICIPANT';
 
 export interface ArchiveListItem {
   /** 항목 ID (participant.id) */

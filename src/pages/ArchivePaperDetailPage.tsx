@@ -5,6 +5,7 @@ import { ArchiveDetailLayout } from '@/components/archive/ArchiveDetailLayout';
 import { MyPaperSection } from '@/components/archive/MyPaperSection';
 import { PaperInfoSection } from '@/components/archive/PaperInfoSection';
 import { SingleMessageModal } from '@/components/message/SingleMessageModal';
+import { PARTY_ROLE } from '@/constants/party';
 import { ROUTES } from '@/constants/routes';
 import { useArchiveDetail } from '@/services/archive';
 
@@ -24,7 +25,7 @@ export default function ArchivePaperDetailPage() {
     );
   }
 
-  const isHost = data.role === 'HOST';
+  const isHost = data.role === PARTY_ROLE.HOST;
   const showPaperSection = isHost || (data.myPaperWritten && data.myPaperContent);
 
   const handlePaperClick = () => {

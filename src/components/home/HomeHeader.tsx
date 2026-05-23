@@ -31,7 +31,11 @@ export function HomeHeader() {
             로그아웃
           </button>
         )}
-        <button type="button" onClick={() => navigate(ROUTES.mypage)}>
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.mypage)}
+          className="rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+        >
           <img src={iconPerson} alt="프로필" className="h-6 w-6" />
         </button>
       </div>

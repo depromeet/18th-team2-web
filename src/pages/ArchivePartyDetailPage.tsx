@@ -7,6 +7,7 @@ import { ParticipantsSection } from '@/components/archive/ParticipantsSection';
 import { PartyChatSection } from '@/components/archive/PartyChatSection';
 import { PartyInfoSection } from '@/components/archive/PartyInfoSection';
 import { SingleMessageModal } from '@/components/message/SingleMessageModal';
+import { PARTY_ROLE } from '@/constants/party';
 import { ROUTES } from '@/constants/routes';
 import { useArchiveDetail } from '@/services/archive';
 
@@ -26,7 +27,7 @@ export default function ArchivePartyDetailPage() {
     );
   }
 
-  const isHost = data.role === 'HOST';
+  const isHost = data.role === PARTY_ROLE.HOST;
   const showPaperSection = isHost || (data.myPaperWritten && data.myPaperContent);
 
   const handlePaperClick = () => {

@@ -16,7 +16,7 @@ export function MyPaperSection({ buttonLabel, onClick, count }: MyPaperSectionPr
       <button
         type="button"
         onClick={onClick}
-        className="flex h-14 w-full cursor-pointer items-center justify-center rounded-[14px] border border-blue-200"
+        className="flex h-14 w-full cursor-pointer items-center justify-center rounded-[14px] border border-blue-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
       >
         <B1 className="font-semibold text-blue-600">{buttonLabel}</B1>
       </button>
