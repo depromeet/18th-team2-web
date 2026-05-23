@@ -53,6 +53,7 @@ export const partyInviteQueries = {
           isHost: raw.host ?? false,
         } satisfies PartyInviteLookup;
       },
+      enabled: Boolean(inviteToken),
     }),
 };
 

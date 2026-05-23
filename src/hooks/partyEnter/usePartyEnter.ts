@@ -3,7 +3,9 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import { VALIDATION_MESSAGES } from '@/constants/validation';
 import { ROUTES } from '@/constants/routes';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
 import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
+import { usePartyInvite } from '@/services/party-invite';
 
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
@@ -13,10 +15,16 @@ export function usePartyEnter() {
   const navigate = useNavigate();
 
   const { data: profile } = useGetMyRealtimeProfile(inviteToken);
+  const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
   const isHost = profile?.isHost ?? false;
   const isNicknameEditable = profile?.nicknameEditable ?? true;
+
+  // 파티 시작 시각까지 카운트다운 — liveStartAt 도달 시 입장 가능
+  const { isReady, minutes, seconds, hasStarted } = usePartyStartCountdown(
+    invite?.realtimeSchedule?.liveStartAt,
+  );
 
   const [nickname, setNickname] = useState('');
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
@@ -65,7 +73,9 @@ export function usePartyEnter() {
     title,
     isHost,
     isPending,
-    isTimeToParty: true,
+    isTimeToParty: hasStarted,
+    // 시작 전(유효 스케줄 보유)에만 "X분 Y초 남았어요" 노출
+    countdown: isReady && !hasStarted ? { minutes, seconds } : null,
     inputValue: nickname,
     isNicknameEditable,
     inputMessage,
