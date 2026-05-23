@@ -18,6 +18,13 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
   };
 
   useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio(happyBirthdayMusic);
       audioRef.current.loop = true;
