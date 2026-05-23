@@ -6,6 +6,7 @@ import { HostTitle, ParticipantTitle } from '@/components/party-invitation/Invit
 import { InvitationCard } from '@/components/party-invitation/InvitationCard';
 import { ParticipantActions } from '@/components/party-invitation/ParticipantActions';
 import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
+import { BottomActionBar } from '@/components/ui/BottomActionBar';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
@@ -90,26 +91,24 @@ export function PartyInvitationView({
           />
         </section>
 
-        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex min-h-27.5 w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pt-2 pb-6">
-          <div className="w-full">
-            {isHost ? (
-              <HostActions
-                isWithin5Minutes={isWithin5Minutes}
-                onEnterParty={handleEnterParty}
-                onShareInvite={() => setIsShareSheetOpen(true)}
-              />
-            ) : (
-              <ParticipantActions
-                isWithin5Minutes={isWithin5Minutes}
-                hasWrittenRollingPaper={hasWrittenRollingPaper}
-                canEnterParty={partyOption === 'REALTIME'}
-                isJoining={isJoining}
-                onEnterParty={handleEnterParty}
-                onWriteRollingPaper={handleWriteRollingPaper}
-              />
-            )}
-          </div>
-        </div>
+        <BottomActionBar>
+          {isHost ? (
+            <HostActions
+              isWithin5Minutes={isWithin5Minutes}
+              onEnterParty={handleEnterParty}
+              onShareInvite={() => setIsShareSheetOpen(true)}
+            />
+          ) : (
+            <ParticipantActions
+              isWithin5Minutes={isWithin5Minutes}
+              hasWrittenRollingPaper={hasWrittenRollingPaper}
+              canEnterParty={partyOption === 'REALTIME'}
+              isJoining={isJoining}
+              onEnterParty={handleEnterParty}
+              onWriteRollingPaper={handleWriteRollingPaper}
+            />
+          )}
+        </BottomActionBar>
 
         <LinkShareSheet
           isOpen={isShareSheetOpen}
