@@ -23,10 +23,13 @@ import PartyInviteEntryPage from '@/pages/PartyInviteEntryPage';
 import RollingPaperWritePage from '@/pages/RollingPaperWritePage';
 import PartyEnterPage from '@/pages/PartyEnterPage';
 import LivePartyPage from '@/pages/LivePartyPage';
+import ErrorPage from '@/pages/ErrorPage';
+import NotFoundPage from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
     element: <MobileLayout />,
+    errorElement: <ErrorPage />,
     children: [
       // 공개 라우트
       { path: ROUTES.onboarding, element: <OnboardingPage /> },
@@ -57,6 +60,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.mypage, element: <MyPage /> },
         ],
       },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
