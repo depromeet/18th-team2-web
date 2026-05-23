@@ -4,6 +4,13 @@ reviews:
   high_level_summary: true
   poem: false
   path_filters: []
+  path_instructions:
+    - path: "src/**/*.{ts,tsx}"
+      instructions: |
+        리뷰 시 저장소의 `.claude/conventions/` 하위 문서들을 읽고, 그 규칙을 기준으로 검토한다:
+        naming.md, code-style.md, styling.md, react-patterns.md, component-patterns.md,
+        state-management.md, api-patterns.md, routing.md.
+        변경 파일 종류에 맞는 문서를 우선 적용하고, 위반 사항은 근거(문서명)와 함께 지적한다.
   auto_review:
     enabled: true
     drafts: false
