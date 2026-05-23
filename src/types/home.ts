@@ -7,6 +7,7 @@ export interface UpcomingParty {
   partyId?: string;
   /** BE `inviteToken` — 초대장 진입에 사용. 유효 토큰 없으면 undefined */
   inviteToken?: string;
+  hostName?: string;
   partyName: string;
   date: string;
   time?: string;

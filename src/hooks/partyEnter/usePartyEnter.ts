@@ -7,14 +7,16 @@ import { generatePath, useLocation, useNavigate, useParams } from 'react-router-
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
 import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
 import { usePartyInvite } from '@/services/party-invite';
+import { usePartyStore } from '@/stores/usePartyStore';
 
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
   const location = useLocation();
-  const locationState = location.state as { inviteToken?: string; from?: string } | null;
+  const locationState = location.state as { inviteToken?: string; from?: string; hostName?: string } | null;
   const inviteToken = locationState?.inviteToken ?? '';
 
   const navigate = useNavigate();
+  const setHostName = usePartyStore((s) => s.setHostName);
 
   const { data: profile } = useGetMyRealtimeProfile(inviteToken);
   const { data: invite } = usePartyInvite(inviteToken);
@@ -41,6 +43,11 @@ export function usePartyEnter() {
       setSelectedCharacterId(profile.character.characterId);
     }
   }, [profile]);
+
+  useEffect(() => {
+    const hostName = locationState?.hostName ?? '';
+    if (hostName) setHostName(hostName);
+  }, [locationState?.hostName, setHostName]);
 
   const title = isHost
     ? '해당 닉네임과 캐릭터로\n입장하시겠어요?'
@@ -70,7 +77,7 @@ export function usePartyEnter() {
       {
         onSuccess: () =>
           navigate(generatePath(ROUTES.liveParty, { partyId }), {
-            state: { from: locationState?.from },
+            state: { inviteToken, nickname, characterId: selectedCharacterId, from: locationState?.from },
           }),
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
