@@ -54,7 +54,10 @@ export default function PartyEnterPage() {
               </B2>
             )}
             {isHost && <ParticipantStatus participants={MOCK_PARTICIPANTS} />}
-            <Button type="submit" disabled={!isTimeToParty || !inputValue || isPending || isInputError}>
+            <Button
+              type="submit"
+              disabled={!isTimeToParty || !inputValue || isPending || isInputError}
+            >
               파티 입장하러 가기
             </Button>
           </footer>
