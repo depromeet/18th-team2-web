@@ -18,7 +18,7 @@ export function usePartyEnter() {
   const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
-  const isHost = profile?.isHost ?? false;
+  const isHost = profile?.host ?? false;
   const isNicknameEditable = profile?.nicknameEditable ?? true;
 
   // 파티 시작 시각까지 카운트다운 — liveStartAt 도달 시 입장 가능
@@ -64,7 +64,8 @@ export function usePartyEnter() {
         body: { nickname, characterId: selectedCharacterId },
       },
       {
-        onSuccess: () => navigate(generatePath(ROUTES.liveParty, { partyId })),
+        onSuccess: () =>
+          navigate(generatePath(ROUTES.liveParty, { partyId }), { state: { inviteToken } }),
       },
     );
   };

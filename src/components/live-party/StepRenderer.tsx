@@ -9,12 +9,26 @@ interface StepRendererProps {
   step: PartyStep;
   onStepComplete?: () => void;
   userRole: PartyUserRole;
+  hostName?: string;
+  hostCharacterImage?: string | null;
 }
 
-export function StepRenderer({ step, onStepComplete, userRole }: StepRendererProps) {
+export function StepRenderer({
+  step,
+  onStepComplete,
+  userRole,
+  hostName,
+  hostCharacterImage,
+}: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
-      return <PartyEntryStep onComplete={onStepComplete} />;
+      return (
+        <PartyEntryStep
+          hostName={hostName}
+          hostCharacterImage={hostCharacterImage}
+          onComplete={onStepComplete}
+        />
+      );
     case 'MUSIC':
       return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':

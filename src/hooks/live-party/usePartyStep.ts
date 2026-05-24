@@ -11,16 +11,27 @@ import {
   type PartyUserRole,
 } from '@/constants/live-party';
 
-export function useLivePartyStep() {
-  const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
+interface UseLivePartyStepOptions {
+  initialStep?: PartyStep;
+  initialUserRole?: PartyUserRole;
+  onEntryComplete?: () => void;
+}
 
-  // 프리런칭 데이용 하드코딩
-  const [userRole] = useState<PartyUserRole>(PARTY_USER.PARTICIPANT_NOT_WRITTEN);
+export function useLivePartyStep({
+  initialStep = LIVE_PARTY_STEP.ENTRY,
+  initialUserRole = PARTY_USER.PARTICIPANT_NOT_WRITTEN,
+  onEntryComplete,
+}: UseLivePartyStepOptions = {}) {
+  const [step, setStep] = useState<PartyStep>(initialStep);
+  const userRole = initialUserRole;
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleNextStep = () => {
     const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
     const nextStep = LIVE_PARTY_STEP_ARRAY[(currentIndex + 1) % LIVE_PARTY_STEP_ARRAY.length];
+    if (step === LIVE_PARTY_STEP.ENTRY) {
+      onEntryComplete?.();
+    }
 
     if (OVERLAY_TRANSITION_STEPS.includes(step)) {
       setIsTransitioning(true);

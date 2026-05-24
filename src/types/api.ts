@@ -69,10 +69,10 @@ export interface paths {
          *
          *     **입장 가능 조건**
          *     - 초대 링크가 만료되지 않아야 합니다
-         *     - 파티 시작 5분 전부터 입장할 수 있습니다
+         *     - 신규 입장은 실시간 파티가 LIVE_OPEN 상태일 때만 가능합니다
          *
          *     **재입장**
-         *     동일한 초대 토큰으로 다시 호출하면 닉네임·캐릭터가 덮어씌워지고, SSE 스트림이 새로 연결됩니다.
+         *     기존 participantToken으로 다시 호출하면 LIVE_ENDING 상태에서도 SSE 스트림을 복구할 수 있습니다.
          *
          *     ---
          *
@@ -80,6 +80,7 @@ export interface paths {
          *
          *     | 이벤트 이름 | 설명 |
          *     |---|---|
+         *     | `party-state` | 현재 실시간 파티 상태 |
          *     | `entered` | 입장 완료 정보 (participantToken + 기존 채팅 내역) |
          *
          *     **이후 실시간으로 수신되는 이벤트**
@@ -89,8 +90,9 @@ export interface paths {
          *     | `message` | 새로 전송된 메시지 1건 |
          *     | `user-entered` | 참여자 입장 알림 |
          *     | `user-left` | 참여자 퇴장 알림 |
-         *     | `party-ending` | 파티 종료 1분 전 알림 |
-         *     | `party-ended` | 파티 종료 및 스트림 종료 알림 |
+         *     | `host-end-available` | 주최자 수동 종료 가능 알림 |
+         *     | `party-ending` | 60초 종료 카운트다운 시작 알림 |
+         *     | `party-ended` | 실시간 파티 종료 알림 |
          *
          *     ---
          *
@@ -184,6 +186,24 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["createPartyUnknownType"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/realtime-end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 주최자 실시간 파티 종료 상태 조회 */
+        get: operations["getRealtimeEndStatus"];
+        put?: never;
+        /** 주최자 실시간 파티 종료 요청 */
+        post: operations["startRealtimeEnd"];
         delete?: never;
         options?: never;
         head?: never;
@@ -425,6 +445,40 @@ export interface paths {
          * @description 딥링크나 새로고침 복구처럼 목록 page 캐시가 없는 경우 롤링페이퍼 상세 내용을 조회한다.
          */
         get: operations["getOwnerRollingPaperDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/realtime-state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 실시간 파티 상태 복구 조회 */
+        get: operations["getRealtimeState"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/realtime-next-action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 실시간 파티 종료 후 다음 행동 조회 */
+        get: operations["getRealtimeNextAction"];
         put?: never;
         post?: never;
         delete?: never;
@@ -721,7 +775,7 @@ export interface components {
              */
             nickname?: string | null;
             character?: components["schemas"]["CharacterResult"] | null;
-            isHost?: boolean;
+            host?: boolean;
             /**
              * @description 닉네임 수정 가능 여부. 주최자는 false
              * @example true
@@ -790,6 +844,37 @@ export interface components {
              * @example 1
              */
             participantId?: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseRealtimePartyEndResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["RealtimePartyEndResult"] | null;
+        };
+        /** @description 실시간 파티 종료 카운트다운 시작 응답 */
+        RealtimePartyEndResult: {
+            /**
+             * Format: int64
+             * @description 파티 ID
+             * @example 1
+             */
+            partyId?: number;
+            /**
+             * Format: date-time
+             * @description 종료 카운트다운 시작 시각
+             * @example 2026-05-19T20:10:00
+             */
+            endingStartedAt?: string;
+            /**
+             * Format: date-time
+             * @description 실시간 라이브 종료 시각
+             * @example 2026-05-19T20:11:00
+             */
+            endedAt?: string;
         };
         /** @description 초대링크 활성화 응답 */
         ActivateInviteLinkResponse: {
@@ -1050,8 +1135,13 @@ export interface components {
             status?: number;
             data?: components["schemas"]["CreatePartyResponse"] | null;
         };
+        /** @description 파티 생성 응답 */
         CreatePartyResponse: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description 생성된 파티 ID
+             * @example 1
+             */
             partyId?: number;
         };
         /** @description 롤링페이퍼 파티 생성 요청 */
@@ -1363,6 +1453,138 @@ export interface components {
              * @example 12
              */
             totalCount?: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseRealtimePartyStateResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["RealtimePartyStateResult"] | null;
+        };
+        /** @description 실시간 파티 상태 복구 조회 응답 */
+        RealtimePartyStateResult: {
+            /**
+             * Format: int64
+             * @description 파티 ID
+             * @example 1
+             */
+            partyId?: number;
+            /**
+             * @description 실시간 파티 상태
+             * @example LIVE_OPEN
+             * @enum {string}
+             */
+            status?: "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED";
+            /**
+             * Format: date-time
+             * @description 실시간 라이브 시작 시각
+             * @example 2026-05-19T20:00:00
+             */
+            liveStartAt?: string;
+            /**
+             * Format: date-time
+             * @description 종료 카운트다운 시작 시각. 아직 시작되지 않았으면 null
+             * @example 2026-05-19T20:10:00
+             */
+            endingStartedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description 실시간 라이브 종료 시각
+             * @example 2026-05-19T20:11:00
+             */
+            endedAt?: string;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseRealtimePartyNextActionResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["RealtimePartyNextActionResult"] | null;
+        };
+        /** @description 주최자용 다음 행동 응답 */
+        Host: {
+            /**
+             * Format: int64
+             * @description 롤링페이퍼 목록으로 이동할 파티 ID
+             * @example 1
+             */
+            partyId?: number;
+            /**
+             * @description 다음 행동 타입
+             * @example PARTICIPANT_ROLLING_PAPER_WRITE
+             * @enum {string}
+             */
+            type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+        };
+        /** @description 참가자용 다음 행동 응답 */
+        Participant: {
+            /**
+             * @description 롤링페이퍼 작성 화면 진입에 사용할 유효 초대 토큰
+             * @example exampletoken0000
+             */
+            inviteToken?: string;
+            /**
+             * @description 현재 참가자의 롤링페이퍼 작성 완료 여부
+             * @example false
+             */
+            rollingPaperWritten?: boolean;
+            /**
+             * @description 다음 행동 타입
+             * @example PARTICIPANT_ROLLING_PAPER_WRITE
+             * @enum {string}
+             */
+            type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+        };
+        /** @description 실시간 파티 종료 후 다음 행동 조회 응답 */
+        RealtimePartyNextActionResult: {
+            /**
+             * @description 다음 행동 타입
+             * @example PARTICIPANT_ROLLING_PAPER_WRITE
+             * @enum {string}
+             */
+            type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+        } & (components["schemas"]["Host"] | components["schemas"]["Participant"]);
+        /** @description 공통 성공 응답 */
+        ApiResponseRealtimePartyEndStatusResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["RealtimePartyEndStatusResult"] | null;
+        };
+        /** @description 주최자 실시간 파티 종료 상태 조회 응답 */
+        RealtimePartyEndStatusResult: {
+            /**
+             * @description 주최자 수동 종료 가능 여부
+             * @example true
+             */
+            canEnd?: boolean;
+            /**
+             * Format: date-time
+             * @description 시간 기준 주최자 수동 종료 가능 시각
+             * @example 2026-05-19T20:04:00
+             */
+            availableAt?: string;
+            /**
+             * Format: date-time
+             * @description 종료 카운트다운 시작 시각. 아직 시작되지 않았으면 null
+             * @example 2026-05-19T20:10:00
+             */
+            endingStartedAt?: string | null;
+            /**
+             * Format: date-time
+             * @description 실시간 라이브 종료 시각. 아직 종료 시작 전이면 null
+             * @example 2026-05-19T20:11:00
+             */
+            endedAt?: string | null;
         };
         /** @description 공통 성공 응답 */
         ApiResponsePartyParticipantsResponse: {
@@ -1958,6 +2180,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 같은 파티 내 닉네임 중복 (대소문자 무시) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 서버 내부 오류 */
             500: {
                 headers: {
@@ -2288,6 +2519,112 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    getRealtimeEndStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 종료 상태 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRealtimePartyEndStatusResult"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    startRealtimeEnd: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 종료 카운트다운 시작 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRealtimePartyEndResult"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
             };
         };
     };
@@ -3041,6 +3378,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRealtimeState: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 상태 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRealtimePartyStateResult"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getRealtimeNextAction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 다음 행동 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRealtimePartyNextActionResult"];
                 };
             };
             /** @description 서버 내부 오류 */

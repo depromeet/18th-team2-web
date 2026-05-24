@@ -8,11 +8,17 @@ import partyLight from '@/assets/images/live-party/party-light.png';
 import { FloatingCharacter } from '@/components/live-party/main-background/FloatingCharacter';
 
 import { PARTY_USER, type PartyUserRole } from '@/constants/live-party';
-import { MOCK_PARTY_PARTICIPANTS } from '@/services/live-party';
+import { config } from '@/config/env';
+import {
+  MOCK_PARTY_PARTICIPANTS,
+  type PartyParticipant,
+  type PartyParticipantResult,
+} from '@/services/live-party';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 interface PartyMainBackgroundProps {
   userRole: PartyUserRole;
+  participants?: PartyParticipantResult[];
 }
 
 interface Firework {
@@ -24,7 +30,27 @@ interface Firework {
 
 const FIREWORK_DURATION = 1400;
 
-export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
+function resolveImageUrl(url: string | null | undefined) {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
+function mapParticipant(participant: PartyParticipantResult): PartyParticipant | null {
+  if (participant.participantId == null) return null;
+  const image = resolveImageUrl(participant.characterImageUrl);
+  if (!image) return null;
+
+  return {
+    id: participant.participantId,
+    name: participant.nickname ?? '파티 참여자',
+    image,
+    role: participant.celebrant ? 'host' : 'participant',
+    isCurrentUser: participant.me,
+  };
+}
+
+export function PartyMainBackground({ userRole, participants }: PartyMainBackgroundProps) {
   const isHost = userRole === PARTY_USER.HOST;
 
   const firecrackerId = useFirecrackerStore((s) => s.firecrackerId);
@@ -64,11 +90,19 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
     };
   }, [firecrackerId]);
 
-  const hostParticipant = useMemo(() => MOCK_PARTY_PARTICIPANTS.find((p) => p.role === 'host'), []);
+  const partyParticipants = useMemo(() => {
+    const mapped = participants?.map(mapParticipant).filter((p): p is PartyParticipant => !!p);
+    return mapped && mapped.length > 0 ? mapped : MOCK_PARTY_PARTICIPANTS;
+  }, [participants]);
+
+  const hostParticipant = useMemo(
+    () => partyParticipants.find((p) => p.role === 'host'),
+    [partyParticipants],
+  );
 
   const allParticipants = useMemo(
-    () => MOCK_PARTY_PARTICIPANTS.filter((p) => p.role !== 'host'),
-    [],
+    () => partyParticipants.filter((p) => p.role !== 'host'),
+    [partyParticipants],
   );
 
   // 참여자 뷰: 본인 캐릭터 / 주최자 뷰: 랜덤 참여자 1명
