@@ -11,7 +11,8 @@ import { usePartyInvite } from '@/services/party-invite';
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
   const location = useLocation();
-  const inviteToken = (location.state as { inviteToken?: string } | null)?.inviteToken ?? '';
+  const locationState = location.state as { inviteToken?: string; from?: string } | null;
+  const inviteToken = locationState?.inviteToken ?? '';
 
   const navigate = useNavigate();
 
@@ -67,7 +68,10 @@ export function usePartyEnter() {
         body: { nickname, characterId: selectedCharacterId },
       },
       {
-        onSuccess: () => navigate(generatePath(ROUTES.liveParty, { partyId })),
+        onSuccess: () =>
+          navigate(generatePath(ROUTES.liveParty, { partyId }), {
+            state: { from: locationState?.from },
+          }),
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
             setErrorMessage(VALIDATION_MESSAGES.nickname.duplicate);
