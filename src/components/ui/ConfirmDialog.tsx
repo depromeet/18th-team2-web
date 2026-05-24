@@ -31,7 +31,10 @@ const actionClassNames: Record<DialogActionVariant, string> = {
   'white-red': '',
 };
 
-const actionVariants: Record<DialogActionVariant, 'primary' | 'danger' | 'white-grey' | 'white-red'> = {
+const actionVariants: Record<
+  DialogActionVariant,
+  'primary' | 'danger' | 'white-grey' | 'white-red'
+> = {
   primary: 'primary',
   secondary: 'white-grey',
   danger: 'danger',
