@@ -71,6 +71,8 @@ export function usePartyEnter() {
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
             setErrorMessage(VALIDATION_MESSAGES.nickname.duplicate);
+          } else {
+            setErrorMessage(error instanceof ApiError ? error.message : '오류가 발생했어요');
           }
         },
       },
