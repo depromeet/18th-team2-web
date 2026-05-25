@@ -5,6 +5,7 @@ import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
+import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import { LIVE_PARTY_STEP, PARTY_USER } from '@/constants/live-party';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
@@ -17,6 +18,8 @@ export default function LivePartyPage() {
   const { step, userRole, partyEnd, handleNextStep, isTransitioning } = useLivePartyStep();
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
+
+  const { messages, addMessage } = useLivePartySSE();
 
   const showPartyMain =
     step !== LIVE_PARTY_STEP.ENTRY &&
@@ -40,7 +43,7 @@ export default function LivePartyPage() {
       {showPartyMain && <PartyMainBackground userRole={userRole} />}
       <StepRenderer step={step} onStepComplete={handleNextStep} userRole={userRole} />
       <TransitionEffect isTransitioning={isTransitioning} />
-      {showPartyMain && <ChatBottomSheet />}
+      {showPartyMain && <ChatBottomSheet messages={messages} onSend={addMessage} />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
         isHost={userRole === PARTY_USER.HOST}
