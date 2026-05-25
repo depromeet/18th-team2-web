@@ -8,7 +8,7 @@ import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
-import { LIVE_PARTY_STEP } from '@/constants/live-party';
+import { LIVE_PARTY_STEP, PARTY_USER } from '@/constants/live-party';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
 
@@ -64,6 +64,7 @@ export default function LivePartyPage() {
       {showPartyMain && <ChatBottomSheet isBlurred={isPinataOverlayActive} />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
+        isHost={userRole === PARTY_USER.HOST}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
       />
