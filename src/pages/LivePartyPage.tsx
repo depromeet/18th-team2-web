@@ -17,6 +17,7 @@ export default function LivePartyPage() {
   const { step, userRole, partyEnd, handleNextStep, isTransitioning } = useLivePartyStep();
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
+  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
 
   const showPartyMain =
     step !== LIVE_PARTY_STEP.ENTRY &&
@@ -37,10 +38,10 @@ export default function LivePartyPage() {
           step={step}
         />
       )}
-      {showPartyMain && <PartyMainBackground userRole={userRole} />}
+      {showPartyMain && <PartyMainBackground userRole={userRole} isBlurred={isPinataStep} />}
       <StepRenderer step={step} onStepComplete={handleNextStep} userRole={userRole} />
       <TransitionEffect isTransitioning={isTransitioning} />
-      {showPartyMain && <ChatBottomSheet />}
+      {showPartyMain && <ChatBottomSheet isBlurred={isPinataStep} />}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
         onCancel={handleCancelExit}

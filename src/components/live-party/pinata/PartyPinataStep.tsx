@@ -1,3 +1,3 @@
 export function PartyPinataStep() {
-  return <div>박 깨기</div>;
+  return <div className="pointer-events-none absolute inset-0 z-40" />;
 }

@@ -13,6 +13,7 @@ import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 interface PartyMainBackgroundProps {
   userRole: PartyUserRole;
+  isBlurred?: boolean;
 }
 
 interface Firework {
@@ -24,7 +25,7 @@ interface Firework {
 
 const FIREWORK_DURATION = 1400;
 
-export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
+export function PartyMainBackground({ userRole, isBlurred = false }: PartyMainBackgroundProps) {
   const isHost = userRole === PARTY_USER.HOST;
 
   const firecrackerId = useFirecrackerStore((s) => s.firecrackerId);
@@ -122,7 +123,11 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
   );
 
   return (
-    <>
+    <div
+      className={`absolute inset-0 transition-[filter] duration-300 ${
+        isBlurred ? 'pointer-events-none blur-[6px] brightness-[0.55]' : ''
+      }`}
+    >
       <img
         src={partyLight}
         aria-hidden
@@ -178,6 +183,6 @@ export function PartyMainBackground({ userRole }: PartyMainBackgroundProps) {
       >
         <img src={cake} alt="" className="h-40 w-60" />
       </div>
-    </>
+    </div>
   );
 }
