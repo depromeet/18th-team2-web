@@ -8,10 +8,18 @@ import { PartyMusicText } from '@/components/live-party/music/PartyMusicText';
 interface StepRendererProps {
   step: PartyStep;
   onStepComplete?: () => void;
+  showPinataOverlay?: boolean;
+  onReturnToPartyRoom?: () => void;
   userRole: PartyUserRole;
 }
 
-export function StepRenderer({ step, onStepComplete, userRole }: StepRendererProps) {
+export function StepRenderer({
+  step,
+  onStepComplete,
+  showPinataOverlay = true,
+  onReturnToPartyRoom,
+  userRole,
+}: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
       return <PartyEntryStep onComplete={onStepComplete} />;
@@ -20,7 +28,9 @@ export function StepRenderer({ step, onStepComplete, userRole }: StepRendererPro
     case 'CANDLE':
       return <PartyCandleStep onComplete={onStepComplete} />;
     case 'PINATA':
-      return <PartyPinataStep />;
+      return showPinataOverlay ? (
+        <PartyPinataStep onReturnToPartyRoom={onReturnToPartyRoom} />
+      ) : null;
     case 'END':
       return <PartyEndStep role={userRole} />;
     default:
