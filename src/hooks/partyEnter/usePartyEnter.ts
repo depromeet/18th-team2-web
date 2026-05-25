@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 
 import { VALIDATION_MESSAGES } from '@/constants/validation';
 import { ROUTES } from '@/constants/routes';
+import { ApiError } from '@/services/api';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
 import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
@@ -28,6 +29,7 @@ export function usePartyEnter() {
 
   const [nickname, setNickname] = useState('');
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!profile) return;
@@ -43,10 +45,11 @@ export function usePartyEnter() {
     ? '해당 닉네임과 캐릭터로\n입장하시겠어요?'
     : '파티에 등장할\n닉네임과 캐릭터를 골라주세요!';
 
-  const inputMessage = isHost ? VALIDATION_MESSAGES.nickname.hostLocked : undefined;
+  const inputMessage = isHost ? VALIDATION_MESSAGES.nickname.hostLocked : errorMessage;
 
   const handleChangeNickname = (event: ChangeEvent<HTMLInputElement>) => {
     if (!isNicknameEditable) return;
+    setErrorMessage(undefined);
     setNickname(event.target.value);
   };
 
@@ -65,6 +68,13 @@ export function usePartyEnter() {
       },
       {
         onSuccess: () => navigate(generatePath(ROUTES.liveParty, { partyId })),
+        onError: (error) => {
+          if (error instanceof ApiError && error.status === 409) {
+            setErrorMessage(VALIDATION_MESSAGES.nickname.duplicate);
+          } else {
+            setErrorMessage(error instanceof ApiError ? error.message : '오류가 발생했어요');
+          }
+        },
       },
     );
   };
@@ -79,6 +89,7 @@ export function usePartyEnter() {
     inputValue: nickname,
     isNicknameEditable,
     inputMessage,
+    isInputError: !!errorMessage,
     selectedCharacterId,
     handleChangeNickname,
     handleSelectCharacter,

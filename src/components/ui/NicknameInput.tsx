@@ -21,19 +21,12 @@ export function NicknameInput({
   ...props
 }: NicknameInputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const [isOverLimit, setIsOverLimit] = useState(false);
-  const helperMessage =
-    message ??
-    (isOverLimit
-      ? VALIDATION_MESSAGES.nickname.invalidFormat
-      : isFocused
-        ? VALIDATION_MESSAGES.nickname.maxHint
-        : undefined);
+  const helperMessage = message ?? (isFocused ? VALIDATION_MESSAGES.nickname.maxHint : undefined);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const isOver = getGraphemeLength(event.target.value) > maxLength;
-    if (isOver) event.target.value = truncateByGrapheme(event.target.value, maxLength);
-    setIsOverLimit(isOver);
+    if (getGraphemeLength(event.target.value) > maxLength) {
+      event.target.value = truncateByGrapheme(event.target.value, maxLength);
+    }
     onChange?.(event);
   };
 
@@ -51,7 +44,7 @@ export function NicknameInput({
     <Input
       value={value}
       maxLength={maxLength}
-      error={error || isOverLimit}
+      error={error}
       message={helperMessage}
       onChange={handleChange}
       onFocus={handleFocus}
