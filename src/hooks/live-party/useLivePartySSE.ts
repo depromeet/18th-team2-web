@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { config } from '@/config/env';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
@@ -20,6 +21,7 @@ export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
 
   const { partyId } = useParams<{ partyId: string }>();
+  const queryClient = useQueryClient();
 
   const location = useLocation();
 
@@ -127,6 +129,8 @@ export function useLivePartySSE() {
               },
             ]);
 
+            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+
             return;
           }
 
@@ -141,6 +145,8 @@ export function useLivePartySSE() {
                 userName,
               },
             ]);
+
+            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
           }
         } catch {
           console.error('[SSE] 이벤트 파싱 실패');
@@ -158,7 +164,7 @@ export function useLivePartySSE() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [partyId, queryClient]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {

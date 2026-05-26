@@ -1,16 +1,31 @@
-import DefaultHost from '@/assets/images/live-party/default-host.svg?react';
+import { useParams } from 'react-router-dom';
+
+import defaultCharacterSrc from '@/assets/images/character/character-brown-full.png';
 import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png';
 
 import { Button } from '@/components/ui/Button';
 import { T3 } from '@/components/ui/Typography';
+import { config } from '@/config/env';
+import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyStore } from '@/stores/usePartyStore';
+
+function resolveImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
+}
 
 interface PartyEntryStageProps {
   onComplete?: () => void;
 }
 
 export function PartyEntryStage({ onComplete }: PartyEntryStageProps) {
+  const { partyId } = useParams<{ partyId: string }>();
+  const { data: participantsData } = useGetPartyParticipants(partyId);
   const hostName = usePartyStore((s) => s.hostName);
+
+  const host = participantsData?.data?.participants?.find((p) => p.isCelebrant);
+  const hostImageSrc = resolveImageUrl(host?.characterImageUrl) ?? defaultCharacterSrc;
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
@@ -22,7 +37,7 @@ export function PartyEntryStage({ onComplete }: PartyEntryStageProps) {
       />
 
       <div className="flex flex-1 flex-col items-center justify-center gap-20 px-2">
-        <DefaultHost className="party-enter-character w-44" />
+        <img src={hostImageSrc} alt={hostName} className="party-enter-character w-44" />
         <T3 className="text-center text-white">
           오늘의 주인공
           <br />

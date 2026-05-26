@@ -1,12 +1,7 @@
-import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
-import characterBrownFullSrc from '@/assets/images/character/character-brown-full.png';
-import characterPinkFullSrc from '@/assets/images/character/character-pink-full.png';
-import characterWhiteFullSrc from '@/assets/images/character/character-white-full.png';
-import characterYellowFullSrc from '@/assets/images/character/character-yellow-full.png';
-
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { config } from '@/config/env';
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import type { components } from '@/types/api';
@@ -21,14 +16,6 @@ export interface PartyParticipant {
   role: ParticipantRole;
   isCurrentUser?: boolean;
 }
-
-export const MOCK_PARTY_PARTICIPANTS: PartyParticipant[] = [
-  { id: 1, name: '하파린', image: characterBlueHostSrc, role: 'host' },
-  { id: 2, name: '소다', image: characterPinkFullSrc, role: 'participant', isCurrentUser: true },
-  { id: 3, name: '민트', image: characterYellowFullSrc, role: 'participant' },
-  { id: 4, name: '버블', image: characterBrownFullSrc, role: 'participant' },
-  { id: 5, name: '구름', image: characterWhiteFullSrc, role: 'participant' },
-];
 
 // ── SSE ──
 
@@ -150,6 +137,27 @@ export function useSendChatMessage() {
         options,
       );
     },
+  });
+}
+
+// ── 파티 참여자 목록 조회 ──
+
+export function useGetPartyParticipants(partyId: string | undefined) {
+  return useQuery({
+    queryKey: ['partyParticipants', partyId],
+    queryFn: () => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
+        `/api/v1/parties/${partyId}/participants`,
+        options,
+      );
+    },
+    enabled: !!partyId,
   });
 }
 
