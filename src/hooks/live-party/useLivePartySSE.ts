@@ -2,20 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { config } from '@/config/env';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
-
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
+import { resolveImageUrl } from '@/utils/image';
 
 export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);

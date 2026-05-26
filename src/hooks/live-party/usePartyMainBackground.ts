@@ -6,10 +6,10 @@ import fireworkSmall from '@/assets/images/live-party/firework-small.svg';
 import defaultCharacterSrc from '@/assets/images/character/character-brown-full.png';
 
 import { PARTY_USER } from '@/constants/live-party';
-import { config } from '@/config/env';
 import { useGetPartyParticipants } from '@/services/live-party';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 import { usePartyUserRole } from '@/hooks/live-party/usePartyUserRole';
+import { resolveImageUrl } from '@/utils/image';
 
 interface Firework {
   id: number;
@@ -19,12 +19,6 @@ interface Firework {
 }
 
 const FIREWORK_DURATION = 1400;
-
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
 
 export function usePartyMainBackground() {
   const { partyId } = useParams<{ partyId: string }>();

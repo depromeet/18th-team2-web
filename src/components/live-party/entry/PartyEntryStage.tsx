@@ -5,15 +5,9 @@ import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png'
 
 import { Button } from '@/components/ui/Button';
 import { T3 } from '@/components/ui/Typography';
-import { config } from '@/config/env';
 import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyStore } from '@/stores/usePartyStore';
-
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
+import { resolveImageUrl } from '@/utils/image';
 
 interface PartyEntryStageProps {
   onComplete?: () => void;
