@@ -75,14 +75,29 @@ export function connectRealtimeParty(
     let buffer = '';
 
     while (true) {
+      // abort 되었으면 즉시 종료
+      if (signal.aborted) {
+        break;
+      }
+
       const { done, value } = await reader.read();
-      if (done) break;
+
+      if (done) {
+        break;
+      }
 
       buffer += decoder.decode(value, { stream: true });
+
       const { events, remaining } = parseSSEBuffer(buffer);
+
       buffer = remaining;
 
       for (const sseEvent of events) {
+        // 중간에 abort 되면 이벤트 처리 중단
+        if (signal.aborted) {
+          break;
+        }
+
         onEvent(sseEvent);
       }
     }
