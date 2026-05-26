@@ -37,7 +37,7 @@ export interface paths {
         };
         /**
          * 참가자용 롤링페이퍼 목록 조회
-         * @description 초대 토큰으로 롤링페이퍼 목록과 상세 오버레이용 본문을 조회한다. 인증 없이도 조회 가능하다. Authorization header를 보낼 경우 유효한 Bearer token이어야 한다.
+         * @description 초대 토큰으로 롤링페이퍼 목록을 조회한다. 인증 없이도 조회 가능하다. Authorization header를 보낼 경우 유효한 Bearer token이어야 한다.
          */
         get: operations["getParticipantRollingPapers"];
         put?: never;
@@ -373,7 +373,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/rolling-paper-wrappers": {
+    "/api/v1/rolling-paper-toppings": {
         parameters: {
             query?: never;
             header?: never;
@@ -381,10 +381,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 롤링페이퍼 래퍼 목록 조회
-         * @description 롤링페이퍼 작성 시 선택 가능한 래퍼 목록을 조회한다.
+         * 롤링페이퍼 토핑 목록 조회
+         * @description 롤링페이퍼 작성 시 선택 가능한 토핑 목록을 조회한다.
          */
-        get: operations["getRollingPaperWrappers"];
+        get: operations["getRollingPaperToppings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -520,8 +520,7 @@ export interface paths {
         /**
          * 박터뜨리기 상태 및 결과 조회
          * @description partyId 기준으로 진행 중인 라운드의 현재 상태 또는 TTL 안에 남아 있는 종료 결과를 조회합니다.
-         *     진행 중에는 rankings를, 종료 후에는 공동 1등 winners만 반환합니다.
-         *     ended=false이면 아직 결과가 확정되지 않은 상태이며 winners는 빈 배열입니다.
+         *     진행 중에는 상위 3명 rankings를, 종료 후에는 1회 이상 터치한 참가자 전체 rankings와 최종 totalTapCount를 반환합니다.
          */
         get: operations["getState"];
         put?: never;
@@ -796,10 +795,10 @@ export interface components {
             content: string | null;
             /**
              * Format: int64
-             * @description 래퍼 ID
+             * @description 토핑 ID
              * @example 1
              */
-            wrapperId: number | null;
+            toppingId: number | null;
         };
         /** @description 공통 성공 응답 */
         ApiResponseCreateRollingPaperResponse: {
@@ -1011,12 +1010,6 @@ export interface components {
             ignoredReason?: "DUPLICATE_SEQUENCE" | "ROUND_ENDED" | null;
             /**
              * Format: int32
-             * @description 현재까지 반영된 전체 터치 수입니다.
-             * @example 42
-             */
-            totalTapCount?: number;
-            /**
-             * Format: int32
              * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
              * @example 11
              */
@@ -1038,7 +1031,7 @@ export interface components {
              * @example 2026-05-14T20:10:07.120
              */
             serverTime?: string;
-            /** @description 진행 중 상태에서 제공되는 상위 3개 rank group입니다. */
+            /** @description 진행 중 상태에서 제공되는 상위 3명입니다. */
             rankings?: components["schemas"]["BurstGameRankingResponse"][];
         };
         /** @description 공통 성공 응답 */
@@ -1076,12 +1069,6 @@ export interface components {
              * @example 2026-05-14T20:10:20
              */
             endsAt?: string;
-            /**
-             * Format: int32
-             * @description 현재까지 반영된 전체 터치 수입니다.
-             * @example 0
-             */
-            totalTapCount?: number;
             /**
              * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
              * @example false
@@ -1174,7 +1161,7 @@ export interface components {
             userId?: number;
         };
         /** @description 공통 성공 응답 */
-        ApiResponseListRollingPaperWrapperResponse: {
+        ApiResponseListRollingPaperToppingResult: {
             /**
              * Format: int32
              * @description HTTP 상태 코드
@@ -1182,26 +1169,26 @@ export interface components {
              */
             status?: number;
             /** @description 응답 데이터 */
-            data?: components["schemas"]["RollingPaperWrapperResponse"][] | null;
+            data?: components["schemas"]["RollingPaperToppingResult"][] | null;
         };
-        /** @description 롤링페이퍼 래퍼 조회 응답 */
-        RollingPaperWrapperResponse: {
+        /** @description 롤링페이퍼 토핑 조회 응답 */
+        RollingPaperToppingResult: {
             /**
              * Format: int64
-             * @description 래퍼 ID. 롤링페이퍼 작성 요청의 wrapperId로 전달합니다.
+             * @description 토핑 ID. 롤링페이퍼 작성 요청의 toppingId로 전달합니다.
              * @example 1
              */
-            wrapperId?: number;
+            toppingId?: number;
             /**
-             * @description 래퍼 이름
+             * @description 토핑 이름
              * @example Topping_Candle
              */
             name?: string;
             /**
-             * @description 래퍼 이미지 URL
+             * @description 토핑 이미지 URL
              * @example /images/rolling-paper-wrappers/Topping_Candle.svg
              */
-            wrapperImageUrl?: string | null;
+            toppingImageUrl?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponsePartyInviteLookupResponse: {
@@ -1294,6 +1281,25 @@ export interface components {
             status?: number;
             data?: components["schemas"]["ParticipantRollingPaperListResponse"] | null;
         };
+        /** @description 참가자용 롤링페이퍼 목록 item */
+        ParticipantRollingPaperListItemResult: {
+            /**
+             * Format: int64
+             * @description 롤링페이퍼 ID
+             * @example 10
+             */
+            rollingPaperId?: number;
+            /**
+             * @description 롤링페이퍼 작성자 닉네임
+             * @example 축하요정
+             */
+            writerNickname?: string;
+            /**
+             * @description 롤링페이퍼 토핑 이미지 URL.
+             * @example /images/rolling-paper-wrappers/Topping_Candle.svg
+             */
+            toppingImageUrl?: string;
+        };
         /** @description 참가자용 롤링페이퍼 목록 조회 응답 */
         ParticipantRollingPaperListResponse: {
             /**
@@ -1304,10 +1310,17 @@ export interface components {
             partyOption?: "REALTIME" | "PAPER_ONLY";
             /**
              * Format: date-time
-             * @description 실시간 파티 종료 시각. PAPER_ONLY면 null
+             * @description 실시간 파티 종료 기준 시각. 이 시각 이후 참가자는 롤링페이퍼 목록을 볼 수 있습니다. PAPER_ONLY면 null
              * @example 2026-05-05T22:10:00
              */
             liveEndAt?: string | null;
+            /** @description 롤링페이퍼 목록 */
+            items?: components["schemas"]["ParticipantRollingPaperListItemResult"][];
+            /** @description 페이지네이션 정보 */
+            pageInfo?: components["schemas"]["RollingPaperPageInfoResult"];
+        };
+        /** @description 롤링페이퍼 목록 페이지네이션 정보 */
+        RollingPaperPageInfoResult: {
             /**
              * Format: int32
              * @description 현재 페이지. page가 1보다 작으면 1로 보정합니다.
@@ -1331,11 +1344,19 @@ export interface components {
              * @example true
              */
             hasNext?: boolean;
-            /** @description 롤링페이퍼 목록 */
-            items?: components["schemas"]["RollingPaperListItemResponse"][];
         };
-        /** @description 롤링페이퍼 목록 item */
-        RollingPaperListItemResponse: {
+        /** @description 공통 성공 응답 */
+        ApiResponseOwnerRollingPaperListResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status?: number;
+            data?: components["schemas"]["OwnerRollingPaperListResponse"] | null;
+        };
+        /** @description 주최자용 롤링페이퍼 목록 item */
+        OwnerRollingPaperListItemResult: {
             /**
              * Format: int64
              * @description 롤링페이퍼 ID
@@ -1359,20 +1380,10 @@ export interface components {
              */
             content?: string;
             /**
-             * @description 롤링페이퍼 래퍼 이미지 URL. 이미지가 없으면 null
+             * @description 롤링페이퍼 토핑 이미지 URL.
              * @example /images/rolling-paper-wrappers/Topping_Candle.svg
              */
-            wrapperImageUrl?: string | null;
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseOwnerRollingPaperListResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            data?: components["schemas"]["OwnerRollingPaperListResponse"] | null;
+            toppingImageUrl?: string;
         };
         /** @description 주최자용 롤링페이퍼 목록 조회 응답 */
         OwnerRollingPaperListResponse: {
@@ -1387,31 +1398,10 @@ export interface components {
              * @example 2026-05-12T14:30:00
              */
             partyEndAt?: string;
-            /**
-             * Format: int32
-             * @description 현재 페이지. page가 1보다 작으면 1로 보정합니다.
-             * @example 1
-             */
-            page?: number;
-            /**
-             * Format: int64
-             * @description 전체 롤링페이퍼 수
-             * @example 8
-             */
-            totalCount?: number;
-            /**
-             * Format: int32
-             * @description 전체 페이지 수. 롤링페이퍼가 없으면 0입니다.
-             * @example 2
-             */
-            totalPages?: number;
-            /**
-             * @description 다음 페이지 존재 여부
-             * @example true
-             */
-            hasNext?: boolean;
             /** @description 롤링페이퍼 목록 */
-            items?: components["schemas"]["RollingPaperListItemResponse"][];
+            items?: components["schemas"]["OwnerRollingPaperListItemResult"][];
+            /** @description 페이지네이션 정보 */
+            pageInfo?: components["schemas"]["RollingPaperPageInfoResult"];
         };
         /** @description 공통 성공 응답 */
         ApiResponseOwnerRollingPaperDetailResponse: {
@@ -1623,9 +1613,9 @@ export interface components {
             characterId?: number | null;
             /** @description 캐릭터 메인 이미지 URL */
             characterImageUrl?: string | null;
-            owner?: boolean;
-            me?: boolean;
-            celebrant?: boolean;
+            isOwner?: boolean;
+            isMe?: boolean;
+            isCelebrant?: boolean;
         };
         /** @description 파티 참여자 목록 응답 */
         PartyParticipantsResponse: {
@@ -1686,10 +1676,10 @@ export interface components {
             endsAt?: string;
             /**
              * Format: int32
-             * @description 현재까지 반영된 전체 터치 수입니다.
-             * @example 42
+             * @description 종료 상태에서 확정된 전체 터치 수입니다. 진행 중 상태에서는 내려주지 않습니다.
+             * @example 137
              */
-            totalTapCount?: number;
+            totalTapCount?: number | null;
             /**
              * Format: int32
              * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
@@ -1719,46 +1709,8 @@ export interface components {
              * @example 13
              */
             remainingSeconds?: number;
-            /** @description 진행 중 상태에서만 제공되는 상위 3개 rank group입니다. 종료 상태에서는 비어 있습니다. */
+            /** @description 진행 중에는 상위 3명, 종료 상태에서는 1회 이상 터치한 참가자 전체 최종 순위입니다. */
             rankings?: components["schemas"]["BurstGameRankingResponse"][];
-            /** @description 종료 상태에서만 제공되는 공동 1등 목록입니다. 진행 중에는 비어 있습니다. */
-            winners?: components["schemas"]["BurstGameWinnerResponse"][];
-        };
-        BurstGameWinnerResponse: {
-            /**
-             * Format: int64
-             * @description 공동 1등 참여자 ID입니다.
-             * @example 37
-             */
-            participantId?: number;
-            /**
-             * @description 공동 1등 참여자 닉네임입니다.
-             * @example 토끼왕
-             */
-            nickname?: string;
-            /**
-             * Format: int64
-             * @description 공동 1등 참여자의 선택 캐릭터 ID입니다.
-             * @example 2
-             */
-            characterId?: number | null;
-            /**
-             * @description 공동 1등 참여자의 캐릭터 이미지 URL입니다.
-             * @example https://example.com/rabbit.png
-             */
-            characterImageUrl?: string | null;
-            /**
-             * @description 공동 1등 참여자 역할입니다.
-             * @example CELEBRANT
-             * @enum {string}
-             */
-            role?: "CELEBRANT" | "PARTICIPANT";
-            /**
-             * Format: int32
-             * @description 공동 1등 참여자의 최종 누적 터치 수입니다.
-             * @example 52
-             */
-            tapCount?: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseListUpcomingPartyResponse: {
@@ -1994,8 +1946,8 @@ export interface components {
             myPaperContent?: string | null;
             /** @description 본인 롤페 작성 시 닉네임 스냅샷. 미작성이면 null */
             myPaperWriterNickname?: string | null;
-            /** @description 본인 롤페 wrapper 이미지 URL. 미작성이면 null */
-            myPaperWrapperImageUrl?: string | null;
+            /** @description 본인 롤페 토핑 이미지 URL. 미작성이면 null */
+            myPaperToppingImageUrl?: string | null;
         };
         /** @description 공통 성공 응답 */
         ApiResponseMeAccountResult: {
@@ -2323,7 +2275,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description 파티 또는 래퍼 없음 */
+            /** @description 파티 또는 토핑 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3165,7 +3117,7 @@ export interface operations {
             };
         };
     };
-    getRollingPaperWrappers: {
+    getRollingPaperToppings: {
         parameters: {
             query?: never;
             header?: never;
@@ -3174,13 +3126,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 래퍼 목록 조회 성공 */
+            /** @description 토핑 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseListRollingPaperWrapperResponse"];
+                    "*/*": components["schemas"]["ApiResponseListRollingPaperToppingResult"];
                 };
             };
             /** @description 서버 내부 오류 */
@@ -3595,7 +3547,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 상태 및 결과 조회 성공. 종료 상태에서는 winners만 채워지고 rankings는 비어 있습니다. */
+            /** @description 상태 및 결과 조회 성공. 진행 중 rankings는 상위 3명, 종료 rankings는 1회 이상 터치한 참가자 전체 순위입니다. */
             200: {
                 headers: {
                     [name: string]: unknown;
