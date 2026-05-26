@@ -775,7 +775,7 @@ export interface components {
              */
             nickname?: string | null;
             character?: components["schemas"]["CharacterResult"] | null;
-            host?: boolean;
+            isHost?: boolean;
             /**
              * @description 닉네임 수정 가능 여부. 주최자는 false
              * @example true
