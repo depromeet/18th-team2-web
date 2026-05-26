@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
 import { useLeaveParty } from '@/services/live-party';
-
-const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 
 export function usePartyExitDialog() {
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);

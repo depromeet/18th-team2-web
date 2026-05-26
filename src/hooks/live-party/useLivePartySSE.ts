@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
 import { config } from '@/config/env';
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
-
-const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 
 function resolveImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
