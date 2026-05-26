@@ -67,13 +67,7 @@ export const MUSIC_GUIDE_TEXT_DURATION = 4500;
 export const MUSIC_GUIDE_DURATION = MUSIC_GUIDE_TEXT.length * MUSIC_GUIDE_TEXT_DURATION;
 
 export function getMusicLyrics(hostName: string): string[] {
-  return [
-    '~♬~',
-    '생일축하합니다',
-    '생일축하합니다',
-    `사랑하는 ${hostName}님의`,
-    '생일축하합니다',
-  ];
+  return ['~♬~', '생일축하합니다', '생일축하합니다', `사랑하는 ${hostName}님의`, '생일축하합니다'];
 }
 
 export const MUSIC_LYRICS_TIMINGS = [

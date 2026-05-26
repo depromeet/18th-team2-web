@@ -12,7 +12,11 @@ import { usePartyStore } from '@/stores/usePartyStore';
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
   const location = useLocation();
-  const locationState = location.state as { inviteToken?: string; from?: string; hostName?: string } | null;
+  const locationState = location.state as {
+    inviteToken?: string;
+    from?: string;
+    hostName?: string;
+  } | null;
   const inviteToken = locationState?.inviteToken ?? '';
 
   const navigate = useNavigate();
@@ -77,7 +81,12 @@ export function usePartyEnter() {
       {
         onSuccess: () =>
           navigate(generatePath(ROUTES.liveParty, { partyId }), {
-            state: { inviteToken, nickname, characterId: selectedCharacterId, from: locationState?.from },
+            state: {
+              inviteToken,
+              nickname,
+              characterId: selectedCharacterId,
+              from: locationState?.from,
+            },
           }),
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
