@@ -2404,6 +2404,24 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 닉네임 중복 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "PARTY_NICKNAME_DUPLICATED",
+                     *         "message": "이미 사용 중인 닉네임입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 서버 내부 오류 */
             500: {
                 headers: {
@@ -2774,7 +2792,7 @@ export interface operations {
                      *       "status": 403,
                      *       "error": {
                      *         "code": "PARTY_FORBIDDEN",
-                     *         "message": "파티에 접근할 수 없습니다"
+                     *         "message": "파티에 대한 권한이 없습니다"
                      *       }
                      *     }
                      */
@@ -3953,12 +3971,66 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description 실시간 파티가 아님 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "CHAT_NOT_SUPPORTED",
+                     *         "message": "채팅을 지원하지 않는 파티입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 인증 실패 */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 해당 파티의 참여자가 아님 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "PARTY_NOT_FOUND",
+                     *         "message": "파티를 찾을 수 없습니다"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };

@@ -3,12 +3,15 @@ import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png'
 
 import { Button } from '@/components/ui/Button';
 import { T3 } from '@/components/ui/Typography';
+import { usePartyStore } from '@/stores/usePartyStore';
 
 interface PartyEntryStageProps {
   onComplete?: () => void;
 }
 
 export function PartyEntryStage({ onComplete }: PartyEntryStageProps) {
+  const hostName = usePartyStore((s) => s.hostName);
+
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
       <img
@@ -23,7 +26,7 @@ export function PartyEntryStage({ onComplete }: PartyEntryStageProps) {
         <T3 className="text-center text-white">
           오늘의 주인공
           <br />
-          이라님이
+          {hostName}님이
           <br />
           등장했어요!
         </T3>
