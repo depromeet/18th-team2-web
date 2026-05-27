@@ -64,7 +64,7 @@ export default function RollingPaperWritePage() {
 
     const completedMessage: RollingPaperMessage = {
       id: `completed-${Date.now()}`,
-      writerName: nickname,
+      writerNickname: nickname,
       content: message,
       toppingType,
     };

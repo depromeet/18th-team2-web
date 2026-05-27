@@ -92,7 +92,7 @@ export function MessageCard({ partyId, messages, initialIndex, onClose }: Messag
 }
 
 // 슬라이드 본체 — content는 모달이 열린 뒤 detail 엔드포인트로 lazy fetch.
-// 작성자명(writerName)은 list에서 받은 값을 사용해 로딩 중에도 노출.
+// 작성자명(writerNickname)은 list에서 받은 값을 사용해 로딩 중에도 노출.
 function MessageSlide({ partyId, message }: { partyId: string; message: RollingPaperMessage }) {
   const { data: detail, isLoading, isError } = useRollingPaperDetail(partyId, message.id);
 
@@ -106,7 +106,7 @@ function MessageSlide({ partyId, message }: { partyId: string; message: RollingP
       <H2 className="min-h-0 flex-1 overflow-y-auto font-semibold tracking-tight text-blue-600 opacity-90">
         {body}
       </H2>
-      <B1 className="text-grey-700 text-right font-semibold">- {message.writerName}</B1>
+      <B1 className="text-grey-700 text-right font-semibold">- {message.writerNickname}</B1>
     </MessageCardBox>
   );
 }

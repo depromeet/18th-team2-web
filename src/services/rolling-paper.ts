@@ -11,7 +11,7 @@ export interface RollingPaperMessage {
   id: string;
   /** 참가자 응답엔 미포함(BE 정책 — 타인 본문 비공개). 주최자·작성 완료 본인만 보유. */
   content?: string;
-  writerName: string;
+  writerNickname: string;
   toppingType: ToppingType;
 }
 
@@ -43,25 +43,18 @@ function toppingTypeFromUrl(url: string | null | undefined): ToppingType {
   return 'cherry';
 }
 
-// 참가자 응답엔 content가 없음(BE 정책 — 타인 본문 비공개) → 매핑에서 누락.
-function mapParticipantItems(
-  items: components['schemas']['ParticipantRollingPaperListItemResult'][] | undefined,
-): RollingPaperMessage[] {
-  return (items ?? []).map((item) => ({
-    id: String(item.rollingPaperId),
-    writerName: item.writerNickname ?? '',
-    toppingType: toppingTypeFromUrl(item.toppingImageUrl),
-  }));
-}
+// list 매핑은 메타데이터(id/작성자/토핑)만 추출 — content는 detail 엔드포인트에서 lazy fetch한다.
+// 참가자 응답엔 content가 없고(BE 정책), 주최자 list도 content를 주지만 모달 일관성을 위해 안 씀.
+type RollingPaperListItem =
+  | components['schemas']['ParticipantRollingPaperListItemResult']
+  | components['schemas']['OwnerRollingPaperListItemResult'];
 
-// 주최자 list도 content를 포함하지만, 토핑 클릭 시 detail 엔드포인트로 lazy fetch한다.
-// 모달 일관성(참가자/주최자 동일 UX)·중복 제거를 위해 list 매핑에선 content를 끌어오지 않는다.
-function mapOwnerItems(
-  items: components['schemas']['OwnerRollingPaperListItemResult'][] | undefined,
-): RollingPaperMessage[] {
+function mapItems(items: RollingPaperListItem[] | undefined): RollingPaperMessage[] {
   return (items ?? []).map((item) => ({
     id: String(item.rollingPaperId),
-    writerName: item.writerNickname ?? '',
+    writerNickname: item.writerNickname ?? '',
+    // BE 스멜: list에 toppingType enum이 없어 toppingImageUrl substring 매칭으로 추정.
+    // 자산 이름 바뀌면 조용히 깨짐 — BE에 명시적 type 필드 요청 필요.
     toppingType: toppingTypeFromUrl(item.toppingImageUrl),
   }));
 }
@@ -71,7 +64,7 @@ function mapOwnerItems(
 export interface RollingPaperDetail {
   id: string;
   content: string;
-  writerName: string;
+  writerNickname: string;
 }
 
 // ── queryOptions 팩토리 ──
@@ -90,7 +83,7 @@ export const rollingPaperQueries = {
         return {
           id: String(raw.rollingPaperId),
           content: raw.content ?? '',
-          writerName: raw.writerNickname ?? '',
+          writerNickname: raw.writerNickname ?? '',
         };
       },
       enabled: Boolean(partyId && rollingPaperId),
@@ -109,7 +102,7 @@ export const rollingPaperQueries = {
           // 참가자 응답엔 celebrantNickname/마감 시각이 없음 — BE가 주는 만큼만 매핑한다.
           return {
             partyId,
-            messages: mapParticipantItems(raw.items),
+            messages: mapItems(raw.items),
             totalCount: raw.pageInfo?.totalCount ?? 0,
           };
         }
@@ -122,7 +115,7 @@ export const rollingPaperQueries = {
         return {
           partyId,
           hostName: raw.celebrantNickname ?? undefined,
-          messages: mapOwnerItems(raw.items),
+          messages: mapItems(raw.items),
           // partyEndAt = startedAt + 7일 = 작성 마감 (BE Party.endedAt 기준).
           // OpenAPI 설명("파티 자체 종료 시각")은 오해 소지 — 실제 파티 종료는 liveEndAt. +7일 금지.
           writableUntil: raw.partyEndAt ?? undefined,
