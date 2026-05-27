@@ -104,7 +104,7 @@ export default function RollingPaperPage() {
       <LoginPromptSheet
         isOpen
         titlePrefix="롤링페이퍼를 확인하기 위해서는"
-        onClose={() => window.history.back()}
+        onClose={() => navigate(-1)}
       />
     );
   }

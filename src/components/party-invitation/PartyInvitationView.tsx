@@ -54,7 +54,7 @@ export function PartyInvitationView({
       return;
     }
     if (!isAuthenticated) {
-      navigate(partyEnterPath, { state: { inviteToken, from } });
+      navigate(partyEnterPath, { state: { inviteToken, from, hostName } });
       return;
     }
     joinPartyInvite(inviteToken, {
