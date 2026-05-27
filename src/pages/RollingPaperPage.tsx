@@ -39,9 +39,6 @@ export default function RollingPaperPage() {
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
   const isWritable = isFuture(data?.writableUntil);
-  const isBeforeParty = data?.partyStartedAt
-    ? new Date(data.partyStartedAt).getTime() > Date.now()
-    : false;
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
   const messages = useMemo(() => {
     if (!data) return [];
@@ -55,7 +52,9 @@ export default function RollingPaperPage() {
   const messageCount = messages.length;
   const initialToppingPage =
     isWriteCompleteMode && messageCount > 0 ? Math.ceil(messageCount / TOPPINGS_PER_PAGE) - 1 : 0;
-  const completeCta = locationState?.completeCta ?? (isBeforeParty ? 'invite' : 'home');
+  // BE 응답에 partyStartedAt이 없어 "파티 시작 전" 판정이 사실상 불가 → 기본 'home'.
+  // 초대장으로 돌아가야 할 케이스는 호출부가 locationState.completeCta로 명시 지정.
+  const completeCta = locationState?.completeCta ?? 'home';
 
   const shareLink = useMemo(
     () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: id ?? '' })}`,
@@ -138,7 +137,7 @@ export default function RollingPaperPage() {
           <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
             {isWriteCompleteMode
               ? '롤링페이퍼 작성이 완료되었어요'
-              : `${data.hostName}님의 롤링페이퍼`}
+              : `${data.hostName ?? ''}님의 롤링페이퍼`}
           </H1>
           <B1 className="mt-2 text-blue-100">
             {isWriteCompleteMode ? (
@@ -208,6 +207,7 @@ export default function RollingPaperPage() {
       {selectedMessageIndex !== null &&
         createPortal(
           <MessageCard
+            partyId={data.partyId}
             messages={messages}
             initialIndex={selectedMessageIndex}
             onClose={() => setSelectedMessageIndex(null)}
