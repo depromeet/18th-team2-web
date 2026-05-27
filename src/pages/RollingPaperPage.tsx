@@ -13,7 +13,7 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
-import { useRollingPaper, type RollingPaperMessage } from '@/services/rolling-paper';
+import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { isApiErrorStatus } from '@/utils/api-error';
@@ -24,7 +24,6 @@ const TOPPINGS_PER_PAGE = 7;
 interface RollingPaperLocationState {
   mode?: 'write-complete';
   completeCta?: 'invite' | 'home';
-  completedMessage?: RollingPaperMessage;
   invitePath?: string;
   inviteToken?: string;
 }
@@ -52,17 +51,7 @@ export default function RollingPaperPage() {
     ? new Date(data.partyStartedAt).getTime() > Date.now()
     : false;
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
-  const messages = useMemo(() => {
-    if (!data) return [];
-    if (!locationState?.completedMessage) return data.messages;
-    const hasCompletedMessage = data.messages.some(
-      (message) => message.id === locationState.completedMessage?.id,
-    );
-
-    return hasCompletedMessage
-      ? data.messages
-      : [...data.messages, locationState.completedMessage];
-  }, [data, locationState?.completedMessage]);
+  const messages = data?.messages ?? [];
   const messageCount = messages.length;
   const initialToppingPage =
     isWriteCompleteMode && messageCount > 0 ? Math.ceil(messageCount / TOPPINGS_PER_PAGE) - 1 : 0;
