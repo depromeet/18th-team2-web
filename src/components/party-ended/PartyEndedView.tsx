@@ -9,6 +9,7 @@ import { isFuture } from '@/utils/date';
 
 interface PartyEndedViewProps {
   partyId: string;
+  inviteToken: string;
   hostName: string;
   writableFrom: Date;
   writableUntil: Date;
@@ -16,6 +17,7 @@ interface PartyEndedViewProps {
 
 export function PartyEndedView({
   partyId,
+  inviteToken,
   hostName,
   writableFrom,
   writableUntil,
@@ -28,7 +30,12 @@ export function PartyEndedView({
       navigate(ROUTES.home);
     } else {
       navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
-        state: { completeCta: 'home', invitePath: window.location.pathname },
+        state: {
+          completeCta: 'home',
+          invitePath: window.location.pathname,
+          inviteToken,
+          hostName,
+        },
       });
     }
   }

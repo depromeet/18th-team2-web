@@ -12,6 +12,7 @@ import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface PartyInvitationViewProps {
   partyId: string;
@@ -35,6 +36,7 @@ export function PartyInvitationView({
   partyOption,
 }: PartyInvitationViewProps) {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { isWithin5Minutes } = usePartyCountdown(enterableFrom ?? startsAt);
 
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
@@ -49,6 +51,10 @@ export function PartyInvitationView({
     const from = generatePath(ROUTES.partyInvite, { inviteToken });
     if (isHost) {
       navigate(partyEnterPath, { state: { inviteToken, from, hostName } });
+      return;
+    }
+    if (!isAuthenticated) {
+      navigate(partyEnterPath, { state: { inviteToken, from } });
       return;
     }
     joinPartyInvite(inviteToken, {

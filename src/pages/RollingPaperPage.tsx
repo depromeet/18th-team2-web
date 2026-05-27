@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -10,10 +10,12 @@ import { Button } from '@/components/ui/Button';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
+import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { useRollingPaper, type RollingPaperMessage } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { isFuture } from '@/utils/date';
 
@@ -33,7 +35,14 @@ export default function RollingPaperPage() {
   const location = useLocation();
   const locationState = location.state as RollingPaperLocationState | null;
   const inviteToken = locationState?.inviteToken;
-  const { data, isLoading, isError, error, refetch } = useRollingPaper(id ?? '', inviteToken);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const requiresLogin = !inviteToken && !isAuthenticated;
+  const { data, isLoading, isError, error, refetch } = useRollingPaper(
+    id ?? '',
+    inviteToken,
+    1,
+    !requiresLogin,
+  );
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
@@ -50,7 +59,9 @@ export default function RollingPaperPage() {
       (message) => message.id === locationState.completedMessage?.id,
     );
 
-    return hasCompletedMessage ? data.messages : [...data.messages, locationState.completedMessage];
+    return hasCompletedMessage
+      ? data.messages
+      : [...data.messages, locationState.completedMessage];
   }, [data, locationState?.completedMessage]);
   const messageCount = messages.length;
   const initialToppingPage =
@@ -61,6 +72,12 @@ export default function RollingPaperPage() {
     () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: id ?? '' })}`,
     [id],
   );
+
+  useEffect(() => {
+    if (requiresLogin) {
+      useAuthStore.getState().setRedirectUrl(location.pathname);
+    }
+  }, [location.pathname, requiresLogin]);
 
   function handleCompleteAction() {
     if (completeCta === 'invite' && locationState?.invitePath) {
@@ -80,6 +97,16 @@ export default function RollingPaperPage() {
   function handleToppingClick(index: number) {
     if (isWriteCompleteMode) return;
     setSelectedMessageIndex(index);
+  }
+
+  if (requiresLogin) {
+    return (
+      <LoginPromptSheet
+        isOpen
+        titlePrefix="롤링페이퍼를 확인하기 위해서는"
+        onClose={() => window.history.back()}
+      />
+    );
   }
 
   if (isLoading) return null;

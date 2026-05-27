@@ -58,6 +58,7 @@ export default function PartyInviteEntryPage() {
     return (
       <PartyEndedView
         partyId={data.partyId}
+        inviteToken={inviteToken}
         hostName={hostName}
         writableFrom={new Date(data.partyStartDate)}
         writableUntil={getRollingPaperWritableUntil(data)}

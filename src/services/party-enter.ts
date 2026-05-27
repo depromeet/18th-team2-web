@@ -33,7 +33,7 @@ export type UpsertRealtimeProfileRequest =
   components['schemas']['UpsertParticipantRealtimeProfileRequest'];
 
 export const realtimeProfileQueries = {
-  me: (inviteToken: string) =>
+  me: (inviteToken: string, enabled = true) =>
     queryOptions({
       queryKey: ['realtime-profile', inviteToken],
       queryFn: async () => {
@@ -42,12 +42,12 @@ export const realtimeProfileQueries = {
         >(`/api/v1/party-invites/${inviteToken}/participants/me/realtime-profile`);
         return res.data ?? null;
       },
-      enabled: Boolean(inviteToken),
+      enabled: enabled && Boolean(inviteToken),
     }),
 };
 
-export function useGetMyRealtimeProfile(inviteToken: string) {
-  return useQuery(realtimeProfileQueries.me(inviteToken));
+export function useGetMyRealtimeProfile(inviteToken: string, enabled = true) {
+  return useQuery(realtimeProfileQueries.me(inviteToken, enabled));
 }
 
 export function useUpsertMyRealtimeProfile() {
