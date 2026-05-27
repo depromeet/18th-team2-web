@@ -19,7 +19,7 @@ interface PartyInvitationViewProps {
   inviteToken: string;
   hostName: string;
   startsAt: Date;
-  enterableFrom?: Date;
+
   isHost: boolean;
   rollingPaperWritten: boolean;
   partyOption: 'REALTIME' | 'PAPER_ONLY';
@@ -30,14 +30,14 @@ export function PartyInvitationView({
   inviteToken,
   hostName,
   startsAt,
-  enterableFrom,
+
   isHost,
   rollingPaperWritten,
   partyOption,
 }: PartyInvitationViewProps) {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { isWithin5Minutes } = usePartyCountdown(enterableFrom ?? startsAt);
+  const { isWithin5Minutes } = usePartyCountdown(startsAt);
 
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
