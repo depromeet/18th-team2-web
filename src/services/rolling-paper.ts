@@ -30,8 +30,7 @@ export interface WriteRollingPaperParams {
   toppingType: ToppingType;
 }
 
-// wrapperId는 BE wrapper 목록 기준 고정값
-const WRAPPER_ID: Record<ToppingType, number> = { candle: 1, cherry: 2, strawberry: 3 };
+const TOPPING_ID: Record<ToppingType, number> = { candle: 1, cherry: 2, strawberry: 3 };
 
 function toppingTypeFromUrl(url: string | null | undefined): ToppingType {
   if (!url) return 'cherry';
@@ -112,7 +111,7 @@ export function useWriteRollingPaper() {
         {
           writerNickname,
           content,
-          wrapperId: WRAPPER_ID[toppingType],
+          toppingId: TOPPING_ID[toppingType],
         } satisfies components['schemas']['CreateRollingPaperRequest'],
       ),
   });
