@@ -1704,9 +1704,9 @@ export interface components {
             characterId?: number | null;
             /** @description 캐릭터 메인 이미지 URL */
             characterImageUrl?: string | null;
-            owner?: boolean;
-            me?: boolean;
-            celebrant?: boolean;
+            isOwner?: boolean;
+            isMe?: boolean;
+            isCelebrant?: boolean;
         };
         /** @description 파티 참여자 목록 응답 */
         PartyParticipantsResponse: {

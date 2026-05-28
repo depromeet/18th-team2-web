@@ -1,19 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { Caption } from '@/components/ui/Typography';
-import { config } from '@/config/env';
 import { CHARACTER_LABEL_MAP } from '@/constants/character';
 import { useCharacters } from '@/services/character';
+import { resolveImageUrl } from '@/utils/image';
 
 interface CharacterSelectProps {
   value?: number | null;
   onSelect?: (characterId: number) => void;
-}
-
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
 export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {

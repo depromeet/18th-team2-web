@@ -1,26 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
-import { config } from '@/config/env';
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
-
-const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
-
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
+import { resolveImageUrl } from '@/utils/image';
 
 export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
 
   const { partyId } = useParams<{ partyId: string }>();
+  const queryClient = useQueryClient();
 
   const location = useLocation();
 
@@ -128,6 +119,8 @@ export function useLivePartySSE() {
               },
             ]);
 
+            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+
             return;
           }
 
@@ -142,6 +135,8 @@ export function useLivePartySSE() {
                 userName,
               },
             ]);
+
+            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
           }
         } catch {
           console.error('[SSE] 이벤트 파싱 실패');
@@ -159,7 +154,7 @@ export function useLivePartySSE() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [partyId, queryClient]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {
