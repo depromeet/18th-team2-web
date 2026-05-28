@@ -38,6 +38,7 @@ function mapUpcomingParty(party: UpcomingPartyResponse): UpcomingParty {
   return {
     partyId: party.partyId != null ? String(party.partyId) : undefined,
     inviteToken: party.inviteToken ?? undefined,
+    hostName: party.celebrantNickname ?? undefined,
     partyName: buildPartyName(party),
     date: startedAt?.isValid() ? startedAt.format('YY.MM.DD') : '',
     time: startedAt?.isValid() ? formatKoreanTime(startedAt.toDate()) : undefined,

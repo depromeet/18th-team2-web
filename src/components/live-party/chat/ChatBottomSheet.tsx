@@ -2,14 +2,16 @@ import { ChatFooter } from '@/components/live-party/chat/ChatFooter';
 import { ChipList } from '@/components/live-party/chat/ChipList';
 import { ChatHeader } from '@/components/live-party/chat/ChatHeader';
 import { ChatList } from '@/components/live-party/chat/ChatList';
-import { useChatBottomSheet } from '@/hooks/live-party/useChatBottomSheet';
+import { useChatBottomSheet, type ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 
 interface ChatBottomSheetProps {
+  messages: ChatListItem[];
+  onSend: (text: string) => void;
   isBlurred?: boolean;
 }
 
-export function ChatBottomSheet({ isBlurred = false }: ChatBottomSheetProps) {
-  const { height, isExpanded, handlePointerDown, messages, addMessage } = useChatBottomSheet();
+export function ChatBottomSheet({ messages, onSend, isBlurred = false }: ChatBottomSheetProps) {
+  const { height, isExpanded, handlePointerDown } = useChatBottomSheet();
 
   return (
     <div
@@ -19,8 +21,8 @@ export function ChatBottomSheet({ isBlurred = false }: ChatBottomSheetProps) {
       <div className="flex h-full flex-col">
         <ChatHeader onPointerDown={handlePointerDown} />
         <ChatList messages={messages} isExpanded={isExpanded} />
-        <ChipList onChipClick={addMessage} />
-        <ChatFooter onSend={addMessage} />
+        <ChipList onChipClick={onSend} />
+        <ChatFooter onSend={onSend} />
       </div>
     </div>
   );

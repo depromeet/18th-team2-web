@@ -30,8 +30,7 @@ export interface WriteRollingPaperParams {
   toppingType: ToppingType;
 }
 
-// wrapperId는 BE wrapper 목록 기준 고정값
-const WRAPPER_ID: Record<ToppingType, number> = { candle: 1, cherry: 2, strawberry: 3 };
+const TOPPING_ID: Record<ToppingType, number> = { candle: 1, cherry: 2, strawberry: 3 };
 
 function toppingTypeFromUrl(url: string | null | undefined): ToppingType {
   if (!url) return 'cherry';
@@ -56,7 +55,7 @@ function mapItems(
 
 export const rollingPaperQueries = {
   // 참가자: inviteToken 기반, 주최자: partyId 기반
-  list: (partyId: string, inviteToken?: string, page = 1) =>
+  list: (partyId: string, inviteToken?: string, page = 1, enabled = true) =>
     queryOptions({
       queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`, page],
       queryFn: async (): Promise<RollingPaperData> => {
@@ -92,13 +91,14 @@ export const rollingPaperQueries = {
           totalCount: raw.totalCount ?? 0,
         };
       },
+      enabled: enabled && Boolean(partyId),
     }),
 };
 
 // ── Query hooks ──
 
-export function useRollingPaper(partyId: string, inviteToken?: string, page = 1) {
-  return useQuery(rollingPaperQueries.list(partyId, inviteToken, page));
+export function useRollingPaper(partyId: string, inviteToken?: string, page = 1, enabled = true) {
+  return useQuery(rollingPaperQueries.list(partyId, inviteToken, page, enabled));
 }
 
 // ── Mutation hooks ──
@@ -111,7 +111,7 @@ export function useWriteRollingPaper() {
         {
           writerNickname,
           content,
-          wrapperId: WRAPPER_ID[toppingType],
+          toppingId: TOPPING_ID[toppingType],
         } satisfies components['schemas']['CreateRollingPaperRequest'],
       ),
   });

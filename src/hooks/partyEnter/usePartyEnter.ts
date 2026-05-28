@@ -7,16 +7,24 @@ import { generatePath, useLocation, useNavigate, useParams } from 'react-router-
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
 import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
 import { usePartyInvite } from '@/services/party-invite';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { usePartyStore } from '@/stores/usePartyStore';
 
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
   const location = useLocation();
-  const locationState = location.state as { inviteToken?: string; from?: string } | null;
+  const locationState = location.state as {
+    inviteToken?: string;
+    from?: string;
+    hostName?: string;
+  } | null;
   const inviteToken = locationState?.inviteToken ?? '';
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const navigate = useNavigate();
+  const setHostName = usePartyStore((s) => s.setHostName);
 
-  const { data: profile } = useGetMyRealtimeProfile(inviteToken);
+  const { data: profile } = useGetMyRealtimeProfile(inviteToken, isAuthenticated);
   const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
@@ -42,6 +50,11 @@ export function usePartyEnter() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    const hostName = locationState?.hostName ?? '';
+    if (hostName) setHostName(hostName);
+  }, [locationState?.hostName, setHostName]);
+
   const title = isHost
     ? '해당 닉네임과 캐릭터로\n입장하시겠어요?'
     : '파티에 등장할\n닉네임과 캐릭터를 골라주세요!';
@@ -62,6 +75,18 @@ export function usePartyEnter() {
     event.preventDefault();
     if (!partyId || !inviteToken) return;
 
+    if (!isAuthenticated) {
+      navigate(generatePath(ROUTES.liveParty, { partyId }), {
+        state: {
+          from: locationState?.from,
+          inviteToken,
+          nickname,
+          characterId: selectedCharacterId,
+        },
+      });
+      return;
+    }
+
     upsertProfile(
       {
         inviteToken,
@@ -70,7 +95,12 @@ export function usePartyEnter() {
       {
         onSuccess: () =>
           navigate(generatePath(ROUTES.liveParty, { partyId }), {
-            state: { from: locationState?.from },
+            state: {
+              inviteToken,
+              nickname,
+              characterId: selectedCharacterId,
+              from: locationState?.from,
+            },
           }),
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {

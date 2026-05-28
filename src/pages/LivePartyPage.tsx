@@ -6,7 +6,9 @@ import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
+import { usePartyUserRole } from '@/hooks/live-party/usePartyUserRole';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
+import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import { LIVE_PARTY_STEP, PARTY_USER } from '@/constants/live-party';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
@@ -16,9 +18,12 @@ export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
 
-  const { step, userRole, partyEnd, handleNextStep, isTransitioning } = useLivePartyStep();
+  const { step, partyEnd, handleNextStep, isTransitioning } = useLivePartyStep();
+  const userRole = usePartyUserRole();
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
+
+  const { messages, addMessage } = useLivePartySSE();
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
 
@@ -50,9 +55,7 @@ export default function LivePartyPage() {
           step={step}
         />
       )}
-      {showPartyMain && (
-        <PartyMainBackground userRole={userRole} isBlurred={isPinataOverlayActive} />
-      )}
+      {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
       <StepRenderer
         step={step}
         onStepComplete={handleNextStep}
@@ -61,7 +64,13 @@ export default function LivePartyPage() {
         userRole={userRole}
       />
       <TransitionEffect isTransitioning={isTransitioning} />
-      {showPartyMain && <ChatBottomSheet isBlurred={isPinataOverlayActive} />}
+      {showPartyMain && (
+        <ChatBottomSheet
+          messages={messages}
+          onSend={addMessage}
+          isBlurred={isPinataOverlayActive}
+        />
+      )}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
         isHost={userRole === PARTY_USER.HOST}

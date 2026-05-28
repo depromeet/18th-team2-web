@@ -5,7 +5,7 @@ import PartyHatSvg from '@/assets/images/live-party/party-hat.svg?react';
 
 interface ChatItemProps {
   name: string;
-  profileImage: string;
+  profileImage: string | null;
   text: string;
   senderRole: 'PARTICIPANT' | 'CELEBRANT';
 }
@@ -21,11 +21,15 @@ export function ChatItem({ name, profileImage, text, senderRole }: ChatItemProps
             isCelebrant ? 'bg-linear-to-b from-[#E8B55D] to-[#F0409B]' : 'bg-white'
           }`}
         >
-          <img
-            src={profileImage}
-            alt={name}
-            className="h-[30px] w-[30px] rounded-full object-cover"
-          />
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt={name}
+              className="h-[30px] w-[30px] rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-grey-200 h-[30px] w-[30px] rounded-full" />
+          )}
         </div>
 
         {isCelebrant && (

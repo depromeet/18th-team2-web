@@ -49,7 +49,9 @@ function HomePage() {
     const path = getCardRoutePath(party);
     if (!path) return;
     if (party.partyOption === 'REALTIME' && party.isOpen && party.partyId) {
-      navigate(path, { state: { inviteToken: party.inviteToken, from: ROUTES.home } });
+      navigate(path, {
+        state: { inviteToken: party.inviteToken, from: ROUTES.home, hostName: party.hostName },
+      });
     } else {
       navigate(path);
     }
