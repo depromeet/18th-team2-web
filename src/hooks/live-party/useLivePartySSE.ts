@@ -7,6 +7,7 @@ import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party'
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 import { resolveImageUrl } from '@/utils/image';
 import type { components } from '@/types/api';
+import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 type CandleBlowState = components['schemas']['CandleBlowResponse'];
 
@@ -16,6 +17,7 @@ export function useLivePartySSE() {
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
+  const fire = useFirecrackerStore((state) => state.fire);
 
   const location = useLocation();
 
@@ -154,6 +156,13 @@ export function useLivePartySSE() {
 
             return;
           }
+
+          if (event === 'fireworks') {
+            const participantId = parsed.participantId as number | undefined;
+            fire(participantId);
+
+            return;
+          }
         } catch {
           console.error('[SSE] 이벤트 파싱 실패');
         }
@@ -170,7 +179,7 @@ export function useLivePartySSE() {
     return () => {
       controller.abort();
     };
-  }, [partyId, queryClient]);
+  }, [partyId, queryClient, fire]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {

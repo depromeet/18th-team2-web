@@ -1,21 +1,24 @@
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+
 import FirecrackerFilledIconSvg from '@/assets/images/live-party/firecracker-filled.svg?react';
 import FirecrackerLineIconSvg from '@/assets/images/live-party/firecracker-line.svg?react';
-import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
-import { useState } from 'react';
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
+import { useTriggerFireworks } from '@/services/live-party';
 
 export function FirecrackerButton() {
   const [active, setActive] = useState(false);
-
-  const fire = useFirecrackerStore((state) => state.fire);
+  const { partyId } = useParams<{ partyId: string }>();
+  const { mutate: triggerFireworks } = useTriggerFireworks();
 
   const handleClick = () => {
     setActive(true);
+    setTimeout(() => setActive(false), 300);
 
-    fire();
-
-    setTimeout(() => {
-      setActive(false);
-    }, 300);
+    triggerFireworks({
+      partyId: partyId!,
+      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
+    });
   };
 
   return (
