@@ -90,7 +90,6 @@ export interface paths {
          *     | `message` | 새로 전송된 메시지 1건 |
          *     | `user-entered` | 참여자 입장 알림 |
          *     | `user-left` | 참여자 퇴장 알림 |
-         *     | `host-end-available` | 주최자 수동 종료 가능 알림 |
          *     | `party-ending` | 60초 종료 카운트다운 시작 알림 |
          *     | `party-ended` | 실시간 파티 종료 알림 |
          *
@@ -199,8 +198,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 주최자 실시간 파티 종료 상태 조회 */
-        get: operations["getRealtimeEndStatus"];
+        get?: never;
         put?: never;
         /** 주최자 실시간 파티 종료 요청 */
         post: operations["startRealtimeEnd"];
@@ -1632,42 +1630,6 @@ export interface components {
             type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
         } & (components["schemas"]["Host"] | components["schemas"]["Participant"]);
         /** @description 공통 성공 응답 */
-        ApiResponseRealtimePartyEndStatusResult: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            data?: components["schemas"]["RealtimePartyEndStatusResult"] | null;
-        };
-        /** @description 주최자 실시간 파티 종료 상태 조회 응답 */
-        RealtimePartyEndStatusResult: {
-            /**
-             * @description 주최자 수동 종료 가능 여부
-             * @example true
-             */
-            canEnd?: boolean;
-            /**
-             * Format: date-time
-             * @description 시간 기준 주최자 수동 종료 가능 시각
-             * @example 2026-05-19T20:04:00
-             */
-            availableAt?: string;
-            /**
-             * Format: date-time
-             * @description 종료 카운트다운 시작 시각. 아직 시작되지 않았으면 null
-             * @example 2026-05-19T20:10:00
-             */
-            endingStartedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 실시간 라이브 종료 시각. 아직 종료 시작 전이면 null
-             * @example 2026-05-19T20:11:00
-             */
-            endedAt?: string | null;
-        };
-        /** @description 공통 성공 응답 */
         ApiResponsePartyParticipantsResponse: {
             /**
              * Format: int32
@@ -1704,9 +1666,9 @@ export interface components {
             characterId?: number | null;
             /** @description 캐릭터 메인 이미지 URL */
             characterImageUrl?: string | null;
-            isOwner?: boolean;
-            isMe?: boolean;
-            isCelebrant?: boolean;
+            owner?: boolean;
+            me?: boolean;
+            celebrant?: boolean;
         };
         /** @description 파티 참여자 목록 응답 */
         PartyParticipantsResponse: {
@@ -2580,59 +2542,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    getRealtimeEndStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description 파티 ID
-                 * @example 1
-                 */
-                partyId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 종료 상태 조회 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseRealtimePartyEndStatusResult"];
-                };
-            };
-            /** @description 인증 실패 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
             };
         };
     };
