@@ -9,7 +9,6 @@ import { RollingPaperWriteComplete } from '@/components/rolling-paper-write/Roll
 import { useRollingPaperWriteForm } from '@/hooks/rollingPaperWrite/useRollingPaperWriteForm';
 import { ROUTES } from '@/constants/routes';
 import { useWriteRollingPaper } from '@/services/rolling-paper';
-import type { RollingPaperMessage } from '@/services/rolling-paper';
 
 type Step = 'nickname' | 'message' | 'complete';
 
@@ -59,22 +58,12 @@ export default function RollingPaperWritePage() {
 
   function handleComplete() {
     if (!partyId) return;
-    const { nickname, message, toppingType } = methods.getValues();
-    if (!toppingType) return;
-
-    const completedMessage: RollingPaperMessage = {
-      id: `completed-${Date.now()}`,
-      writerNickname: nickname,
-      content: message,
-      toppingType,
-    };
 
     navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
       replace: true,
       state: {
         mode: 'write-complete',
         completeCta: locationState?.completeCta,
-        completedMessage,
         invitePath: locationState?.invitePath,
         inviteToken,
       },

@@ -15,12 +15,12 @@ import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
-import { config } from '@/config/env';
 import { CHARACTER_LABEL_MAP } from '@/constants/character';
 import { ROUTES } from '@/constants/routes';
 import type { CharacterResult } from '@/services/character';
 import { useCharacters } from '@/services/character';
 import { useActivateInviteLink, useCreateRealtimeParty } from '@/services/party-create';
+import { resolveImageUrl } from '@/utils/image';
 
 const FALLBACK_CHARACTERS = [
   { id: 1, name: CHARACTER_LABEL_MAP[1], image: characterBlue },
@@ -42,12 +42,6 @@ interface CharacterOption {
   id: number;
   name: string;
   image: string;
-}
-
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
 function mapCharacterOption(character: CharacterResult, index: number): CharacterOption | null {

@@ -89,7 +89,7 @@ export const rollingPaperQueries = {
       enabled: Boolean(partyId && rollingPaperId),
     }),
   // 참가자: inviteToken 기반, 주최자: partyId 기반
-  list: (partyId: string, inviteToken?: string, page = 1) =>
+  list: (partyId: string, inviteToken?: string, page = 1, enabled = true) =>
     queryOptions({
       queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`, page],
       queryFn: async (): Promise<RollingPaperData> => {
@@ -122,13 +122,14 @@ export const rollingPaperQueries = {
           totalCount: raw.pageInfo?.totalCount ?? 0,
         };
       },
+      enabled: enabled && Boolean(partyId),
     }),
 };
 
 // ── Query hooks ──
 
-export function useRollingPaper(partyId: string, inviteToken?: string, page = 1) {
-  return useQuery(rollingPaperQueries.list(partyId, inviteToken, page));
+export function useRollingPaper(partyId: string, inviteToken?: string, page = 1, enabled = true) {
+  return useQuery(rollingPaperQueries.list(partyId, inviteToken, page, enabled));
 }
 
 export function useRollingPaperDetail(partyId: string, rollingPaperId: string) {

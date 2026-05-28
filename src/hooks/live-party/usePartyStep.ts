@@ -5,17 +5,12 @@ import {
   LIVE_PARTY_STEP_ARRAY,
   OVERLAY_FADE_DURATION,
   OVERLAY_TRANSITION_STEPS,
-  PARTY_USER,
   STEP_DELAY_DURATION,
   type PartyStep,
-  type PartyUserRole,
 } from '@/constants/live-party';
 
 export function useLivePartyStep() {
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
-
-  // 프리런칭 데이용 하드코딩
-  const [userRole] = useState<PartyUserRole>(PARTY_USER.PARTICIPANT_NOT_WRITTEN);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleNextStep = () => {
@@ -45,7 +40,6 @@ export function useLivePartyStep() {
 
   return {
     step,
-    userRole,
     isTransitioning,
     partyEnd,
     showChatBottomSheet,

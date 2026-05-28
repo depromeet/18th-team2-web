@@ -7,6 +7,7 @@ import { generatePath, useLocation, useNavigate, useParams } from 'react-router-
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
 import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
 import { usePartyInvite } from '@/services/party-invite';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { usePartyStore } from '@/stores/usePartyStore';
 
 export function usePartyEnter() {
@@ -18,11 +19,12 @@ export function usePartyEnter() {
     hostName?: string;
   } | null;
   const inviteToken = locationState?.inviteToken ?? '';
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const navigate = useNavigate();
   const setHostName = usePartyStore((s) => s.setHostName);
 
-  const { data: profile } = useGetMyRealtimeProfile(inviteToken);
+  const { data: profile } = useGetMyRealtimeProfile(inviteToken, isAuthenticated);
   const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
@@ -72,6 +74,18 @@ export function usePartyEnter() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!partyId || !inviteToken) return;
+
+    if (!isAuthenticated) {
+      navigate(generatePath(ROUTES.liveParty, { partyId }), {
+        state: {
+          from: locationState?.from,
+          inviteToken,
+          nickname,
+          characterId: selectedCharacterId,
+        },
+      });
+      return;
+    }
 
     upsertProfile(
       {

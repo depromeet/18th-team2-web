@@ -12,13 +12,14 @@ import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface PartyInvitationViewProps {
   partyId: string;
   inviteToken: string;
   hostName: string;
   startsAt: Date;
-  enterableFrom?: Date;
+
   isHost: boolean;
   rollingPaperWritten: boolean;
   partyOption: 'REALTIME' | 'PAPER_ONLY';
@@ -29,13 +30,14 @@ export function PartyInvitationView({
   inviteToken,
   hostName,
   startsAt,
-  enterableFrom,
+
   isHost,
   rollingPaperWritten,
   partyOption,
 }: PartyInvitationViewProps) {
   const navigate = useNavigate();
-  const { isWithin5Minutes } = usePartyCountdown(enterableFrom ?? startsAt);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { isWithin5Minutes } = usePartyCountdown(startsAt);
 
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -48,6 +50,10 @@ export function PartyInvitationView({
     const partyEnterPath = generatePath(ROUTES.partyEnter, { partyId });
     const from = generatePath(ROUTES.partyInvite, { inviteToken });
     if (isHost) {
+      navigate(partyEnterPath, { state: { inviteToken, from, hostName } });
+      return;
+    }
+    if (!isAuthenticated) {
       navigate(partyEnterPath, { state: { inviteToken, from, hostName } });
       return;
     }
