@@ -30,6 +30,8 @@ export function usePartyEnter() {
 
   const isHost = profile?.host ?? false;
   const isNicknameEditable = profile?.nicknameEditable ?? true;
+  // TODO(BE): 참가자 정원(주최자 1 + 참가자 13) 조회 endpoint 필요. invite lookup에 participantCount/maxParticipants 추가 요청.
+  const isPartyFull = false;
 
   // 파티 시작 시각까지 카운트다운 — liveStartAt 도달 시 입장 가능
   const { isReady, minutes, seconds, hasStarted } = usePartyStartCountdown(
@@ -120,6 +122,9 @@ export function usePartyEnter() {
     isTimeToParty: hasStarted,
     // 시작 전(유효 스케줄 보유)에만 "X분 Y초 남았어요" 노출
     countdown: isReady && !hasStarted ? { minutes, seconds } : null,
+    // 시작 시각 도달 후 "파티가 이미 진행 중이에요!" 노출
+    hasPartyStarted: isReady && hasStarted,
+    isPartyFull,
     inputValue: nickname,
     isNicknameEditable,
     inputMessage,
