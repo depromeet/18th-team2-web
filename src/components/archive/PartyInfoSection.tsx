@@ -1,5 +1,5 @@
 import { Caption, H2, L1 } from '@/components/ui/Typography';
-import type { PartyRole } from '@/types/archive';
+import { PARTY_ROLE, type PartyRole } from '@/constants/party';
 
 interface PartyInfoSectionProps {
   partyName: string;
@@ -22,7 +22,7 @@ export function PartyInfoSection({
         <H2 as="h2" className="text-black">
           {partyName}
         </H2>
-        {role === 'HOST' && (
+        {role === PARTY_ROLE.HOST && (
           <span className="bg-grey-50 inline-flex items-center justify-center rounded-md px-1 py-0.5">
             <Caption className="text-grey-500 font-medium">주최자</Caption>
           </span>

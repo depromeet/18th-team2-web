@@ -5,6 +5,7 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly code?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -31,8 +32,19 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     if (res.status === 401) {
       useAuthStore.getState().logout();
     }
-    const message = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, message);
+    const errorText = await res.text().catch(() => '');
+    let code: string | undefined;
+    let message = errorText || res.statusText;
+
+    try {
+      const errorBody = errorText ? JSON.parse(errorText) : null;
+      code = errorBody?.error?.code;
+      message = errorBody?.error?.message ?? message;
+    } catch {
+      message = errorText || res.statusText;
+    }
+
+    throw new ApiError(res.status, message, code);
   }
 
   // 204 No Content

@@ -1,12 +1,15 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 
 import { RollingPaperInvitationCard } from '@/components/party-ended/RollingPaperInvitationCard';
+import { BottomActionBar } from '@/components/ui/BottomActionBar';
 import { Button } from '@/components/ui/Button';
 import { H1, H3 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
+import { isFuture } from '@/utils/date';
 
 interface PartyEndedViewProps {
   partyId: string;
+  inviteToken: string;
   hostName: string;
   writableFrom: Date;
   writableUntil: Date;
@@ -14,19 +17,25 @@ interface PartyEndedViewProps {
 
 export function PartyEndedView({
   partyId,
+  inviteToken,
   hostName,
   writableFrom,
   writableUntil,
 }: PartyEndedViewProps) {
   const navigate = useNavigate();
-  const isExpired = writableUntil.getTime() <= Date.now();
+  const isExpired = !isFuture(writableUntil);
 
   function handlePrimaryClick() {
     if (isExpired) {
       navigate(ROUTES.home);
     } else {
       navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
-        state: { completeCta: 'home', invitePath: window.location.pathname },
+        state: {
+          completeCta: 'home',
+          invitePath: window.location.pathname,
+          inviteToken,
+          hostName,
+        },
       });
     }
   }
@@ -59,13 +68,11 @@ export function PartyEndedView({
         />
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex h-27.5 w-full max-w-150 items-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] px-4 pb-6">
-        <div className="w-full">
-          <Button variant="primary" size="full" onClick={handlePrimaryClick}>
-            {isExpired ? '홈으로' : '롤링페이퍼 작성하기'}
-          </Button>
-        </div>
-      </div>
+      <BottomActionBar>
+        <Button variant="primary" size="full" onClick={handlePrimaryClick}>
+          {isExpired ? '홈으로' : '롤링페이퍼 작성하기'}
+        </Button>
+      </BottomActionBar>
     </main>
   );
 }

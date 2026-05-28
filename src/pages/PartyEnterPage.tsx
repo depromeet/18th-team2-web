@@ -11,11 +11,16 @@ export default function PartyEnterPage() {
   const {
     title,
     isHost,
+    isPending,
     isTimeToParty,
+    countdown,
     inputValue,
-    isEditableGuest,
+    isNicknameEditable,
     inputMessage,
+    isInputError,
+    selectedCharacterId,
     handleChangeNickname,
+    handleSelectCharacter,
     handleSubmit,
   } = usePartyEnter();
 
@@ -29,20 +34,30 @@ export default function PartyEnterPage() {
             <NicknameInput
               value={inputValue}
               placeholder="파티에 등장할 닉네임을 입력해 주세요."
-              disabled={!isEditableGuest}
+              disabled={!isNicknameEditable}
+              error={isInputError}
               message={inputMessage}
               onChange={handleChangeNickname}
             />
           </article>
           <section className="flex h-[236px] w-full flex-col items-center justify-center gap-5">
-            <CharacterSelect />
+            <CharacterSelect value={selectedCharacterId} onSelect={handleSelectCharacter} />
           </section>
           <footer className="flex w-full flex-col items-center gap-2">
-            <B2 className="text-grey-500 font-medium">
-              파티 시작까지 <span className="text-red-500">0분 59초</span> 남았어요
-            </B2>
+            {countdown && (
+              <B2 className="text-grey-500 font-medium">
+                파티 시작까지{' '}
+                <span className="text-red-500">
+                  {countdown.minutes}분 {countdown.seconds}초
+                </span>{' '}
+                남았어요
+              </B2>
+            )}
             {isHost && <ParticipantStatus participants={MOCK_PARTICIPANTS} />}
-            <Button type="submit" disabled={!isTimeToParty || !inputValue}>
+            <Button
+              type="submit"
+              disabled={!isTimeToParty || !inputValue || isPending || isInputError}
+            >
               파티 입장하러 가기
             </Button>
           </footer>

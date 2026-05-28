@@ -23,10 +23,13 @@ import PartyInviteEntryPage from '@/pages/PartyInviteEntryPage';
 import RollingPaperWritePage from '@/pages/RollingPaperWritePage';
 import PartyEnterPage from '@/pages/PartyEnterPage';
 import LivePartyPage from '@/pages/LivePartyPage';
+import ErrorPage from '@/pages/ErrorPage';
+import NotFoundPage from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
     element: <MobileLayout />,
+    errorElement: <ErrorPage />,
     children: [
       // 공개 라우트
       { path: ROUTES.onboarding, element: <OnboardingPage /> },
@@ -38,6 +41,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
       { path: ROUTES.partyEnter, element: <PartyEnterPage /> },
       { path: ROUTES.liveParty, element: <LivePartyPage /> },
+      { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
+      { path: ROUTES.rollingPaperWrite, element: <RollingPaperWritePage /> },
       // 보호 라우트
       {
         element: <ProtectedRoute />,
@@ -52,11 +57,10 @@ export const router = createBrowserRouter([
           { path: ROUTES.archive, element: <ArchivePage /> },
           { path: ROUTES.archivePartyDetail, element: <ArchivePartyDetailPage /> },
           { path: ROUTES.archivePaperDetail, element: <ArchivePaperDetailPage /> },
-          { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
-          { path: ROUTES.rollingPaperWrite, element: <RollingPaperWritePage /> },
           { path: ROUTES.mypage, element: <MyPage /> },
         ],
       },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);

@@ -1,5 +1,6 @@
 import { B1, Caption } from '@/components/ui/Typography';
-import { MUSIC_LYRICS, MUSIC_LYRICS_TIMINGS } from '@/constants/live-party';
+import { getMusicLyrics, MUSIC_LYRICS_TIMINGS } from '@/constants/live-party';
+import { usePartyStore } from '@/stores/usePartyStore';
 import { useEffect, useRef, useState } from 'react';
 
 interface MusicLyricsProps {
@@ -7,6 +8,8 @@ interface MusicLyricsProps {
 }
 
 export function MusicLyrics({ onComplete }: MusicLyricsProps) {
+  const hostName = usePartyStore((s) => s.hostName);
+  const musicLyrics = getMusicLyrics(hostName);
   const [currentIndex, setCurrentIndex] = useState(0);
   const startTimeRef = useRef(Date.now());
   const completedRef = useRef(false);
@@ -49,7 +52,7 @@ export function MusicLyrics({ onComplete }: MusicLyricsProps) {
         className="music-text font-semibold text-white"
         style={{ animationDuration: `${lyricDuration}ms` }}
       >
-        {MUSIC_LYRICS[currentIndex]}
+        {musicLyrics[currentIndex]}
       </B1>
 
       <Caption className="text-white/50">Song : danmoo - birthday</Caption>

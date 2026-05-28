@@ -24,7 +24,7 @@ export function PartyCard() {
         <button
           type="button"
           onClick={() => navigate(ROUTES.createParty)}
-          className="flex h-9 w-24.5 cursor-pointer items-center justify-center gap-2.5 rounded-[40px] bg-white/20 px-3 py-1.5 text-white transition-colors hover:bg-white/30 active:bg-white/25"
+          className="flex h-9 w-24.5 cursor-pointer items-center justify-center gap-2.5 rounded-[40px] bg-white/20 px-3 py-1.5 text-white transition-colors hover:bg-white/30 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:bg-white/25"
         >
           <B1 as="span" className="font-medium">
             파티 만들기

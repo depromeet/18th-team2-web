@@ -46,6 +46,12 @@ export function addDays(d: Date, days: number): Date {
   return dayjs(d).add(days, 'day').toDate();
 }
 
+/** 주어진 시각이 현재보다 미래인지. 값이 없거나 무효하면 false. */
+export function isFuture(value: Date | string | null | undefined): boolean {
+  if (!value) return false;
+  return new Date(value).getTime() > Date.now();
+}
+
 export function formatDotDate(d: Date): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
@@ -67,6 +73,12 @@ const ISO_TZ_OFFSET = /(?:Z|[+-]\d{2}:?\d{2})$/;
 // ISO date-time을 KST 기준 dayjs로 파싱한다.
 // - 오프셋 있음: 절대 시각으로 파싱 후 KST로 변환 (dayjs.tz(v, KST)는 오프셋을 오해석함)
 // - 오프셋 없음: KST 벽시계 시각으로 해석 (로컬 타임존 오해석 방지)
+// dayjs.tz는 깨진 값에 .isValid() 이전 throw할 수 있어, 호출부 isValid 가드가 동작하도록 무효 dayjs로 폴백.
 export function parseKstDateTime(isoDateTime: string) {
-  return ISO_TZ_OFFSET.test(isoDateTime) ? dayjs(isoDateTime).tz(KST) : dayjs.tz(isoDateTime, KST);
+  if (ISO_TZ_OFFSET.test(isoDateTime)) return dayjs(isoDateTime).tz(KST);
+  try {
+    return dayjs.tz(isoDateTime, KST);
+  } catch {
+    return dayjs(NaN);
+  }
 }

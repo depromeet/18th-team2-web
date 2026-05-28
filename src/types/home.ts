@@ -1,4 +1,4 @@
-export type PartyRole = 'host' | 'participant';
+import type { PartyRole } from '@/constants/party';
 
 /** BE `partyOption` 값 그대로 — REALTIME: 실시간 파티, PAPER_ONLY: 롤링페이퍼 전용 */
 export type PartyOption = 'REALTIME' | 'PAPER_ONLY';
@@ -7,6 +7,7 @@ export interface UpcomingParty {
   partyId?: string;
   /** BE `inviteToken` — 초대장 진입에 사용. 유효 토큰 없으면 undefined */
   inviteToken?: string;
+  hostName?: string;
   partyName: string;
   date: string;
   time?: string;

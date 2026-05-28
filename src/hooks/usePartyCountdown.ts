@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react';
 
-function getMinutesUntilStart(startsAt: Date): number {
-  return Math.floor((startsAt.getTime() - Date.now()) / 60_000);
+const FIVE_MINUTES_MS = 5 * 60_000;
+
+function getMsUntilStart(startsAt: Date): number {
+  return startsAt.getTime() - Date.now();
 }
 
 export function usePartyCountdown(startsAt: Date) {
-  const [minutesUntil, setMinutesUntil] = useState(() => getMinutesUntilStart(startsAt));
+  const [msUntil, setMsUntil] = useState(() => getMsUntilStart(startsAt));
 
   useEffect(() => {
     const id = setInterval(() => {
-      setMinutesUntil(getMinutesUntilStart(startsAt));
+      setMsUntil(getMsUntilStart(startsAt));
     }, 60_000);
     return () => clearInterval(id);
   }, [startsAt]);
 
   return {
-    minutesUntil,
-    isWithin5Minutes: minutesUntil <= 5,
-    hasStarted: minutesUntil <= 0,
+    minutesUntil: Math.floor(msUntil / 60_000),
+    isWithin5Minutes: msUntil <= FIVE_MINUTES_MS,
+    hasStarted: msUntil <= 0,
   };
 }

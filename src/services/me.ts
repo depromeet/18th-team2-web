@@ -1,5 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
+import { PARTY_ROLE } from '@/constants/party';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import type { components } from '@/types/api';
@@ -37,11 +38,12 @@ function mapUpcomingParty(party: UpcomingPartyResponse): UpcomingParty {
   return {
     partyId: party.partyId != null ? String(party.partyId) : undefined,
     inviteToken: party.inviteToken ?? undefined,
+    hostName: party.celebrantNickname ?? undefined,
     partyName: buildPartyName(party),
     date: startedAt?.isValid() ? startedAt.format('YY.MM.DD') : '',
     time: startedAt?.isValid() ? formatKoreanTime(startedAt.toDate()) : undefined,
     endDate: endedAt?.isValid() ? endedAt.format('YY.MM.DD') : undefined,
-    role: party.host ? 'host' : 'participant',
+    role: party.host ? PARTY_ROLE.HOST : PARTY_ROLE.PARTICIPANT,
     partyOption: party.partyOption ?? 'REALTIME',
     isOpen: deriveIsOpen(party),
   };
@@ -58,9 +60,24 @@ export const meQueries = {
         return (res.data ?? []).map(mapUpcomingParty);
       },
     }),
+  account: () =>
+    queryOptions({
+      queryKey: ['me', 'account'],
+      queryFn: async () => {
+        const res =
+          await api.get<components['schemas']['ApiResponseMeAccountResult']>('/api/me/account');
+        if (!res.data) throw new Error('계정 정보를 불러올 수 없습니다');
+        return res.data;
+      },
+    }),
 };
 
 export function useUpcomingParties() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useQuery({ ...meQueries.upcomingParties(), enabled: isAuthenticated });
+}
+
+export function useMeAccount() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({ ...meQueries.account(), enabled: isAuthenticated });
 }

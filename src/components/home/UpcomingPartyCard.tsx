@@ -1,5 +1,6 @@
 import { B1 } from '@/components/ui/Typography';
-import type { PartyOption, PartyRole, UpcomingParty } from '@/types/home';
+import type { PartyRole } from '@/constants/party';
+import type { PartyOption, UpcomingParty } from '@/types/home';
 
 interface UpcomingPartyCardProps {
   party: UpcomingParty;
@@ -24,7 +25,7 @@ const UPCOMING_PARTY_CARD_VIEW: Record<
   PartyRole,
   Record<PartyOption, Record<'open' | 'closed', UpcomingPartyCardView>>
 > = {
-  participant: {
+  PARTICIPANT: {
     REALTIME: {
       closed: { ...LIVE_BADGE, actionText: '초대장 확인하기', actionVariant: 'primary' },
       open: { ...LIVE_BADGE, actionText: '파티 입장하기', actionVariant: 'primary' },
@@ -34,7 +35,7 @@ const UPCOMING_PARTY_CARD_VIEW: Record<
       open: { ...PAPER_BADGE, actionText: '롤링페이퍼 작성하기', actionVariant: 'primary' },
     },
   },
-  host: {
+  HOST: {
     REALTIME: {
       closed: {
         ...LIVE_BADGE,
@@ -98,7 +99,7 @@ export function UpcomingPartyCard({ party, onAction }: UpcomingPartyCardProps) {
       </div>
       <button
         type="button"
-        className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
+        className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
         onClick={isActionEnabled ? onAction : undefined}
         disabled={!isActionEnabled}
       >

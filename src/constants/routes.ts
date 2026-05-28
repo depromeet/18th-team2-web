@@ -13,7 +13,7 @@ export const ROUTES = {
   createRollingPaperComplete: '/create-rolling-paper/complete',
   archive: '/archive',
   archivePartyDetail: '/archive/party/:partyId',
-  archivePaperDetail: '/archive/paper/:paperId',
+  archivePaperDetail: '/archive/paper/:partyId',
   rollingPaper: '/rolling-paper/:id',
   mypage: '/mypage',
 

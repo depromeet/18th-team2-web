@@ -15,18 +15,19 @@ import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
-import { config } from '@/config/env';
+import { CHARACTER_LABEL_MAP } from '@/constants/character';
 import { ROUTES } from '@/constants/routes';
 import type { CharacterResult } from '@/services/character';
 import { useCharacters } from '@/services/character';
 import { useActivateInviteLink, useCreateRealtimeParty } from '@/services/party-create';
+import { resolveImageUrl } from '@/utils/image';
 
 const FALLBACK_CHARACTERS = [
-  { id: 1, name: 'Default', image: characterBlue },
-  { id: 2, name: 'Choco', image: characterBrown },
-  { id: 3, name: 'Girl', image: characterPink },
-  { id: 4, name: 'Cloud', image: characterWhite },
-  { id: 5, name: 'Candle', image: characterYellow },
+  { id: 1, name: CHARACTER_LABEL_MAP[1], image: characterBlue },
+  { id: 2, name: CHARACTER_LABEL_MAP[2], image: characterBrown },
+  { id: 3, name: CHARACTER_LABEL_MAP[3], image: characterPink },
+  { id: 4, name: CHARACTER_LABEL_MAP[4], image: characterWhite },
+  { id: 5, name: CHARACTER_LABEL_MAP[5], image: characterYellow },
 ];
 
 interface PartyCharacterLocationState {
@@ -43,19 +44,13 @@ interface CharacterOption {
   image: string;
 }
 
-function resolveImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
-
 function mapCharacterOption(character: CharacterResult, index: number): CharacterOption | null {
   const id = character.characterId;
   if (id == null) return null;
 
   return {
     id,
-    name: character.name ?? FALLBACK_CHARACTERS[index]?.name ?? '캐릭터',
+    name: CHARACTER_LABEL_MAP[id] ?? FALLBACK_CHARACTERS[index]?.name ?? '캐릭터',
     image:
       resolveImageUrl(character.characterImageUrl) ??
       resolveImageUrl(character.characterThumbnailImageUrl) ??

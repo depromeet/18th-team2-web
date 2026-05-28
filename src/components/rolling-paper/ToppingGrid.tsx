@@ -81,12 +81,12 @@ export function ToppingGrid({ messages, onToppingClick, initialPage = 0 }: Toppi
                     >
                       <img
                         src={TOPPING_IMAGES[message.toppingType]}
-                        alt={message.writerName}
+                        alt={message.writerNickname}
                         className="aspect-square w-full"
                         draggable={false}
                       />
                       <L1 className="w-full truncate text-center text-white">
-                        {message.writerName}
+                        {message.writerNickname}
                       </L1>
                     </button>
                   );

@@ -7,19 +7,27 @@ import { ParticipantsSection } from '@/components/archive/ParticipantsSection';
 import { PartyChatSection } from '@/components/archive/PartyChatSection';
 import { PartyInfoSection } from '@/components/archive/PartyInfoSection';
 import { SingleMessageModal } from '@/components/message/SingleMessageModal';
+import { PARTY_ROLE } from '@/constants/party';
 import { ROUTES } from '@/constants/routes';
-import { useArchivePartyDetail } from '@/services/archive';
+import { useArchiveDetail } from '@/services/archive';
 
 export default function ArchivePartyDetailPage() {
   const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
-  const { data, isLoading } = useArchivePartyDetail(partyId ?? '');
+  const { data, isLoading, isError } = useArchiveDetail(partyId ?? '');
   const [paperOpen, setPaperOpen] = useState(false);
 
   if (!partyId) return null;
-  if (isLoading || !data) return null;
+  if (isLoading) return null;
+  if (isError || !data) {
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-white px-4">
+        <p className="text-grey-700 text-center">보관함 정보를 불러올 수 없어요.</p>
+      </main>
+    );
+  }
 
-  const isHost = data.role === 'HOST';
+  const isHost = data.role === PARTY_ROLE.HOST;
   const showPaperSection = isHost || (data.myPaperWritten && data.myPaperContent);
 
   const handlePaperClick = () => {
@@ -55,7 +63,7 @@ export default function ArchivePartyDetailPage() {
       {paperOpen && data.myPaperContent && (
         <SingleMessageModal
           content={data.myPaperContent}
-          writerName="나"
+          writerName={data.myPaperWriterNickname ?? '나'}
           onClose={() => setPaperOpen(false)}
         />
       )}

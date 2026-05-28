@@ -8,6 +8,7 @@ export const VALIDATION_MESSAGES = {
     invalidFormat: '닉네임 형식이 올바르지 않아요',
     maxHint: `최대 ${NICKNAME_MAX_LENGTH}자까지 입력 가능해요.`,
     hostLocked: '기존에 설정한 닉네임은 변경할 수 없어요',
+    duplicate: '이미 사용중인 닉네임이에요',
   },
   message: {
     required: '메시지를 입력해주세요',

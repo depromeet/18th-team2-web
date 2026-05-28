@@ -8,6 +8,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     | 'white'
     | 'white-blue'
     | 'white-grey'
+    | 'white-red'
     | 'ghost'
     | 'link-white'
     | 'link-primary';
@@ -30,6 +31,7 @@ const variantStyles = {
   white: 'bg-white text-grey-900',
   'white-blue': 'border border-blue-200 bg-white text-blue-600',
   'white-grey': 'border border-grey-100 bg-white text-grey-900',
+  'white-red': 'border border-red-600 bg-white text-red-600',
   ghost: 'border border-white/60 text-white',
   'link-white':
     'h-auto text-label-1 w-fit rounded-none bg-transparent p-0 text-white underline underline-offset-2',
@@ -49,7 +51,7 @@ export function Button({
   return (
     <button
       ref={buttonRef}
-      className={`text-body-1 disabled:bg-grey-50 disabled:text-grey-300 inline-flex cursor-pointer items-center justify-center gap-2 font-semibold disabled:cursor-not-allowed ${sizeStyles[size]} ${variantStyles[variant]} ${className ?? ''}`}
+      className={`text-body-1 disabled:bg-grey-50 disabled:text-grey-300 inline-flex cursor-pointer items-center justify-center gap-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none disabled:cursor-not-allowed ${sizeStyles[size]} ${variantStyles[variant]} ${className ?? ''}`}
       {...props}
     >
       {leftIcon}

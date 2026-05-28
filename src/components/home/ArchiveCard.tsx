@@ -19,7 +19,7 @@ export function ArchiveCard({ count, previewItem }: ArchiveCardProps) {
       <button
         type="button"
         onClick={() => navigate(ROUTES.archive)}
-        className="flex w-full cursor-pointer items-center justify-between px-5 py-5"
+        className="flex w-full cursor-pointer items-center justify-between px-5 py-5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
       >
         <div className="flex items-start gap-1">
           <H2 as="span" className="text-black">

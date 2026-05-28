@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -7,19 +7,23 @@ import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
 import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
+import { ErrorView } from '@/components/ui/ErrorView';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
+import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
-import { useRollingPaper, type RollingPaperMessage } from '@/services/rolling-paper';
+import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { isApiErrorStatus } from '@/utils/api-error';
+import { isFuture } from '@/utils/date';
 
 const TOPPINGS_PER_PAGE = 7;
 
 interface RollingPaperLocationState {
   mode?: 'write-complete';
   completeCta?: 'invite' | 'home';
-  completedMessage?: RollingPaperMessage;
   invitePath?: string;
   inviteToken?: string;
 }
@@ -30,36 +34,38 @@ export default function RollingPaperPage() {
   const location = useLocation();
   const locationState = location.state as RollingPaperLocationState | null;
   const inviteToken = locationState?.inviteToken;
-  const { data } = useRollingPaper(id ?? '', inviteToken);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const requiresLogin = !inviteToken && !isAuthenticated;
+  const { data, isLoading, isError, error, refetch } = useRollingPaper(
+    id ?? '',
+    inviteToken,
+    1,
+    !requiresLogin,
+  );
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
-  const isWritable = data?.writableUntil
-    ? new Date(data.writableUntil).getTime() > Date.now()
-    : false;
-  const isBeforeParty = data?.partyStartedAt
-    ? new Date(data.partyStartedAt).getTime() > Date.now()
-    : false;
+  const isWritable = isFuture(data?.writableUntil);
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
-  const messages = useMemo(() => {
-    if (!data) return [];
-    if (!locationState?.completedMessage) return data.messages;
-    const hasCompletedMessage = data.messages.some(
-      (message) => message.id === locationState.completedMessage?.id,
-    );
-
-    return hasCompletedMessage ? data.messages : [...data.messages, locationState.completedMessage];
-  }, [data, locationState?.completedMessage]);
+  const messages = data?.messages ?? [];
   const messageCount = messages.length;
   const initialToppingPage =
     isWriteCompleteMode && messageCount > 0 ? Math.ceil(messageCount / TOPPINGS_PER_PAGE) - 1 : 0;
-  const completeCta = locationState?.completeCta ?? (isBeforeParty ? 'invite' : 'home');
+  // BE 응답에 partyStartedAt이 없어 "파티 시작 전" 판정이 사실상 불가 → 기본 'home'.
+  // 초대장으로 돌아가야 할 케이스는 호출부가 locationState.completeCta로 명시 지정.
+  const completeCta = locationState?.completeCta ?? 'home';
 
   const shareLink = useMemo(
     () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: id ?? '' })}`,
     [id],
   );
+
+  useEffect(() => {
+    if (requiresLogin) {
+      useAuthStore.getState().setRedirectUrl(location.pathname);
+    }
+  }, [location.pathname, requiresLogin]);
 
   function handleCompleteAction() {
     if (completeCta === 'invite' && locationState?.invitePath) {
@@ -73,6 +79,38 @@ export default function RollingPaperPage() {
     }
 
     navigate(ROUTES.home, { replace: true });
+  }
+
+  // 작성 완료 화면에선 본인 외 메시지 열람 차단 — 토핑 클릭 무반응
+  function handleToppingClick(index: number) {
+    if (isWriteCompleteMode) return;
+    setSelectedMessageIndex(index);
+  }
+
+  if (requiresLogin) {
+    return (
+      <LoginPromptSheet
+        isOpen
+        titlePrefix="롤링페이퍼를 확인하기 위해서는"
+        onClose={() => navigate(-1)}
+      />
+    );
+  }
+
+  if (isLoading) return null;
+
+  if (isError) {
+    if (isApiErrorStatus(error, 404) || isApiErrorStatus(error, 403)) {
+      return <ErrorView variant="notFound" onPrimaryClick={() => navigate(ROUTES.home)} />;
+    }
+
+    return (
+      <ErrorView
+        variant="retry"
+        onPrimaryClick={() => void refetch()}
+        onSecondaryClick={() => navigate(-1)}
+      />
+    );
   }
 
   if (!data) return null;
@@ -115,7 +153,7 @@ export default function RollingPaperPage() {
           <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
             {isWriteCompleteMode
               ? '롤링페이퍼 작성이 완료되었어요'
-              : `${data.hostName}님의 롤링페이퍼`}
+              : `${data.hostName ?? ''}님의 롤링페이퍼`}
           </H1>
           <B1 className="mt-2 text-blue-100">
             {isWriteCompleteMode ? (
@@ -140,7 +178,7 @@ export default function RollingPaperPage() {
         {messageCount > 0 && (
           <ToppingGrid
             messages={messages}
-            onToppingClick={(index) => setSelectedMessageIndex(index)}
+            onToppingClick={handleToppingClick}
             initialPage={initialToppingPage}
           />
         )}
@@ -185,6 +223,7 @@ export default function RollingPaperPage() {
       {selectedMessageIndex !== null &&
         createPortal(
           <MessageCard
+            partyId={data.partyId}
             messages={messages}
             initialIndex={selectedMessageIndex}
             onClose={() => setSelectedMessageIndex(null)}
