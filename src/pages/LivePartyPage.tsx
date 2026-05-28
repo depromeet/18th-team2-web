@@ -23,7 +23,7 @@ export default function LivePartyPage() {
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
 
-  const { messages, addMessage } = useLivePartySSE();
+  const { messages, addMessage, candleBlowState } = useLivePartySSE();
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
 
@@ -62,6 +62,7 @@ export default function LivePartyPage() {
         showPinataOverlay={showPinataOverlay}
         onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
         userRole={userRole}
+        candleBlowState={candleBlowState}
       />
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
