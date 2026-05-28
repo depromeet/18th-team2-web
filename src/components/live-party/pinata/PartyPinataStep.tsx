@@ -12,9 +12,6 @@ const PINATA_DURATION_SECONDS = 20;
 const MAX_COLOR_TAP_COUNT = 100;
 const CONTENT_ENTER_DELAY_MS = 420;
 const RANK_ROW_GAP = 40;
-const RESULT_LIST_VISIBLE_COUNT = 5;
-const RESULT_ROW_HEIGHT = 56;
-const RESULT_ROW_GAP = 12;
 
 interface PinataRanking {
   rank: number;
@@ -27,39 +24,81 @@ interface PinataRanking {
 const MOCK_COMPETITORS: PinataRanking[] = [
   {
     rank: 1,
+    nickname: '일이삼사오육칠팔구십',
+    tapCount: 119,
+    image: characterPinkThumb,
+  },
+  {
+    rank: 2,
     nickname: '오지탐험',
     tapCount: 65,
     image: characterBrownThumb,
   },
   {
-    rank: 2,
+    rank: 3,
     nickname: '나랑께',
     tapCount: 45,
     image: characterBlueThumb,
   },
   {
-    rank: 3,
+    rank: 4,
     nickname: '너만의자기',
     tapCount: 40,
     image: characterPinkThumb,
   },
   {
-    rank: 4,
+    rank: 5,
     nickname: '한송연애 윤녕아님',
     tapCount: 34,
     image: characterBlueThumb,
   },
   {
-    rank: 5,
+    rank: 6,
     nickname: '파티요정',
+    tapCount: 34,
+    image: characterPinkThumb,
+  },
+  {
+    rank: 7,
+    nickname: '축하장인',
+    tapCount: 31,
+    image: characterBrownThumb,
+  },
+  {
+    rank: 8,
+    nickname: '박깨기달인',
+    tapCount: 28,
+    image: characterBlueThumb,
+  },
+  {
+    rank: 9,
+    nickname: '생일축하해',
     tapCount: 28,
     image: characterPinkThumb,
   },
   {
-    rank: 6,
-    nickname: '축하장인',
+    rank: 10,
+    nickname: '케이크요정',
+    tapCount: 24,
+    image: characterBrownThumb,
+  },
+  {
+    rank: 11,
+    nickname: '촛불지킴이',
     tapCount: 21,
     image: characterBrownThumb,
+  },
+  {
+    rank: 12,
+    nickname: '파티참가자',
+    tapCount: 18,
+    image: characterBlueThumb,
+  },
+  {
+    rank: 13,
+    nickname: '마지막손님',
+    tapCount: 12,
+    image: characterPinkThumb,
   },
 ];
 
@@ -77,6 +116,27 @@ function getPinataColor(tapCount: number) {
 
 function formatRank(rank: number) {
   return `${rank}등`;
+}
+
+function getPodiumColor(rank: number) {
+  if (rank === 1) return '#FFC94D';
+  if (rank === 2) return '#FFFFFF';
+  if (rank === 3) return '#B8872B';
+  return '#D7A43A';
+}
+
+function CrownIcon({ color, className = '' }: { color: string; className?: string }) {
+  return (
+    <span
+      className={`inline-block shrink-0 ${className}`}
+      style={{
+        backgroundColor: color,
+        WebkitMask: `url(${crownIcon}) center / contain no-repeat`,
+        mask: `url(${crownIcon}) center / contain no-repeat`,
+      }}
+      aria-hidden="true"
+    />
+  );
 }
 
 function getRankedParticipants(participants: PinataRanking[]) {
@@ -180,6 +240,12 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
     [allRankings],
   );
   const resultRankings = useMemo(() => getRankedParticipants([...allRankings]), [allRankings]);
+  const totalTapCount = useMemo(
+    () => resultRankings.reduce((total, ranking) => total + ranking.tapCount, 0),
+    [resultRankings],
+  );
+  const topRankings = resultRankings.slice(0, 3);
+  const restRankings = resultRankings.slice(3);
 
   useEffect(() => {
     if (remainingSeconds > 0 || isResultVisible) return;
@@ -212,8 +278,16 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
   };
 
   if (isResultVisible) {
+    const podiumSlots = [
+      { ranking: topRankings[1], className: 'translate-y-5' },
+      { ranking: topRankings[0], className: '-translate-y-3' },
+      { ranking: topRankings[2], className: 'translate-y-5' },
+    ].filter((slot): slot is { ranking: PinataRanking; className: string } =>
+      Boolean(slot.ranking),
+    );
+
     return (
-      <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center px-4 pt-[20.7svh] text-white">
+      <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[18.4svh] text-white">
         <ReactCanvasConfetti
           onInit={({ confetti }) => {
             confettiRef.current = confetti;
@@ -231,28 +305,67 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
         </h2>
 
         <div
-          className={`scrollbar-hide pointer-events-auto relative z-20 mt-[11.7svh] flex max-h-[42svh] w-[320px] max-w-[calc(100vw-32px)] flex-col gap-3 overflow-y-auto transition-all duration-[600ms] ease-in-out ${
+          className={`relative z-20 mt-4 text-center transition-opacity duration-300 ${
+            isResultAnimated ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <p className="text-body-2 font-semibold text-white">
+            모두 총 <span className="font-bold text-blue-300">{totalTapCount}회</span> 눌렀어요
+          </p>
+        </div>
+
+        <div
+          className={`relative z-20 mt-[7.3svh] flex w-full max-w-[342px] items-end justify-center gap-3 transition-all duration-[600ms] ease-in-out ${
             isResultAnimated ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
           }`}
-          style={{
-            height:
-              resultRankings.length > RESULT_LIST_VISIBLE_COUNT
-                ? RESULT_LIST_VISIBLE_COUNT * RESULT_ROW_HEIGHT +
-                  (RESULT_LIST_VISIBLE_COUNT - 1) * RESULT_ROW_GAP
-                : undefined,
-          }}
         >
-          {resultRankings.map((ranking) => (
+          {podiumSlots.map(({ ranking, className }) => {
+            const rankColor = getPodiumColor(ranking.rank);
+
+            return (
+              <div
+                key={`${ranking.nickname}-${ranking.isMe ? 'me' : 'participant'}`}
+                className={`flex w-[100px] flex-col items-center ${className}`}
+              >
+                <div
+                  className="text-body-1 flex items-center gap-1 font-bold"
+                  style={{ color: rankColor }}
+                >
+                  <CrownIcon color={rankColor} className="h-[18px] w-[22px]" />
+                  <span>{formatRank(ranking.rank)}</span>
+                </div>
+
+                <div className="text-grey-900 mt-2 flex h-[132px] w-full flex-col items-center rounded-[16px] bg-white px-2 py-4 text-center">
+                  <img
+                    src={ranking.image}
+                    alt=""
+                    className="h-12 w-12 shrink-0 rounded-full object-cover"
+                  />
+
+                  <span className="mt-3 block w-full overflow-hidden text-[12px] leading-4 font-semibold break-keep text-ellipsis whitespace-nowrap">
+                    {ranking.nickname}
+                  </span>
+
+                  <span className="mt-1 text-[16px] leading-5 font-bold text-blue-500">
+                    {ranking.tapCount}번
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div
+          className={`scrollbar-hide pointer-events-auto relative z-20 mt-14 mb-[calc(126px+env(safe-area-inset-bottom))] flex min-h-0 w-full max-w-[320px] flex-1 flex-col gap-5 overflow-y-auto transition-all duration-[600ms] ease-in-out ${
+            isResultAnimated ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
+          }`}
+        >
+          {restRankings.map((ranking) => (
             <div
               key={`${ranking.nickname}-${ranking.isMe ? 'me' : 'participant'}`}
-              className="text-grey-900 flex h-14 shrink-0 items-center gap-4 rounded-[12px] bg-white p-4 shadow-[0_6px_18px_rgba(255,255,255,0.16)]"
+              className="flex h-9 shrink-0 items-center gap-3 text-white"
             >
-              <div className="text-body-1 flex w-12 shrink-0 items-center gap-1 font-bold text-[#B8872B]">
-                {ranking.rank === 1 ? (
-                  <img src={crownIcon} alt="" className="h-[18px] w-[22px] shrink-0" />
-                ) : null}
-                <span>{formatRank(ranking.rank)}</span>
-              </div>
+              <span className="text-body-1 w-5 shrink-0 font-bold">{ranking.rank}</span>
 
               <img
                 src={ranking.image}
@@ -264,7 +377,7 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
                 {ranking.nickname}
               </span>
 
-              <span className="text-body-1 ml-auto shrink-0 text-right font-bold text-blue-500">
+              <span className="text-body-1 ml-auto shrink-0 text-right font-bold text-blue-300">
                 {ranking.tapCount}번
               </span>
             </div>
@@ -272,7 +385,7 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
         </div>
 
         <div
-          className={`pointer-events-auto absolute right-4 bottom-[calc(46px+env(safe-area-inset-bottom))] left-4 z-20 transition-opacity duration-300 ${
+          className={`pointer-events-auto absolute right-4 bottom-[calc(46px+env(safe-area-inset-bottom))] left-4 z-30 transition-opacity duration-300 ${
             isResultAnimated ? 'opacity-100' : 'opacity-0'
           }`}
         >
