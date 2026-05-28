@@ -19,13 +19,19 @@ export function ParticipantStatus({ participants }: ParticipantStatusProps) {
       {hasParticipants ? (
         <>
           <L1 as="p" className="text-grey-500">
-            {firstParticipantNickname}님 외
-            <span className="text-blue-700"> {restParticipantCount}명</span> 참여중
+            {firstParticipantNickname}님
+            {restParticipantCount > 0 && (
+              <>
+                {' '}
+                외<span className="text-blue-700"> {restParticipantCount}명</span>
+              </>
+            )}{' '}
+            참여중
           </L1>
           <ul className="flex h-7 items-center">
             {previewParticipants.map((participant, index) => (
               <li
-                key={participant.id}
+                key={participant.id || `idx-${index}`}
                 className={`h-7 w-7 overflow-hidden rounded-full bg-white ${index > 0 ? '-ml-2' : ''}`}
               >
                 <img
