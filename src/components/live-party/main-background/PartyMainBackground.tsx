@@ -4,7 +4,11 @@ import partyLight from '@/assets/images/live-party/party-light.png';
 import { FloatingCharacter } from '@/components/live-party/main-background/FloatingCharacter';
 import { usePartyMainBackground } from '@/hooks/live-party/usePartyMainBackground';
 
-export function PartyMainBackground() {
+interface PartyMainBackgroundProps {
+  isBlurred?: boolean;
+}
+
+export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundProps) {
   const {
     fireworks,
     isJumping,
@@ -17,7 +21,11 @@ export function PartyMainBackground() {
   } = usePartyMainBackground();
 
   return (
-    <>
+    <div
+      className={`absolute inset-0 transition-[filter] duration-300 ${
+        isBlurred ? 'pointer-events-none blur-[6px] brightness-[0.55]' : ''
+      }`}
+    >
       <img
         src={partyLight}
         aria-hidden
@@ -73,6 +81,6 @@ export function PartyMainBackground() {
       >
         <img src={cake} alt="" className="h-40 w-60" />
       </div>
-    </>
+    </div>
   );
 }

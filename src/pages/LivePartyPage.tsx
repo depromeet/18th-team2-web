@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
@@ -22,6 +24,17 @@ export default function LivePartyPage() {
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
 
   const { messages, addMessage } = useLivePartySSE();
+  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
+
+  useEffect(() => {
+    if (!isPinataStep) {
+      setIsPinataOverlayDismissed(false);
+    }
+  }, [isPinataStep]);
+
+  const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
+  const isPinataOverlayActive = showPinataOverlay;
 
   const showPartyMain =
     step !== LIVE_PARTY_STEP.ENTRY &&
@@ -42,10 +55,22 @@ export default function LivePartyPage() {
           step={step}
         />
       )}
-      {showPartyMain && <PartyMainBackground />}
-      <StepRenderer step={step} onStepComplete={handleNextStep} userRole={userRole} />
+      {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
+      <StepRenderer
+        step={step}
+        onStepComplete={handleNextStep}
+        showPinataOverlay={showPinataOverlay}
+        onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
+        userRole={userRole}
+      />
       <TransitionEffect isTransitioning={isTransitioning} />
-      {showPartyMain && <ChatBottomSheet messages={messages} onSend={addMessage} />}
+      {showPartyMain && (
+        <ChatBottomSheet
+          messages={messages}
+          onSend={addMessage}
+          isBlurred={isPinataOverlayActive}
+        />
+      )}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
         isHost={userRole === PARTY_USER.HOST}
