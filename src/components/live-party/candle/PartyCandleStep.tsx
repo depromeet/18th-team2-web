@@ -7,17 +7,19 @@ import { Button } from '@/components/ui/Button';
 import { CANDLES } from '@/constants/live-party';
 import { useCandleStep } from '@/hooks/live-party/useCandleStep';
 import { useFallConfetti } from '@/hooks/live-party/useFallConfetti';
+import type { components } from '@/types/api';
 
 interface PartyCandleStepProps {
   onComplete?: () => void;
+  candleBlowState: components['schemas']['CandleBlowResponse'] | null;
 }
 
-export function PartyCandleStep({ onComplete }: PartyCandleStepProps) {
+export function PartyCandleStep({ onComplete, candleBlowState }: PartyCandleStepProps) {
   const { handleInitConfetti, fireConfetti } = useFallConfetti();
 
   const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
-    candleCount: CANDLES.length,
     onComplete: fireConfetti,
+    candleBlowState,
   });
 
   return (
