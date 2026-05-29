@@ -11,7 +11,7 @@ interface PartyMainBackgroundProps {
 export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundProps) {
   const {
     fireworks,
-    isJumping,
+    jumpingParticipantId,
     hostParticipant,
     featuredParticipant,
     remainingParticipants,
@@ -40,7 +40,7 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
             name={hostParticipant.name}
             size="xl"
             isHost
-            isJumping={isJumping}
+            isJumping={jumpingParticipantId === hostParticipant.id}
             initStyle={hostInitStyle}
           />
         )}
@@ -50,7 +50,7 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
             image={featuredParticipant.image}
             name={featuredParticipant.name}
             size="lg"
-            isJumping={isJumping}
+            isJumping={jumpingParticipantId === featuredParticipant.id}
             initStyle={featuredInitStyle}
           />
         )}
@@ -60,7 +60,7 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
             image={participant.image}
             name={participant.name}
             size="sm"
-            isJumping={isJumping}
+            isJumping={jumpingParticipantId === participant.id}
             initStyle={participantInitStyles[index]}
           />
         ))}

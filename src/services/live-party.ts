@@ -209,6 +209,27 @@ export function useBlowCandle() {
   });
 }
 
+// ── 폭죽 트리거 ──
+
+export function useTriggerFireworks() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      participantToken,
+    }: {
+      partyId: string;
+      participantToken?: string | null;
+    }) => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.post<void>(`/api/v1/parties/${partyId}/fireworks`, undefined, options);
+    },
+  });
+}
+
 // ── 실시간 파티 퇴장 ──
 
 export function useLeaveParty() {
