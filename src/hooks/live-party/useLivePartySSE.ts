@@ -6,12 +6,18 @@ import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 import { resolveImageUrl } from '@/utils/image';
+import type { components } from '@/types/api';
+import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
+
+type CandleBlowState = components['schemas']['CandleBlowResponse'];
 
 export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
+  const [candleBlowState, setCandleBlowState] = useState<CandleBlowState | null>(null);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
+  const fire = useFirecrackerStore((state) => state.fire);
 
   const location = useLocation();
 
@@ -137,6 +143,25 @@ export function useLivePartySSE() {
             ]);
 
             queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+
+            return;
+          }
+
+          if (
+            event === 'candle-blow-started' ||
+            event === 'candle-blow-progress' ||
+            event === 'candle-blow-ended'
+          ) {
+            setCandleBlowState(parsed as CandleBlowState);
+
+            return;
+          }
+
+          if (event === 'fireworks') {
+            const participantId = parsed.participantId as number | undefined;
+            fire(participantId);
+
+            return;
           }
         } catch {
           console.error('[SSE] 이벤트 파싱 실패');
@@ -154,7 +179,7 @@ export function useLivePartySSE() {
     return () => {
       controller.abort();
     };
-  }, [partyId, queryClient]);
+  }, [partyId, queryClient, fire]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {
@@ -171,5 +196,6 @@ export function useLivePartySSE() {
   return {
     messages,
     addMessage,
+    candleBlowState,
   };
 }

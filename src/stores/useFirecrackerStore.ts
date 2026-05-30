@@ -3,17 +3,20 @@ import { devtools } from 'zustand/middleware';
 
 interface FirecrackerState {
   firecrackerId: number;
-  fire: () => void;
+  firingParticipantId: number | null;
+  fire: (participantId?: number) => void;
 }
 
 export const useFirecrackerStore = create<FirecrackerState>()(
   devtools(
     (set) => ({
       firecrackerId: 0,
+      firingParticipantId: null,
 
-      fire: () =>
+      fire: (participantId?: number) =>
         set({
           firecrackerId: Date.now(),
+          firingParticipantId: participantId ?? null,
         }),
     }),
     { name: 'FirecrackerStore' },

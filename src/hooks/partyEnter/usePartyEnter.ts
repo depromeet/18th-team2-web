@@ -34,7 +34,7 @@ export function usePartyEnter() {
   const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
-  const isHost = profile?.host ?? false;
+  const isHost = profile?.isHost ?? false;
   const isNicknameEditable = profile?.nicknameEditable ?? true;
 
   // 호스트는 자기 파티 참여자라 /participants 호출 가능. 비인증 참가자는 BE 제약상 호출 불가 → undefined로 비활성화.

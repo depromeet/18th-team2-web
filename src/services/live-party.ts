@@ -161,6 +161,75 @@ export function useGetPartyParticipants(partyId: string | undefined) {
   });
 }
 
+// ── 촛불끄기 초기 상태 조회 (마운트 시 1회) ──
+
+export function useGetCandleBlowState(partyId: string | undefined) {
+  return useQuery({
+    queryKey: ['candleBlowState', partyId],
+    queryFn: () => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.get<components['schemas']['ApiResponseCandleBlowResponse']>(
+        `/api/v1/parties/${partyId}/candle-blow`,
+        options,
+      );
+    },
+    enabled: !!partyId,
+  });
+}
+
+// ── 촛불 끄기 ──
+
+export function useBlowCandle() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      candleId,
+      participantToken,
+    }: {
+      partyId: string;
+      candleId: number;
+      participantToken?: string | null;
+    }) => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.post<components['schemas']['ApiResponseCandleBlowResponse']>(
+        `/api/v1/parties/${partyId}/candle-blow/candles/${candleId}`,
+        undefined,
+        options,
+      );
+    },
+  });
+}
+
+// ── 폭죽 트리거 ──
+
+export function useTriggerFireworks() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      participantToken,
+    }: {
+      partyId: string;
+      participantToken?: string | null;
+    }) => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.post<void>(`/api/v1/parties/${partyId}/fireworks`, undefined, options);
+    },
+  });
+}
+
 // ── 실시간 파티 퇴장 ──
 
 export function useLeaveParty() {
