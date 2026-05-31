@@ -1688,7 +1688,8 @@ export interface components {
             data?: components["schemas"]["RealtimePartyNextActionResult"];
         };
         /** @description 주최자용 다음 행동 응답 */
-        Host: WithRequired<components["schemas"]["RealtimePartyNextActionResult"], "type"> & {
+        Host: {
+            type: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
             /**
              * Format: int64
              * @description 롤링페이퍼 목록으로 이동할 파티 ID
@@ -1697,7 +1698,8 @@ export interface components {
             partyId: number;
         };
         /** @description 참가자용 다음 행동 응답 */
-        Participant: WithRequired<components["schemas"]["RealtimePartyNextActionResult"], "type"> & {
+        Participant: {
+            type: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
             /**
              * @description 롤링페이퍼 작성 화면 진입에 사용할 유효 초대 토큰
              * @example exampletoken0000
@@ -4515,6 +4517,3 @@ export interface operations {
         };
     };
 }
-type WithRequired<T, K extends keyof T> = T & {
-    [P in K]-?: T[P];
-};
