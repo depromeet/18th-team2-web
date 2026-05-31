@@ -31,7 +31,8 @@ export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const inviteToken = (location.state as { inviteToken?: string } | null)?.inviteToken ?? '';
+  const locationState = location.state as { inviteToken?: string; hostName?: string } | null;
+  const inviteToken = locationState?.inviteToken ?? '';
   const entryStorageKey = partyId ? `live-party-entry-shown:${partyId}` : '';
   const hasStoredEntryShown = entryStorageKey
     ? sessionStorage.getItem(entryStorageKey) === 'true'
@@ -53,10 +54,13 @@ export default function LivePartyPage() {
   });
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
-  const hostName = hostGate.celebrant?.nickname ?? profile?.nickname ?? undefined;
+  const hostName =
+    hostGate.celebrant?.nickname ??
+    locationState?.hostName ??
+    (isHost ? profile?.nickname : undefined);
   const hostCharacterImage =
     resolveImageUrl(hostGate.celebrant?.characterImageUrl) ??
-    resolveImageUrl(profile?.character?.characterImageUrl);
+    (isHost ? resolveImageUrl(profile?.character?.characterImageUrl) : null);
 
   function handleInvite() {
     if (!inviteToken) return;

@@ -103,6 +103,7 @@ export function usePartyEnter() {
           inviteToken,
           nickname,
           characterId: selectedCharacterId,
+          hostName: locationState?.hostName,
         },
       });
       return;
@@ -120,6 +121,7 @@ export function usePartyEnter() {
               inviteToken,
               nickname,
               characterId: selectedCharacterId,
+              hostName: locationState?.hostName,
               from: locationState?.from,
             },
           }),

@@ -11,10 +11,12 @@ interface PartyEntryStageProps {
 }
 
 export function PartyEntryStage({
-  hostName = '이라',
+  hostName,
   characterImage,
   onComplete,
 }: PartyEntryStageProps) {
+  const hostLabel = hostName ? `${hostName}님이` : '주인공이';
+
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
       <img
@@ -27,14 +29,14 @@ export function PartyEntryStage({
       <div className="flex flex-1 flex-col items-center justify-center gap-20 px-2">
         <img
           src={characterImage ?? characterBlueHostSrc}
-          alt={`${hostName}님 캐릭터`}
+          alt={hostName ? `${hostName}님 캐릭터` : '주인공 캐릭터'}
           className="party-enter-character h-44 w-44 object-contain"
           draggable={false}
         />
         <T3 className="text-center text-white">
           오늘의 주인공
           <br />
-          {hostName}님이
+          {hostLabel}
           <br />
           등장했어요!
         </T3>
