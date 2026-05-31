@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/Button';
 import { B1, H3 } from '@/components/ui/Typography';
 
-type DialogActionVariant = 'primary' | 'secondary' | 'danger';
+type DialogActionVariant = 'primary' | 'secondary' | 'danger' | 'white-red';
 
 interface ConfirmDialogAction {
   label: string;
@@ -28,12 +28,17 @@ const actionClassNames: Record<DialogActionVariant, string> = {
   primary: '',
   secondary: '',
   danger: '',
+  'white-red': '',
 };
 
-const actionVariants: Record<DialogActionVariant, 'primary' | 'danger' | 'white-grey'> = {
+const actionVariants: Record<
+  DialogActionVariant,
+  'primary' | 'danger' | 'white-grey' | 'white-red'
+> = {
   primary: 'primary',
   secondary: 'white-grey',
   danger: 'danger',
+  'white-red': 'white-red',
 };
 
 export function ConfirmDialog({
@@ -86,7 +91,7 @@ export function ConfirmDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelledById}
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-[120] flex items-center justify-center"
     >
       <button
         type="button"

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
@@ -11,6 +12,7 @@ import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
+import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import { LIVE_PARTY_STEP, PARTY_USER } from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
@@ -38,7 +40,7 @@ export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
   const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken);
-  const isHost = profile?.host ?? false;
+  const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const hostGate = useHostLivePartyGate(partyId, isHost);
 
@@ -67,6 +69,19 @@ export default function LivePartyPage() {
       onSuccess: () => navigate(ROUTES.home, { replace: true }),
     });
   }
+
+  const { messages, addMessage, candleBlowState } = useLivePartySSE();
+  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
+
+  useEffect(() => {
+    if (!isPinataStep) {
+      setIsPinataOverlayDismissed(false);
+    }
+  }, [isPinataStep]);
+
+  const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
+  const isPinataOverlayActive = showPinataOverlay;
 
   const showPartyMain =
     step !== LIVE_PARTY_STEP.ENTRY &&
@@ -101,6 +116,7 @@ export default function LivePartyPage() {
         />
         <PartyExitDialog
           isOpen={isExitDialogOpen}
+          isHost={isHost}
           onCancel={handleCancelExit}
           onConfirm={handleConfirmExit}
         />
@@ -122,20 +138,28 @@ export default function LivePartyPage() {
           step={step}
         />
       )}
-      {showPartyMain && (
-        <PartyMainBackground userRole={userRole} participants={hostGate.participants} />
-      )}
+      {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
       <StepRenderer
         step={step}
         onStepComplete={handleNextStep}
+        showPinataOverlay={showPinataOverlay}
+        onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
         userRole={userRole}
         hostName={hostName}
         hostCharacterImage={hostCharacterImage}
+        candleBlowState={candleBlowState}
       />
       <TransitionEffect isTransitioning={isTransitioning} />
-      {showPartyMain && <ChatBottomSheet />}
+      {showPartyMain && (
+        <ChatBottomSheet
+          messages={messages}
+          onSend={addMessage}
+          isBlurred={isPinataOverlayActive}
+        />
+      )}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
+        isHost={userRole === PARTY_USER.HOST}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
       />

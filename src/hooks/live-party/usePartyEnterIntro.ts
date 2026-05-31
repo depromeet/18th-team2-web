@@ -10,7 +10,7 @@ export function usePartyEnterIntro(hostName?: string) {
 
   const [isCurtainOpen, setIsCurtainOpen] = useState(false);
 
-  const entryData = getEntryData(hostName);
+  const entryData = getEntryData(hostName ?? '');
   const currentStep = entryData[step];
 
   const isLastStep = step === entryData.length - 1;

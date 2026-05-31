@@ -68,7 +68,7 @@ async function fetchArchivePage(cursor: string | null): Promise<ArchiveListRespo
   const res = await api.get<components['schemas']['ApiResponseArchiveListResponse']>(
     `/api/v1/archive?${query.toString()}`,
   );
-  return res.data ?? { items: [], nextCursor: null, totalCount: 0 };
+  return res.data ?? { items: [], totalCount: 0 };
 }
 
 export const archiveQueries = {

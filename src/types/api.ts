@@ -37,7 +37,7 @@ export interface paths {
         };
         /**
          * 참가자용 롤링페이퍼 목록 조회
-         * @description 초대 토큰으로 롤링페이퍼 목록과 상세 오버레이용 본문을 조회한다. 인증 없이도 조회 가능하다. Authorization header를 보낼 경우 유효한 Bearer token이어야 한다.
+         * @description 초대 토큰으로 롤링페이퍼 목록을 조회한다. 인증 없이도 조회 가능하다. Authorization header를 보낼 경우 유효한 Bearer token이어야 한다.
          */
         get: operations["getParticipantRollingPapers"];
         put?: never;
@@ -90,7 +90,6 @@ export interface paths {
          *     | `message` | 새로 전송된 메시지 1건 |
          *     | `user-entered` | 참여자 입장 알림 |
          *     | `user-left` | 참여자 퇴장 알림 |
-         *     | `host-end-available` | 주최자 수동 종료 가능 알림 |
          *     | `party-ending` | 60초 종료 카운트다운 시작 알림 |
          *     | `party-ended` | 실시간 파티 종료 알림 |
          *
@@ -199,11 +198,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 주최자 실시간 파티 종료 상태 조회 */
-        get: operations["getRealtimeEndStatus"];
+        get?: never;
         put?: never;
         /** 주최자 실시간 파티 종료 요청 */
         post: operations["startRealtimeEnd"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/phase/advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Phase 전환
+         * @description ENTRY→MUSIC: 호스트 전용. MUSIC→CANDLE: 모든 파티 멤버. currentPhase가 이미 변경된 경우 현재 phase 그대로 반환.
+         *
+         *     **인증**
+         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참가자는 `X-Participant-Token: {participantToken}` 헤더를 사용한다.
+         */
+        post: operations["advancePhase"];
         delete?: never;
         options?: never;
         head?: never;
@@ -224,6 +245,38 @@ export interface paths {
          * @description 초대 토큰을 발급하거나 기존 유효 토큰을 재사용한다. 현재 파티 조회/참여 API가 보류되어 토큰 소비 경로는 새 기획 확정 후 다시 연결한다.
          */
         post: operations["activateInviteLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/fireworks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 폭죽 트리거
+         * @description 파티 참가자가 폭죽 아이콘을 클릭하면 해당 파티의 모든 SSE 구독자에게 `fireworks` 이벤트를 broadcast합니다.
+         *
+         *     **인증:** 로그인 사용자는 `Authorization: Bearer {token}`, 비로그인 참여자는 `X-Participant-Token: {token}` 헤더 사용.
+         *
+         *     **broadcast되는 SSE 이벤트**
+         *     ```
+         *     event: fireworks
+         *     data: {
+         *       "partyId": 1,
+         *       "participantId": 5,
+         *       "nickname": "토끼왕"
+         *     }
+         *     ```
+         */
+        post: operations["triggerFireworks"];
         delete?: never;
         options?: never;
         head?: never;
@@ -253,6 +306,29 @@ export interface paths {
          *     메시지가 저장되면 해당 파티의 SSE 구독자 전원에게 `message` 이벤트가 발송됩니다.
          */
         post: operations["sendMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/parties/{partyId}/candle-blow/candles/{candleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 촛불 끄기
+         * @description 실시간 파티의 공유 촛불 1개를 끕니다.
+         *
+         *     `candleId`는 1부터 9까지 허용합니다.
+         *     이미 꺼진 촛불이거나 촛불끄기가 종료된 뒤의 요청도 실패가 아니라 200 OK와 현재 상태로 응답합니다.
+         */
+        post: operations["blowCandle"];
         delete?: never;
         options?: never;
         head?: never;
@@ -373,7 +449,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/rolling-paper-wrappers": {
+    "/api/v1/rolling-paper-toppings": {
         parameters: {
             query?: never;
             header?: never;
@@ -381,10 +457,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 롤링페이퍼 래퍼 목록 조회
-         * @description 롤링페이퍼 작성 시 선택 가능한 래퍼 목록을 조회한다.
+         * 롤링페이퍼 토핑 목록 조회
+         * @description 롤링페이퍼 작성 시 선택 가능한 토핑 목록을 조회한다.
          */
-        get: operations["getRollingPaperWrappers"];
+        get: operations["getRollingPaperToppings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -487,6 +563,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}/phase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 현재 Phase 조회
+         * @description 중간 입장 시 현재 Phase와 시작 시각, 서버 현재 시각 반환.
+         *
+         *     **인증**
+         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참가자는 `X-Participant-Token: {participantToken}` 헤더를 사용한다. 둘 중 하나는 반드시 포함해야 한다.
+         */
+        get: operations["getPhase"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/{partyId}/participants": {
         parameters: {
             query?: never;
@@ -510,6 +609,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}/candle-blow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 촛불끄기 상태 조회
+         * @description 실시간 파티의 촛불끄기 상태를 조회합니다.
+         *
+         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참여자는 `X-Participant-Token: {participantToken}` 헤더를 사용합니다.
+         *     시작 전에는 WAITING, 진행 중에는 ACTIVE, 모두 꺼졌거나 타임아웃되면 FINISHED를 반환합니다.
+         */
+        get: operations["getCandleBlowState"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/{partyId}/burst-game": {
         parameters: {
             query?: never;
@@ -520,8 +642,7 @@ export interface paths {
         /**
          * 박터뜨리기 상태 및 결과 조회
          * @description partyId 기준으로 진행 중인 라운드의 현재 상태 또는 TTL 안에 남아 있는 종료 결과를 조회합니다.
-         *     진행 중에는 rankings를, 종료 후에는 공동 1등 winners만 반환합니다.
-         *     ended=false이면 아직 결과가 확정되지 않은 상태이며 winners는 빈 배열입니다.
+         *     진행 중에는 상위 3명 rankings를, 종료 후에는 1회 이상 터치한 참가자 전체 rankings와 최종 totalTapCount를 반환합니다.
          */
         get: operations["getState"];
         put?: never;
@@ -701,7 +822,7 @@ export interface components {
              * @description 선택한 캐릭터 ID
              * @example 1
              */
-            characterId: number | null;
+            characterId: number;
         };
         /** @description 에러 상세 정보 */
         ErrorDetail: {
@@ -709,12 +830,12 @@ export interface components {
              * @description 에러 코드
              * @example PARTY_NOT_FOUND
              */
-            code?: string;
+            code: string;
             /**
              * @description 에러 메시지
              * @example 파티를 찾을 수 없습니다
              */
-            message?: string;
+            message: string;
         };
         /** @description 공통 에러 응답 */
         ErrorResponse: {
@@ -723,9 +844,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 400
              */
-            status?: number;
-            /** @description 에러 상세 */
-            error?: components["schemas"]["ErrorDetail"];
+            status: number;
+            error: components["schemas"]["ErrorDetail"];
         };
         /** @description 공통 성공 응답 */
         ApiResponseParticipantRealtimeProfileResult: {
@@ -734,8 +854,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["ParticipantRealtimeProfileResult"] | null;
+            status: number;
+            data?: components["schemas"]["ParticipantRealtimeProfileResult"];
         };
         /** @description 캐릭터 조회 응답 */
         CharacterResult: {
@@ -744,22 +864,22 @@ export interface components {
              * @description 캐릭터 ID. 파티 참여 요청의 characterId로 전달합니다.
              * @example 1
              */
-            characterId?: number;
+            characterId: number;
             /**
              * @description 캐릭터 이름
              * @example Default
              */
-            name?: string;
+            name: string;
             /**
              * @description 캐릭터 이미지 URL
              * @example /images/characters/Type=Default, Shape=Default.png
              */
-            characterImageUrl?: string | null;
+            characterImageUrl?: string;
             /**
              * @description 캐릭터 썸네일 이미지 URL
              * @example /images/character-thumbnails/Type=Default, Shape=Circle.png
              */
-            characterThumbnailImageUrl?: string | null;
+            characterThumbnailImageUrl?: string;
         };
         /** @description 실시간 파티 입장 프로필 응답 */
         ParticipantRealtimeProfileResult: {
@@ -768,19 +888,23 @@ export interface components {
              * @description 회원 participant ID
              * @example 1
              */
-            participantId?: number;
+            participantId: number;
+            /**
+             * @description 주최자 여부
+             * @example false
+             */
+            isHost: boolean;
             /**
              * @description 현재 저장된 닉네임. 미설정이면 null
              * @example 안녕용가리
              */
-            nickname?: string | null;
-            character?: components["schemas"]["CharacterResult"] | null;
-            host?: boolean;
+            nickname?: string;
+            character?: components["schemas"]["CharacterResult"];
             /**
              * @description 닉네임 수정 가능 여부. 주최자는 false
              * @example true
              */
-            nicknameEditable?: boolean;
+            nicknameEditable: boolean;
         };
         /** @description 롤링페이퍼 작성 요청 */
         CreateRollingPaperRequest: {
@@ -788,18 +912,18 @@ export interface components {
              * @description 작성자 닉네임
              * @example 축하요정
              */
-            writerNickname: string | null;
+            writerNickname: string;
             /**
              * @description 롤링페이퍼 내용
              * @example 생일 축하해!
              */
-            content: string | null;
+            content: string;
             /**
              * Format: int64
-             * @description 래퍼 ID
+             * @description 토핑 ID
              * @example 1
              */
-            wrapperId: number | null;
+            toppingId: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseCreateRollingPaperResponse: {
@@ -808,8 +932,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["CreateRollingPaperResponse"] | null;
+            status: number;
+            data?: components["schemas"]["CreateRollingPaperResponse"];
         };
         /** @description 롤링페이퍼 작성 응답 */
         CreateRollingPaperResponse: {
@@ -818,13 +942,13 @@ export interface components {
              * @description 생성된 롤링페이퍼 ID
              * @example 10
              */
-            rollingPaperId?: number;
+            rollingPaperId: number;
         };
         EnterRealtimePartyRequest: {
             nickname: string;
             /** Format: int64 */
-            characterId?: number;
-            participantToken?: string | null;
+            characterId: number;
+            participantToken?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponsePartyInviteParticipationResponse: {
@@ -833,8 +957,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["PartyInviteParticipationResponse"] | null;
+            status: number;
+            data?: components["schemas"]["PartyInviteParticipationResponse"];
         };
         /** @description 초대장 회원 참여 응답 */
         PartyInviteParticipationResponse: {
@@ -843,7 +967,7 @@ export interface components {
              * @description 참여자 ID
              * @example 1
              */
-            participantId?: number;
+            participantId: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseRealtimePartyEndResult: {
@@ -852,8 +976,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["RealtimePartyEndResult"] | null;
+            status: number;
+            data?: components["schemas"]["RealtimePartyEndResult"];
         };
         /** @description 실시간 파티 종료 카운트다운 시작 응답 */
         RealtimePartyEndResult: {
@@ -862,19 +986,42 @@ export interface components {
              * @description 파티 ID
              * @example 1
              */
-            partyId?: number;
+            partyId: number;
             /**
              * Format: date-time
              * @description 종료 카운트다운 시작 시각
-             * @example 2026-05-19T20:10:00
              */
-            endingStartedAt?: string;
+            endingStartedAt: string;
             /**
              * Format: date-time
              * @description 실시간 라이브 종료 시각
-             * @example 2026-05-19T20:11:00
              */
-            endedAt?: string;
+            endedAt: string;
+        };
+        AdvancePartyPhaseRequest: {
+            /** @enum {string} */
+            currentPhase: "ENTRY" | "MUSIC" | "CANDLE" | "BURST" | "CLOSEABLE" | "END";
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponsePartyPhaseResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status: number;
+            data?: components["schemas"]["PartyPhaseResult"];
+        };
+        /** @description 응답 데이터 */
+        PartyPhaseResult: {
+            /** Format: int64 */
+            partyId: number;
+            /** @enum {string} */
+            phase: "ENTRY" | "MUSIC" | "CANDLE" | "BURST" | "CLOSEABLE" | "END";
+            /** Format: date-time */
+            phaseStartedAt: string;
+            /** Format: date-time */
+            serverNow: string;
         };
         /** @description 초대링크 활성화 응답 */
         ActivateInviteLinkResponse: {
@@ -882,7 +1029,7 @@ export interface components {
              * @description 초대 토큰
              * @example example-token-0000
              */
-            token?: string;
+            token: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseActivateInviteLinkResponse: {
@@ -891,8 +1038,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["ActivateInviteLinkResponse"] | null;
+            status: number;
+            data?: components["schemas"]["ActivateInviteLinkResponse"];
         };
         SendChatMessageRequest: {
             content: string;
@@ -904,21 +1051,69 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["ChatMessageResponse"] | null;
+            status: number;
+            data?: components["schemas"]["ChatMessageResponse"];
         };
+        /** @description 응답 데이터 */
         ChatMessageResponse: {
             /** Format: int64 */
-            messageId?: number;
-            content?: string;
-            senderNickname?: string;
+            messageId: number;
+            content: string;
+            senderNickname: string;
             /** Format: int64 */
-            senderCharacterId?: number | null;
-            senderCharacterImageUrl?: string | null;
+            senderCharacterId?: number;
+            senderCharacterImageUrl?: string;
             /** @enum {string} */
-            senderRole?: "CELEBRANT" | "PARTICIPANT";
+            senderRole: "CELEBRANT" | "PARTICIPANT";
             /** Format: date-time */
-            sentAt?: string;
+            sentAt: string;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseCandleBlowResponse: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status: number;
+            data?: components["schemas"]["CandleBlowResponse"];
+        };
+        /** @description 1부터 9까지의 촛불 상태입니다. */
+        CandleBlowCandleResponse: {
+            /**
+             * Format: int32
+             * @description 촛불 번호입니다. 1부터 9까지 고정입니다.
+             * @example 1
+             */
+            candleId: number;
+            /**
+             * @description 촛불이 꺼졌는지 여부입니다.
+             * @example true
+             */
+            extinguished: boolean;
+        };
+        /** @description 응답 데이터 */
+        CandleBlowResponse: {
+            /**
+             * Format: int64
+             * @description 촛불끄기 단계가 속한 파티 ID입니다.
+             * @example 10
+             */
+            partyId: number;
+            /**
+             * @description 촛불끄기 상태입니다.
+             * @example ACTIVE
+             * @enum {string}
+             */
+            status: "WAITING" | "ACTIVE" | "FINISHED" | "WAITING" | "ACTIVE" | "FINISHED";
+            /** @description 1부터 9까지의 촛불 상태입니다. */
+            candles: components["schemas"]["CandleBlowCandleResponse"][];
+            /**
+             * @description 종료 사유입니다. 종료 전에는 null입니다.
+             * @example ALL_EXTINGUISHED
+             * @enum {string}
+             */
+            finishedReason?: "ALL_EXTINGUISHED" | "TIMEOUT" | "ALL_EXTINGUISHED" | "TIMEOUT";
         };
         SubmitBurstGameTapRequest: {
             /**
@@ -926,13 +1121,13 @@ export interface components {
              * @description 이번 batch에 포함된 터치 수. 1~30 사이 값만 허용합니다.
              * @example 7
              */
-            tapCount?: number;
+            tapCount: number;
             /**
              * Format: int64
              * @description 참가자별로 증가시키는 batch 멱등성 키입니다. 이미 처리한 값은 중복 요청으로 무시됩니다.
              * @example 12
              */
-            clientSequence?: number;
+            clientSequence: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseSubmitBurstGameTapResponse: {
@@ -941,105 +1136,100 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["SubmitBurstGameTapResponse"] | null;
+            status: number;
+            data?: components["schemas"]["SubmitBurstGameTapResponse"];
         };
+        /** @description 진행 중 상태에서 제공되는 상위 3명입니다. */
         BurstGameRankingResponse: {
             /**
              * Format: int32
              * @description 공동 순위를 허용하는 현재 순위입니다.
              * @example 1
              */
-            rank?: number;
+            rank: number;
             /**
              * Format: int64
              * @description 랭킹에 표시할 실시간 파티 참여자 ID입니다.
              * @example 37
              */
-            participantId?: number;
+            participantId: number;
             /**
              * @description 실시간 파티 프로필 닉네임입니다.
              * @example 토끼왕
              */
-            nickname?: string;
+            nickname: string;
             /**
              * Format: int64
              * @description 선택한 캐릭터 ID입니다.
              * @example 2
              */
-            characterId?: number | null;
+            characterId?: number;
             /**
              * @description 선택한 캐릭터 이미지 URL입니다.
              * @example https://example.com/rabbit.png
              */
-            characterImageUrl?: string | null;
+            characterImageUrl?: string;
             /**
              * @description 실시간 파티 참여자 역할입니다.
              * @example CELEBRANT
              * @enum {string}
              */
-            role?: "CELEBRANT" | "PARTICIPANT";
+            role: "CELEBRANT" | "PARTICIPANT";
             /**
              * Format: int32
              * @description 해당 참여자의 현재 라운드 누적 터치 수입니다.
              * @example 11
              */
-            tapCount?: number;
+            tapCount: number;
         };
+        /** @description 응답 데이터 */
         SubmitBurstGameTapResponse: {
             /**
              * Format: int64
              * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
              * @example 10
              */
-            partyId?: number;
+            partyId: number;
             /**
              * Format: int64
              * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
              * @example 37
              */
-            myParticipantId?: number;
+            myParticipantId: number;
             /**
              * @description 이번 터치 batch가 집계에 반영되었는지 여부입니다.
              * @example true
              */
-            accepted?: boolean;
+            accepted: boolean;
             /**
              * @description 터치 batch가 반영되지 않은 이유입니다. accepted=true이면 null입니다.
-             * @enum {string|null}
+             * @enum {string}
              */
-            ignoredReason?: "DUPLICATE_SEQUENCE" | "ROUND_ENDED" | null;
-            /**
-             * Format: int32
-             * @description 현재까지 반영된 전체 터치 수입니다.
-             * @example 42
-             */
-            totalTapCount?: number;
+            ignoredReason?: "DUPLICATE_SEQUENCE" | "ROUND_ENDED" | "DUPLICATE_SEQUENCE" | "ROUND_ENDED";
             /**
              * Format: int32
              * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
              * @example 11
              */
-            myTapCount?: number;
+            myTapCount: number;
             /**
              * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
              * @example false
              */
-            colorChanged?: boolean;
+            colorChanged: boolean;
             /**
              * Format: int64
              * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
              * @example 13
              */
-            stateVersion?: number;
+            stateVersion: number;
             /**
              * Format: date-time
              * @description 응답 생성 시점의 서버 시각입니다.
-             * @example 2026-05-14T20:10:07.120
              */
-            serverTime?: string;
-            /** @description 진행 중 상태에서 제공되는 상위 3개 rank group입니다. */
-            rankings?: components["schemas"]["BurstGameRankingResponse"][];
+            serverTime: string;
+            /** @description 진행 중 상태에서 제공되는 상위 3명입니다. */
+            rankings: components["schemas"]["BurstGameRankingResponse"][];
         };
         /** @description 공통 성공 응답 */
         ApiResponseStartBurstGameResponse: {
@@ -1048,57 +1238,49 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["StartBurstGameResponse"] | null;
+            status: number;
+            data?: components["schemas"]["StartBurstGameResponse"];
         };
+        /** @description 응답 데이터 */
         StartBurstGameResponse: {
             /**
              * Format: int64
              * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
              * @example 10
              */
-            partyId?: number;
+            partyId: number;
             /**
              * Format: int64
              * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
              * @example 37
              */
-            myParticipantId?: number;
+            myParticipantId: number;
             /**
              * Format: date-time
              * @description 서버 기준 라운드 시작 시각입니다.
-             * @example 2026-05-14T20:10:00
              */
-            startedAt?: string;
+            startedAt: string;
             /**
              * Format: date-time
              * @description 서버 기준 라운드 종료 시각입니다.
-             * @example 2026-05-14T20:10:20
              */
-            endsAt?: string;
-            /**
-             * Format: int32
-             * @description 현재까지 반영된 전체 터치 수입니다.
-             * @example 0
-             */
-            totalTapCount?: number;
+            endsAt: string;
             /**
              * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
              * @example false
              */
-            colorChanged?: boolean;
+            colorChanged: boolean;
             /**
              * Format: int64
              * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
              * @example 0
              */
-            stateVersion?: number;
+            stateVersion: number;
             /**
              * Format: date-time
              * @description 응답 생성 시점의 서버 시각입니다.
-             * @example 2026-05-14T20:10:00
              */
-            serverTime?: string;
+            serverTime: string;
         };
         /** @description 실시간 파티 생성 요청 */
         CreateRealtimePartyRequest: {
@@ -1106,24 +1288,24 @@ export interface components {
              * @description 파티 주인공 이름
              * @example 홍길동
              */
-            celebrantNickname?: string;
+            celebrantNickname: string;
             /**
              * Format: date
              * @description 파티 시작일
              * @example 2024-11-26
              */
-            startedDate?: string;
+            startedDate: string;
             /**
              * @description 파티 시작 시간 (HH:mm)
              * @example 14:30
              */
-            startTime?: string;
+            startTime: string;
             /**
              * Format: int64
              * @description 캐릭터 ID
              * @example 1
              */
-            characterId?: number;
+            characterId: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseCreatePartyResponse: {
@@ -1132,8 +1314,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["CreatePartyResponse"] | null;
+            status: number;
+            data?: components["schemas"]["CreatePartyResponse"];
         };
         /** @description 파티 생성 응답 */
         CreatePartyResponse: {
@@ -1142,7 +1324,7 @@ export interface components {
              * @description 생성된 파티 ID
              * @example 1
              */
-            partyId?: number;
+            partyId: number;
         };
         /** @description 롤링페이퍼 파티 생성 요청 */
         CreatePaperOnlyPartyRequest: {
@@ -1150,13 +1332,13 @@ export interface components {
              * @description 파티 주인공 이름
              * @example 홍길동
              */
-            celebrantNickname?: string;
+            celebrantNickname: string;
             /**
              * Format: date
              * @description 파티 시작일
              * @example 2024-11-26
              */
-            startedDate?: string;
+            startedDate: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseDevTokenResponse: {
@@ -1165,43 +1347,44 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["DevTokenResponse"] | null;
+            status: number;
+            data?: components["schemas"]["DevTokenResponse"];
         };
+        /** @description 응답 데이터 */
         DevTokenResponse: {
-            token?: string;
+            token: string;
             /** Format: int64 */
-            userId?: number;
+            userId: number;
         };
         /** @description 공통 성공 응답 */
-        ApiResponseListRollingPaperWrapperResponse: {
+        ApiResponseListRollingPaperToppingResult: {
             /**
              * Format: int32
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
+            status: number;
             /** @description 응답 데이터 */
-            data?: components["schemas"]["RollingPaperWrapperResponse"][] | null;
+            data?: components["schemas"]["RollingPaperToppingResult"][];
         };
-        /** @description 롤링페이퍼 래퍼 조회 응답 */
-        RollingPaperWrapperResponse: {
+        /** @description 롤링페이퍼 토핑 조회 응답 */
+        RollingPaperToppingResult: {
             /**
              * Format: int64
-             * @description 래퍼 ID. 롤링페이퍼 작성 요청의 wrapperId로 전달합니다.
+             * @description 토핑 ID. 롤링페이퍼 작성 요청의 toppingId로 전달합니다.
              * @example 1
              */
-            wrapperId?: number;
+            toppingId: number;
             /**
-             * @description 래퍼 이름
+             * @description 토핑 이름
              * @example Topping_Candle
              */
-            name?: string;
+            name: string;
             /**
-             * @description 래퍼 이미지 URL
+             * @description 토핑 이미지 URL
              * @example /images/rolling-paper-wrappers/Topping_Candle.svg
              */
-            wrapperImageUrl?: string | null;
+            toppingImageUrl: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponsePartyInviteLookupResponse: {
@@ -1210,8 +1393,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["PartyInviteLookupResponse"] | null;
+            status: number;
+            data?: components["schemas"]["PartyInviteLookupResponse"];
         };
         /** @description 초대장 조회 응답 */
         PartyInviteLookupResponse: {
@@ -1220,69 +1403,70 @@ export interface components {
              * @description 파티 ID
              * @example 1
              */
-            partyId?: number;
+            partyId: number;
             /**
              * @description 파티 주인공 이름
              * @example 홍길동
              */
-            celebrantNickname?: string | null;
+            celebrantNickname?: string;
+            /**
+             * @description 현재 조회자가 파티 주최자인지 여부
+             * @example false
+             */
+            isHost: boolean;
             /**
              * @description 파티 옵션. REALTIME: 실시간 파티, PAPER_ONLY: 롤링페이퍼 전용 파티
              * @example REALTIME
              * @enum {string}
              */
-            partyOption?: "REALTIME" | "PAPER_ONLY";
+            partyOption: "REALTIME" | "PAPER_ONLY" | "REALTIME" | "PAPER_ONLY";
             /**
              * @description 파티 자체 종료 여부
              * @example false
              */
-            partyEnded?: boolean;
+            partyEnded: boolean;
             /**
              * @description 현재 조회자의 롤링페이퍼 작성 여부
              * @example false
              */
-            rollingPaperWritten?: boolean;
+            rollingPaperWritten: boolean;
             /**
              * Format: date
              * @description 파티 시작일
              * @example 2026-05-04
              */
-            partyStartDate?: string;
+            partyStartDate: string;
             /**
              * Format: date
              * @description 파티 종료일
              * @example 2026-05-11
              */
-            partyEndDate?: string;
-            realtimeSchedule?: components["schemas"]["RealtimeSchedule"] | null;
-            host?: boolean;
+            partyEndDate: string;
+            realtimeSchedule?: components["schemas"]["RealtimeSchedule"];
         };
         /** @description 실시간 파티 일정 기준 시각 */
         RealtimeSchedule: {
             /**
              * Format: date-time
              * @description 실시간 파티 시작 시각
-             * @example 2026-05-04T20:00:00
              */
-            liveStartAt?: string;
+            liveStartAt: string;
             /**
              * Format: date-time
              * @description 파티 입장 가능 시작 시각
-             * @example 2026-05-04T19:55:00
              */
-            enterableFrom?: string;
+            enterableFrom: string;
             /**
              * Format: date-time
              * @description 실시간 파티 종료 시각
-             * @example 2026-05-04T20:10:00
              */
-            liveEndAt?: string;
+            liveEndAt: string;
             /**
              * Format: int64
              * @description 실시간 파티 진행 시간
              * @example 10
              */
-            liveDurationMinutes?: number;
+            liveDurationMinutes: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseParticipantRollingPaperListResponse: {
@@ -1291,8 +1475,27 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["ParticipantRollingPaperListResponse"] | null;
+            status: number;
+            data?: components["schemas"]["ParticipantRollingPaperListResponse"];
+        };
+        /** @description 참가자용 롤링페이퍼 목록 item */
+        ParticipantRollingPaperListItemResult: {
+            /**
+             * Format: int64
+             * @description 롤링페이퍼 ID
+             * @example 10
+             */
+            rollingPaperId: number;
+            /**
+             * @description 롤링페이퍼 작성자 닉네임
+             * @example 축하요정
+             */
+            writerNickname: string;
+            /**
+             * @description 롤링페이퍼 토핑 이미지 URL.
+             * @example /images/rolling-paper-wrappers/Topping_Candle.svg
+             */
+            toppingImageUrl: string;
         };
         /** @description 참가자용 롤링페이퍼 목록 조회 응답 */
         ParticipantRollingPaperListResponse: {
@@ -1301,68 +1504,41 @@ export interface components {
              * @example REALTIME
              * @enum {string}
              */
-            partyOption?: "REALTIME" | "PAPER_ONLY";
+            partyOption: "REALTIME" | "PAPER_ONLY" | "REALTIME" | "PAPER_ONLY";
             /**
              * Format: date-time
-             * @description 실시간 파티 종료 시각. PAPER_ONLY면 null
-             * @example 2026-05-05T22:10:00
+             * @description 실시간 파티 종료 기준 시각. 이 시각 이후 참가자는 롤링페이퍼 목록을 볼 수 있습니다. PAPER_ONLY면 null
              */
-            liveEndAt?: string | null;
+            liveEndAt?: string;
+            /** @description 롤링페이퍼 목록 */
+            items: components["schemas"]["ParticipantRollingPaperListItemResult"][];
+            pageInfo: components["schemas"]["RollingPaperPageInfoResult"];
+        };
+        /** @description 롤링페이퍼 목록 페이지네이션 정보 */
+        RollingPaperPageInfoResult: {
             /**
              * Format: int32
              * @description 현재 페이지. page가 1보다 작으면 1로 보정합니다.
              * @example 1
              */
-            page?: number;
+            page: number;
             /**
              * Format: int64
              * @description 전체 롤링페이퍼 수
              * @example 12
              */
-            totalCount?: number;
+            totalCount: number;
             /**
              * Format: int32
              * @description 전체 페이지 수. 롤링페이퍼가 없으면 0입니다.
              * @example 2
              */
-            totalPages?: number;
+            totalPages: number;
             /**
              * @description 다음 페이지 존재 여부
              * @example true
              */
-            hasNext?: boolean;
-            /** @description 롤링페이퍼 목록 */
-            items?: components["schemas"]["RollingPaperListItemResponse"][];
-        };
-        /** @description 롤링페이퍼 목록 item */
-        RollingPaperListItemResponse: {
-            /**
-             * Format: int64
-             * @description 롤링페이퍼 ID
-             * @example 10
-             */
-            rollingPaperId?: number;
-            /**
-             * Format: int64
-             * @description 최신순 기준 현재 롤링페이퍼 순번. 1부터 시작합니다.
-             * @example 1
-             */
-            position?: number;
-            /**
-             * @description 롤링페이퍼 작성자 닉네임
-             * @example 축하요정
-             */
-            writerNickname?: string;
-            /**
-             * @description 롤링페이퍼 내용. 최대 100자입니다.
-             * @example 생일 축하해요!
-             */
-            content?: string;
-            /**
-             * @description 롤링페이퍼 래퍼 이미지 URL. 이미지가 없으면 null
-             * @example /images/rolling-paper-wrappers/Topping_Candle.svg
-             */
-            wrapperImageUrl?: string | null;
+            hasNext: boolean;
         };
         /** @description 공통 성공 응답 */
         ApiResponseOwnerRollingPaperListResponse: {
@@ -1371,8 +1547,38 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["OwnerRollingPaperListResponse"] | null;
+            status: number;
+            data?: components["schemas"]["OwnerRollingPaperListResponse"];
+        };
+        /** @description 주최자용 롤링페이퍼 목록 item */
+        OwnerRollingPaperListItemResult: {
+            /**
+             * Format: int64
+             * @description 롤링페이퍼 ID
+             * @example 10
+             */
+            rollingPaperId: number;
+            /**
+             * Format: int64
+             * @description 최신순 기준 현재 롤링페이퍼 순번. 1부터 시작합니다.
+             * @example 1
+             */
+            position: number;
+            /**
+             * @description 롤링페이퍼 작성자 닉네임
+             * @example 축하요정
+             */
+            writerNickname: string;
+            /**
+             * @description 롤링페이퍼 내용. 최대 100자입니다.
+             * @example 생일 축하해요!
+             */
+            content: string;
+            /**
+             * @description 롤링페이퍼 토핑 이미지 URL.
+             * @example /images/rolling-paper-wrappers/Topping_Candle.svg
+             */
+            toppingImageUrl: string;
         };
         /** @description 주최자용 롤링페이퍼 목록 조회 응답 */
         OwnerRollingPaperListResponse: {
@@ -1380,38 +1586,15 @@ export interface components {
              * @description 파티 주인공 이름
              * @example 홍길동
              */
-            celebrantNickname?: string | null;
+            celebrantNickname?: string;
             /**
              * Format: date-time
              * @description 파티 자체 종료 시각
-             * @example 2026-05-12T14:30:00
              */
-            partyEndAt?: string;
-            /**
-             * Format: int32
-             * @description 현재 페이지. page가 1보다 작으면 1로 보정합니다.
-             * @example 1
-             */
-            page?: number;
-            /**
-             * Format: int64
-             * @description 전체 롤링페이퍼 수
-             * @example 8
-             */
-            totalCount?: number;
-            /**
-             * Format: int32
-             * @description 전체 페이지 수. 롤링페이퍼가 없으면 0입니다.
-             * @example 2
-             */
-            totalPages?: number;
-            /**
-             * @description 다음 페이지 존재 여부
-             * @example true
-             */
-            hasNext?: boolean;
+            partyEndAt: string;
             /** @description 롤링페이퍼 목록 */
-            items?: components["schemas"]["RollingPaperListItemResponse"][];
+            items: components["schemas"]["OwnerRollingPaperListItemResult"][];
+            pageInfo: components["schemas"]["RollingPaperPageInfoResult"];
         };
         /** @description 공통 성공 응답 */
         ApiResponseOwnerRollingPaperDetailResponse: {
@@ -1420,8 +1603,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["OwnerRollingPaperDetailResponse"] | null;
+            status: number;
+            data?: components["schemas"]["OwnerRollingPaperDetailResponse"];
         };
         /** @description 주최자용 롤링페이퍼 상세 조회 응답 */
         OwnerRollingPaperDetailResponse: {
@@ -1430,29 +1613,29 @@ export interface components {
              * @description 롤링페이퍼 ID
              * @example 10
              */
-            rollingPaperId?: number;
+            rollingPaperId: number;
             /**
              * @description 롤링페이퍼 내용
              * @example 생일 축하해요!
              */
-            content?: string;
+            content: string;
             /**
              * @description 롤링페이퍼 작성자 닉네임
              * @example 축하요정
              */
-            writerNickname?: string;
+            writerNickname: string;
             /**
              * Format: int64
              * @description 최신순 기준 현재 롤링페이퍼 순번. 1부터 시작합니다.
              * @example 1
              */
-            position?: number;
+            position: number;
             /**
              * Format: int64
              * @description 파티의 전체 롤링페이퍼 수
              * @example 12
              */
-            totalCount?: number;
+            totalCount: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseRealtimePartyStateResult: {
@@ -1461,8 +1644,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["RealtimePartyStateResult"] | null;
+            status: number;
+            data?: components["schemas"]["RealtimePartyStateResult"];
         };
         /** @description 실시간 파티 상태 복구 조회 응답 */
         RealtimePartyStateResult: {
@@ -1471,31 +1654,28 @@ export interface components {
              * @description 파티 ID
              * @example 1
              */
-            partyId?: number;
+            partyId: number;
             /**
              * @description 실시간 파티 상태
              * @example LIVE_OPEN
              * @enum {string}
              */
-            status?: "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED";
+            status: "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED" | "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED";
             /**
              * Format: date-time
              * @description 실시간 라이브 시작 시각
-             * @example 2026-05-19T20:00:00
              */
-            liveStartAt?: string;
+            liveStartAt: string;
             /**
              * Format: date-time
              * @description 종료 카운트다운 시작 시각. 아직 시작되지 않았으면 null
-             * @example 2026-05-19T20:10:00
              */
-            endingStartedAt?: string | null;
+            endingStartedAt?: string;
             /**
              * Format: date-time
              * @description 실시간 라이브 종료 시각
-             * @example 2026-05-19T20:11:00
              */
-            endedAt?: string;
+            endedAt: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseRealtimePartyNextActionResult: {
@@ -1504,42 +1684,30 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["RealtimePartyNextActionResult"] | null;
+            status: number;
+            data?: components["schemas"]["RealtimePartyNextActionResult"];
         };
         /** @description 주최자용 다음 행동 응답 */
-        Host: {
+        Host: WithRequired<components["schemas"]["RealtimePartyNextActionResult"], "type"> & {
             /**
              * Format: int64
              * @description 롤링페이퍼 목록으로 이동할 파티 ID
              * @example 1
              */
-            partyId?: number;
-            /**
-             * @description 다음 행동 타입
-             * @example PARTICIPANT_ROLLING_PAPER_WRITE
-             * @enum {string}
-             */
-            type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+            partyId: number;
         };
         /** @description 참가자용 다음 행동 응답 */
-        Participant: {
+        Participant: WithRequired<components["schemas"]["RealtimePartyNextActionResult"], "type"> & {
             /**
              * @description 롤링페이퍼 작성 화면 진입에 사용할 유효 초대 토큰
              * @example exampletoken0000
              */
-            inviteToken?: string;
+            inviteToken: string;
             /**
              * @description 현재 참가자의 롤링페이퍼 작성 완료 여부
              * @example false
              */
-            rollingPaperWritten?: boolean;
-            /**
-             * @description 다음 행동 타입
-             * @example PARTICIPANT_ROLLING_PAPER_WRITE
-             * @enum {string}
-             */
-            type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+            rollingPaperWritten: boolean;
         };
         /** @description 실시간 파티 종료 후 다음 행동 조회 응답 */
         RealtimePartyNextActionResult: {
@@ -1548,44 +1716,8 @@ export interface components {
              * @example PARTICIPANT_ROLLING_PAPER_WRITE
              * @enum {string}
              */
-            type?: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+            type: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
         } & (components["schemas"]["Host"] | components["schemas"]["Participant"]);
-        /** @description 공통 성공 응답 */
-        ApiResponseRealtimePartyEndStatusResult: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status?: number;
-            data?: components["schemas"]["RealtimePartyEndStatusResult"] | null;
-        };
-        /** @description 주최자 실시간 파티 종료 상태 조회 응답 */
-        RealtimePartyEndStatusResult: {
-            /**
-             * @description 주최자 수동 종료 가능 여부
-             * @example true
-             */
-            canEnd?: boolean;
-            /**
-             * Format: date-time
-             * @description 시간 기준 주최자 수동 종료 가능 시각
-             * @example 2026-05-19T20:04:00
-             */
-            availableAt?: string;
-            /**
-             * Format: date-time
-             * @description 종료 카운트다운 시작 시각. 아직 시작되지 않았으면 null
-             * @example 2026-05-19T20:10:00
-             */
-            endingStartedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 실시간 라이브 종료 시각. 아직 종료 시작 전이면 null
-             * @example 2026-05-19T20:11:00
-             */
-            endedAt?: string | null;
-        };
         /** @description 공통 성공 응답 */
         ApiResponsePartyParticipantsResponse: {
             /**
@@ -1593,8 +1725,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["PartyParticipantsResponse"] | null;
+            status: number;
+            data?: components["schemas"]["PartyParticipantsResponse"];
         };
         /** @description 파티 참여자 항목 */
         PartyParticipantResponse: {
@@ -1603,29 +1735,41 @@ export interface components {
              * @description 참여자 ID
              * @example 17
              */
-            participantId?: number;
+            participantId: number;
             /**
              * Format: int32
              * @description 입장 순서 (1부터)
              * @example 1
              */
-            joinOrder?: number;
+            joinOrder: number;
             /**
              * @description 닉네임
              * @example 주최자닉
              */
-            nickname?: string;
+            nickname: string;
             /**
              * Format: int64
              * @description 캐릭터 ID
              * @example 3
              */
-            characterId?: number | null;
+            characterId?: number;
             /** @description 캐릭터 메인 이미지 URL */
-            characterImageUrl?: string | null;
-            owner?: boolean;
-            me?: boolean;
-            celebrant?: boolean;
+            characterImageUrl?: string;
+            /**
+             * @description 파티 주최자 여부
+             * @example true
+             */
+            isOwner: boolean;
+            /**
+             * @description 파티 주인공 여부
+             * @example true
+             */
+            isCelebrant: boolean;
+            /**
+             * @description 조회자 본인 여부
+             * @example false
+             */
+            isMe: boolean;
         };
         /** @description 파티 참여자 목록 응답 */
         PartyParticipantsResponse: {
@@ -1634,15 +1778,15 @@ export interface components {
              * @description 현재 참여자 수
              * @example 4
              */
-            totalCount?: number;
+            totalCount: number;
             /**
              * Format: int32
              * @description 최대 참여자 수
              * @example 14
              */
-            maxCount?: number;
+            maxCount: number;
             /** @description 입장 순서대로 정렬된 참여자 목록 */
-            participants?: components["schemas"]["PartyParticipantResponse"][];
+            participants: components["schemas"]["PartyParticipantResponse"][];
         };
         /** @description 공통 성공 응답 */
         ApiResponseBurstGameStateResponse: {
@@ -1651,43 +1795,42 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["BurstGameStateResponse"] | null;
+            status: number;
+            data?: components["schemas"]["BurstGameStateResponse"];
         };
+        /** @description 응답 데이터 */
         BurstGameStateResponse: {
             /**
              * Format: int64
              * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
              * @example 10
              */
-            partyId?: number;
+            partyId: number;
             /**
              * Format: int64
              * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
              * @example 37
              */
-            myParticipantId?: number;
+            myParticipantId: number;
             /**
              * @description 박터뜨리기 라운드 종료 여부입니다.
              * @example false
              */
-            ended?: boolean;
+            ended: boolean;
             /**
              * Format: date-time
              * @description 서버 기준 라운드 시작 시각입니다.
-             * @example 2026-05-14T20:10:00
              */
-            startedAt?: string;
+            startedAt: string;
             /**
              * Format: date-time
              * @description 서버 기준 라운드 종료 시각입니다.
-             * @example 2026-05-14T20:10:20
              */
-            endsAt?: string;
+            endsAt: string;
             /**
              * Format: int32
-             * @description 현재까지 반영된 전체 터치 수입니다.
-             * @example 42
+             * @description 종료 상태에서 확정된 전체 터치 수입니다. 진행 중 상태에서는 내려주지 않습니다.
+             * @example 137
              */
             totalTapCount?: number;
             /**
@@ -1695,70 +1838,31 @@ export interface components {
              * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
              * @example 11
              */
-            myTapCount?: number;
+            myTapCount: number;
             /**
              * @description 전체 터치 수가 색상 변경 기준에 도달했는지 여부입니다.
              * @example false
              */
-            colorChanged?: boolean;
+            colorChanged: boolean;
             /**
              * Format: int64
              * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
              * @example 13
              */
-            stateVersion?: number;
+            stateVersion: number;
             /**
              * Format: date-time
              * @description 응답 생성 시점의 서버 시각입니다.
-             * @example 2026-05-14T20:10:07.120
              */
-            serverTime?: string;
+            serverTime: string;
             /**
              * Format: int64
              * @description 서버 기준 남은 라운드 시간입니다. 종료 상태에서는 0입니다.
              * @example 13
              */
-            remainingSeconds?: number;
-            /** @description 진행 중 상태에서만 제공되는 상위 3개 rank group입니다. 종료 상태에서는 비어 있습니다. */
-            rankings?: components["schemas"]["BurstGameRankingResponse"][];
-            /** @description 종료 상태에서만 제공되는 공동 1등 목록입니다. 진행 중에는 비어 있습니다. */
-            winners?: components["schemas"]["BurstGameWinnerResponse"][];
-        };
-        BurstGameWinnerResponse: {
-            /**
-             * Format: int64
-             * @description 공동 1등 참여자 ID입니다.
-             * @example 37
-             */
-            participantId?: number;
-            /**
-             * @description 공동 1등 참여자 닉네임입니다.
-             * @example 토끼왕
-             */
-            nickname?: string;
-            /**
-             * Format: int64
-             * @description 공동 1등 참여자의 선택 캐릭터 ID입니다.
-             * @example 2
-             */
-            characterId?: number | null;
-            /**
-             * @description 공동 1등 참여자의 캐릭터 이미지 URL입니다.
-             * @example https://example.com/rabbit.png
-             */
-            characterImageUrl?: string | null;
-            /**
-             * @description 공동 1등 참여자 역할입니다.
-             * @example CELEBRANT
-             * @enum {string}
-             */
-            role?: "CELEBRANT" | "PARTICIPANT";
-            /**
-             * Format: int32
-             * @description 공동 1등 참여자의 최종 누적 터치 수입니다.
-             * @example 52
-             */
-            tapCount?: number;
+            remainingSeconds: number;
+            /** @description 진행 중에는 상위 3명, 종료 상태에서는 1회 이상 터치한 참가자 전체 최종 순위입니다. */
+            rankings: components["schemas"]["BurstGameRankingResponse"][];
         };
         /** @description 공통 성공 응답 */
         ApiResponseListUpcomingPartyResponse: {
@@ -1767,9 +1871,9 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
+            status: number;
             /** @description 응답 데이터 */
-            data?: components["schemas"]["UpcomingPartyResponse"][] | null;
+            data?: components["schemas"]["UpcomingPartyResponse"][];
         };
         /** @description 홈 다가오는 파티 응답 */
         UpcomingPartyResponse: {
@@ -1778,65 +1882,64 @@ export interface components {
              * @description 파티 ID
              * @example 1
              */
-            partyId?: number;
+            partyId: number;
             /** @description 롤링페이퍼 작성 등에 사용하는 초대 토큰. 유효한 토큰이 없으면 null */
-            inviteToken?: string | null;
+            inviteToken?: string;
             /**
              * @description 파티 옵션. REALTIME: 실시간 파티, PAPER_ONLY: 롤링페이퍼 전용 파티
              * @example REALTIME
              * @enum {string}
              */
-            partyOption?: "REALTIME" | "PAPER_ONLY";
+            partyOption: "REALTIME" | "PAPER_ONLY" | "REALTIME" | "PAPER_ONLY";
             /**
              * @description 파티 주인공 이름
              * @example 홍길동
              */
-            celebrantNickname?: string | null;
+            celebrantNickname?: string;
             /**
              * Format: date-time
              * @description 파티 시작 시각
-             * @example 2026-05-07T20:00:00
              */
-            partyStartedAt?: string;
+            partyStartedAt: string;
             /**
              * Format: date-time
              * @description 파티 종료 시각
-             * @example 2026-05-14T10:00:00
              */
-            partyEndedAt?: string;
+            partyEndedAt: string;
+            /**
+             * @description 현재 회원의 주최자 여부
+             * @example false
+             */
+            isHost: boolean;
             /**
              * @description 현재 회원의 롤링페이퍼 작성 여부
              * @example false
              */
-            rollingPaperWritten?: boolean;
+            rollingPaperWritten: boolean;
             /**
              * Format: date-time
              * @description 주최자 롤링페이퍼 오픈 시각. 주최자가 아니면 null
              */
-            hostRollingPaperOpenAt?: string | null;
-            realtimeSchedule?: components["schemas"]["UpcomingRealtimeScheduleResponse"] | null;
-            host?: boolean;
+            hostRollingPaperOpenAt?: string;
+            realtimeSchedule?: components["schemas"]["UpcomingRealtimeScheduleResponse"];
         };
         /** @description 홈 다가오는 실시간 파티 일정 */
         UpcomingRealtimeScheduleResponse: {
             /**
              * Format: date-time
              * @description 실시간 파티 입장 가능 시작 시각
-             * @example 2026-05-07T19:55:00
              */
-            enterableFrom?: string;
+            enterableFrom: string;
             /**
              * Format: date-time
              * @description 실시간 파티 시작 시각
-             * @example 2026-05-07T20:00:00
              */
-            liveStartAt?: string;
+            liveStartAt: string;
             /**
              * Format: date-time
              * @description 실시간 파티 종료 시각
-             * @example 2026-05-07T20:10:00
              */
-            liveEndAt?: string;
+            liveEndAt: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseListCharacterResult: {
@@ -1845,9 +1948,9 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
+            status: number;
             /** @description 응답 데이터 */
-            data?: components["schemas"]["CharacterResult"][] | null;
+            data?: components["schemas"]["CharacterResult"][];
         };
         /** @description 공통 성공 응답 */
         ApiResponseArchiveListResponse: {
@@ -1856,8 +1959,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["ArchiveListResponse"] | null;
+            status: number;
+            data?: components["schemas"]["ArchiveListResponse"];
         };
         /** @description 보관함 항목 */
         ArchiveListItemResponse: {
@@ -1865,51 +1968,51 @@ export interface components {
              * @description 항목 ID (participant.id)
              * @example 1024
              */
-            id?: string;
+            id: string;
             /**
              * Format: int64
              * @description 파티 ID (상세 조회 API 호출용)
              * @example 42
              */
-            partyId?: number;
+            partyId: number;
             /**
              * @description 항목 타입
              * @example PARTY
              * @enum {string}
              */
-            type?: "PARTY" | "PAPER";
+            type: "PARTY" | "PAPER" | "PARTY" | "PAPER";
             /**
              * @description 파티 이름. 없으면 빈 문자열
              * @example 김루카 생일 파티
              */
-            title?: string;
+            title: string;
             /**
              * @description 파티 주인공 닉네임. 없으면 null
              * @example 김루카
              */
-            celebrantName?: string | null;
+            celebrantName?: string;
             /**
              * Format: date-time
              * @description 파티 종료 시각 (KST 오프셋)
              * @example 2026-05-12T22:10:00+09:00
              */
-            date?: string;
+            date: string;
         };
         /** @description 보관함 리스트 응답 */
         ArchiveListResponse: {
             /** @description 보관함 항목 */
-            items?: components["schemas"]["ArchiveListItemResponse"][];
+            items: components["schemas"]["ArchiveListItemResponse"][];
             /**
              * @description 다음 페이지 cursor. 없으면 null
              * @example 1024
              */
-            nextCursor?: string | null;
+            nextCursor?: string;
             /**
              * Format: int64
              * @description 보관함 전체 개수 (헤더 표시용)
              * @example 37
              */
-            totalCount?: number;
+            totalCount: number;
         };
         /** @description 공통 성공 응답 */
         ApiResponseArchivePartyDetailResponse: {
@@ -1918,8 +2021,8 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["ArchivePartyDetailResponse"] | null;
+            status: number;
+            data?: components["schemas"]["ArchivePartyDetailResponse"];
         };
         /** @description 보관함 파티 상세 - 채팅 메시지 항목 */
         ArchiveChatMessageResponse: {
@@ -1927,21 +2030,21 @@ export interface components {
              * Format: int64
              * @description 메시지 ID
              */
-            id?: number;
+            id: number;
             /** @description 작성자 닉네임 (RealtimeParticipantProfile.nickname) */
-            authorName?: string;
+            authorName: string;
             /** @description 메시지 본문 */
-            content?: string;
+            content: string;
             /**
              * Format: date-time
              * @description 전송 시각 (KST)
              */
-            sentAt?: string;
+            sentAt: string;
         };
         /** @description 보관함 파티 상세 - 참가자 항목 */
         ArchiveParticipantResponse: {
             /** @description 참가자 닉네임 (RealtimeParticipantProfile.nickname) */
-            nickname?: string;
+            nickname: string;
         };
         /** @description 보관함 파티 상세 응답 */
         ArchivePartyDetailResponse: {
@@ -1949,53 +2052,53 @@ export interface components {
              * Format: int64
              * @description 파티 ID
              */
-            partyId?: number;
+            partyId: number;
             /** @description 파티 이름. Party.name이 null이면 빈 문자열 */
-            partyName?: string;
+            partyName: string;
             /**
              * @description REALTIME 또는 PAPER_ONLY
              * @enum {string}
              */
-            partyOption?: "REALTIME" | "PAPER_ONLY";
+            partyOption: "REALTIME" | "PAPER_ONLY";
             /**
              * @description 조회자 역할
              * @enum {string}
              */
-            role?: "HOST" | "PARTICIPANT";
+            role: "HOST" | "PARTICIPANT";
             /**
              * Format: date-time
              * @description 파티 시작 시각 (KST)
              */
-            partyStartedAt?: string;
+            partyStartedAt: string;
             /**
              * Format: date-time
              * @description 파티 종료 시각 (KST) = startedAt + 7일
              */
-            partyEndedAt?: string;
+            partyEndedAt: string;
             /**
              * Format: int64
              * @description RealtimeParticipantProfile 수. PAPER_ONLY는 0
              */
-            participantCount?: number;
+            participantCount: number;
             /**
              * Format: int64
              * @description 롤링페이퍼 총 개수
              */
-            paperCount?: number;
+            paperCount: number;
             /** @description 참가자 닉네임 목록. PAPER_ONLY는 빈 배열 */
-            participants?: components["schemas"]["ArchiveParticipantResponse"][];
+            participants: components["schemas"]["ArchiveParticipantResponse"][];
             /** @description 최근 50개 채팅 메시지 (createdAt DESC). PAPER_ONLY는 빈 배열 */
-            chatMessages?: components["schemas"]["ArchiveChatMessageResponse"][];
+            chatMessages: components["schemas"]["ArchiveChatMessageResponse"][];
             /** @description 응답에 담지 못한 추가 메시지 존재 여부 */
-            chatHasMore?: boolean;
+            chatHasMore: boolean;
             /** @description 본인이 롤페를 작성했는지 */
-            myPaperWritten?: boolean;
+            myPaperWritten: boolean;
             /** @description 본인 롤페 본문. 미작성이면 null */
-            myPaperContent?: string | null;
+            myPaperContent?: string;
             /** @description 본인 롤페 작성 시 닉네임 스냅샷. 미작성이면 null */
-            myPaperWriterNickname?: string | null;
-            /** @description 본인 롤페 wrapper 이미지 URL. 미작성이면 null */
-            myPaperWrapperImageUrl?: string | null;
+            myPaperWriterNickname?: string;
+            /** @description 본인 롤페 토핑 이미지 URL. 미작성이면 null */
+            myPaperToppingImageUrl?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseMeAccountResult: {
@@ -2004,16 +2107,17 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["MeAccountResult"] | null;
+            status: number;
+            data?: components["schemas"]["MeAccountResult"];
         };
+        /** @description 응답 데이터 */
         MeAccountResult: {
-            nickname?: string;
+            nickname: string;
             /** @enum {string} */
-            provider?: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
+            provider: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
             /** Format: date */
-            connectedAt?: string;
-            supportChatUrl?: string;
+            connectedAt: string;
+            supportChatUrl: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseUserResponse: {
@@ -2022,17 +2126,18 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            data?: components["schemas"]["UserResponse"] | null;
+            status: number;
+            data?: components["schemas"]["UserResponse"];
         };
+        /** @description 응답 데이터 */
         UserResponse: {
             /** Format: int64 */
-            id?: number;
-            name?: string;
-            email?: string;
+            id: number;
+            name: string;
+            email: string;
             /** @enum {string} */
-            provider?: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
-            birthDay?: string;
+            provider: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
+            birthDay: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseUnit: {
@@ -2041,9 +2146,7 @@ export interface components {
              * @description HTTP 상태 코드
              * @example 200
              */
-            status?: number;
-            /** @description 응답 데이터 */
-            data?: null;
+            status: number;
         };
     };
     responses: never;
@@ -2323,7 +2426,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description 파티 또는 래퍼 없음 */
+            /** @description 파티 또는 토핑 없음 */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2401,6 +2504,24 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 닉네임 중복 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 409,
+                     *       "error": {
+                     *         "code": "PARTY_NICKNAME_DUPLICATED",
+                     *         "message": "이미 사용 중인 닉네임입니다"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
@@ -2522,7 +2643,7 @@ export interface operations {
             };
         };
     };
-    getRealtimeEndStatus: {
+    startRealtimeEnd: {
         parameters: {
             query?: never;
             header?: never;
@@ -2537,13 +2658,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 종료 상태 조회 성공 */
+            /** @description 종료 카운트다운 시작 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseRealtimePartyEndStatusResult"];
+                    "*/*": components["schemas"]["ApiResponseRealtimePartyEndResult"];
                 };
             };
             /** @description 인증 실패 */
@@ -2575,10 +2696,13 @@ export interface operations {
             };
         };
     };
-    startRealtimeEnd: {
+    advancePhase: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
             path: {
                 /**
                  * @description 파티 ID
@@ -2588,15 +2712,19 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdvancePartyPhaseRequest"];
+            };
+        };
         responses: {
-            /** @description 종료 카운트다운 시작 성공 */
+            /** @description Phase 전환 성공 (CAS 불일치 시에도 200 반환) */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseRealtimePartyEndResult"];
+                    "*/*": components["schemas"]["ApiResponsePartyPhaseResult"];
                 };
             };
             /** @description 인증 실패 */
@@ -2605,6 +2733,24 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 권한 없음 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
@@ -2717,6 +2863,120 @@ export interface operations {
             };
         };
     };
+    triggerFireworks: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 폭죽 트리거 성공 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 파티가 LIVE_OPEN 상태가 아님 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "CHAT_NOT_ACTIVE",
+                     *         "message": "현재 채팅이 활성화된 시간이 아닙니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 401,
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED",
+                     *         "message": "로그인이 필요합니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 참가자가 아님 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "PARTY_NOT_FOUND",
+                     *         "message": "파티를 찾을 수 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     sendMessage: {
         parameters: {
             query?: never;
@@ -2774,7 +3034,7 @@ export interface operations {
                      *       "status": 403,
                      *       "error": {
                      *         "code": "PARTY_FORBIDDEN",
-                     *         "message": "파티에 접근할 수 없습니다"
+                     *         "message": "파티에 대한 권한이 없습니다"
                      *       }
                      *     }
                      */
@@ -2797,6 +3057,88 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    blowCandle: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+                /** @description 촛불 번호 */
+                candleId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 촛불 끄기 처리 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCandleBlowResponse"];
+                };
+            };
+            /** @description 입력값 검증 실패 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "VALIDATION_ERROR",
+                     *         "message": "nickname: 닉네임은 필수입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description 서버 내부 오류 */
@@ -3147,7 +3489,7 @@ export interface operations {
             };
         };
     };
-    getRollingPaperWrappers: {
+    getRollingPaperToppings: {
         parameters: {
             query?: never;
             header?: never;
@@ -3156,13 +3498,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 래퍼 목록 조회 성공 */
+            /** @description 토핑 목록 조회 성공 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseListRollingPaperWrapperResponse"];
+                    "*/*": components["schemas"]["ApiResponseListRollingPaperToppingResult"];
                 };
             };
             /** @description 서버 내부 오류 */
@@ -3488,6 +3830,80 @@ export interface operations {
             };
         };
     };
+    getPhase: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 현재 Phase 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePartyPhaseResult"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 권한 없음 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getPartyParticipants: {
         parameters: {
             query?: never;
@@ -3562,6 +3978,68 @@ export interface operations {
             };
         };
     };
+    getCandleBlowState: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 비로그인 참여자 토큰 */
+                "X-Participant-Token"?: string;
+            };
+            path: {
+                /** @description 파티 ID */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 촛불끄기 상태 조회 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCandleBlowResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getState: {
         parameters: {
             query?: never;
@@ -3577,7 +4055,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 상태 및 결과 조회 성공. 종료 상태에서는 winners만 채워지고 rankings는 비어 있습니다. */
+            /** @description 상태 및 결과 조회 성공. 진행 중 rankings는 상위 3명, 종료 rankings는 1회 이상 터치한 참가자 전체 순위입니다. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3953,12 +4431,66 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description 실시간 파티가 아님 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "CHAT_NOT_SUPPORTED",
+                     *         "message": "채팅을 지원하지 않는 파티입니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 인증 실패 */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 해당 파티의 참여자가 아님 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 403,
+                     *       "error": {
+                     *         "code": "PARTY_FORBIDDEN",
+                     *         "message": "파티에 대한 권한이 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 파티 없음 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "PARTY_NOT_FOUND",
+                     *         "message": "파티를 찾을 수 없습니다"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
@@ -3983,3 +4515,6 @@ export interface operations {
         };
     };
 }
+type WithRequired<T, K extends keyof T> = T & {
+    [P in K]-?: T[P];
+};
