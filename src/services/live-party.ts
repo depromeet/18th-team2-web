@@ -6,6 +6,12 @@ import { api } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import type { components } from '@/types/api';
 
+type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
+type ApiResponseSubmitBurstGameTapResponse =
+  components['schemas']['ApiResponseSubmitBurstGameTapResponse'];
+type ApiResponseStartBurstGameResponse = components['schemas']['ApiResponseStartBurstGameResponse'];
+type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
+
 // TODO: API 연결 시 mock 데이터 제거
 export type ParticipantRole = 'host' | 'participant';
 
@@ -15,6 +21,14 @@ export interface PartyParticipant {
   image: string;
   role: ParticipantRole;
   isCurrentUser?: boolean;
+}
+
+function getParticipantTokenOptions(participantToken?: string | null) {
+  const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+
+  return !isLoggedIn && participantToken
+    ? { headers: { 'X-Participant-Token': participantToken } }
+    : undefined;
 }
 
 // ── SSE ──
@@ -206,6 +220,56 @@ export function useBlowCandle() {
         options,
       );
     },
+  });
+}
+
+// ── 박터뜨리기 ──
+
+export function useStartBurstGame() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      participantToken,
+    }: {
+      partyId: string;
+      participantToken?: string | null;
+    }) =>
+      api.post<ApiResponseStartBurstGameResponse>(
+        `/api/v1/parties/${partyId}/burst-game/start`,
+        undefined,
+        getParticipantTokenOptions(participantToken),
+      ),
+  });
+}
+
+export function useGetBurstGameState(partyId: string | undefined) {
+  return useQuery({
+    queryKey: ['burstGameState', partyId],
+    queryFn: () =>
+      api.get<ApiResponseBurstGameStateResponse>(
+        `/api/v1/parties/${partyId}/burst-game`,
+        getParticipantTokenOptions(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
+      ),
+    enabled: !!partyId,
+  });
+}
+
+export function useSubmitBurstGameTaps() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      body,
+      participantToken,
+    }: {
+      partyId: string;
+      body: SubmitBurstGameTapRequest;
+      participantToken?: string | null;
+    }) =>
+      api.post<ApiResponseSubmitBurstGameTapResponse>(
+        `/api/v1/parties/${partyId}/burst-game/taps`,
+        body,
+        getParticipantTokenOptions(participantToken),
+      ),
   });
 }
 
