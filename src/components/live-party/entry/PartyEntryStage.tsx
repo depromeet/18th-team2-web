@@ -10,11 +10,7 @@ interface PartyEntryStageProps {
   onComplete?: () => void;
 }
 
-export function PartyEntryStage({
-  hostName,
-  characterImage,
-  onComplete,
-}: PartyEntryStageProps) {
+export function PartyEntryStage({ hostName, characterImage, onComplete }: PartyEntryStageProps) {
   const hostLabel = hostName ? `${hostName}님이` : '주인공이';
 
   return (
