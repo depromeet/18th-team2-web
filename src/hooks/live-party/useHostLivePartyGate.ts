@@ -25,6 +25,14 @@ function hasLiveStarted(liveStartAt?: string | null) {
   return startAt.isValid() && startAt.valueOf() <= Date.now();
 }
 
+function hasLiveEnded(status?: string | null, endedAt?: string | null) {
+  if (status === 'LIVE_CLOSED') return true;
+  if (!endedAt) return false;
+
+  const endAt = parseKstDateTime(endedAt);
+  return endAt.isValid() && endAt.valueOf() <= Date.now();
+}
+
 export function useHostLivePartyGate(partyId: string, isHost: boolean) {
   const { data: state } = useRealtimePartyState(partyId);
   const { data: participantsData, isLoading: isParticipantsLoading } = usePartyParticipants(
@@ -39,7 +47,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
   const hasGuest = guestCount > 0;
   const started = hasLiveStarted(state?.liveStartAt);
   const endingStartedAt = state?.endingStartedAt ?? startedEnd?.endingStartedAt ?? null;
-  const ended = state?.status === 'LIVE_CLOSED' || state?.endedAt != null;
+  const hasEnded = hasLiveEnded(state?.status, state?.endedAt);
 
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
     getRemainingEndSeconds(endingStartedAt),
@@ -62,7 +70,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
       !isHost ||
       isParticipantsLoading ||
       hasGuest ||
-      ended ||
+      hasEnded ||
       !started ||
       endingStartedAt
     ) {
@@ -70,7 +78,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
     }
     startRealtimeEnd(partyId);
   }, [
-    ended,
+    hasEnded,
     endingStartedAt,
     hasGuest,
     isHost,
@@ -80,13 +88,14 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
     started,
   ]);
 
-  const shouldGateHost = isHost && !isParticipantsLoading && !hasGuest && !ended;
-  const isEnding = shouldGateHost && started;
+  const shouldGateHost = isHost && !isParticipantsLoading && !hasGuest;
+  const isEnding = shouldGateHost && started && !hasEnded;
+  const isEnded = shouldGateHost && started && (hasEnded || remainingSeconds <= 0);
 
   return {
     shouldGateHost,
     isEnding,
-    isEnded: ended || (isEnding && remainingSeconds <= 0),
+    isEnded,
     remainingSeconds,
     celebrant,
     participants,

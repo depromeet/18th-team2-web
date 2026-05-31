@@ -50,7 +50,7 @@ export function HostWaitingView({
         <button
           type="button"
           aria-label="닫기"
-          className="absolute top-14 right-4 z-10 flex size-12 items-center justify-center"
+          className="absolute top-[9px] right-4 z-10 flex h-6 w-6 items-center justify-center"
           onClick={onClose}
         >
           <CloseIcon className="text-white" />

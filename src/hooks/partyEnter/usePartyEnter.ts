@@ -138,7 +138,6 @@ export function usePartyEnter() {
     title,
     isHost,
     isPending,
-    isTimeToParty: hasStarted,
     // 시작 전(유효 스케줄 보유)에만 "X분 Y초 남았어요" 노출
     countdown: isReady && !hasStarted ? { minutes, seconds } : null,
     // 시작 시각 도달 후 "파티가 이미 진행 중이에요!" 노출
