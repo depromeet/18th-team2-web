@@ -26,7 +26,7 @@ function deriveIsOpen(party: UpcomingPartyResponse): boolean {
 
 function buildPartyName(party: UpcomingPartyResponse): string {
   const kind = party.partyOption === 'PAPER_ONLY' ? '롤링페이퍼' : '생일파티';
-  if (party.host) return `내 ${kind}`;
+  if (party.isHost) return `내 ${kind}`;
   return party.celebrantNickname ? `${party.celebrantNickname}님의 ${kind}` : kind;
 }
 
@@ -43,7 +43,7 @@ function mapUpcomingParty(party: UpcomingPartyResponse): UpcomingParty {
     date: startedAt?.isValid() ? startedAt.format('YY.MM.DD') : '',
     time: startedAt?.isValid() ? formatKoreanTime(startedAt.toDate()) : undefined,
     endDate: endedAt?.isValid() ? endedAt.format('YY.MM.DD') : undefined,
-    role: party.host ? PARTY_ROLE.HOST : PARTY_ROLE.PARTICIPANT,
+    role: party.isHost ? PARTY_ROLE.HOST : PARTY_ROLE.PARTICIPANT,
     partyOption: party.partyOption ?? 'REALTIME',
     isOpen: deriveIsOpen(party),
   };
