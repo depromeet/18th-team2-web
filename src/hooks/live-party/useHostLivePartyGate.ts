@@ -34,8 +34,8 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
   const { mutate: startRealtimeEnd, data: startedEnd } = useStartRealtimeEnd();
 
   const participants = useMemo(() => participantsData?.participants ?? [], [participantsData]);
-  const celebrant = participants.find((participant) => participant.celebrant);
-  const guestCount = participants.filter((participant) => !participant.celebrant).length;
+  const celebrant = participants.find((participant) => participant.isCelebrant);
+  const guestCount = participants.filter((participant) => !participant.isCelebrant).length;
   const hasGuest = guestCount > 0;
   const started = hasLiveStarted(state?.liveStartAt);
   const endingStartedAt = state?.endingStartedAt ?? startedEnd?.endingStartedAt ?? null;

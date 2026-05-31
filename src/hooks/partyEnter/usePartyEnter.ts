@@ -34,16 +34,17 @@ export function usePartyEnter() {
   const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
-  const isHost = profile?.host ?? false;
+  const isHost = profile?.isHost ?? false;
   const isNicknameEditable = profile?.nicknameEditable ?? true;
 
   // 호스트는 자기 파티 참여자라 /participants 호출 가능. 비인증 참가자는 BE 제약상 호출 불가 → undefined로 비활성화.
   // TODO(BE): 비인증 참가자도 만원 판정할 수 있도록 invite lookup에 participantCount/maxCount 추가 요청.
   const { data: participantsResponse } = useGetPartyParticipants(isHost ? partyId : undefined);
   const beParticipants = participantsResponse?.data?.participants ?? [];
-  const totalCount = participantsResponse?.data?.totalCount ?? 0;
+  const guestParticipants = beParticipants.filter((participant) => !participant.isCelebrant);
+  const totalCount = guestParticipants.length;
   const maxCount = participantsResponse?.data?.maxCount ?? 0;
-  const participants: Participant[] = beParticipants.map((p) => ({
+  const participants: Participant[] = guestParticipants.map((p) => ({
     id: p.participantId ?? 0,
     nickname: p.nickname ?? '',
     imageUrl: resolveImageUrl(p.characterImageUrl) ?? '',

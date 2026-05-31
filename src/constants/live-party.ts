@@ -35,12 +35,6 @@ export function getEntryData(hostName: string): EntryData[] {
   ];
 }
 
-export function getEntryData(hostName = '이라'): EntryData[] {
-  return ENTRY_DATA.map((entry, index) =>
-    index === 0 ? { ...entry, text: `${hostName}님의\n생일파티에\n오신 걸 환영해요!` } : entry,
-  );
-}
-
 /** 파티 상태  */
 export const LIVE_PARTY_STEP = {
   ENTRY: 'ENTRY', // 주인공 등장
