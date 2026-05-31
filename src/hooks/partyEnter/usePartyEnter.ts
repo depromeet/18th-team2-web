@@ -93,6 +93,7 @@ export function usePartyEnter() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!partyId || !inviteToken) return;
+    if (selectedCharacterId == null) return;
 
     if (!isAuthenticated) {
       navigate(generatePath(ROUTES.liveParty, { partyId }), {
