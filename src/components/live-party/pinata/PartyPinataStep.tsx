@@ -7,6 +7,7 @@ import characterBrownThumb from '@/assets/images/character/character-brown-circl
 import characterPinkThumb from '@/assets/images/character/character-pink-circle-thumbnail.png';
 import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
+import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
 
 const PINATA_DURATION_SECONDS = 20;
 const MAX_COLOR_TAP_COUNT = 100;
@@ -160,6 +161,7 @@ function getRankedParticipants(participants: PinataRanking[]) {
 
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
+  burstGameState: BurstGameState | null;
 }
 
 export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {

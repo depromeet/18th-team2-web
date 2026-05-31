@@ -10,7 +10,7 @@ import type { components } from '@/types/api';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 type CandleBlowState = components['schemas']['CandleBlowResponse'];
-type BurstGameState = Partial<components['schemas']['BurstGameStateResponse']> & {
+export type BurstGameState = Partial<components['schemas']['BurstGameStateResponse']> & {
   status?: 'ACTIVE' | 'ENDED';
 };
 
