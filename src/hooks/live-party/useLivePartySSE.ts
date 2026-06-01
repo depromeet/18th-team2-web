@@ -186,7 +186,16 @@ export function useLivePartySSE() {
 
               return {
                 ...prev,
-                ...(parsed as BurstGameState),
+                partyId: parsed.partyId as number | undefined,
+                startedAt: parsed.startedAt as string | undefined,
+                endsAt: parsed.endsAt as string | undefined,
+                totalTapCount: parsed.totalTapCount as number | undefined,
+                myTapCount: parsed.myTapCount as number | undefined,
+                colorChanged: parsed.colorChanged as boolean | undefined,
+                stateVersion: nextStateVersion,
+                serverTime: parsed.serverTime as string | undefined,
+                remainingSeconds: parsed.remainingSeconds as number | undefined,
+                rankings: parsed.rankings as BurstGameState['rankings'],
                 ended: event === 'burst-game-ended' ? true : prev?.ended,
                 status: event === 'burst-game-ended' ? 'ENDED' : 'ACTIVE',
               };
