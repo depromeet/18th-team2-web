@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import characterBlueThumb from '@/assets/images/character/character-blue-circle-thumbnail.png';
-import characterBrownThumb from '@/assets/images/character/character-brown-circle-thumbnail.png';
-import characterPinkThumb from '@/assets/images/character/character-pink-circle-thumbnail.png';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useBurstGameTaps } from '@/hooks/live-party/useBurstGameTaps';
 import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
@@ -24,86 +22,7 @@ export interface PinataRanking {
   isMe?: boolean;
 }
 
-const MOCK_COMPETITORS: PinataRanking[] = [
-  {
-    rank: 1,
-    nickname: '일이삼사오육칠팔구십',
-    tapCount: 119,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 2,
-    nickname: '오지탐험',
-    tapCount: 65,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 3,
-    nickname: '나랑께',
-    tapCount: 45,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 4,
-    nickname: '너만의자기',
-    tapCount: 40,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 5,
-    nickname: '한승연애 운녕아님',
-    tapCount: 34,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 6,
-    nickname: '파티요정',
-    tapCount: 34,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 7,
-    nickname: '축하인',
-    tapCount: 31,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 8,
-    nickname: '박깨기달인',
-    tapCount: 28,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 9,
-    nickname: '생일축하단',
-    tapCount: 28,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 10,
-    nickname: '케이크요정',
-    tapCount: 24,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 11,
-    nickname: '촛불지킴이',
-    tapCount: 21,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 12,
-    nickname: '파티참가자',
-    tapCount: 18,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 13,
-    nickname: '마지막손님',
-    tapCount: 12,
-    image: characterPinkThumb,
-  },
-];
+const EMPTY_RANKINGS: PinataRanking[] = [];
 
 export function getPinataColor(tapCount: number) {
   const progress = Math.min(tapCount, MAX_COLOR_TAP_COUNT) / MAX_COLOR_TAP_COUNT;
@@ -166,12 +85,13 @@ interface UsePinataStepParams {
 
 export function usePinataStep({ burstGameState }: UsePinataStepParams) {
   const { partyId } = useParams<{ partyId: string }>();
+  const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const { queueTap, flushTaps } = useBurstGameTaps();
   const {
     data: recoveredBurstGameData,
     error: recoverError,
     isError,
-  } = useGetBurstGameState(partyId);
+  } = useGetBurstGameState(partyId, participantToken);
   const { mutate: startBurstGame, data: startedBurstGameData } = useStartBurstGame();
   const [tapCount, setTapCount] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(PINATA_DURATION_SECONDS);
@@ -218,12 +138,13 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
 
     startBurstGame({
       partyId,
-      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
+      participantToken,
     });
   }, [
     burstGameState,
     isError,
     partyId,
+    participantToken,
     recoverError,
     recoveredBurstGameData?.data,
     startBurstGame,
@@ -262,22 +183,8 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     [effectiveBurstGameState?.myParticipantId, effectiveBurstGameState?.rankings],
   );
 
-  const fallbackRankings = useMemo(
-    () => [
-      ...MOCK_COMPETITORS,
-      {
-        rank: 0,
-        nickname: '나',
-        tapCount: displayTapCount,
-        image: characterBlueThumb,
-        isMe: true,
-      },
-    ],
-    [displayTapCount],
-  );
-
   const shouldUseServerRankings = effectiveBurstGameState != null;
-  const allRankings = shouldUseServerRankings ? serverRankings : fallbackRankings;
+  const allRankings = shouldUseServerRankings ? serverRankings : EMPTY_RANKINGS;
 
   const rankings = useMemo(
     () =>
@@ -299,20 +206,14 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
 
   const topRankings = resultRankings.slice(0, 3);
   const restRankings = resultRankings.slice(3);
+  const shouldShowResult = displayRemainingSeconds <= 0 || isServerEnded;
 
   useEffect(() => {
-    if (displayRemainingSeconds > 0 || isResultVisible) return;
+    if (!shouldShowResult || isResultVisible) return;
 
     flushTaps();
     setIsResultVisible(true);
-  }, [displayRemainingSeconds, flushTaps, isResultVisible]);
-
-  useEffect(() => {
-    if (!isServerEnded || isResultVisible) return;
-
-    flushTaps();
-    setIsResultVisible(true);
-  }, [flushTaps, isResultVisible, isServerEnded]);
+  }, [flushTaps, isResultVisible, shouldShowResult]);
 
   useEffect(() => {
     if (!isResultVisible) return;

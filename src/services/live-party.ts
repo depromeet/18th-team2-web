@@ -242,13 +242,16 @@ export function useStartBurstGame() {
   });
 }
 
-export function useGetBurstGameState(partyId: string | undefined) {
+export function useGetBurstGameState(
+  partyId: string | undefined,
+  participantToken?: string | null,
+) {
   return useQuery({
-    queryKey: ['burstGameState', partyId],
+    queryKey: ['burstGameState', partyId, participantToken],
     queryFn: () =>
       api.get<ApiResponseBurstGameStateResponse>(
         `/api/v1/parties/${partyId}/burst-game`,
-        getParticipantTokenOptions(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
+        getParticipantTokenOptions(participantToken),
       ),
     enabled: !!partyId,
   });
