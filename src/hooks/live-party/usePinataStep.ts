@@ -240,13 +240,19 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     };
   }, [startedBurstGameData?.data]);
 
-  const effectiveBurstGameState =
+  const effectiveBurstGameState: BurstGameState | null =
     burstGameState ?? recoveredBurstGameData?.data ?? startedBurstGameState;
 
   const displayTapCount = effectiveBurstGameState?.myTapCount ?? tapCount;
   const displayRemainingSeconds = effectiveBurstGameState?.remainingSeconds ?? remainingSeconds;
   const isServerEnded =
     effectiveBurstGameState?.ended === true || effectiveBurstGameState?.status === 'ENDED';
+
+  useEffect(() => {
+    if (effectiveBurstGameState?.remainingSeconds == null) return;
+
+    setRemainingSeconds(effectiveBurstGameState.remainingSeconds);
+  }, [effectiveBurstGameState?.remainingSeconds]);
 
   const serverRankings = useMemo(
     () =>
@@ -295,11 +301,11 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
   const restRankings = resultRankings.slice(3);
 
   useEffect(() => {
-    if (remainingSeconds > 0 || isResultVisible) return;
+    if (displayRemainingSeconds > 0 || isResultVisible) return;
 
     flushTaps();
     setIsResultVisible(true);
-  }, [flushTaps, isResultVisible, remainingSeconds]);
+  }, [displayRemainingSeconds, flushTaps, isResultVisible]);
 
   useEffect(() => {
     if (!isServerEnded || isResultVisible) return;
