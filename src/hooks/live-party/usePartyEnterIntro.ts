@@ -1,12 +1,8 @@
 import { useState, type MouseEvent } from 'react';
 
 import { getEntryData } from '@/constants/live-party';
-import { usePartyStore } from '@/stores/usePartyStore';
 
-export function usePartyEnterIntro() {
-  const hostName = usePartyStore((s) => s.hostName);
-  const entryData = getEntryData(hostName);
-
+export function usePartyEnterIntro(hostName?: string) {
   const [step, setStep] = useState(0);
 
   const [isExiting, setIsExiting] = useState(false);
@@ -14,6 +10,7 @@ export function usePartyEnterIntro() {
 
   const [isCurtainOpen, setIsCurtainOpen] = useState(false);
 
+  const entryData = getEntryData(hostName ?? '');
   const currentStep = entryData[step];
 
   const isLastStep = step === entryData.length - 1;

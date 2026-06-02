@@ -12,7 +12,6 @@ export default function PartyEnterPage() {
     title,
     isHost,
     isPending,
-    isTimeToParty,
     countdown,
     hasPartyStarted,
     isPartyFull,
@@ -68,7 +67,7 @@ export default function PartyEnterPage() {
             )}
             <Button
               type="submit"
-              disabled={!isTimeToParty || !inputValue || isPending || isInputError || isPartyFull}
+              disabled={!inputValue || isPending || isInputError || isPartyFull}
             >
               파티 입장하러 가기
             </Button>
