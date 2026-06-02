@@ -10,10 +10,25 @@ import type { components } from '@/types/api';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 type CandleBlowState = components['schemas']['CandleBlowResponse'];
+export type BurstGameState = Partial<components['schemas']['BurstGameStateResponse']> & {
+  status?: 'ACTIVE' | 'ENDED';
+};
+
+function shouldUpdateBurstGameState(
+  currentState: BurstGameState | null,
+  nextStateVersion: number | undefined,
+) {
+  if (nextStateVersion == null || currentState?.stateVersion == null) {
+    return true;
+  }
+
+  return nextStateVersion >= currentState.stateVersion;
+}
 
 export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
   const [candleBlowState, setCandleBlowState] = useState<CandleBlowState | null>(null);
+  const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -157,6 +172,38 @@ export function useLivePartySSE() {
             return;
           }
 
+          if (
+            event === 'burst-game-started' ||
+            event === 'burst-game-progress' ||
+            event === 'burst-game-ended'
+          ) {
+            setBurstGameState((prev) => {
+              const nextStateVersion = parsed.stateVersion as number | undefined;
+
+              if (!shouldUpdateBurstGameState(prev, nextStateVersion)) {
+                return prev;
+              }
+
+              return {
+                ...prev,
+                partyId: parsed.partyId as number | undefined,
+                startedAt: parsed.startedAt as string | undefined,
+                endsAt: parsed.endsAt as string | undefined,
+                totalTapCount: parsed.totalTapCount as number | undefined,
+                myTapCount: parsed.myTapCount as number | undefined,
+                colorChanged: parsed.colorChanged as boolean | undefined,
+                stateVersion: nextStateVersion,
+                serverTime: parsed.serverTime as string | undefined,
+                remainingSeconds: parsed.remainingSeconds as number | undefined,
+                rankings: parsed.rankings as BurstGameState['rankings'],
+                ended: event === 'burst-game-ended' ? true : prev?.ended,
+                status: event === 'burst-game-ended' ? 'ENDED' : 'ACTIVE',
+              };
+            });
+
+            return;
+          }
+
           if (event === 'fireworks') {
             const participantId = parsed.participantId as number | undefined;
             fire(participantId);
@@ -197,5 +244,6 @@ export function useLivePartySSE() {
     messages,
     addMessage,
     candleBlowState,
+    burstGameState,
   };
 }

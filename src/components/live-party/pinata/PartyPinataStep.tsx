@@ -1,129 +1,17 @@
 import ReactCanvasConfetti from 'react-canvas-confetti';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import crownIcon from '@/assets/images/icons/crown.svg';
-import characterBlueThumb from '@/assets/images/character/character-blue-circle-thumbnail.png';
-import characterBrownThumb from '@/assets/images/character/character-brown-circle-thumbnail.png';
-import characterPinkThumb from '@/assets/images/character/character-pink-circle-thumbnail.png';
 import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
-
-const PINATA_DURATION_SECONDS = 20;
-const MAX_COLOR_TAP_COUNT = 100;
-const CONTENT_ENTER_DELAY_MS = 420;
-const RANK_ROW_GAP = 40;
-
-interface PinataRanking {
-  rank: number;
-  nickname: string;
-  tapCount: number;
-  image: string;
-  isMe?: boolean;
-}
-
-const MOCK_COMPETITORS: PinataRanking[] = [
-  {
-    rank: 1,
-    nickname: '일이삼사오육칠팔구십',
-    tapCount: 119,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 2,
-    nickname: '오지탐험',
-    tapCount: 65,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 3,
-    nickname: '나랑께',
-    tapCount: 45,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 4,
-    nickname: '너만의자기',
-    tapCount: 40,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 5,
-    nickname: '한송연애 윤녕아님',
-    tapCount: 34,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 6,
-    nickname: '파티요정',
-    tapCount: 34,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 7,
-    nickname: '축하장인',
-    tapCount: 31,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 8,
-    nickname: '박깨기달인',
-    tapCount: 28,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 9,
-    nickname: '생일축하해',
-    tapCount: 28,
-    image: characterPinkThumb,
-  },
-  {
-    rank: 10,
-    nickname: '케이크요정',
-    tapCount: 24,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 11,
-    nickname: '촛불지킴이',
-    tapCount: 21,
-    image: characterBrownThumb,
-  },
-  {
-    rank: 12,
-    nickname: '파티참가자',
-    tapCount: 18,
-    image: characterBlueThumb,
-  },
-  {
-    rank: 13,
-    nickname: '마지막손님',
-    tapCount: 12,
-    image: characterPinkThumb,
-  },
-];
-
-function getPinataColor(tapCount: number) {
-  const progress = Math.min(tapCount, MAX_COLOR_TAP_COUNT) / MAX_COLOR_TAP_COUNT;
-  const start = { r: 88, g: 146, b: 255 };
-  const end = { r: 239, g: 57, b: 60 };
-
-  const r = Math.round(start.r + (end.r - start.r) * progress);
-  const g = Math.round(start.g + (end.g - start.g) * progress);
-  const b = Math.round(start.b + (end.b - start.b) * progress);
-
-  return `rgb(${r}, ${g}, ${b})`;
-}
-
-function formatRank(rank: number) {
-  return `${rank}등`;
-}
-
-function getPodiumColor(rank: number) {
-  if (rank === 1) return '#FFC94D';
-  if (rank === 2) return '#FFFFFF';
-  if (rank === 3) return '#B8872B';
-  return '#D7A43A';
-}
+import {
+  formatRank,
+  getPodiumColor,
+  type PinataRanking,
+  RANK_ROW_GAP,
+  usePinataStep,
+} from '@/hooks/live-party/usePinataStep';
+import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
 
 function CrownIcon({ color, className = '' }: { color: string; className?: string }) {
   return (
@@ -139,36 +27,27 @@ function CrownIcon({ color, className = '' }: { color: string; className?: strin
   );
 }
 
-function getRankedParticipants(participants: PinataRanking[]) {
-  let previousTapCount: number | null = null;
-  let previousRank = 0;
-
-  return participants
-    .sort((a, b) => b.tapCount - a.tapCount)
-    .map((participant, index) => {
-      const rank = participant.tapCount === previousTapCount ? previousRank : index + 1;
-
-      previousTapCount = participant.tapCount;
-      previousRank = rank;
-
-      return {
-        ...participant,
-        rank,
-      };
-    });
-}
-
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
+  burstGameState: BurstGameState | null;
 }
 
-export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
+export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPinataStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
-  const [tapCount, setTapCount] = useState(0);
-  const [remainingSeconds, setRemainingSeconds] = useState(PINATA_DURATION_SECONDS);
-  const [isContentVisible, setIsContentVisible] = useState(false);
-  const [isResultVisible, setIsResultVisible] = useState(false);
-  const [isResultAnimated, setIsResultAnimated] = useState(false);
+  const {
+    displayTapCount,
+    displayRemainingSeconds,
+    rankings,
+    topRankings,
+    restRankings,
+    totalTapCount,
+    isContentVisible,
+    isResultVisible,
+    isResultAnimated,
+    pinataColor,
+    progressPercent,
+    handleTapPinata,
+  } = usePinataStep({ burstGameState });
   const [isConfettiReady, setIsConfettiReady] = useState(false);
 
   const fireResultFireworks = useCallback(() => {
@@ -197,85 +76,10 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
   }, []);
 
   useEffect(() => {
-    const enterTimerId = window.setTimeout(() => {
-      setIsContentVisible(true);
-    }, CONTENT_ENTER_DELAY_MS);
-
-    return () => window.clearTimeout(enterTimerId);
-  }, []);
-
-  useEffect(() => {
-    if (!isContentVisible) return;
-
-    const timerId = window.setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev <= 1) {
-          window.clearInterval(timerId);
-          return 0;
-        }
-
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(timerId);
-  }, [isContentVisible]);
-
-  const allRankings = useMemo(
-    () => [
-      ...MOCK_COMPETITORS,
-      {
-        rank: 0,
-        nickname: '나',
-        tapCount,
-        image: characterBlueThumb,
-        isMe: true,
-      },
-    ],
-    [tapCount],
-  );
-
-  const rankings = useMemo(
-    () => getRankedParticipants([...allRankings]).slice(0, 3),
-    [allRankings],
-  );
-  const resultRankings = useMemo(() => getRankedParticipants([...allRankings]), [allRankings]);
-  const totalTapCount = useMemo(
-    () => resultRankings.reduce((total, ranking) => total + ranking.tapCount, 0),
-    [resultRankings],
-  );
-  const topRankings = resultRankings.slice(0, 3);
-  const restRankings = resultRankings.slice(3);
-
-  useEffect(() => {
-    if (remainingSeconds > 0 || isResultVisible) return;
-
-    setIsResultVisible(true);
-  }, [isResultVisible, remainingSeconds]);
-
-  useEffect(() => {
     if (!isResultVisible || !isConfettiReady) return;
 
     return fireResultFireworks();
   }, [fireResultFireworks, isConfettiReady, isResultVisible]);
-
-  useEffect(() => {
-    if (!isResultVisible) return;
-
-    const animationTimerId = window.setTimeout(() => {
-      setIsResultAnimated(true);
-    }, 1);
-
-    return () => window.clearTimeout(animationTimerId);
-  }, [isResultVisible]);
-
-  const pinataColor = getPinataColor(tapCount);
-  const progressPercent = (remainingSeconds / PINATA_DURATION_SECONDS) * 100;
-
-  const handleTapPinata = () => {
-    if (remainingSeconds === 0 || !isContentVisible || isResultVisible) return;
-    setTapCount((prev) => prev + 1);
-  };
 
   if (isResultVisible) {
     const podiumSlots = [
@@ -406,7 +210,7 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
       </h2>
 
       <div className="relative mt-8 h-[104px] w-full max-w-[311px]">
-        {tapCount === 0
+        {rankings.length === 0
           ? [1, 2, 3].map((rank) => (
               <div
                 key={rank}
@@ -449,12 +253,12 @@ export function PartyPinataStep({ onReturnToPartyRoom }: PartyPinataStepProps) {
         style={{ backgroundColor: pinataColor }}
         onClick={handleTapPinata}
       >
-        {tapCount}
+        {displayTapCount}
       </button>
 
       <div className="mt-auto mb-[calc(54px+env(safe-area-inset-bottom))] w-full max-w-[311px]">
         <p className="text-body-1 text-center font-semibold">
-          <span className="text-red-400">{remainingSeconds}</span>초 남았어요
+          <span className="text-red-400">{displayRemainingSeconds}</span>초 남았어요
         </p>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/20">
           <div

@@ -4,6 +4,7 @@ import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep'
 import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
 import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
 import { PartyMusicText } from '@/components/live-party/music/PartyMusicText';
+import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
 import type { components } from '@/types/api';
 
 interface StepRendererProps {
@@ -15,6 +16,7 @@ interface StepRendererProps {
   hostName?: string;
   hostCharacterImage?: string | null;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
+  burstGameState: BurstGameState | null;
 }
 
 export function StepRenderer({
@@ -26,6 +28,7 @@ export function StepRenderer({
   hostName,
   hostCharacterImage,
   candleBlowState,
+  burstGameState,
 }: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
@@ -42,7 +45,10 @@ export function StepRenderer({
       return <PartyCandleStep onComplete={onStepComplete} candleBlowState={candleBlowState} />;
     case 'PINATA':
       return showPinataOverlay ? (
-        <PartyPinataStep onReturnToPartyRoom={onReturnToPartyRoom} />
+        <PartyPinataStep
+          onReturnToPartyRoom={onReturnToPartyRoom}
+          burstGameState={burstGameState}
+        />
       ) : null;
     case 'END':
       return <PartyEndStep role={userRole} />;

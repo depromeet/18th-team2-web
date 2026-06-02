@@ -74,7 +74,7 @@ export default function LivePartyPage() {
     });
   }
 
-  const { messages, addMessage, candleBlowState } = useLivePartySSE();
+  const { messages, addMessage, candleBlowState, burstGameState } = useLivePartySSE();
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
 
@@ -152,6 +152,7 @@ export default function LivePartyPage() {
         hostName={hostName}
         hostCharacterImage={hostCharacterImage}
         candleBlowState={candleBlowState}
+        burstGameState={burstGameState}
       />
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
