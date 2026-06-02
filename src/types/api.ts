@@ -1688,7 +1688,8 @@ export interface components {
             data?: components["schemas"]["RealtimePartyNextActionResult"];
         };
         /** @description 주최자용 다음 행동 응답 */
-        Host: WithRequired<components["schemas"]["RealtimePartyNextActionResult"], "type"> & {
+        Host: {
+            type: "HOST_ROLLING_PAPER_LIST";
             /**
              * Format: int64
              * @description 롤링페이퍼 목록으로 이동할 파티 ID
@@ -1697,7 +1698,8 @@ export interface components {
             partyId: number;
         };
         /** @description 참가자용 다음 행동 응답 */
-        Participant: WithRequired<components["schemas"]["RealtimePartyNextActionResult"], "type"> & {
+        Participant: {
+            type: "PARTICIPANT_ROLLING_PAPER_WRITE";
             /**
              * @description 롤링페이퍼 작성 화면 진입에 사용할 유효 초대 토큰
              * @example exampletoken0000
@@ -1710,14 +1712,7 @@ export interface components {
             rollingPaperWritten: boolean;
         };
         /** @description 실시간 파티 종료 후 다음 행동 조회 응답 */
-        RealtimePartyNextActionResult: {
-            /**
-             * @description 다음 행동 타입
-             * @example PARTICIPANT_ROLLING_PAPER_WRITE
-             * @enum {string}
-             */
-            type: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
-        } & (components["schemas"]["Host"] | components["schemas"]["Participant"]);
+        RealtimePartyNextActionResult: components["schemas"]["Host"] | components["schemas"]["Participant"];
         /** @description 공통 성공 응답 */
         ApiResponsePartyParticipantsResponse: {
             /**
@@ -4515,6 +4510,3 @@ export interface operations {
         };
     };
 }
-type WithRequired<T, K extends keyof T> = T & {
-    [P in K]-?: T[P];
-};
