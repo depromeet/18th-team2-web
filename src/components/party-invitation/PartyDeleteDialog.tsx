@@ -17,20 +17,20 @@ export function PartyDeleteDialog({
     <ConfirmDialog
       isOpen={isOpen}
       labelledById="party-delete-dialog-title"
-      title="파티를 삭제할까요?"
+      title="파티를 정말 삭제하시겠어요?"
       description={
         <>
-          *삭제하면 참가자들이 남긴 롤링페이퍼도
+          * 파티를 삭제하면 친구들이
           <br />
-          함께 사라져요.
+          초대장을 확인할 수 없고 복구도 불가능해요
         </>
       }
       descriptionTone="danger"
       cancelAction={{ label: '취소', onClick: onCancel }}
       confirmAction={{
-        label: isPending ? '삭제 중' : '삭제하기',
+        label: isPending ? '삭제 중' : '파티 삭제하기',
         onClick: isPending ? () => undefined : onConfirm,
-        variant: 'danger',
+        variant: 'primary',
       }}
       onClose={onCancel}
     />

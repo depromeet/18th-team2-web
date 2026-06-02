@@ -1,4 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
+import characterBrownFullSrc from '@/assets/images/character/character-brown-full.png';
+import characterPinkFullSrc from '@/assets/images/character/character-pink-full.png';
+import characterWhiteFullSrc from '@/assets/images/character/character-white-full.png';
+import characterYellowFullSrc from '@/assets/images/character/character-yellow-full.png';
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
 import { config } from '@/config/env';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
@@ -21,6 +26,65 @@ export interface PartyParticipant {
   image: string;
   role: ParticipantRole;
   isCurrentUser?: boolean;
+}
+
+export const MOCK_PARTY_PARTICIPANTS: PartyParticipant[] = [
+  { id: 1, name: '하파린', image: characterBlueHostSrc, role: 'host' },
+  { id: 2, name: '소다', image: characterPinkFullSrc, role: 'participant', isCurrentUser: true },
+  { id: 3, name: '민트', image: characterYellowFullSrc, role: 'participant' },
+  { id: 4, name: '버블', image: characterBrownFullSrc, role: 'participant' },
+  { id: 5, name: '구름', image: characterWhiteFullSrc, role: 'participant' },
+];
+
+export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
+export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
+export type PartyParticipantsResult = components['schemas']['PartyParticipantsResponse'];
+export type PartyParticipantResult = components['schemas']['PartyParticipantResponse'];
+
+export const realtimePartyQueries = {
+  state: (partyId: string) =>
+    queryOptions({
+      queryKey: ['realtime-party-state', partyId],
+      queryFn: async () => {
+        const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
+          `/api/v1/parties/${partyId}/realtime-state`,
+        );
+        return res.data ?? null;
+      },
+      enabled: Boolean(partyId),
+      refetchInterval: 3000,
+    }),
+  participants: (partyId: string, enabled = true) =>
+    queryOptions({
+      queryKey: ['party-participants', partyId],
+      queryFn: async () => {
+        const res = await api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
+          `/api/v1/parties/${partyId}/participants`,
+        );
+        return res.data ?? null;
+      },
+      enabled: Boolean(partyId) && enabled,
+      refetchInterval: 3000,
+    }),
+};
+
+export function useRealtimePartyState(partyId: string) {
+  return useQuery(realtimePartyQueries.state(partyId));
+}
+
+export function usePartyParticipants(partyId: string, enabled = true) {
+  return useQuery(realtimePartyQueries.participants(partyId, enabled));
+}
+
+export function useStartRealtimeEnd() {
+  return useMutation({
+    mutationFn: async (partyId: string) => {
+      const res = await api.post<components['schemas']['ApiResponseRealtimePartyEndResult']>(
+        `/api/v1/parties/${partyId}/realtime-end`,
+      );
+      return res.data ?? null;
+    },
+  });
 }
 
 function getParticipantTokenOptions(participantToken?: string | null) {
@@ -76,29 +140,17 @@ export function connectRealtimeParty(
     let buffer = '';
 
     while (true) {
-      // abort 되었으면 즉시 종료
-      if (signal.aborted) {
-        break;
-      }
+      if (signal.aborted) break;
 
       const { done, value } = await reader.read();
-
-      if (done) {
-        break;
-      }
+      if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-
       const { events, remaining } = parseSSEBuffer(buffer);
-
       buffer = remaining;
 
       for (const sseEvent of events) {
-        // 중간에 abort 되면 이벤트 처리 중단
-        if (signal.aborted) {
-          break;
-        }
-
+        if (signal.aborted) break;
         onEvent(sseEvent);
       }
     }
@@ -154,7 +206,7 @@ export function useSendChatMessage() {
   });
 }
 
-// ── 파티 참여자 목록 조회 ──
+// ── 파티 참여자 목록 조회 (비회원 지원) ──
 
 export function useGetPartyParticipants(partyId: string | undefined) {
   return useQuery({
@@ -175,7 +227,7 @@ export function useGetPartyParticipants(partyId: string | undefined) {
   });
 }
 
-// ── 촛불끄기 초기 상태 조회 (마운트 시 1회) ──
+// ── 촛불끄기 초기 상태 조회 ──
 
 export function useGetCandleBlowState(partyId: string | undefined) {
   return useQuery({

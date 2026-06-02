@@ -8,6 +8,7 @@ import { ParticipantActions } from '@/components/party-invitation/ParticipantAct
 import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
 import { BottomActionBar } from '@/components/ui/BottomActionBar';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
@@ -88,7 +89,10 @@ export function PartyInvitationView({
   return (
     <>
       <main className="bg-gradient-bg flex min-h-screen flex-col">
-        <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
+        {isHost && <PageHeader />}
+        <section
+          className={`flex flex-1 flex-col items-center gap-7 px-4 ${isHost ? 'pt-4' : 'pt-16'}`}
+        >
           {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
           <InvitationCard
             hostName={hostName}
