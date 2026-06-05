@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { VALIDATION_MESSAGES } from '@/constants/validation';
 import { ROUTES } from '@/constants/routes';
 import { ApiError } from '@/services/api';
@@ -28,6 +29,7 @@ export function usePartyEnter() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const setHostName = usePartyStore((s) => s.setHostName);
 
   const { data: profile } = useGetMyRealtimeProfile(inviteToken, isAuthenticated);
@@ -115,7 +117,9 @@ export function usePartyEnter() {
         body: { nickname, characterId: selectedCharacterId },
       },
       {
-        onSuccess: () =>
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+          queryClient.invalidateQueries({ queryKey: ['realtime-profile', inviteToken] });
           navigate(generatePath(ROUTES.liveParty, { partyId }), {
             state: {
               inviteToken,
@@ -124,7 +128,8 @@ export function usePartyEnter() {
               hostName: locationState?.hostName,
               from: locationState?.from,
             },
-          }),
+          });
+        },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
             setErrorMessage(VALIDATION_MESSAGES.nickname.duplicate);

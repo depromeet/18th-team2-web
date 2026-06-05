@@ -19,6 +19,8 @@ import { ROUTES } from '@/constants/routes';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useGetPartyParticipants } from '@/services/live-party';
 import { useDeleteParty } from '@/services/party';
 
 function resolveImageUrl(url: string | null | undefined) {
@@ -33,33 +35,28 @@ export default function LivePartyPage() {
   const navigate = useNavigate();
   const locationState = location.state as { inviteToken?: string; hostName?: string } | null;
   const inviteToken = locationState?.inviteToken ?? '';
-  const entryStorageKey = partyId ? `live-party-entry-shown:${partyId}` : '';
-  const hasStoredEntryShown = entryStorageKey
-    ? sessionStorage.getItem(entryStorageKey) === 'true'
-    : false;
 
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
-  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken, isAuthenticated);
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const hostGate = useHostLivePartyGate(partyId, isHost);
 
   const { step, userRole, partyEnd, handleNextStep, isTransitioning } = useLivePartyStep({
-    initialStep: hasStoredEntryShown ? LIVE_PARTY_STEP.MUSIC : LIVE_PARTY_STEP.ENTRY,
     initialUserRole: isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN,
-    onEntryComplete: () => {
-      if (entryStorageKey) sessionStorage.setItem(entryStorageKey, 'true');
-    },
   });
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
+  const { data: participantsData } = useGetPartyParticipants(partyId);
+  const celebrant = participantsData?.data?.participants?.find((p) => p.isCelebrant);
   const hostName =
-    hostGate.celebrant?.nickname ??
+    celebrant?.nickname ??
     locationState?.hostName ??
     (isHost ? profile?.nickname : undefined);
   const hostCharacterImage =
-    resolveImageUrl(hostGate.celebrant?.characterImageUrl) ??
+    resolveImageUrl(celebrant?.characterImageUrl) ??
     (isHost ? resolveImageUrl(profile?.character?.characterImageUrl) : null);
 
   function handleInvite() {
@@ -135,7 +132,6 @@ export default function LivePartyPage() {
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
-          onNextStep={handleNextStep}
           onExitClick={handleOpenExitDialog}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
