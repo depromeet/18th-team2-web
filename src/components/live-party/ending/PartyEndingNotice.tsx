@@ -85,7 +85,7 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
   }, [noticeStep, remainingSeconds]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 bottom-[320px] z-20 mx-auto flex w-full max-w-[600px] items-center justify-center px-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[360px] z-20 mx-auto flex w-full max-w-[600px] justify-center px-6">
       <div className="transition-opacity duration-300 ease-out">{content}</div>
     </div>
   );
