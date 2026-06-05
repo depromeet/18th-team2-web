@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -7,25 +8,30 @@ import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
+import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { PARTY_ROLE } from '@/constants/party';
 import { ROUTES } from '@/constants/routes';
 import { useArchiveList } from '@/services/archive';
 import { useUpcomingParties } from '@/services/me';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { canShareParty } from '@/utils/party';
 
 import type { UpcomingParty } from '@/types/home';
 
 // 카드 CTA → 이동 경로. 디자인상 primary 버튼만 목적지가 있고, 비활성 안내문은 null.
 function getCardRoutePath(party: UpcomingParty): string | null {
-  const { role, partyOption, isOpen, partyId, inviteToken } = party;
+  const { role, partyOption, isOpen, isEnded, partyId, inviteToken } = party;
+  const isHost = role === PARTY_ROLE.HOST;
+
+  // 라이브 종료 → 롤링페이퍼 단계: 주최자는 확인, 참가자는 작성
+  if (isEnded) {
+    if (isHost) return partyId ? generatePath(ROUTES.rollingPaper, { id: partyId }) : null;
+    return partyId ? generatePath(ROUTES.rollingPaperWrite, { partyId }) : null;
+  }
 
   if (partyOption === 'REALTIME') {
-    // 입장 가능: 입장/시작하기 → 파티 입장
-    if (isOpen) return partyId ? generatePath(ROUTES.partyEnter, { partyId }) : null;
-    // 입장 전: 참가자만 초대장 확인, 주최자는 비활성
-    return role === PARTY_ROLE.PARTICIPANT && inviteToken
-      ? generatePath(ROUTES.partyInvite, { inviteToken })
-      : null;
+    // 참가자·주최자 모두 바로 입장이 아닌 초대장 확인 화면(입장·공유 허브)으로 통일
+    return inviteToken ? generatePath(ROUTES.partyInvite, { inviteToken }) : null;
   }
 
   // PAPER_ONLY — 참가자: 롤페 작성 / 주최자: 공개 후 롤페 확인
@@ -45,16 +51,22 @@ function HomePage() {
   const { data: upcomingParties } = useUpcomingParties();
   const parties = upcomingParties ?? [];
 
+  // 호스트 카드 '링크 복사' → 공유 시트. 공유할 파티의 inviteToken을 보관.
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const shareLink = shareToken
+    ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: shareToken })}`
+    : '';
+
+  const handleCardShare = useCallback((party: UpcomingParty) => {
+    // 카드의 링크 복사 노출 규칙과 동일 기준으로 가드 (canShareParty 단일 소스)
+    if (!canShareParty(party) || !party.inviteToken) return;
+    setShareToken(party.inviteToken);
+  }, []);
+
   const handleCardAction = (party: UpcomingParty) => {
     const path = getCardRoutePath(party);
     if (!path) return;
-    if (party.partyOption === 'REALTIME' && party.isOpen && party.partyId) {
-      navigate(path, {
-        state: { inviteToken: party.inviteToken, from: ROUTES.home, hostName: party.hostName },
-      });
-    } else {
-      navigate(path);
-    }
+    navigate(path);
   };
 
   return (
@@ -68,6 +80,7 @@ function HomePage() {
                 <UpcomingPartyCard
                   party={parties[0]}
                   onAction={() => handleCardAction(parties[0])}
+                  onShare={() => handleCardShare(parties[0])}
                 />
               </div>
             ) : (
@@ -90,7 +103,11 @@ function HomePage() {
                       key={party.partyId ?? `party-${index}`}
                       style={{ width: 'calc(100% - 32px)' }}
                     >
-                      <UpcomingPartyCard party={party} onAction={() => handleCardAction(party)} />
+                      <UpcomingPartyCard
+                        party={party}
+                        onAction={() => handleCardAction(party)}
+                        onShare={() => handleCardShare(party)}
+                      />
                     </SwiperSlide>
                   ))}
                 </Swiper>
@@ -114,6 +131,14 @@ function HomePage() {
         </div>
         <ArchiveCard count={archiveCount} previewItem={archivePreview} />
       </div>
+
+      <LinkShareSheet
+        isOpen={shareToken !== null}
+        link={shareLink}
+        title="초대장 링크 공유하기"
+        shareText="파티 초대장이 도착했어요"
+        onClose={() => setShareToken(null)}
+      />
     </div>
   );
 }

@@ -1689,6 +1689,11 @@ export interface components {
         };
         /** @description 주최자용 다음 행동 응답 */
         Host: {
+            /**
+             * @description 다음 행동 타입
+             * @example HOST_ROLLING_PAPER_LIST
+             * @enum {string}
+             */
             type: "HOST_ROLLING_PAPER_LIST";
             /**
              * Format: int64
@@ -1699,6 +1704,11 @@ export interface components {
         };
         /** @description 참가자용 다음 행동 응답 */
         Participant: {
+            /**
+             * @description 다음 행동 타입
+             * @example PARTICIPANT_ROLLING_PAPER_WRITE
+             * @enum {string}
+             */
             type: "PARTICIPANT_ROLLING_PAPER_WRITE";
             /**
              * @description 롤링페이퍼 작성 화면 진입에 사용할 유효 초대 토큰
@@ -1712,7 +1722,14 @@ export interface components {
             rollingPaperWritten: boolean;
         };
         /** @description 실시간 파티 종료 후 다음 행동 조회 응답 */
-        RealtimePartyNextActionResult: components["schemas"]["Host"] | components["schemas"]["Participant"];
+        RealtimePartyNextActionResult: {
+            /**
+             * @description 다음 행동 타입
+             * @example PARTICIPANT_ROLLING_PAPER_WRITE
+             * @enum {string}
+             */
+            type: "HOST_ROLLING_PAPER_LIST" | "PARTICIPANT_ROLLING_PAPER_WRITE";
+        } & (components["schemas"]["Host"] | components["schemas"]["Participant"]);
         /** @description 공통 성공 응답 */
         ApiResponsePartyParticipantsResponse: {
             /**
