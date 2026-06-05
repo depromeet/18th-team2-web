@@ -1,10 +1,13 @@
-import { B1 } from '@/components/ui/Typography';
+import { B1, H2 } from '@/components/ui/Typography';
 import type { PartyRole } from '@/constants/party';
 import type { PartyOption, UpcomingParty } from '@/types/home';
+import { canShareParty } from '@/utils/party';
 
 interface UpcomingPartyCardProps {
   party: UpcomingParty;
   onAction?: () => void;
+  /** 링크 복사 버튼 노출 시 — 초대 링크 공유 시트 열기 */
+  onShare?: () => void;
 }
 
 type ActionVariant = 'primary' | 'disabled';
@@ -28,7 +31,7 @@ const UPCOMING_PARTY_CARD_VIEW: Record<
   PARTICIPANT: {
     REALTIME: {
       closed: { ...LIVE_BADGE, actionText: '초대장 확인하기', actionVariant: 'primary' },
-      open: { ...LIVE_BADGE, actionText: '파티 입장하기', actionVariant: 'primary' },
+      open: { ...LIVE_BADGE, actionText: '초대장 확인하기', actionVariant: 'primary' },
     },
     PAPER_ONLY: {
       closed: { ...PAPER_BADGE, actionText: '롤링페이퍼 작성하기', actionVariant: 'primary' },
@@ -36,13 +39,10 @@ const UPCOMING_PARTY_CARD_VIEW: Record<
     },
   },
   HOST: {
+    // REALTIME은 참가자·주최자 모두 바로 입장이 아닌 초대장 확인 화면으로 이동 (입장·공유 허브)
     REALTIME: {
-      closed: {
-        ...LIVE_BADGE,
-        actionText: '파티 시작 5분 전에 입장할 수 있어요',
-        actionVariant: 'disabled',
-      },
-      open: { ...LIVE_BADGE, actionText: '파티 시작하기', actionVariant: 'primary' },
+      closed: { ...LIVE_BADGE, actionText: '초대장 확인하기', actionVariant: 'primary' },
+      open: { ...LIVE_BADGE, actionText: '초대장 확인하기', actionVariant: 'primary' },
     },
     PAPER_ONLY: {
       closed: {
@@ -55,19 +55,31 @@ const UPCOMING_PARTY_CARD_VIEW: Record<
   },
 };
 
+// 라이브 종료(롤링페이퍼 단계) — 라이브/롤페 구분(뱃지·제목)은 그대로, 액션만 롤페로.
+// 종료된 파티는 초대 링크가 불필요하므로 '링크 복사' 없이 단일 버튼.
+const ENDED_VIEW: Record<PartyRole, UpcomingPartyCardView> = {
+  HOST: { ...LIVE_BADGE, actionText: '롤링페이퍼 확인하기', actionVariant: 'primary' },
+  PARTICIPANT: { ...LIVE_BADGE, actionText: '롤링페이퍼 작성하기', actionVariant: 'primary' },
+};
+
 const ACTION_VARIANT_CLASS: Record<ActionVariant, string> = {
   primary: 'bg-blue-500 text-white',
   disabled: 'bg-grey-50 text-grey-300',
 };
 
-export function UpcomingPartyCard({ party, onAction }: UpcomingPartyCardProps) {
-  const { partyName, date, time, endDate, role, partyOption, isOpen } = party;
-  const view = UPCOMING_PARTY_CARD_VIEW[role][partyOption][isOpen ? 'open' : 'closed'];
+export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCardProps) {
+  const { partyName, date, time, endDate, role, partyOption, isOpen, isEnded, inviteToken } = party;
+  const view = isEnded
+    ? ENDED_VIEW[role]
+    : UPCOMING_PARTY_CARD_VIEW[role][partyOption][isOpen ? 'open' : 'closed'];
   const isRollingPaper = partyOption === 'PAPER_ONLY';
   const isActionEnabled = view.actionVariant === 'primary';
+  // 링크 복사 노출 규칙은 canShareParty 단일 소스 사용 (HomePage 공유 핸들러와 동일 기준)
+  const showShareButton = canShareParty(party);
+  const canShare = Boolean(inviteToken);
 
   return (
-    <div className="rounded-btn-lg flex h-32.5 flex-col justify-between bg-blue-50 p-4">
+    <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-grey-500 text-label-1 font-medium">예정된 파티</span>
@@ -77,8 +89,8 @@ export function UpcomingPartyCard({ party, onAction }: UpcomingPartyCardProps) {
             {view.badgeText}
           </span>
         </div>
-        <div className="flex items-center justify-between">
-          <B1 className="font-semibold">{partyName}</B1>
+        <div className="flex flex-col gap-0.5">
+          <H2>{partyName}</H2>
           <div className="flex items-center gap-1.5">
             <B1 className="font-medium">{date}</B1>
             {isRollingPaper && endDate ? (
@@ -97,14 +109,35 @@ export function UpcomingPartyCard({ party, onAction }: UpcomingPartyCardProps) {
           </div>
         </div>
       </div>
-      <button
-        type="button"
-        className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
-        onClick={isActionEnabled ? onAction : undefined}
-        disabled={!isActionEnabled}
-      >
-        {view.actionText}
-      </button>
+      {showShareButton ? (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded-btn-sm text-label-1 border-grey-100 disabled:bg-grey-50 disabled:text-grey-300 text-grey-900 flex-1 border bg-white py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            onClick={canShare ? onShare : undefined}
+            disabled={!canShare}
+          >
+            링크 복사
+          </button>
+          <button
+            type="button"
+            className={`rounded-btn-sm text-label-1 flex-1 py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
+            onClick={isActionEnabled ? onAction : undefined}
+            disabled={!isActionEnabled}
+          >
+            {view.actionText}
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
+          onClick={isActionEnabled ? onAction : undefined}
+          disabled={!isActionEnabled}
+        >
+          {view.actionText}
+        </button>
+      )}
     </div>
   );
 }

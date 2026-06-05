@@ -18,4 +18,6 @@ export interface UpcomingParty {
   partyOption: PartyOption;
   /** 시간 게이트 통과 여부 — REALTIME: 입장 가능 시각 지남 / PAPER_ONLY: 롤페 공개 시각 지남 */
   isOpen: boolean;
+  /** REALTIME 라이브가 끝나 롤링페이퍼 단계로 넘어간 상태 (파티 종료 후에도 롤페 작성/확인 가능) */
+  isEnded: boolean;
 }
