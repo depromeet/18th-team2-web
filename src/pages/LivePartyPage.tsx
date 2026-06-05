@@ -39,7 +39,10 @@ export default function LivePartyPage() {
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken, isAuthenticated);
+  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
+    inviteToken,
+    isAuthenticated,
+  );
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const hostGate = useHostLivePartyGate(partyId, isHost);
@@ -52,9 +55,7 @@ export default function LivePartyPage() {
   const { data: participantsData } = useGetPartyParticipants(partyId);
   const celebrant = participantsData?.data?.participants?.find((p) => p.isCelebrant);
   const hostName =
-    celebrant?.nickname ??
-    locationState?.hostName ??
-    (isHost ? profile?.nickname : undefined);
+    celebrant?.nickname ?? locationState?.hostName ?? (isHost ? profile?.nickname : undefined);
   const hostCharacterImage =
     resolveImageUrl(celebrant?.characterImageUrl) ??
     (isHost ? resolveImageUrl(profile?.character?.characterImageUrl) : null);
