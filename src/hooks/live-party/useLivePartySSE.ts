@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
+import { useParticipantStore } from '@/stores/useParticipantStore';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 import { resolveImageUrl } from '@/utils/image';
 import type { components } from '@/types/api';
@@ -33,6 +34,7 @@ export function useLivePartySSE() {
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
   const fire = useFirecrackerStore((state) => state.fire);
+  const setParticipantToken = useParticipantStore((s) => s.setParticipantToken);
 
   const location = useLocation();
 
@@ -83,7 +85,7 @@ export function useLivePartySSE() {
             const token = parsed.participantToken as string | undefined;
 
             if (token) {
-              sessionStorage.setItem(PARTICIPANT_TOKEN_KEY, token);
+              setParticipantToken(token);
             }
 
             const initialMessages = ((parsed.messages as unknown[]) ?? []).map((m) => {
@@ -210,6 +212,20 @@ export function useLivePartySSE() {
 
             return;
           }
+
+          if (event === 'party-phase-changed') {
+            queryClient.setQueryData(['partyPhase', partyId], {
+              status: 200,
+              data: {
+                partyId: parsed.partyId,
+                phase: parsed.phase,
+                phaseStartedAt: parsed.phaseStartedAt,
+                serverNow: parsed.serverNow,
+              },
+            });
+
+            return;
+          }
         } catch {
           console.error('[SSE] 이벤트 파싱 실패');
         }
@@ -226,7 +242,7 @@ export function useLivePartySSE() {
     return () => {
       controller.abort();
     };
-  }, [partyId, queryClient, fire]);
+  }, [partyId, queryClient, fire, setParticipantToken]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {
