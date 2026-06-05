@@ -5,10 +5,16 @@ import { ROUTES } from '@/constants/routes';
 import { ApiError } from '@/services/api';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
-import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
+import {
+  type Participant,
+  useGetMyRealtimeProfile,
+  useUpsertMyRealtimeProfile,
+} from '@/services/party-enter';
+import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePartyStore } from '@/stores/usePartyStore';
+import { resolveImageUrl } from '@/utils/image';
 
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
@@ -28,8 +34,22 @@ export function usePartyEnter() {
   const { data: invite } = usePartyInvite(inviteToken);
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
-  const isHost = profile?.host ?? false;
+  const isHost = profile?.isHost ?? false;
   const isNicknameEditable = profile?.nicknameEditable ?? true;
+
+  // 호스트는 자기 파티 참여자라 /participants 호출 가능. 비인증 참가자는 BE 제약상 호출 불가 → undefined로 비활성화.
+  // TODO(BE): 비인증 참가자도 만원 판정할 수 있도록 invite lookup에 participantCount/maxCount 추가 요청.
+  const { data: participantsResponse } = useGetPartyParticipants(isHost ? partyId : undefined);
+  const beParticipants = participantsResponse?.data?.participants ?? [];
+  const guestParticipants = beParticipants.filter((participant) => !participant.isCelebrant);
+  const totalCount = guestParticipants.length;
+  const maxCount = participantsResponse?.data?.maxCount ?? 0;
+  const participants: Participant[] = guestParticipants.map((p) => ({
+    id: p.participantId ?? 0,
+    nickname: p.nickname ?? '',
+    imageUrl: resolveImageUrl(p.characterImageUrl) ?? '',
+  }));
+  const isPartyFull = maxCount > 0 && totalCount >= maxCount;
 
   // 파티 시작 시각까지 카운트다운 — liveStartAt 도달 시 입장 가능
   const { isReady, minutes, seconds, hasStarted } = usePartyStartCountdown(
@@ -74,6 +94,7 @@ export function usePartyEnter() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!partyId || !inviteToken) return;
+    if (selectedCharacterId == null) return;
 
     if (!isAuthenticated) {
       navigate(generatePath(ROUTES.liveParty, { partyId }), {
@@ -82,6 +103,7 @@ export function usePartyEnter() {
           inviteToken,
           nickname,
           characterId: selectedCharacterId,
+          hostName: locationState?.hostName,
         },
       });
       return;
@@ -99,6 +121,7 @@ export function usePartyEnter() {
               inviteToken,
               nickname,
               characterId: selectedCharacterId,
+              hostName: locationState?.hostName,
               from: locationState?.from,
             },
           }),
@@ -117,9 +140,12 @@ export function usePartyEnter() {
     title,
     isHost,
     isPending,
-    isTimeToParty: hasStarted,
     // 시작 전(유효 스케줄 보유)에만 "X분 Y초 남았어요" 노출
     countdown: isReady && !hasStarted ? { minutes, seconds } : null,
+    // 시작 시각 도달 후 "파티가 이미 진행 중이에요!" 노출
+    hasPartyStarted: isReady && hasStarted,
+    isPartyFull,
+    participants,
     inputValue: nickname,
     isNicknameEditable,
     inputMessage,

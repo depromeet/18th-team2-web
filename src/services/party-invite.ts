@@ -9,10 +9,9 @@ import { parseKstDateTime } from '@/utils/date';
 
 export type PartyInviteLookup = Omit<
   components['schemas']['PartyInviteLookupResponse'],
-  'host' | 'partyId'
+  'partyId'
 > & {
   partyId: string;
-  isHost: boolean;
 };
 
 // ── 도메인 계산 ──
@@ -50,7 +49,6 @@ export const partyInviteQueries = {
         return {
           ...raw,
           partyId: String(raw.partyId),
-          isHost: raw.host ?? false,
         } satisfies PartyInviteLookup;
       },
       enabled: Boolean(inviteToken),

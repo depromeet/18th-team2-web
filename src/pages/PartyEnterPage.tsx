@@ -1,19 +1,21 @@
 import { Button } from '@/components/ui/Button';
 import { CharacterSelect } from '@/components/party-enter/CharacterSelect';
 import { ParticipantStatus } from '@/components/party-enter/ParticipantStatus';
+import { ErrorCircleFilledIcon } from '@/components/ui/icons/ErrorCircleFilledIcon';
 import { NicknameInput } from '@/components/ui/NicknameInput';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { B2, H1 } from '@/components/ui/Typography';
 import { usePartyEnter } from '@/hooks/partyEnter/usePartyEnter';
-import { MOCK_PARTICIPANTS } from '@/services/party-enter';
 
 export default function PartyEnterPage() {
   const {
     title,
     isHost,
     isPending,
-    isTimeToParty,
     countdown,
+    hasPartyStarted,
+    isPartyFull,
+    participants,
     inputValue,
     isNicknameEditable,
     inputMessage,
@@ -53,10 +55,19 @@ export default function PartyEnterPage() {
                 남았어요
               </B2>
             )}
-            {isHost && <ParticipantStatus participants={MOCK_PARTICIPANTS} />}
+            {hasPartyStarted && !isHost && (
+              <B2 className="text-center font-medium text-blue-700">파티가 이미 진행 중이에요!</B2>
+            )}
+            {isHost && <ParticipantStatus participants={participants} />}
+            {isPartyFull && (
+              <div className="bg-red-30 flex h-12 w-full items-center justify-center gap-2 rounded-xl px-4 py-2">
+                <ErrorCircleFilledIcon width={20} height={20} aria-hidden="true" />
+                <B2 className="font-medium text-red-500">참가자가 모두 차서 입장이 불가능해요</B2>
+              </div>
+            )}
             <Button
               type="submit"
-              disabled={!isTimeToParty || !inputValue || isPending || isInputError}
+              disabled={!inputValue || isPending || isInputError || isPartyFull}
             >
               파티 입장하러 가기
             </Button>

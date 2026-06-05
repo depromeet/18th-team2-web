@@ -6,9 +6,9 @@ import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 
 export function PartyFirecrackerEffect() {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
-  const lastHandledIdRef = useRef(0);
 
   const firecrackerId = useFirecrackerStore((state) => state.firecrackerId);
+  const lastHandledIdRef = useRef(firecrackerId);
 
   useEffect(() => {
     if (!confettiRef.current) {

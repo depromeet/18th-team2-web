@@ -27,8 +27,9 @@ export function usePartyMainBackground() {
   const { data: participantsData } = useGetPartyParticipants(partyId);
 
   const firecrackerId = useFirecrackerStore((s) => s.firecrackerId);
+  const firingParticipantId = useFirecrackerStore((s) => s.firingParticipantId);
   const [fireworks, setFireworks] = useState<Firework[]>([]);
-  const [isJumping, setIsJumping] = useState(false);
+  const [jumpingParticipantId, setJumpingParticipantId] = useState<number | null>(null);
   const prevFirecrackerIdRef = useRef(firecrackerId);
 
   useEffect(() => {
@@ -47,21 +48,21 @@ export function usePartyMainBackground() {
     }));
 
     setFireworks((prev) => [...prev, ...newFireworks]);
-    setIsJumping(true);
+    setJumpingParticipantId(firingParticipantId);
 
     const fireworkTimer = window.setTimeout(() => {
       setFireworks((prev) => prev.filter((fw) => !newFireworks.some((nfw) => nfw.id === fw.id)));
     }, FIREWORK_DURATION);
 
     const jumpTimer = window.setTimeout(() => {
-      setIsJumping(false);
+      setJumpingParticipantId(null);
     }, 700);
 
     return () => {
       clearTimeout(fireworkTimer);
       clearTimeout(jumpTimer);
     };
-  }, [firecrackerId]);
+  }, [firecrackerId, firingParticipantId]);
 
   const rawParticipants = useMemo(
     () => participantsData?.data?.participants ?? [],
@@ -140,7 +141,7 @@ export function usePartyMainBackground() {
 
   return {
     fireworks,
-    isJumping,
+    jumpingParticipantId,
     hostParticipant,
     featuredParticipant,
     remainingParticipants,

@@ -6,12 +6,33 @@ import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 import { resolveImageUrl } from '@/utils/image';
+import type { components } from '@/types/api';
+import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
+
+type CandleBlowState = components['schemas']['CandleBlowResponse'];
+export type BurstGameState = Partial<components['schemas']['BurstGameStateResponse']> & {
+  status?: 'ACTIVE' | 'ENDED';
+};
+
+function shouldUpdateBurstGameState(
+  currentState: BurstGameState | null,
+  nextStateVersion: number | undefined,
+) {
+  if (nextStateVersion == null || currentState?.stateVersion == null) {
+    return true;
+  }
+
+  return nextStateVersion >= currentState.stateVersion;
+}
 
 export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
+  const [candleBlowState, setCandleBlowState] = useState<CandleBlowState | null>(null);
+  const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
+  const fire = useFirecrackerStore((state) => state.fire);
 
   const location = useLocation();
 
@@ -137,6 +158,57 @@ export function useLivePartySSE() {
             ]);
 
             queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+
+            return;
+          }
+
+          if (
+            event === 'candle-blow-started' ||
+            event === 'candle-blow-progress' ||
+            event === 'candle-blow-ended'
+          ) {
+            setCandleBlowState(parsed as CandleBlowState);
+
+            return;
+          }
+
+          if (
+            event === 'burst-game-started' ||
+            event === 'burst-game-progress' ||
+            event === 'burst-game-ended'
+          ) {
+            setBurstGameState((prev) => {
+              const nextStateVersion = parsed.stateVersion as number | undefined;
+
+              if (!shouldUpdateBurstGameState(prev, nextStateVersion)) {
+                return prev;
+              }
+
+              return {
+                ...prev,
+                partyId: parsed.partyId as number | undefined,
+                startedAt: parsed.startedAt as string | undefined,
+                endsAt: parsed.endsAt as string | undefined,
+                totalTapCount: parsed.totalTapCount as number | undefined,
+                myTapCount: parsed.myTapCount as number | undefined,
+                colorChanged: parsed.colorChanged as boolean | undefined,
+                stateVersion: nextStateVersion,
+                serverTime: parsed.serverTime as string | undefined,
+                remainingSeconds: parsed.remainingSeconds as number | undefined,
+                rankings: parsed.rankings as BurstGameState['rankings'],
+                ended: event === 'burst-game-ended' ? true : prev?.ended,
+                status: event === 'burst-game-ended' ? 'ENDED' : 'ACTIVE',
+              };
+            });
+
+            return;
+          }
+
+          if (event === 'fireworks') {
+            const participantId = parsed.participantId as number | undefined;
+            fire(participantId);
+
+            return;
           }
         } catch {
           console.error('[SSE] 이벤트 파싱 실패');
@@ -154,7 +226,7 @@ export function useLivePartySSE() {
     return () => {
       controller.abort();
     };
-  }, [partyId, queryClient]);
+  }, [partyId, queryClient, fire]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {
@@ -171,5 +243,7 @@ export function useLivePartySSE() {
   return {
     messages,
     addMessage,
+    candleBlowState,
+    burstGameState,
   };
 }

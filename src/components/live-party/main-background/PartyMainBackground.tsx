@@ -4,10 +4,14 @@ import partyLight from '@/assets/images/live-party/party-light.png';
 import { FloatingCharacter } from '@/components/live-party/main-background/FloatingCharacter';
 import { usePartyMainBackground } from '@/hooks/live-party/usePartyMainBackground';
 
-export function PartyMainBackground() {
+interface PartyMainBackgroundProps {
+  isBlurred?: boolean;
+}
+
+export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundProps) {
   const {
     fireworks,
-    isJumping,
+    jumpingParticipantId,
     hostParticipant,
     featuredParticipant,
     remainingParticipants,
@@ -17,7 +21,11 @@ export function PartyMainBackground() {
   } = usePartyMainBackground();
 
   return (
-    <>
+    <div
+      className={`absolute inset-0 transition-[filter] duration-300 ${
+        isBlurred ? 'pointer-events-none blur-[6px] brightness-[0.55]' : ''
+      }`}
+    >
       <img
         src={partyLight}
         aria-hidden
@@ -32,7 +40,7 @@ export function PartyMainBackground() {
             name={hostParticipant.name}
             size="xl"
             isHost
-            isJumping={isJumping}
+            isJumping={jumpingParticipantId === hostParticipant.id}
             initStyle={hostInitStyle}
           />
         )}
@@ -42,7 +50,7 @@ export function PartyMainBackground() {
             image={featuredParticipant.image}
             name={featuredParticipant.name}
             size="lg"
-            isJumping={isJumping}
+            isJumping={jumpingParticipantId === featuredParticipant.id}
             initStyle={featuredInitStyle}
           />
         )}
@@ -52,7 +60,7 @@ export function PartyMainBackground() {
             image={participant.image}
             name={participant.name}
             size="sm"
-            isJumping={isJumping}
+            isJumping={jumpingParticipantId === participant.id}
             initStyle={participantInitStyles[index]}
           />
         ))}
@@ -73,6 +81,6 @@ export function PartyMainBackground() {
       >
         <img src={cake} alt="" className="h-40 w-60" />
       </div>
-    </>
+    </div>
   );
 }
