@@ -7,6 +7,7 @@ import { HostWaitingView } from '@/components/live-party/host-waiting/HostWaitin
 import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
+import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
 import { config } from '@/config/env';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
@@ -74,8 +75,10 @@ export default function LivePartyPage() {
     });
   }
 
-  const { messages, addMessage, candleBlowState, burstGameState } = useLivePartySSE();
+  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState } =
+    useLivePartySSE();
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
 
   useEffect(() => {
@@ -85,12 +88,13 @@ export default function LivePartyPage() {
   }, [isPinataStep]);
 
   const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
-  const isPinataOverlayActive = showPinataOverlay;
+  const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
 
   const showPartyMain =
-    step !== LIVE_PARTY_STEP.ENTRY &&
-    step !== LIVE_PARTY_STEP.END &&
-    step !== LIVE_PARTY_STEP.CANDLE;
+    isPartyEnding ||
+    (step !== LIVE_PARTY_STEP.ENTRY &&
+      step !== LIVE_PARTY_STEP.END &&
+      step !== LIVE_PARTY_STEP.CANDLE);
 
   if (inviteToken && isProfileLoading) {
     return <div className="bg-blue-1000 h-svh w-full" />;
@@ -143,17 +147,22 @@ export default function LivePartyPage() {
         />
       )}
       {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
-      <StepRenderer
-        step={step}
-        onStepComplete={handleNextStep}
-        showPinataOverlay={showPinataOverlay}
-        onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
-        userRole={userRole}
-        hostName={hostName}
-        hostCharacterImage={hostCharacterImage}
-        candleBlowState={candleBlowState}
-        burstGameState={burstGameState}
-      />
+      {!isPartyEnding && (
+        <StepRenderer
+          step={step}
+          onStepComplete={handleNextStep}
+          showPinataOverlay={showPinataOverlay}
+          onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
+          userRole={userRole}
+          hostName={hostName}
+          hostCharacterImage={hostCharacterImage}
+          candleBlowState={candleBlowState}
+          burstGameState={burstGameState}
+        />
+      )}
+      {isPartyEnding && partyEndingState && (
+        <PartyEndingNotice partyEndingState={partyEndingState} />
+      )}
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
         <ChatBottomSheet
