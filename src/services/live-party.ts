@@ -1,14 +1,10 @@
-import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
-import characterBrownFullSrc from '@/assets/images/character/character-brown-full.png';
-import characterPinkFullSrc from '@/assets/images/character/character-pink-full.png';
-import characterWhiteFullSrc from '@/assets/images/character/character-white-full.png';
-import characterYellowFullSrc from '@/assets/images/character/character-yellow-full.png';
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
 import { config } from '@/config/env';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useParticipantStore } from '@/stores/useParticipantStore';
 import type { components } from '@/types/api';
 
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
@@ -17,24 +13,7 @@ type ApiResponseSubmitBurstGameTapResponse =
 type ApiResponseStartBurstGameResponse = components['schemas']['ApiResponseStartBurstGameResponse'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
 
-// TODO: API 연결 시 mock 데이터 제거
-export type ParticipantRole = 'host' | 'participant';
-
-export interface PartyParticipant {
-  id: number;
-  name: string;
-  image: string;
-  role: ParticipantRole;
-  isCurrentUser?: boolean;
-}
-
-export const MOCK_PARTY_PARTICIPANTS: PartyParticipant[] = [
-  { id: 1, name: '하파린', image: characterBlueHostSrc, role: 'host' },
-  { id: 2, name: '소다', image: characterPinkFullSrc, role: 'participant', isCurrentUser: true },
-  { id: 3, name: '민트', image: characterYellowFullSrc, role: 'participant' },
-  { id: 4, name: '버블', image: characterBrownFullSrc, role: 'participant' },
-  { id: 5, name: '구름', image: characterWhiteFullSrc, role: 'participant' },
-];
+export type PartyApiPhase = components['schemas']['PartyPhaseResult']['phase'];
 
 export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
@@ -68,8 +47,8 @@ export const realtimePartyQueries = {
     }),
 };
 
-export function useRealtimePartyState(partyId: string) {
-  return useQuery(realtimePartyQueries.state(partyId));
+export function useRealtimePartyState(partyId: string, enabled = true) {
+  return useQuery({ ...realtimePartyQueries.state(partyId), enabled: enabled && Boolean(partyId) });
 }
 
 export function usePartyParticipants(partyId: string, enabled = true) {
@@ -209,11 +188,13 @@ export function useSendChatMessage() {
 // ── 파티 참여자 목록 조회 (비회원 지원) ──
 
 export function useGetPartyParticipants(partyId: string | undefined) {
+  const participantToken = useParticipantStore((s) => s.participantToken);
+  const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+  const hasAuth = isLoggedIn || !!participantToken;
+
   return useQuery({
     queryKey: ['partyParticipants', partyId],
     queryFn: () => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
       const options =
         !isLoggedIn && participantToken
           ? { headers: { 'X-Participant-Token': participantToken } }
@@ -223,7 +204,58 @@ export function useGetPartyParticipants(partyId: string | undefined) {
         options,
       );
     },
-    enabled: !!partyId,
+    enabled: !!partyId && hasAuth,
+  });
+}
+
+// ── 파티 Phase 조회 ──
+
+export function useGetPhase(partyId: string | undefined) {
+  const participantToken = useParticipantStore((s) => s.participantToken);
+  const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+  const hasAuth = isLoggedIn || !!participantToken;
+
+  return useQuery({
+    queryKey: ['partyPhase', partyId],
+    queryFn: () => {
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.get<components['schemas']['ApiResponsePartyPhaseResult']>(
+        `/api/v1/parties/${partyId}/phase`,
+        options,
+      );
+    },
+    enabled: !!partyId && hasAuth,
+    refetchInterval: hasAuth ? 3000 : false,
+  });
+}
+
+// ── 파티 Phase 전환 ──
+
+export function useAdvancePhase() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      currentPhase,
+      participantToken,
+    }: {
+      partyId: string;
+      currentPhase: PartyApiPhase;
+      participantToken?: string | null;
+    }) => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.post<components['schemas']['ApiResponsePartyPhaseResult']>(
+        `/api/v1/parties/${partyId}/phase/advance`,
+        { currentPhase },
+        options,
+      );
+    },
   });
 }
 
