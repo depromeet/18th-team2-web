@@ -34,7 +34,7 @@ function hasLiveEnded(status?: string | null, endedAt?: string | null) {
 }
 
 export function useHostLivePartyGate(partyId: string, isHost: boolean) {
-  const { data: state } = useRealtimePartyState(partyId);
+  const { data: state } = useRealtimePartyState(partyId, isHost);
   const { data: participantsData, isLoading: isParticipantsLoading } = usePartyParticipants(
     partyId,
     isHost,
