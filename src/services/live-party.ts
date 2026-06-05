@@ -16,6 +16,8 @@ type ApiResponseSubmitBurstGameTapResponse =
   components['schemas']['ApiResponseSubmitBurstGameTapResponse'];
 type ApiResponseStartBurstGameResponse = components['schemas']['ApiResponseStartBurstGameResponse'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
+type ApiResponseRealtimePartyNextActionResult =
+  components['schemas']['ApiResponseRealtimePartyNextActionResult'];
 
 // TODO: API 연결 시 mock 데이터 제거
 export type ParticipantRole = 'host' | 'participant';
@@ -38,6 +40,7 @@ export const MOCK_PARTY_PARTICIPANTS: PartyParticipant[] = [
 
 export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
+export type RealtimePartyNextActionResult = components['schemas']['RealtimePartyNextActionResult'];
 export type PartyParticipantsResult = components['schemas']['PartyParticipantsResponse'];
 export type PartyParticipantResult = components['schemas']['PartyParticipantResponse'];
 
@@ -66,6 +69,18 @@ export const realtimePartyQueries = {
       enabled: Boolean(partyId) && enabled,
       refetchInterval: 3000,
     }),
+  nextAction: (partyId: string, participantToken?: string | null, enabled = true) =>
+    queryOptions({
+      queryKey: ['realtime-party-next-action', partyId, participantToken],
+      queryFn: async () => {
+        const res = await api.get<ApiResponseRealtimePartyNextActionResult>(
+          `/api/v1/parties/${partyId}/realtime-next-action`,
+          getParticipantTokenOptions(participantToken),
+        );
+        return res.data ?? null;
+      },
+      enabled: Boolean(partyId) && enabled,
+    }),
 };
 
 export function useRealtimePartyState(partyId: string) {
@@ -74,6 +89,14 @@ export function useRealtimePartyState(partyId: string) {
 
 export function usePartyParticipants(partyId: string, enabled = true) {
   return useQuery(realtimePartyQueries.participants(partyId, enabled));
+}
+
+export function useRealtimePartyNextAction(
+  partyId: string,
+  participantToken?: string | null,
+  enabled = true,
+) {
+  return useQuery(realtimePartyQueries.nextAction(partyId, participantToken, enabled));
 }
 
 export function useStartRealtimeEnd() {
