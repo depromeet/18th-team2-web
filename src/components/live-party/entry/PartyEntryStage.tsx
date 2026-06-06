@@ -38,7 +38,9 @@ export function PartyEntryStage({ hostName, characterImage, onComplete }: PartyE
         </T3>
       </div>
       <div className="z-1 px-4 pb-8">
-        <Button onClick={onComplete}>파티 시작하기</Button>
+        <Button variant="white" onClick={onComplete}>
+          파티 시작하기
+        </Button>
       </div>
     </div>
   );
