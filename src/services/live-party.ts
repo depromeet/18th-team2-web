@@ -1,8 +1,3 @@
-import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
-import characterBrownFullSrc from '@/assets/images/character/character-brown-full.png';
-import characterPinkFullSrc from '@/assets/images/character/character-pink-full.png';
-import characterWhiteFullSrc from '@/assets/images/character/character-white-full.png';
-import characterYellowFullSrc from '@/assets/images/character/character-yellow-full.png';
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
 import { config } from '@/config/env';
@@ -19,24 +14,7 @@ type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurst
 type ApiResponseRealtimePartyNextActionResult =
   components['schemas']['ApiResponseRealtimePartyNextActionResult'];
 
-// TODO: API 연결 시 mock 데이터 제거
-export type ParticipantRole = 'host' | 'participant';
-
-export interface PartyParticipant {
-  id: number;
-  name: string;
-  image: string;
-  role: ParticipantRole;
-  isCurrentUser?: boolean;
-}
-
-export const MOCK_PARTY_PARTICIPANTS: PartyParticipant[] = [
-  { id: 1, name: '하파린', image: characterBlueHostSrc, role: 'host' },
-  { id: 2, name: '소다', image: characterPinkFullSrc, role: 'participant', isCurrentUser: true },
-  { id: 3, name: '민트', image: characterYellowFullSrc, role: 'participant' },
-  { id: 4, name: '버블', image: characterBrownFullSrc, role: 'participant' },
-  { id: 5, name: '구름', image: characterWhiteFullSrc, role: 'participant' },
-];
+export type PartyApiPhase = components['schemas']['PartyPhaseResult']['phase'];
 
 export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
@@ -116,6 +94,52 @@ function getParticipantTokenOptions(participantToken?: string | null) {
   return !isLoggedIn && participantToken
     ? { headers: { 'X-Participant-Token': participantToken } }
     : undefined;
+}
+
+// ── Phase ──
+
+export function useGetPhase(partyId: string | undefined) {
+  return useQuery({
+    queryKey: ['partyPhase', partyId],
+    queryFn: () => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.get<components['schemas']['ApiResponsePartyPhaseResult']>(
+        `/api/v1/parties/${partyId}/phase`,
+        options,
+      );
+    },
+    enabled: !!partyId,
+  });
+}
+
+export function useAdvancePhase() {
+  return useMutation({
+    mutationFn: ({
+      partyId,
+      currentPhase,
+      participantToken,
+    }: {
+      partyId: string;
+      currentPhase: PartyApiPhase;
+      participantToken?: string | null;
+    }) => {
+      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+      const options =
+        !isLoggedIn && participantToken
+          ? { headers: { 'X-Participant-Token': participantToken } }
+          : undefined;
+      return api.post<components['schemas']['ApiResponsePartyPhaseResult']>(
+        `/api/v1/parties/${partyId}/phase/advance`,
+        { currentPhase },
+        options,
+      );
+    },
+  });
 }
 
 // ── SSE ──
