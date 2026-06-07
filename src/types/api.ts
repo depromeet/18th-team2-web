@@ -349,7 +349,7 @@ export interface paths {
          * @description 파티의 진행 중인 박터뜨리기 라운드에 터치 batch를 제출합니다.
          *
          *     `tapCount`는 1~30, `clientSequence`는 참가자별 batch 멱등성 키입니다.
-         *     중복 sequence와 종료 후 submit은 200 응답에서 `accepted=false`로 표현합니다.
+         *     카운트다운 중 요청, 중복 sequence, 종료 후 submit은 200 응답에서 `accepted=false`로 표현합니다.
          */
         post: operations["submitTaps"];
         delete?: never;
@@ -372,6 +372,7 @@ export interface paths {
          * @description 실시간 파티의 박터뜨리기 라운드를 시작합니다.
          *
          *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참여자는 `X-Participant-Token: {participantToken}` 헤더를 사용합니다.
+         *     요청 시점부터 5초 뒤를 실제 시작 시각으로 정하고, 실제 시작 시각부터 20초 동안 터치를 집계합니다.
          *     이미 active 라운드가 있으면 현재 상태를 반환하고, 종료된 라운드가 TTL 안에 남아 있으면 재시작을 막습니다.
          */
         post: operations["start"];
@@ -642,6 +643,7 @@ export interface paths {
         /**
          * 박터뜨리기 상태 및 결과 조회
          * @description partyId 기준으로 진행 중인 라운드의 현재 상태 또는 TTL 안에 남아 있는 종료 결과를 조회합니다.
+         *     카운트다운 중에도 미래의 startedAt과 실제 플레이 시간 기준 remainingSeconds를 반환합니다.
          *     진행 중에는 상위 3명 rankings를, 종료 후에는 1회 이상 터치한 참가자 전체 rankings와 최종 totalTapCount를 반환합니다.
          */
         get: operations["getState"];
@@ -1205,7 +1207,7 @@ export interface components {
              * @description 터치 batch가 반영되지 않은 이유입니다. accepted=true이면 null입니다.
              * @enum {string}
              */
-            ignoredReason?: "DUPLICATE_SEQUENCE" | "ROUND_ENDED" | "DUPLICATE_SEQUENCE" | "ROUND_ENDED";
+            ignoredReason?: "ROUND_NOT_STARTED" | "DUPLICATE_SEQUENCE" | "ROUND_ENDED" | "ROUND_NOT_STARTED" | "DUPLICATE_SEQUENCE" | "ROUND_ENDED";
             /**
              * Format: int32
              * @description 요청한 사용자의 현재 라운드 누적 터치 수입니다.
@@ -1869,7 +1871,7 @@ export interface components {
             serverTime: string;
             /**
              * Format: int64
-             * @description 서버 기준 남은 라운드 시간입니다. 종료 상태에서는 0입니다.
+             * @description 서버 기준 남은 실제 플레이 시간입니다. 카운트다운 중에는 20, 종료 상태에서는 0입니다.
              * @example 13
              */
             remainingSeconds: number;
@@ -3192,7 +3194,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description 터치 batch 처리 성공. 중복 sequence 또는 종료 후 submit도 accepted=false로 반환합니다. */
+            /** @description 터치 batch 처리 성공. 카운트다운 중 요청, 중복 sequence, 종료 후 submit도 accepted=false로 반환합니다. */
             200: {
                 headers: {
                     [name: string]: unknown;
