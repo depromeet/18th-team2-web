@@ -13,7 +13,7 @@ interface StepRendererProps {
   showPinataOverlay?: boolean;
   onReturnToPartyRoom?: () => void;
   isHost: boolean;
-  userRole: PartyUserRole; //임시 (롤링페이퍼 쓴 참여자/안 쓴 참여자/주최자 분리용)
+  userRole: PartyUserRole;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   burstGameState: BurstGameState | null;
 }

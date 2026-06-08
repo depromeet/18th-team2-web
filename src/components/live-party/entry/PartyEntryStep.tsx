@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { usePartyEnterIntro } from '@/hooks/live-party/usePartyEnterIntro';
 import { PartyCurtain } from '@/components/live-party/entry/PartyCurtain';
 import { PartyEntryContent } from '@/components/live-party/entry/PartyEntryContent';
@@ -9,7 +10,7 @@ interface PartyEntryStepProps {
   isHost: boolean;
 }
 
-export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
+export function PartyEntryStep({ onComplete, isHost: _isHost }: PartyEntryStepProps) {
   const {
     currentStep,
     isLastStep,
@@ -20,6 +21,10 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
     handleTextAnimationEnd,
     handleStart,
   } = usePartyEnterIntro();
+
+  useEffect(() => {
+    if (isCurtainOpen) onComplete?.();
+  }, [isCurtainOpen, onComplete]);
 
   return (
     <div
@@ -46,7 +51,7 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
             <PartyEntryFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
-        {isCurtainOpen && <PartyEntryStage onComplete={onComplete} isHost={isHost} />}
+        {isCurtainOpen && <PartyEntryStage />}
       </div>
     </div>
   );

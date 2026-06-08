@@ -59,7 +59,15 @@ export default function LivePartyPage() {
 
   const isPartyEnded = Boolean(partyEndingState?.ended);
 
-  const { step, partyEnd, handleNextStep, isTransitioning, goToEndStep } = useLivePartyStep({
+  const {
+    step,
+    partyEnd,
+    handleNextStep,
+    handleEntryComplete,
+    isEntryReady,
+    isTransitioning,
+    goToEndStep,
+  } = useLivePartyStep({
     partyId,
     ssePhase: currentPhase,
     isPartyEnded,
@@ -140,16 +148,19 @@ export default function LivePartyPage() {
   }, [step]);
 
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
   const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
   const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
   const showHostEndingButton =
     isHost && isPinataStep && isPinataOverlayDismissed && !isPartyEndingFlow && !partyEnd;
 
   const showPartyMain =
+    isEntryReady ||
     isPartyEnding ||
     (step !== LIVE_PARTY_STEP.ENTRY &&
       step !== LIVE_PARTY_STEP.END &&
       step !== LIVE_PARTY_STEP.CANDLE);
+  const showStartPartyButton = isEntryReady && isHost && isEntryStep && !isPartyEndingFlow;
 
   if (inviteToken && isProfileLoading) {
     return <div className="bg-blue-1000 h-svh w-full" />;
@@ -201,10 +212,10 @@ export default function LivePartyPage() {
         />
       )}
       {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
-      {!isPartyEndingFlow && (
+      {!isPartyEndingFlow && !(isEntryStep && isEntryReady) && (
         <StepRenderer
           step={step}
-          onStepComplete={handleNextStep}
+          onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
           showPinataOverlay={showPinataOverlay}
           onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
           isHost={isHost}
@@ -212,6 +223,13 @@ export default function LivePartyPage() {
           candleBlowState={candleBlowState}
           burstGameState={burstGameState}
         />
+      )}
+      {showStartPartyButton && (
+        <div className="absolute right-0 bottom-[336px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center px-4">
+          <Button type="button" size="md" className="w-auto" onClick={handleNextStep}>
+            파티 시작하기
+          </Button>
+        </div>
       )}
       {showHostEndingButton && (
         <div className="absolute right-0 bottom-[336px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center px-4">

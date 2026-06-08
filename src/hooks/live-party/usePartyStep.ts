@@ -56,6 +56,7 @@ export function useLivePartyStep({
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isEntryReady, setIsEntryReady] = useState(false);
   const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
   const { data: phaseData } = useGetPhase(partyId, enabled);
@@ -110,6 +111,16 @@ export function useLivePartyStep({
     setStep(LIVE_PARTY_STEP.END);
   }, [isPartyEnded]);
 
+  const handleEntryComplete = useCallback(() => {
+    setIsTransitioning(true);
+    window.setTimeout(() => {
+      setIsEntryReady(true);
+      window.setTimeout(() => {
+        setIsTransitioning(false);
+      }, STEP_DELAY_DURATION);
+    }, OVERLAY_FADE_DURATION);
+  }, []);
+
   const handleNextStep = () => {
     if (!partyId) return;
     advancePhase({ partyId, currentPhase: stepToApiPhase(stepRef.current) });
@@ -134,6 +145,8 @@ export function useLivePartyStep({
     partyEnd,
     showChatBottomSheet,
     handleNextStep,
+    handleEntryComplete,
+    isEntryReady,
     goToEndStep,
   };
 }

@@ -117,52 +117,6 @@ export function useAdvancePhase() {
   });
 }
 
-// ── Phase ──
-
-export function useGetPhase(partyId: string | undefined) {
-  return useQuery({
-    queryKey: ['partyPhase', partyId],
-    queryFn: () => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.get<components['schemas']['ApiResponsePartyPhaseResult']>(
-        `/api/v1/parties/${partyId}/phase`,
-        options,
-      );
-    },
-    enabled: !!partyId,
-  });
-}
-
-export function useAdvancePhase() {
-  return useMutation({
-    mutationFn: ({
-      partyId,
-      currentPhase,
-      participantToken,
-    }: {
-      partyId: string;
-      currentPhase: PartyApiPhase;
-      participantToken?: string | null;
-    }) => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.post<components['schemas']['ApiResponsePartyPhaseResult']>(
-        `/api/v1/parties/${partyId}/phase/advance`,
-        { currentPhase },
-        options,
-      );
-    },
-  });
-}
-
 // ── SSE ──
 
 export interface SSEEvent {
