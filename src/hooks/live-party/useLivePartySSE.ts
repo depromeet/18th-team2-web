@@ -232,6 +232,7 @@ export function useLivePartySSE() {
 
           if (event === 'party-phase-changed') {
             setCurrentPhase(parsed.phase as PartyApiPhase);
+            console.log('[SSE] party-phase-changed', parsed);
 
             return;
           }
