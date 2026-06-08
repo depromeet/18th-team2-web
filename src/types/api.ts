@@ -347,35 +347,12 @@ export interface paths {
         /**
          * 박터뜨리기 터치 batch 제출
          * @description 파티의 진행 중인 박터뜨리기 라운드에 터치 batch를 제출합니다.
+         *     시작 API가 아니라, 이미 CANDLE → BURST phase 전환으로 시작된 세션에 실제 박터뜨리기 입력을 반영하는 실행 API입니다.
          *
          *     `tapCount`는 1~30, `clientSequence`는 참가자별 batch 멱등성 키입니다.
          *     카운트다운 중 요청, 중복 sequence, 종료 후 submit은 200 응답에서 `accepted=false`로 표현합니다.
          */
         post: operations["submitTaps"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/parties/{partyId}/burst-game/start": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 박터뜨리기 시작
-         * @description 실시간 파티의 박터뜨리기 라운드를 시작합니다.
-         *
-         *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참여자는 `X-Participant-Token: {participantToken}` 헤더를 사용합니다.
-         *     요청 시점부터 5초 뒤를 실제 시작 시각으로 정하고, 실제 시작 시각부터 20초 동안 터치를 집계합니다.
-         *     이미 active 라운드가 있으면 현재 상태를 반환하고, 종료된 라운드가 TTL 안에 남아 있으면 재시작을 막습니다.
-         */
-        post: operations["start"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1244,58 +1221,6 @@ export interface components {
             serverTime: string;
             /** @description 진행 중 상태에서 제공되는 상위 3명입니다. */
             rankings: components["schemas"]["BurstGameRankingResponse"][];
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseStartBurstGameResponse: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status: number;
-            data?: components["schemas"]["StartBurstGameResponse"];
-        };
-        /** @description 응답 데이터 */
-        StartBurstGameResponse: {
-            /**
-             * Format: int64
-             * @description 박터뜨리기 라운드가 속한 파티 ID입니다.
-             * @example 10
-             */
-            partyId: number;
-            /**
-             * Format: int64
-             * @description 요청한 사용자의 실시간 파티 참여자 ID입니다.
-             * @example 37
-             */
-            myParticipantId: number;
-            /**
-             * Format: date-time
-             * @description 서버 기준 라운드 시작 시각입니다.
-             */
-            startedAt: string;
-            /**
-             * Format: date-time
-             * @description 서버 기준 라운드 종료 시각입니다.
-             */
-            endsAt: string;
-            /**
-             * Format: int32
-             * @description 현재 라운드의 전체 누적 터치 수입니다.
-             * @example 0
-             */
-            totalTapCount: number;
-            /**
-             * Format: int64
-             * @description 라운드 상태 변경 버전입니다. 실제 반영된 tap 또는 종료 전이마다 증가합니다.
-             * @example 0
-             */
-            stateVersion: number;
-            /**
-             * Format: date-time
-             * @description 응답 생성 시점의 서버 시각입니다.
-             */
-            serverTime: string;
         };
         /** @description 실시간 파티 생성 요청 */
         CreateRealtimePartyRequest: {
@@ -3260,95 +3185,6 @@ export interface operations {
             };
             /** @description rate limit 초과 */
             429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 서버 내부 오류 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 500,
-                     *       "error": {
-                     *         "code": "INTERNAL_SERVER_ERROR",
-                     *         "message": "서버 내부 오류가 발생했습니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    start: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description 비로그인 참여자 토큰 */
-                "X-Participant-Token"?: string;
-            };
-            path: {
-                /** @description 파티 ID */
-                partyId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 라운드 시작 또는 active 라운드 조회 성공 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ApiResponseStartBurstGameResponse"];
-                };
-            };
-            /** @description 입력값 검증 실패 */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 400,
-                     *       "error": {
-                     *         "code": "VALIDATION_ERROR",
-                     *         "message": "nickname: 닉네임은 필수입니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 인증 실패 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 파티 없음 */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 이미 종료된 라운드 */
-            409: {
                 headers: {
                     [name: string]: unknown;
                 };
