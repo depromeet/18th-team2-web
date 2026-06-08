@@ -154,12 +154,13 @@ export default function LivePartyPage() {
   const showHostEndingButton =
     isHost && isPinataStep && isPinataOverlayDismissed && !isPartyEndingFlow && !partyEnd;
 
+  const shouldShowByStep =
+    step !== LIVE_PARTY_STEP.ENTRY &&
+    step !== LIVE_PARTY_STEP.END &&
+    step !== LIVE_PARTY_STEP.CANDLE;
+
   const showPartyMain =
-    isEntryReady ||
-    isPartyEnding ||
-    (step !== LIVE_PARTY_STEP.ENTRY &&
-      step !== LIVE_PARTY_STEP.END &&
-      step !== LIVE_PARTY_STEP.CANDLE);
+    isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showStartPartyButton = isEntryReady && isHost && isEntryStep && !isPartyEndingFlow;
 
   if (inviteToken && isProfileLoading) {

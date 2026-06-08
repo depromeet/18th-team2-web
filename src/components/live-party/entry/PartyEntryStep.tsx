@@ -7,10 +7,9 @@ import { PartyEntryStage } from '@/components/live-party/entry/PartyEntryStage';
 
 interface PartyEntryStepProps {
   onComplete?: () => void;
-  isHost: boolean;
 }
 
-export function PartyEntryStep({ onComplete, isHost: _isHost }: PartyEntryStepProps) {
+export function PartyEntryStep({ onComplete }: PartyEntryStepProps) {
   const {
     currentStep,
     isLastStep,
