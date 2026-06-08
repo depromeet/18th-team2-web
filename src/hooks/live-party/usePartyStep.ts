@@ -7,11 +7,7 @@ import {
   STEP_DELAY_DURATION,
   type PartyStep,
 } from '@/constants/live-party';
-import {
-  useGetPhase,
-  useAdvancePhase,
-  type PartyApiPhase,
-} from '@/services/live-party';
+import { useGetPhase, useAdvancePhase, type PartyApiPhase } from '@/services/live-party';
 
 function apiPhaseToStep(phase: PartyApiPhase): PartyStep {
   switch (phase) {
