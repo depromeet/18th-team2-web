@@ -57,7 +57,7 @@ export const realtimePartyQueries = {
       queryFn: async () => {
         const res = await api.get<ApiResponseRealtimePartyNextActionResult>(
           `/api/v1/parties/${partyId}/realtime-next-action`,
-          getParticipantTokenOptions(participantToken),
+          getParticipantOptions(),
         );
         return res.data ?? null;
       },
