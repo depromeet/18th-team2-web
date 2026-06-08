@@ -9,7 +9,6 @@ import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
-import { config } from '@/config/env';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
@@ -23,12 +22,6 @@ import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecr
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
-
-function resolveImageUrl(url: string | null | undefined) {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -64,9 +57,6 @@ export default function LivePartyPage() {
     hostGate.celebrant?.nickname ??
     locationState?.hostName ??
     (isHost ? profile?.nickname : undefined);
-  const hostCharacterImage =
-    resolveImageUrl(hostGate.celebrant?.characterImageUrl) ??
-    (isHost ? resolveImageUrl(profile?.character?.characterImageUrl) : null);
 
   function handleInvite() {
     if (!inviteToken) return;
@@ -204,8 +194,6 @@ export default function LivePartyPage() {
           onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
           isHost={isHost}
           userRole={userRole}
-          hostName={hostName}
-          hostCharacterImage={hostCharacterImage}
           candleBlowState={candleBlowState}
           burstGameState={burstGameState}
         />

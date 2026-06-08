@@ -14,8 +14,6 @@ interface StepRendererProps {
   onReturnToPartyRoom?: () => void;
   isHost: boolean;
   userRole: PartyUserRole; //임시 (롤링페이퍼 쓴 참여자/안 쓴 참여자/주최자 분리용)
-  hostName?: string;
-  hostCharacterImage?: string | null;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   burstGameState: BurstGameState | null;
 }
@@ -27,21 +25,12 @@ export function StepRenderer({
   onReturnToPartyRoom,
   isHost,
   userRole,
-  hostName,
-  hostCharacterImage,
   candleBlowState,
   burstGameState,
 }: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
-      return (
-        <PartyEntryStep
-          isHost={isHost}
-          hostName={hostName}
-          hostCharacterImage={hostCharacterImage}
-          onComplete={onStepComplete}
-        />
-      );
+      return <PartyEntryStep isHost={isHost} onComplete={onStepComplete} />;
     case 'MUSIC':
       return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':
