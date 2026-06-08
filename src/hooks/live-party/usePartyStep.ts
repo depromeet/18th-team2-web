@@ -47,7 +47,12 @@ interface UseLivePartyStepOptions {
   enabled?: boolean;
 }
 
-export function useLivePartyStep({ partyId, ssePhase, isPartyEnded, enabled = true }: UseLivePartyStepOptions) {
+export function useLivePartyStep({
+  partyId,
+  ssePhase,
+  isPartyEnded,
+  enabled = true,
+}: UseLivePartyStepOptions) {
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);

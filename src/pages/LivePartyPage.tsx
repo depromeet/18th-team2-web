@@ -33,15 +33,25 @@ export default function LivePartyPage() {
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const hasNavigatedAfterPartyEndRef = useRef(false);
 
-  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState, currentPhase, hasParticipantToken } =
-    useLivePartySSE();
+  const {
+    messages,
+    addMessage,
+    candleBlowState,
+    burstGameState,
+    partyEndingState,
+    currentPhase,
+    hasParticipantToken,
+  } = useLivePartySSE();
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
 
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
-  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken, canFetch);
+  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
+    inviteToken,
+    canFetch,
+  );
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();

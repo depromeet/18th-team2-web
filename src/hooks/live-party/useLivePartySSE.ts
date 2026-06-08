@@ -41,8 +41,8 @@ export function useLivePartySSE() {
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
   const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
   const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
-  const [hasParticipantToken, setHasParticipantToken] = useState(
-    () => Boolean(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
+  const [hasParticipantToken, setHasParticipantToken] = useState(() =>
+    Boolean(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
   );
 
   const { partyId } = useParams<{ partyId: string }>();
