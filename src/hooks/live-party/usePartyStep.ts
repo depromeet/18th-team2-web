@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import {
   LIVE_PARTY_STEP,
@@ -26,7 +26,7 @@ export function useLivePartyStep({
   const userRole = initialUserRole;
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
     const nextStep = LIVE_PARTY_STEP_ARRAY[(currentIndex + 1) % LIVE_PARTY_STEP_ARRAY.length];
     if (step === LIVE_PARTY_STEP.ENTRY) {
@@ -45,7 +45,12 @@ export function useLivePartyStep({
     } else {
       setStep(nextStep);
     }
-  };
+  }, [onEntryComplete, step]);
+
+  const goToEndStep = useCallback(() => {
+    setIsTransitioning(false);
+    setStep(LIVE_PARTY_STEP.END);
+  }, []);
 
   const showChatBottomSheet =
     step !== LIVE_PARTY_STEP.ENTRY &&
@@ -61,5 +66,6 @@ export function useLivePartyStep({
     partyEnd,
     showChatBottomSheet,
     handleNextStep,
+    goToEndStep,
   };
 }
