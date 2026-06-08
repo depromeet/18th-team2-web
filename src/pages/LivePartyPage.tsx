@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
 import { AutoEndedBottomSheet } from '@/components/live-party/host-waiting/AutoEndedBottomSheet';
 import { HostWaitingView } from '@/components/live-party/host-waiting/HostWaitingView';
+import { Button } from '@/components/ui/Button';
 import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
+import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
 import { config } from '@/config/env';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
@@ -14,12 +16,13 @@ import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
-import { LIVE_PARTY_STEP, PARTY_USER } from '@/constants/live-party';
+import { LIVE_PARTY_STEP, PARTICIPANT_TOKEN_KEY, PARTY_USER } from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
+import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
 
 function resolveImageUrl(url: string | null | undefined) {
   if (!url) return null;
@@ -33,6 +36,8 @@ export default function LivePartyPage() {
   const navigate = useNavigate();
   const locationState = location.state as { inviteToken?: string; hostName?: string } | null;
   const inviteToken = locationState?.inviteToken ?? '';
+  const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
+  const hasNavigatedAfterPartyEndRef = useRef(false);
   const entryStorageKey = partyId ? `live-party-entry-shown:${partyId}` : '';
   const hasStoredEntryShown = entryStorageKey
     ? sessionStorage.getItem(entryStorageKey) === 'true'
@@ -43,15 +48,17 @@ export default function LivePartyPage() {
   const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken);
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
+  const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
   const hostGate = useHostLivePartyGate(partyId, isHost);
 
-  const { step, userRole, partyEnd, handleNextStep, isTransitioning } = useLivePartyStep({
-    initialStep: hasStoredEntryShown ? LIVE_PARTY_STEP.MUSIC : LIVE_PARTY_STEP.ENTRY,
-    initialUserRole: isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN,
-    onEntryComplete: () => {
-      if (entryStorageKey) sessionStorage.setItem(entryStorageKey, 'true');
-    },
-  });
+  const { step, userRole, partyEnd, handleNextStep, goToEndStep, isTransitioning } =
+    useLivePartyStep({
+      initialStep: hasStoredEntryShown ? LIVE_PARTY_STEP.MUSIC : LIVE_PARTY_STEP.ENTRY,
+      initialUserRole: isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN,
+      onEntryComplete: () => {
+        if (entryStorageKey) sessionStorage.setItem(entryStorageKey, 'true');
+      },
+    });
 
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
   const hostName =
@@ -74,9 +81,57 @@ export default function LivePartyPage() {
     });
   }
 
-  const { messages, addMessage, candleBlowState, burstGameState } = useLivePartySSE();
+  function handleStartPartyEnding() {
+    if (!partyId || !isHost) return;
+    startRealtimeEnd(partyId);
+  }
+
+  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState } =
+    useLivePartySSE();
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const isPartyEnded = Boolean(partyEndingState?.ended);
+  const isPartyEndingFlow = Boolean(partyEndingState);
+  const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
+  const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
+
+  useEffect(() => {
+    if (partyEndingState?.ended) {
+      goToEndStep();
+    }
+  }, [goToEndStep, partyEndingState?.ended]);
+
+  useEffect(() => {
+    if (!nextAction || hasNavigatedAfterPartyEndRef.current) {
+      return;
+    }
+
+    hasNavigatedAfterPartyEndRef.current = true;
+
+    if (nextAction.type === 'HOST_ROLLING_PAPER_LIST') {
+      navigate(generatePath(ROUTES.rollingPaper, { id: String(nextAction.partyId) }), {
+        replace: true,
+      });
+      return;
+    }
+
+    if (nextAction.rollingPaperWritten) {
+      navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
+        replace: true,
+        state: { inviteToken: nextAction.inviteToken },
+      });
+      return;
+    }
+
+    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+      replace: true,
+      state: {
+        completeCta: 'home',
+        inviteToken: nextAction.inviteToken,
+        hostName,
+      },
+    });
+  }, [hostName, navigate, nextAction, partyId]);
 
   useEffect(() => {
     if (!isPinataStep) {
@@ -85,12 +140,15 @@ export default function LivePartyPage() {
   }, [isPinataStep]);
 
   const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
-  const isPinataOverlayActive = showPinataOverlay;
+  const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
+  const showHostEndingButton =
+    isHost && isPinataStep && isPinataOverlayDismissed && !isPartyEndingFlow && !partyEnd;
 
   const showPartyMain =
-    step !== LIVE_PARTY_STEP.ENTRY &&
-    step !== LIVE_PARTY_STEP.END &&
-    step !== LIVE_PARTY_STEP.CANDLE;
+    isPartyEnding ||
+    (step !== LIVE_PARTY_STEP.ENTRY &&
+      step !== LIVE_PARTY_STEP.END &&
+      step !== LIVE_PARTY_STEP.CANDLE);
 
   if (inviteToken && isProfileLoading) {
     return <div className="bg-blue-1000 h-svh w-full" />;
@@ -143,17 +201,35 @@ export default function LivePartyPage() {
         />
       )}
       {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
-      <StepRenderer
-        step={step}
-        onStepComplete={handleNextStep}
-        showPinataOverlay={showPinataOverlay}
-        onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
-        userRole={userRole}
-        hostName={hostName}
-        hostCharacterImage={hostCharacterImage}
-        candleBlowState={candleBlowState}
-        burstGameState={burstGameState}
-      />
+      {!isPartyEndingFlow && (
+        <StepRenderer
+          step={step}
+          onStepComplete={handleNextStep}
+          showPinataOverlay={showPinataOverlay}
+          onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
+          userRole={userRole}
+          hostName={hostName}
+          hostCharacterImage={hostCharacterImage}
+          candleBlowState={candleBlowState}
+          burstGameState={burstGameState}
+        />
+      )}
+      {showHostEndingButton && (
+        <div className="absolute right-0 bottom-[336px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center px-4">
+          <Button
+            type="button"
+            size="md"
+            className="w-auto"
+            onClick={handleStartPartyEnding}
+            disabled={isStartingPartyEnding}
+          >
+            파티 종료 인사하기
+          </Button>
+        </div>
+      )}
+      {isPartyEnding && partyEndingState && (
+        <PartyEndingNotice partyEndingState={partyEndingState} />
+      )}
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
         <ChatBottomSheet

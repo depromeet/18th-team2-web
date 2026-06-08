@@ -22,8 +22,8 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
 
   return (
     <div
-      className={`absolute inset-0 transition-[filter] duration-300 ${
-        isBlurred ? 'pointer-events-none blur-[6px] brightness-[0.55]' : ''
+      className={`pointer-events-none absolute inset-0 transition-[filter] duration-300 ${
+        isBlurred ? 'blur-[6px] brightness-[0.55]' : ''
       }`}
     >
       <img

@@ -13,6 +13,12 @@ type CandleBlowState = components['schemas']['CandleBlowResponse'];
 export type BurstGameState = Partial<components['schemas']['BurstGameStateResponse']> & {
   status?: 'ACTIVE' | 'ENDED';
 };
+export interface RealtimePartyEndingState {
+  partyId?: number;
+  endingStartedAt?: string;
+  endedAt?: string;
+  ended: boolean;
+}
 
 function shouldUpdateBurstGameState(
   currentState: BurstGameState | null,
@@ -29,6 +35,7 @@ export function useLivePartySSE() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
   const [candleBlowState, setCandleBlowState] = useState<CandleBlowState | null>(null);
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
+  const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -204,6 +211,28 @@ export function useLivePartySSE() {
             return;
           }
 
+          if (event === 'party-ending') {
+            setPartyEndingState({
+              partyId: parsed.partyId as number | undefined,
+              endingStartedAt: parsed.endingStartedAt as string | undefined,
+              endedAt: parsed.endedAt as string | undefined,
+              ended: false,
+            });
+
+            return;
+          }
+
+          if (event === 'party-ended') {
+            setPartyEndingState((prev) => ({
+              ...prev,
+              partyId: parsed.partyId as number | undefined,
+              endedAt: parsed.endedAt as string | undefined,
+              ended: true,
+            }));
+
+            return;
+          }
+
           if (event === 'fireworks') {
             const participantId = parsed.participantId as number | undefined;
             fire(participantId);
@@ -245,5 +274,6 @@ export function useLivePartySSE() {
     addMessage,
     candleBlowState,
     burstGameState,
+    partyEndingState,
   };
 }
