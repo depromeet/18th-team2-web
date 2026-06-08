@@ -65,8 +65,8 @@ export const realtimePartyQueries = {
     }),
 };
 
-export function useRealtimePartyState(partyId: string) {
-  return useQuery(realtimePartyQueries.state(partyId));
+export function useRealtimePartyState(partyId: string, enabled = true) {
+  return useQuery({ ...realtimePartyQueries.state(partyId), enabled: Boolean(partyId) && enabled });
 }
 
 export function usePartyParticipants(partyId: string, enabled = true) {
@@ -94,7 +94,7 @@ export function useStartRealtimeEnd() {
 
 // ── Phase ──
 
-export function useGetPhase(partyId: string | undefined) {
+export function useGetPhase(partyId: string | undefined, enabled = true) {
   return useQuery({
     queryKey: ['partyPhase', partyId],
     queryFn: () =>
@@ -102,7 +102,7 @@ export function useGetPhase(partyId: string | undefined) {
         `/api/v1/parties/${partyId}/phase`,
         getParticipantOptions(),
       ),
-    enabled: !!partyId,
+    enabled: !!partyId && enabled,
   });
 }
 

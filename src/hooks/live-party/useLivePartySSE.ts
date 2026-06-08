@@ -41,6 +41,9 @@ export function useLivePartySSE() {
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
   const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
   const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
+  const [hasParticipantToken, setHasParticipantToken] = useState(
+    () => Boolean(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
+  );
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -96,7 +99,11 @@ export function useLivePartySSE() {
 
             if (token) {
               sessionStorage.setItem(PARTICIPANT_TOKEN_KEY, token);
+              setHasParticipantToken(true);
             }
+
+            queryClient.invalidateQueries({ queryKey: ['partyPhase', partyId] });
+            queryClient.invalidateQueries({ queryKey: ['realtime-profile'] });
 
             const initialMessages = ((parsed.messages as unknown[]) ?? []).map((m) => {
               const msg = m as Record<string, unknown>;
@@ -283,5 +290,6 @@ export function useLivePartySSE() {
     burstGameState,
     partyEndingState,
     currentPhase,
+    hasParticipantToken,
   };
 }

@@ -44,15 +44,16 @@ interface UseLivePartyStepOptions {
   partyId: string;
   ssePhase?: PartyApiPhase | null;
   isPartyEnded?: boolean;
+  enabled?: boolean;
 }
 
-export function useLivePartyStep({ partyId, ssePhase, isPartyEnded }: UseLivePartyStepOptions) {
+export function useLivePartyStep({ partyId, ssePhase, isPartyEnded, enabled = true }: UseLivePartyStepOptions) {
   const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
-  const { data: phaseData } = useGetPhase(partyId);
+  const { data: phaseData } = useGetPhase(partyId, enabled);
   const { mutate: advancePhase } = useAdvancePhase();
 
   const applyStepTransition = useCallback((nextStep: PartyStep) => {

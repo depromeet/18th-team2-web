@@ -11,6 +11,7 @@ import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
@@ -32,16 +33,19 @@ export default function LivePartyPage() {
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const hasNavigatedAfterPartyEndRef = useRef(false);
 
+  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState, currentPhase, hasParticipantToken } =
+    useLivePartySSE();
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const canFetch = isAuthenticated || hasParticipantToken;
+
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
-  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken);
+  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken, canFetch);
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
-  const hostGate = useHostLivePartyGate(partyId, isHost);
-
-  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState, currentPhase } =
-    useLivePartySSE();
+  const hostGate = useHostLivePartyGate(partyId, isHost, canFetch);
 
   const isPartyEnded = Boolean(partyEndingState?.ended);
 
@@ -49,6 +53,7 @@ export default function LivePartyPage() {
     partyId,
     ssePhase: currentPhase,
     isPartyEnded,
+    enabled: canFetch,
   });
 
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
