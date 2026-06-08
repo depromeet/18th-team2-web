@@ -10,7 +10,6 @@ import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePartyStore } from '@/stores/usePartyStore';
-import { resolveImageUrl } from '@/utils/image';
 
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
@@ -40,11 +39,6 @@ export function usePartyEnter() {
   const guestParticipants = beParticipants.filter((participant) => !participant.isCelebrant);
   const totalCount = guestParticipants.length;
   const maxCount = participantsResponse?.data?.maxCount ?? 0;
-  const participants = guestParticipants.map((p) => ({
-    id: p.participantId ?? 0,
-    nickname: p.nickname ?? '',
-    imageUrl: resolveImageUrl(p.characterImageUrl) ?? '',
-  }));
   const isPartyFull = maxCount > 0 && totalCount >= maxCount;
 
   // 파티 시작 시각까지 카운트다운 — liveStartAt 도달 시 입장 가능
@@ -141,7 +135,6 @@ export function usePartyEnter() {
     // 시작 시각 도달 후 "파티가 이미 진행 중이에요!" 노출
     hasPartyStarted: isReady && hasStarted,
     isPartyFull,
-    participants,
     inputValue: nickname,
     isNicknameEditable,
     inputMessage,
