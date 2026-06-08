@@ -1,54 +1,123 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   LIVE_PARTY_STEP,
-  LIVE_PARTY_STEP_ARRAY,
   OVERLAY_FADE_DURATION,
   OVERLAY_TRANSITION_STEPS,
-  PARTY_USER,
+  PARTICIPANT_TOKEN_KEY,
   STEP_DELAY_DURATION,
   type PartyStep,
-  type PartyUserRole,
 } from '@/constants/live-party';
+import {
+  useGetPhase,
+  useAdvancePhase,
+  type PartyApiPhase,
+} from '@/services/live-party';
 
-interface UseLivePartyStepOptions {
-  initialStep?: PartyStep;
-  initialUserRole?: PartyUserRole;
-  onEntryComplete?: () => void;
+function apiPhaseToStep(phase: PartyApiPhase): PartyStep {
+  switch (phase) {
+    case 'ENTRY':
+      return LIVE_PARTY_STEP.ENTRY;
+    case 'MUSIC':
+      return LIVE_PARTY_STEP.MUSIC;
+    case 'CANDLE':
+      return LIVE_PARTY_STEP.CANDLE;
+    case 'BURST':
+      return LIVE_PARTY_STEP.PINATA;
+    case 'CLOSEABLE':
+    case 'END':
+      return LIVE_PARTY_STEP.END;
+  }
 }
 
-export function useLivePartyStep({
-  initialStep = LIVE_PARTY_STEP.ENTRY,
-  initialUserRole = PARTY_USER.PARTICIPANT_NOT_WRITTEN,
-  onEntryComplete,
-}: UseLivePartyStepOptions = {}) {
-  const [step, setStep] = useState<PartyStep>(initialStep);
-  const userRole = initialUserRole;
+function stepToApiPhase(step: PartyStep): PartyApiPhase {
+  switch (step) {
+    case 'ENTRY':
+      return 'ENTRY';
+    case 'MUSIC':
+      return 'MUSIC';
+    case 'CANDLE':
+      return 'CANDLE';
+    case 'PINATA':
+      return 'BURST';
+    case 'END':
+      return 'END';
+  }
+}
+
+interface UseLivePartyStepOptions {
+  partyId: string;
+  ssePhase?: PartyApiPhase | null;
+  isPartyEnded?: boolean;
+}
+
+export function useLivePartyStep({ partyId, ssePhase, isPartyEnded }: UseLivePartyStepOptions) {
+  const [step, setStep] = useState<PartyStep>(LIVE_PARTY_STEP.ENTRY);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
-  const handleNextStep = useCallback(() => {
-    const currentIndex = LIVE_PARTY_STEP_ARRAY.indexOf(step);
-    const nextStep = LIVE_PARTY_STEP_ARRAY[(currentIndex + 1) % LIVE_PARTY_STEP_ARRAY.length];
-    if (step === LIVE_PARTY_STEP.ENTRY) {
-      onEntryComplete?.();
-    }
+  const { data: phaseData } = useGetPhase(partyId);
+  const { mutate: advancePhase } = useAdvancePhase();
 
-    if (OVERLAY_TRANSITION_STEPS.includes(step)) {
+  const applyStepTransition = useCallback((nextStep: PartyStep) => {
+    if (nextStep === stepRef.current) return;
+    const currentStep = stepRef.current;
+
+    if (OVERLAY_TRANSITION_STEPS.includes(currentStep)) {
       setIsTransitioning(true);
       window.setTimeout(() => {
+        stepRef.current = nextStep;
         setStep(nextStep);
-
         window.setTimeout(() => {
           setIsTransitioning(false);
         }, STEP_DELAY_DURATION);
       }, OVERLAY_FADE_DURATION);
     } else {
+      stepRef.current = nextStep;
       setStep(nextStep);
     }
-  }, [onEntryComplete, step]);
+  }, []);
+
+  // 초기 phase 설정 (GET /phase)
+  useEffect(() => {
+    const phase = phaseData?.data?.phase;
+
+    if (!phase || isInitialized) return;
+
+    const initialStep = apiPhaseToStep(phase);
+
+    if (stepRef.current !== LIVE_PARTY_STEP.ENTRY) {
+      return;
+    }
+
+    stepRef.current = initialStep;
+    setStep(initialStep);
+    setIsInitialized(true);
+  }, [phaseData, isInitialized]);
+
+  // SSE party-phase-changed 반영
+  useEffect(() => {
+    if (!ssePhase) return;
+    applyStepTransition(apiPhaseToStep(ssePhase));
+  }, [ssePhase, applyStepTransition]);
+
+  // SSE party-ended 반영
+  useEffect(() => {
+    if (!isPartyEnded) return;
+    stepRef.current = LIVE_PARTY_STEP.END;
+    setStep(LIVE_PARTY_STEP.END);
+  }, [isPartyEnded]);
+
+  const handleNextStep = () => {
+    if (!partyId) return;
+    const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
+    advancePhase({ partyId, currentPhase: stepToApiPhase(stepRef.current), participantToken });
+  };
 
   const goToEndStep = useCallback(() => {
     setIsTransitioning(false);
+    stepRef.current = LIVE_PARTY_STEP.END;
     setStep(LIVE_PARTY_STEP.END);
   }, []);
 
@@ -61,7 +130,6 @@ export function useLivePartyStep({
 
   return {
     step,
-    userRole,
     isTransitioning,
     partyEnd,
     showChatBottomSheet,

@@ -8,9 +8,15 @@ interface PartyEntryStageProps {
   hostName?: string;
   characterImage?: string | null;
   onComplete?: () => void;
+  isHost: boolean;
 }
 
-export function PartyEntryStage({ hostName, characterImage, onComplete }: PartyEntryStageProps) {
+export function PartyEntryStage({
+  hostName,
+  characterImage,
+  onComplete,
+  isHost,
+}: PartyEntryStageProps) {
   const hostLabel = hostName ? `${hostName}님이` : '주인공이';
 
   return (
@@ -37,9 +43,11 @@ export function PartyEntryStage({ hostName, characterImage, onComplete }: PartyE
           등장했어요!
         </T3>
       </div>
-      <div className="z-1 px-4 pb-8">
-        <Button onClick={onComplete}>파티 시작하기</Button>
-      </div>
+      {isHost && (
+        <div className="z-1 px-4 pb-8">
+          <Button onClick={onComplete}>파티 시작하기</Button>
+        </div>
+      )}
     </div>
   );
 }

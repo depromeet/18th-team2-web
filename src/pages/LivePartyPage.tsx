@@ -38,10 +38,6 @@ export default function LivePartyPage() {
   const inviteToken = locationState?.inviteToken ?? '';
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const hasNavigatedAfterPartyEndRef = useRef(false);
-  const entryStorageKey = partyId ? `live-party-entry-shown:${partyId}` : '';
-  const hasStoredEntryShown = entryStorageKey
-    ? sessionStorage.getItem(entryStorageKey) === 'true'
-    : false;
 
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
@@ -51,15 +47,18 @@ export default function LivePartyPage() {
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
   const hostGate = useHostLivePartyGate(partyId, isHost);
 
-  const { step, userRole, partyEnd, handleNextStep, goToEndStep, isTransitioning } =
-    useLivePartyStep({
-      initialStep: hasStoredEntryShown ? LIVE_PARTY_STEP.MUSIC : LIVE_PARTY_STEP.ENTRY,
-      initialUserRole: isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN,
-      onEntryComplete: () => {
-        if (entryStorageKey) sessionStorage.setItem(entryStorageKey, 'true');
-      },
-    });
+  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState, currentPhase } =
+    useLivePartySSE();
 
+  const isPartyEnded = Boolean(partyEndingState?.ended);
+
+  const { step, partyEnd, handleNextStep, isTransitioning, goToEndStep } = useLivePartyStep({
+    partyId,
+    ssePhase: currentPhase,
+    isPartyEnded,
+  });
+
+  const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
   const hostName =
     hostGate.celebrant?.nickname ??
@@ -86,10 +85,6 @@ export default function LivePartyPage() {
     startRealtimeEnd(partyId);
   }
 
-  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState } =
-    useLivePartySSE();
-  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
-  const isPartyEnded = Boolean(partyEndingState?.ended);
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
@@ -134,11 +129,12 @@ export default function LivePartyPage() {
   }, [hostName, navigate, nextAction, partyId]);
 
   useEffect(() => {
-    if (!isPinataStep) {
+    if (!step || step !== LIVE_PARTY_STEP.PINATA) {
       setIsPinataOverlayDismissed(false);
     }
-  }, [isPinataStep]);
+  }, [step]);
 
+  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
   const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
   const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
   const showHostEndingButton =
@@ -193,7 +189,6 @@ export default function LivePartyPage() {
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
-          onNextStep={handleNextStep}
           onExitClick={handleOpenExitDialog}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
@@ -207,6 +202,7 @@ export default function LivePartyPage() {
           onStepComplete={handleNextStep}
           showPinataOverlay={showPinataOverlay}
           onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
+          isHost={isHost}
           userRole={userRole}
           hostName={hostName}
           hostCharacterImage={hostCharacterImage}
@@ -240,7 +236,7 @@ export default function LivePartyPage() {
       )}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
-        isHost={userRole === PARTY_USER.HOST}
+        isHost={isHost}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
       />

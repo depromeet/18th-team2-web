@@ -8,9 +8,15 @@ interface PartyEntryStepProps {
   hostName?: string;
   hostCharacterImage?: string | null;
   onComplete?: () => void;
+  isHost: boolean;
 }
 
-export function PartyEntryStep({ hostName, hostCharacterImage, onComplete }: PartyEntryStepProps) {
+export function PartyEntryStep({
+  hostName,
+  hostCharacterImage,
+  onComplete,
+  isHost,
+}: PartyEntryStepProps) {
   const {
     currentStep,
     isLastStep,
@@ -52,6 +58,7 @@ export function PartyEntryStep({ hostName, hostCharacterImage, onComplete }: Par
             hostName={hostName}
             characterImage={hostCharacterImage}
             onComplete={onComplete}
+            isHost={isHost}
           />
         )}
       </div>
