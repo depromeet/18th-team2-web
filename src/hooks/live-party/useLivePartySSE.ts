@@ -225,6 +225,7 @@ export function useLivePartySSE() {
 
           if (event === 'party-phase-changed') {
             setCurrentPhase(parsed.phase as PartyApiPhase);
+            console.log('[SSE] party-phase-changed', parsed);
 
             return;
           }
@@ -273,11 +274,7 @@ export function useLivePartySSE() {
       return;
     }
 
-    sendMessage({
-      partyId,
-      content: text,
-      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
-    });
+    sendMessage({ partyId, content: text });
   };
 
   return {

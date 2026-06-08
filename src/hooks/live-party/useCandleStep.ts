@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { CANDLES, PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
+import { CANDLES } from '@/constants/live-party';
 import { useBlowCandle, useGetCandleBlowState } from '@/services/live-party';
 import type { components } from '@/types/api';
 
@@ -51,11 +51,7 @@ export function useCandleStep({ candleBlowState }: useCandleStepParams) {
 
     setOptimisticOffIds((prev) => new Set([...prev, candleId]));
 
-    blowCandle({
-      partyId: partyId!,
-      candleId,
-      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
-    });
+    blowCandle({ partyId: partyId!, candleId });
   };
 
   return {

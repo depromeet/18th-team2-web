@@ -4,7 +4,6 @@ import {
   LIVE_PARTY_STEP,
   OVERLAY_FADE_DURATION,
   OVERLAY_TRANSITION_STEPS,
-  PARTICIPANT_TOKEN_KEY,
   STEP_DELAY_DURATION,
   type PartyStep,
 } from '@/constants/live-party';
@@ -111,8 +110,7 @@ export function useLivePartyStep({ partyId, ssePhase, isPartyEnded }: UseLivePar
 
   const handleNextStep = () => {
     if (!partyId) return;
-    const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
-    advancePhase({ partyId, currentPhase: stepToApiPhase(stepRef.current), participantToken });
+    advancePhase({ partyId, currentPhase: stepToApiPhase(stepRef.current) });
   };
 
   const goToEndStep = useCallback(() => {

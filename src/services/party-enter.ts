@@ -2,31 +2,7 @@ import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/services/api';
 import type { components } from '@/types/api';
-
-// TODO: API 연결 시 mock 데이터 제거
-export interface Participant {
-  id: number;
-  nickname: string;
-  imageUrl: string;
-}
-
-export const MOCK_PARTICIPANTS: Participant[] = [
-  {
-    id: 1,
-    nickname: '하파린',
-    imageUrl: 'https://placehold.co/40x40',
-  },
-  {
-    id: 2,
-    nickname: '소다',
-    imageUrl: 'https://placehold.co/40x40',
-  },
-  {
-    id: 3,
-    nickname: '민트',
-    imageUrl: 'https://placehold.co/40x40',
-  },
-];
+import { getParticipantOptions } from '@/utils/headers';
 
 export type ParticipantRealtimeProfile = components['schemas']['ParticipantRealtimeProfileResult'];
 export type UpsertRealtimeProfileRequest =
@@ -39,7 +15,10 @@ export const realtimeProfileQueries = {
       queryFn: async () => {
         const res = await api.get<
           components['schemas']['ApiResponseParticipantRealtimeProfileResult']
-        >(`/api/v1/party-invites/${inviteToken}/participants/me/realtime-profile`);
+        >(
+          `/api/v1/party-invites/${inviteToken}/participants/me/realtime-profile`,
+          getParticipantOptions(),
+        );
         return res.data ?? null;
       },
       enabled: enabled && Boolean(inviteToken),
@@ -62,6 +41,7 @@ export function useUpsertMyRealtimeProfile() {
       api.put<components['schemas']['ApiResponseParticipantRealtimeProfileResult']>(
         `/api/v1/party-invites/${inviteToken}/participants/me/realtime-profile`,
         body,
+        getParticipantOptions(),
       ),
   });
 }
