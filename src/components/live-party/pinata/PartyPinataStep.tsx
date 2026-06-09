@@ -42,6 +42,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     restRankings,
     totalTapCount,
     isContentVisible,
+    isGameStarted,
     isResultVisible,
     isResultAnimated,
     pinataColor,
@@ -249,6 +250,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
       <button
         type="button"
+        disabled={!isGameStarted}
         className="pointer-events-auto mt-10 flex aspect-square w-[min(63vw,236px)] items-center justify-center rounded-full text-[34px] leading-none font-bold text-white transition-[background-color,transform,box-shadow] duration-200 ease-out active:scale-[0.97]"
         style={{ backgroundColor: pinataColor }}
         onClick={handleTapPinata}

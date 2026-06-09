@@ -10,7 +10,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
 type ApiResponseSubmitBurstGameTapResponse =
   components['schemas']['ApiResponseSubmitBurstGameTapResponse'];
-type ApiResponseStartBurstGameResponse = components['schemas']['ApiResponseStartBurstGameResponse'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
 type ApiResponseRealtimePartyNextActionResult =
   components['schemas']['ApiResponseRealtimePartyNextActionResult'];
@@ -256,17 +255,6 @@ export function useBlowCandle() {
 }
 
 // ── 박터뜨리기 ──
-
-export function useStartBurstGame() {
-  return useMutation({
-    mutationFn: ({ partyId }: { partyId: string; participantToken?: string | null }) =>
-      api.post<ApiResponseStartBurstGameResponse>(
-        `/api/v1/parties/${partyId}/burst-game/start`,
-        undefined,
-        getParticipantOptions(),
-      ),
-  });
-}
 
 export function useGetBurstGameState(
   partyId: string | undefined,
