@@ -14,7 +14,7 @@ export function HomeHeader() {
 
   return (
     <header className="flex h-11.5 items-center justify-between px-4">
-      <img src={hapalinLogo} alt="해파링 로고" className="h-7.5" />
+      <img src={hapalinLogo} alt="해파링 로고" className="h-7.5 w-26.25" />
       <div className="flex items-center gap-3">
         {import.meta.env.DEV && !isAuthenticated && (
           <button
