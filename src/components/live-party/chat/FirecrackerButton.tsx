@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 
 import FirecrackerFilledIconSvg from '@/assets/images/live-party/firecracker-filled.svg?react';
 import FirecrackerLineIconSvg from '@/assets/images/live-party/firecracker-line.svg?react';
-import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useTriggerFireworks } from '@/services/live-party';
 
 export function FirecrackerButton() {
@@ -15,10 +14,7 @@ export function FirecrackerButton() {
     setActive(true);
     setTimeout(() => setActive(false), 300);
 
-    triggerFireworks({
-      partyId: partyId!,
-      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
-    });
+    triggerFireworks({ partyId: partyId! });
   };
 
   return (

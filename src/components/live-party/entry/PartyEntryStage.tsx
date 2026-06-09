@@ -1,16 +1,26 @@
+import { useLocation, useParams } from 'react-router-dom';
+
 import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
 import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png';
-
 import { Button } from '@/components/ui/Button';
 import { T3 } from '@/components/ui/Typography';
+import { useGetPartyParticipants } from '@/services/live-party';
+import { resolveImageUrl } from '@/utils/image';
 
 interface PartyEntryStageProps {
-  hostName?: string;
-  characterImage?: string | null;
   onComplete?: () => void;
+  isHost: boolean;
 }
 
-export function PartyEntryStage({ hostName, characterImage, onComplete }: PartyEntryStageProps) {
+export function PartyEntryStage({ onComplete, isHost }: PartyEntryStageProps) {
+  const location = useLocation();
+  const hostName = (location.state as { hostName?: string } | null)?.hostName;
+
+  const { partyId } = useParams<{ partyId: string }>();
+  const { data: participantsData } = useGetPartyParticipants(partyId);
+  const celebrant = participantsData?.data?.participants.find((p) => p.isCelebrant);
+  const characterImage = resolveImageUrl(celebrant?.characterImageUrl ?? null);
+
   const hostLabel = hostName ? `${hostName}님이` : '주인공이';
 
   return (
@@ -37,9 +47,11 @@ export function PartyEntryStage({ hostName, characterImage, onComplete }: PartyE
           등장했어요!
         </T3>
       </div>
-      <div className="z-1 px-4 pb-8">
-        <Button onClick={onComplete}>파티 시작하기</Button>
-      </div>
+      {isHost && (
+        <div className="z-1 px-4 pb-8">
+          <Button onClick={onComplete}>파티 시작하기</Button>
+        </div>
+      )}
     </div>
   );
 }

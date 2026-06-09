@@ -25,7 +25,6 @@ export function usePartyExitDialog() {
     setIsExitDialogOpen(false);
 
     const from = (location.state as { from?: string } | null)?.from;
-    const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
 
     const doNavigate = () => {
       sessionStorage.removeItem(PARTICIPANT_TOKEN_KEY);
@@ -33,7 +32,7 @@ export function usePartyExitDialog() {
     };
 
     if (partyId) {
-      leaveParty({ partyId, participantToken }, { onSettled: doNavigate });
+      leaveParty({ partyId }, { onSettled: doNavigate });
     } else {
       doNavigate();
     }

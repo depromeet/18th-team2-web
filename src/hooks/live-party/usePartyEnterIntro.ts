@@ -1,8 +1,11 @@
 import { useState, type MouseEvent } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { getEntryData } from '@/constants/live-party';
 
-export function usePartyEnterIntro(hostName?: string) {
+export function usePartyEnterIntro() {
+  const location = useLocation();
+  const hostName = (location.state as { hostName?: string } | null)?.hostName;
   const [step, setStep] = useState(0);
 
   const [isExiting, setIsExiting] = useState(false);

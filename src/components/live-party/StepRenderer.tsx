@@ -12,9 +12,8 @@ interface StepRendererProps {
   onStepComplete?: () => void;
   showPinataOverlay?: boolean;
   onReturnToPartyRoom?: () => void;
-  userRole: PartyUserRole;
-  hostName?: string;
-  hostCharacterImage?: string | null;
+  isHost: boolean;
+  userRole: PartyUserRole; //임시 (롤링페이퍼 쓴 참여자/안 쓴 참여자/주최자 분리용)
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   burstGameState: BurstGameState | null;
 }
@@ -24,25 +23,24 @@ export function StepRenderer({
   onStepComplete,
   showPinataOverlay = true,
   onReturnToPartyRoom,
+  isHost,
   userRole,
-  hostName,
-  hostCharacterImage,
   candleBlowState,
   burstGameState,
 }: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
-      return (
-        <PartyEntryStep
-          hostName={hostName}
-          hostCharacterImage={hostCharacterImage}
-          onComplete={onStepComplete}
-        />
-      );
+      return <PartyEntryStep isHost={isHost} onComplete={onStepComplete} />;
     case 'MUSIC':
       return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':
-      return <PartyCandleStep onComplete={onStepComplete} candleBlowState={candleBlowState} />;
+      return (
+        <PartyCandleStep
+          isHost={isHost}
+          onComplete={onStepComplete}
+          candleBlowState={candleBlowState}
+        />
+      );
     case 'PINATA':
       return showPinataOverlay ? (
         <PartyPinataStep

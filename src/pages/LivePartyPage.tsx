@@ -9,9 +9,9 @@ import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
-import { config } from '@/config/env';
 import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
@@ -24,12 +24,6 @@ import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
 
-function resolveImageUrl(url: string | null | undefined) {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
-}
-
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
   const location = useLocation();
@@ -38,36 +32,46 @@ export default function LivePartyPage() {
   const inviteToken = locationState?.inviteToken ?? '';
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const hasNavigatedAfterPartyEndRef = useRef(false);
-  const entryStorageKey = partyId ? `live-party-entry-shown:${partyId}` : '';
-  const hasStoredEntryShown = entryStorageKey
-    ? sessionStorage.getItem(entryStorageKey) === 'true'
-    : false;
+
+  const {
+    messages,
+    addMessage,
+    candleBlowState,
+    burstGameState,
+    partyEndingState,
+    currentPhase,
+    hasParticipantToken,
+  } = useLivePartySSE();
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const canFetch = isAuthenticated || hasParticipantToken;
 
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();
-  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(inviteToken);
+  const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
+    inviteToken,
+    canFetch,
+  );
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
-  const hostGate = useHostLivePartyGate(partyId, isHost);
+  const hostGate = useHostLivePartyGate(partyId, isHost, canFetch);
 
-  const { step, userRole, partyEnd, handleNextStep, goToEndStep, isTransitioning } =
-    useLivePartyStep({
-      initialStep: hasStoredEntryShown ? LIVE_PARTY_STEP.MUSIC : LIVE_PARTY_STEP.ENTRY,
-      initialUserRole: isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN,
-      onEntryComplete: () => {
-        if (entryStorageKey) sessionStorage.setItem(entryStorageKey, 'true');
-      },
-    });
+  const isPartyEnded = Boolean(partyEndingState?.ended);
 
+  const { step, partyEnd, handleNextStep, isTransitioning, goToEndStep } = useLivePartyStep({
+    partyId,
+    ssePhase: currentPhase,
+    isPartyEnded,
+    enabled: canFetch,
+  });
+
+  const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
   const hostName =
     hostGate.celebrant?.nickname ??
     locationState?.hostName ??
     (isHost ? profile?.nickname : undefined);
-  const hostCharacterImage =
-    resolveImageUrl(hostGate.celebrant?.characterImageUrl) ??
-    (isHost ? resolveImageUrl(profile?.character?.characterImageUrl) : null);
 
   function handleInvite() {
     if (!inviteToken) return;
@@ -86,10 +90,6 @@ export default function LivePartyPage() {
     startRealtimeEnd(partyId);
   }
 
-  const { messages, addMessage, candleBlowState, burstGameState, partyEndingState } =
-    useLivePartySSE();
-  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
-  const isPartyEnded = Boolean(partyEndingState?.ended);
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
@@ -134,11 +134,12 @@ export default function LivePartyPage() {
   }, [hostName, navigate, nextAction, partyId]);
 
   useEffect(() => {
-    if (!isPinataStep) {
+    if (!step || step !== LIVE_PARTY_STEP.PINATA) {
       setIsPinataOverlayDismissed(false);
     }
-  }, [isPinataStep]);
+  }, [step]);
 
+  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
   const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
   const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
   const showHostEndingButton =
@@ -193,7 +194,6 @@ export default function LivePartyPage() {
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
-          onNextStep={handleNextStep}
           onExitClick={handleOpenExitDialog}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
@@ -207,9 +207,8 @@ export default function LivePartyPage() {
           onStepComplete={handleNextStep}
           showPinataOverlay={showPinataOverlay}
           onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
+          isHost={isHost}
           userRole={userRole}
-          hostName={hostName}
-          hostCharacterImage={hostCharacterImage}
           candleBlowState={candleBlowState}
           burstGameState={burstGameState}
         />
@@ -240,7 +239,7 @@ export default function LivePartyPage() {
       )}
       <PartyExitDialog
         isOpen={isExitDialogOpen}
-        isHost={userRole === PARTY_USER.HOST}
+        isHost={isHost}
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
       />
