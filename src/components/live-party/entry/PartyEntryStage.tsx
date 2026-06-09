@@ -2,17 +2,11 @@ import { useLocation, useParams } from 'react-router-dom';
 
 import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
 import whiteGradientBig from '@/assets/images/live-party/white-gradient-big.png';
-import { Button } from '@/components/ui/Button';
 import { T3 } from '@/components/ui/Typography';
 import { useGetPartyParticipants } from '@/services/live-party';
 import { resolveImageUrl } from '@/utils/image';
 
-interface PartyEntryStageProps {
-  onComplete?: () => void;
-  isHost: boolean;
-}
-
-export function PartyEntryStage({ onComplete, isHost }: PartyEntryStageProps) {
+export function PartyEntryStage() {
   const location = useLocation();
   const hostName = (location.state as { hostName?: string } | null)?.hostName;
 
@@ -47,11 +41,6 @@ export function PartyEntryStage({ onComplete, isHost }: PartyEntryStageProps) {
           등장했어요!
         </T3>
       </div>
-      {isHost && (
-        <div className="z-1 px-4 pb-8">
-          <Button onClick={onComplete}>파티 시작하기</Button>
-        </div>
-      )}
     </div>
   );
 }

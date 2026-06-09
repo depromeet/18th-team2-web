@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/Button';
 import { CharacterSelect } from '@/components/party-enter/CharacterSelect';
-import { ParticipantStatus } from '@/components/party-enter/ParticipantStatus';
 import { ErrorCircleFilledIcon } from '@/components/ui/icons/ErrorCircleFilledIcon';
 import { NicknameInput } from '@/components/ui/NicknameInput';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -15,7 +14,6 @@ export default function PartyEnterPage() {
     countdown,
     hasPartyStarted,
     isPartyFull,
-    participants,
     inputValue,
     isNicknameEditable,
     inputMessage,
@@ -58,7 +56,6 @@ export default function PartyEnterPage() {
             {hasPartyStarted && !isHost && (
               <B2 className="text-center font-medium text-blue-700">파티가 이미 진행 중이에요!</B2>
             )}
-            {isHost && <ParticipantStatus participants={participants} />}
             {isPartyFull && (
               <div className="bg-red-30 flex h-12 w-full items-center justify-center gap-2 rounded-xl px-4 py-2">
                 <ErrorCircleFilledIcon width={20} height={20} aria-hidden="true" />
@@ -67,7 +64,7 @@ export default function PartyEnterPage() {
             )}
             <Button
               type="submit"
-              disabled={!inputValue || isPending || isInputError || isPartyFull}
+              disabled={!inputValue || isPending || isInputError || isPartyFull || !!countdown}
             >
               파티 입장하러 가기
             </Button>
