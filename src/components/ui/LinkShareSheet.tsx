@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
-import facebookIcon from '@/assets/images/facebook.png';
-import kakaoIcon from '@/assets/images/kakao.png';
-import lineIcon from '@/assets/images/line.png';
-import naverIcon from '@/assets/images/naver.png';
-import xIcon from '@/assets/images/x.png';
+import facebookIcon from '@/assets/images/sns-logo/facebook.png';
+import kakaoIcon from '@/assets/images/sns-logo/kakao.png';
+import lineIcon from '@/assets/images/sns-logo/line.png';
+import naverIcon from '@/assets/images/sns-logo/naver.png';
+import xIcon from '@/assets/images/sns-logo/x.png';
 import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, B2, H2, L1 } from '@/components/ui/Typography';
