@@ -13,7 +13,11 @@ export interface ArchiveListItem {
   /** 파티 주인공 닉네임. BE 응답 `celebrantName`. 없으면 null */
   celebrantName?: string | null;
   date: string;
-  stamp?: StampType;
+  /**
+   * "내가 만든 파티" 필터용 — 본인 역할(HOST/PARTICIPANT).
+   * 상세 응답(ArchivePartyDetailResponse.role)과 동일한 `role` 필드를 리스트에도 노출 요청 (BE 추가 대기).
+   */
+  role?: PartyRole;
 }
 
 export interface ChatMessage {
@@ -41,5 +45,4 @@ export interface PartyDetail {
   myPaperWriterNickname?: string;
   paperCount: number;
   chatMessages: ChatMessage[];
-  stamp?: StampType;
 }

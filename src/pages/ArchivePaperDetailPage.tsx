@@ -37,7 +37,7 @@ export default function ArchivePaperDetailPage() {
   };
 
   return (
-    <ArchiveDetailLayout title={data.partyName} id={data.id} stamp={data.stamp}>
+    <ArchiveDetailLayout title={data.partyName} id={data.id}>
       <PaperInfoSection title={data.partyName} startDate={data.date} endDate={data.endDate} />
 
       {showPaperSection && (

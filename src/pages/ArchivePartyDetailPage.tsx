@@ -39,7 +39,7 @@ export default function ArchivePartyDetailPage() {
   };
 
   return (
-    <ArchiveDetailLayout title={data.partyName} id={data.id} stamp={data.stamp}>
+    <ArchiveDetailLayout title={data.partyName} id={data.id}>
       <PartyInfoSection
         partyName={data.partyName}
         date={data.date}
