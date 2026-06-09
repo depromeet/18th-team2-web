@@ -69,9 +69,11 @@ function PartyTypeCard({
         className="w-full object-contain"
         style={{ height: 110 }}
       />
-      <div className="mt-auto text-left">
+      <div className="mt-auto flex flex-col gap-[6px] text-left">
         <B1 className={`whitespace-pre-line ${textStyle}`}>{label}</B1>
-        <L1 className="text-grey-500 font-medium whitespace-pre-line">{description}</L1>
+        <L1 as="p" className="text-grey-500 leading-snug font-medium whitespace-pre-line">
+          {description}
+        </L1>
       </div>
     </button>
   );
