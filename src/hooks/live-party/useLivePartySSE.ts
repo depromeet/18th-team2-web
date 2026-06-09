@@ -205,16 +205,17 @@ export function useLivePartySSE() {
 
               return {
                 ...prev,
-                partyId: parsed.partyId as number | undefined,
-                startedAt: parsed.startedAt as string | undefined,
-                endsAt: parsed.endsAt as string | undefined,
-                totalTapCount: parsed.totalTapCount as number | undefined,
-                myTapCount: parsed.myTapCount as number | undefined,
-                colorChanged: parsed.colorChanged as boolean | undefined,
+                partyId: (parsed.partyId as number | undefined) ?? prev?.partyId,
+                startedAt: (parsed.startedAt as string | undefined) ?? prev?.startedAt,
+                endsAt: (parsed.endsAt as string | undefined) ?? prev?.endsAt,
+                totalTapCount: (parsed.totalTapCount as number | undefined) ?? prev?.totalTapCount,
+                myTapCount: (parsed.myTapCount as number | undefined) ?? prev?.myTapCount,
+                colorChanged: (parsed.colorChanged as boolean | undefined) ?? prev?.colorChanged,
                 stateVersion: nextStateVersion,
-                serverTime: parsed.serverTime as string | undefined,
-                remainingSeconds: parsed.remainingSeconds as number | undefined,
-                rankings: parsed.rankings as BurstGameState['rankings'],
+                serverTime: (parsed.serverTime as string | undefined) ?? prev?.serverTime,
+                remainingSeconds:
+                  (parsed.remainingSeconds as number | undefined) ?? prev?.remainingSeconds,
+                rankings: (parsed.rankings as BurstGameState['rankings']) ?? prev?.rankings,
                 ended: event === 'burst-game-ended' ? true : prev?.ended,
                 status: event === 'burst-game-ended' ? 'ENDED' : 'ACTIVE',
               };

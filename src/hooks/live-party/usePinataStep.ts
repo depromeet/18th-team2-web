@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import characterBlueThumb from '@/assets/images/character/character-blue-circle-thumbnail.png';
@@ -9,9 +9,11 @@ import { useGetBurstGameState } from '@/services/live-party';
 import { resolveImageUrl } from '@/utils/image';
 
 export const PINATA_DURATION_SECONDS = 20;
+export const PINATA_ONBOARDING_SECONDS = 5;
 export const MAX_COLOR_TAP_COUNT = 100;
 const CONTENT_ENTER_DELAY_MS = 420;
 const TIMER_SYNC_INTERVAL_MS = 250;
+const START_CUE_DURATION_MS = 900;
 export const RANK_ROW_GAP = 40;
 
 export interface PinataRanking {
@@ -21,6 +23,8 @@ export interface PinataRanking {
   image: string;
   isMe?: boolean;
 }
+
+export type PinataOnboardingPhase = 'intro' | 'howToPlay' | 'start';
 
 const EMPTY_RANKINGS: PinataRanking[] = [];
 
@@ -102,7 +106,10 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [isResultAnimated, setIsResultAnimated] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isStartCueVisible, setIsStartCueVisible] = useState(false);
+  const [startCountdownSeconds, setStartCountdownSeconds] = useState(PINATA_ONBOARDING_SECONDS);
   const [serverClockOffsetMs, setServerClockOffsetMs] = useState(0);
+  const startCueTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const enterTimerId = window.setTimeout(() => {
@@ -143,14 +150,32 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
 
       if (startedAt == null || endsAt == null) {
         setIsGameStarted(false);
+        setStartCountdownSeconds(PINATA_ONBOARDING_SECONDS);
         setRemainingSeconds(PINATA_DURATION_SECONDS);
         return;
       }
 
       const serverNow = Date.now() - serverClockOffsetMs;
       const hasStarted = serverNow >= startedAt;
+      const secondsUntilStart = Math.max(0, Math.ceil((startedAt - serverNow) / 1000));
 
-      setIsGameStarted(hasStarted);
+      setIsGameStarted((prev) => {
+        if (!prev && hasStarted) {
+          setIsStartCueVisible(true);
+
+          if (startCueTimerRef.current != null) {
+            window.clearTimeout(startCueTimerRef.current);
+          }
+
+          startCueTimerRef.current = window.setTimeout(() => {
+            setIsStartCueVisible(false);
+            startCueTimerRef.current = null;
+          }, START_CUE_DURATION_MS);
+        }
+
+        return hasStarted;
+      });
+      setStartCountdownSeconds(secondsUntilStart);
 
       if (!hasStarted) {
         setRemainingSeconds(PINATA_DURATION_SECONDS);
@@ -171,6 +196,14 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     isContentVisible,
     serverClockOffsetMs,
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (startCueTimerRef.current != null) {
+        window.clearTimeout(startCueTimerRef.current);
+      }
+    };
+  }, []);
 
   const serverRankings = useMemo(
     () =>
@@ -224,6 +257,13 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
 
   const pinataColor = getPinataColor(displayTapCount);
   const progressPercent = (displayRemainingSeconds / PINATA_DURATION_SECONDS) * 100;
+  const shouldShowOnboarding =
+    isContentVisible && (!isGameStarted || isStartCueVisible) && !isResultVisible;
+  const onboardingPhase: PinataOnboardingPhase = isStartCueVisible
+    ? 'start'
+    : startCountdownSeconds <= 2
+      ? 'howToPlay'
+      : 'intro';
 
   const handleTapPinata = () => {
     if (displayRemainingSeconds === 0 || !isContentVisible || !isGameStarted || isResultVisible) {
@@ -243,6 +283,9 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     totalTapCount,
     isContentVisible,
     isGameStarted,
+    shouldShowOnboarding,
+    onboardingPhase,
+    startCountdownSeconds,
     isResultVisible,
     isResultAnimated,
     pinataColor,

@@ -2,6 +2,8 @@ import ReactCanvasConfetti from 'react-canvas-confetti';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import crownIcon from '@/assets/images/icons/crown.svg';
+import pinataBurstImage from '@/assets/images/live-party/pinata-burst.png';
+import pinataCardImage from '@/assets/images/live-party/pinata-card.png';
 import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
 import {
@@ -43,6 +45,9 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     totalTapCount,
     isContentVisible,
     isGameStarted,
+    shouldShowOnboarding,
+    onboardingPhase,
+    startCountdownSeconds,
     isResultVisible,
     isResultAnimated,
     pinataColor,
@@ -81,6 +86,52 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
     return fireResultFireworks();
   }, [fireResultFireworks, isConfettiReady, isResultVisible]);
+
+  if (shouldShowOnboarding) {
+    if (onboardingPhase === 'start') {
+      return (
+        <section className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center bg-[#020419] text-white">
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(26,29,49,0.5)_0%,rgba(2,4,25,0.98)_55%)]" />
+          <h2 className="text-head-1 relative font-bold">Start!</h2>
+        </section>
+      );
+    }
+
+    return (
+      <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center bg-[linear-gradient(180deg,#3042FF_0%,#5A95FF_100%)] px-8 pt-[20.8svh] text-white">
+        {onboardingPhase === 'intro' && (
+          <>
+            <h2 className="text-head-1 text-center font-bold whitespace-pre-line">
+              이번에는 주인공을 위해{'\n'}다 같이 박을 터뜨려볼까요?
+            </h2>
+
+            <img
+              src={pinataBurstImage}
+              alt=""
+              className="mt-[12.4svh] h-auto w-[min(45vw,180px)]"
+            />
+          </>
+        )}
+
+        {onboardingPhase === 'howToPlay' && (
+          <>
+            <h2 className="text-head-1 text-center font-bold whitespace-pre-line">
+              많이 누를수록{'\n'}높은 점수를 얻을 수 있어요
+            </h2>
+
+            <img src={pinataCardImage} alt="" className="mt-[10.8svh] h-auto w-[min(68vw,252px)]" />
+          </>
+        )}
+
+        <div className="mt-auto mb-[calc(16.6svh+env(safe-area-inset-bottom))] text-center">
+          <p className="text-[32px] leading-none font-bold text-white/65">
+            {startCountdownSeconds}
+          </p>
+          <p className="text-body-2 mt-6 font-medium text-white/65">로딩 중이에요...</p>
+        </div>
+      </section>
+    );
+  }
 
   if (isResultVisible) {
     const podiumSlots = [
