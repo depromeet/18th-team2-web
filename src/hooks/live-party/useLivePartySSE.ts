@@ -3,7 +3,11 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
-import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
+import {
+  connectRealtimeParty,
+  useSendChatMessage,
+  type PartyApiPhase,
+} from '@/services/live-party';
 import type { ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 import { resolveImageUrl } from '@/utils/image';
 import type { components } from '@/types/api';
@@ -36,6 +40,10 @@ export function useLivePartySSE() {
   const [candleBlowState, setCandleBlowState] = useState<CandleBlowState | null>(null);
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
   const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
+  const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
+  const [hasParticipantToken, setHasParticipantToken] = useState(() =>
+    Boolean(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
+  );
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -91,7 +99,11 @@ export function useLivePartySSE() {
 
             if (token) {
               sessionStorage.setItem(PARTICIPANT_TOKEN_KEY, token);
+              setHasParticipantToken(true);
             }
+
+            queryClient.invalidateQueries({ queryKey: ['partyPhase', partyId] });
+            queryClient.invalidateQueries({ queryKey: ['realtime-profile'] });
 
             const initialMessages = ((parsed.messages as unknown[]) ?? []).map((m) => {
               const msg = m as Record<string, unknown>;
@@ -211,6 +223,19 @@ export function useLivePartySSE() {
             return;
           }
 
+          if (event === 'fireworks') {
+            const participantId = parsed.participantId as number | undefined;
+            fire(participantId);
+
+            return;
+          }
+
+          if (event === 'party-phase-changed') {
+            setCurrentPhase(parsed.phase as PartyApiPhase);
+
+            return;
+          }
+
           if (event === 'party-ending') {
             setPartyEndingState({
               partyId: parsed.partyId as number | undefined,
@@ -229,13 +254,6 @@ export function useLivePartySSE() {
               endedAt: parsed.endedAt as string | undefined,
               ended: true,
             }));
-
-            return;
-          }
-
-          if (event === 'fireworks') {
-            const participantId = parsed.participantId as number | undefined;
-            fire(participantId);
 
             return;
           }
@@ -262,11 +280,7 @@ export function useLivePartySSE() {
       return;
     }
 
-    sendMessage({
-      partyId,
-      content: text,
-      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
-    });
+    sendMessage({ partyId, content: text });
   };
 
   return {
@@ -275,5 +289,7 @@ export function useLivePartySSE() {
     candleBlowState,
     burstGameState,
     partyEndingState,
+    currentPhase,
+    hasParticipantToken,
   };
 }

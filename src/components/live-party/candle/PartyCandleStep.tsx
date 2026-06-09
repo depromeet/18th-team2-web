@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import ReactCanvasConfetti from 'react-canvas-confetti';
 
 import { CandleList } from '@/components/live-party/candle/CandleList';
@@ -12,15 +13,21 @@ import type { components } from '@/types/api';
 interface PartyCandleStepProps {
   onComplete?: () => void;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
+  isHost: boolean;
 }
 
-export function PartyCandleStep({ onComplete, candleBlowState }: PartyCandleStepProps) {
+export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCandleStepProps) {
   const { handleInitConfetti, fireConfetti } = useFallConfetti();
 
   const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
-    onComplete: fireConfetti,
     candleBlowState,
   });
+
+  useEffect(() => {
+    if (allCandleOff) {
+      fireConfetti();
+    }
+  }, [allCandleOff, fireConfetti]);
 
   return (
     <div className="bg-blue-1000 relative flex h-screen w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14">
@@ -30,14 +37,16 @@ export function PartyCandleStep({ onComplete, candleBlowState }: PartyCandleStep
       />
 
       <CandleOverlay opacity={glowOpacity} />
+
       <CandleTitle allCandleOff={allCandleOff} />
+
       <CandleList
         candles={CANDLES}
         isCandleOffList={isCandleOffList}
         onClickCandle={handleClickCandle}
       />
 
-      {allCandleOff && (
+      {allCandleOff && isHost && (
         <div className="absolute right-4 bottom-8 left-4 z-40 animate-[party-complete-fade-in_300ms_ease-out_forwards]">
           <Button onClick={onComplete}>다음</Button>
         </div>

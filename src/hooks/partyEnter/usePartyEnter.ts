@@ -5,11 +5,7 @@ import { ROUTES } from '@/constants/routes';
 import { ApiError } from '@/services/api';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
-import {
-  type Participant,
-  useGetMyRealtimeProfile,
-  useUpsertMyRealtimeProfile,
-} from '@/services/party-enter';
+import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
 import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -44,7 +40,7 @@ export function usePartyEnter() {
   const guestParticipants = beParticipants.filter((participant) => !participant.isCelebrant);
   const totalCount = guestParticipants.length;
   const maxCount = participantsResponse?.data?.maxCount ?? 0;
-  const participants: Participant[] = guestParticipants.map((p) => ({
+  const participants = guestParticipants.map((p) => ({
     id: p.participantId ?? 0,
     nickname: p.nickname ?? '',
     imageUrl: resolveImageUrl(p.characterImageUrl) ?? '',

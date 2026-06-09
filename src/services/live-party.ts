@@ -1,15 +1,11 @@
-import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
-import characterBrownFullSrc from '@/assets/images/character/character-brown-full.png';
-import characterPinkFullSrc from '@/assets/images/character/character-pink-full.png';
-import characterWhiteFullSrc from '@/assets/images/character/character-white-full.png';
-import characterYellowFullSrc from '@/assets/images/character/character-yellow-full.png';
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 
 import { config } from '@/config/env';
-import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { api } from '@/services/api';
-import { useAuthStore } from '@/stores/useAuthStore';
+
 import type { components } from '@/types/api';
+import { getParticipantOptions } from '@/utils/headers';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
 type ApiResponseSubmitBurstGameTapResponse =
@@ -19,24 +15,7 @@ type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurst
 type ApiResponseRealtimePartyNextActionResult =
   components['schemas']['ApiResponseRealtimePartyNextActionResult'];
 
-// TODO: API 연결 시 mock 데이터 제거
-export type ParticipantRole = 'host' | 'participant';
-
-export interface PartyParticipant {
-  id: number;
-  name: string;
-  image: string;
-  role: ParticipantRole;
-  isCurrentUser?: boolean;
-}
-
-export const MOCK_PARTY_PARTICIPANTS: PartyParticipant[] = [
-  { id: 1, name: '하파린', image: characterBlueHostSrc, role: 'host' },
-  { id: 2, name: '소다', image: characterPinkFullSrc, role: 'participant', isCurrentUser: true },
-  { id: 3, name: '민트', image: characterYellowFullSrc, role: 'participant' },
-  { id: 4, name: '버블', image: characterBrownFullSrc, role: 'participant' },
-  { id: 5, name: '구름', image: characterWhiteFullSrc, role: 'participant' },
-];
+export type PartyApiPhase = components['schemas']['PartyPhaseResult']['phase'];
 
 export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
@@ -51,18 +30,21 @@ export const realtimePartyQueries = {
       queryFn: async () => {
         const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
           `/api/v1/parties/${partyId}/realtime-state`,
+          getParticipantOptions(),
         );
         return res.data ?? null;
       },
       enabled: Boolean(partyId),
       refetchInterval: 3000,
     }),
+
   participants: (partyId: string, enabled = true) =>
     queryOptions({
       queryKey: ['party-participants', partyId],
       queryFn: async () => {
         const res = await api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
           `/api/v1/parties/${partyId}/participants`,
+          getParticipantOptions(),
         );
         return res.data ?? null;
       },
@@ -75,7 +57,7 @@ export const realtimePartyQueries = {
       queryFn: async () => {
         const res = await api.get<ApiResponseRealtimePartyNextActionResult>(
           `/api/v1/parties/${partyId}/realtime-next-action`,
-          getParticipantTokenOptions(participantToken),
+          getParticipantOptions(),
         );
         return res.data ?? null;
       },
@@ -83,8 +65,8 @@ export const realtimePartyQueries = {
     }),
 };
 
-export function useRealtimePartyState(partyId: string) {
-  return useQuery(realtimePartyQueries.state(partyId));
+export function useRealtimePartyState(partyId: string, enabled = true) {
+  return useQuery({ ...realtimePartyQueries.state(partyId), enabled: Boolean(partyId) && enabled });
 }
 
 export function usePartyParticipants(partyId: string, enabled = true) {
@@ -110,12 +92,29 @@ export function useStartRealtimeEnd() {
   });
 }
 
-function getParticipantTokenOptions(participantToken?: string | null) {
-  const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
+// ── Phase ──
 
-  return !isLoggedIn && participantToken
-    ? { headers: { 'X-Participant-Token': participantToken } }
-    : undefined;
+export function useGetPhase(partyId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['partyPhase', partyId],
+    queryFn: () =>
+      api.get<components['schemas']['ApiResponsePartyPhaseResult']>(
+        `/api/v1/parties/${partyId}/phase`,
+        getParticipantOptions(),
+      ),
+    enabled: !!partyId && enabled,
+  });
+}
+
+export function useAdvancePhase() {
+  return useMutation({
+    mutationFn: ({ partyId, currentPhase }: { partyId: string; currentPhase: PartyApiPhase }) =>
+      api.post<components['schemas']['ApiResponsePartyPhaseResult']>(
+        `/api/v1/parties/${partyId}/phase/advance`,
+        { currentPhase },
+        getParticipantOptions(),
+      ),
+  });
 }
 
 // ── SSE ──
@@ -206,26 +205,12 @@ function parseSSEBuffer(buffer: string): { events: SSEEvent[]; remaining: string
 
 export function useSendChatMessage() {
   return useMutation({
-    mutationFn: ({
-      partyId,
-      content,
-      participantToken,
-    }: {
-      partyId: string;
-      content: string;
-      participantToken?: string | null;
-    }) => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.post<components['schemas']['ApiResponseChatMessageResponse']>(
+    mutationFn: ({ partyId, content }: { partyId: string; content: string }) =>
+      api.post<components['schemas']['ApiResponseChatMessageResponse']>(
         `/api/v1/parties/${partyId}/chat-messages`,
         { content },
-        options,
-      );
-    },
+        getParticipantOptions(),
+      ),
   });
 }
 
@@ -234,18 +219,11 @@ export function useSendChatMessage() {
 export function useGetPartyParticipants(partyId: string | undefined) {
   return useQuery({
     queryKey: ['partyParticipants', partyId],
-    queryFn: () => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
+    queryFn: () =>
+      api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
         `/api/v1/parties/${partyId}/participants`,
-        options,
-      );
-    },
+        getParticipantOptions(),
+      ),
     enabled: !!partyId,
   });
 }
@@ -255,18 +233,11 @@ export function useGetPartyParticipants(partyId: string | undefined) {
 export function useGetCandleBlowState(partyId: string | undefined) {
   return useQuery({
     queryKey: ['candleBlowState', partyId],
-    queryFn: () => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.get<components['schemas']['ApiResponseCandleBlowResponse']>(
+    queryFn: () =>
+      api.get<components['schemas']['ApiResponseCandleBlowResponse']>(
         `/api/v1/parties/${partyId}/candle-blow`,
-        options,
-      );
-    },
+        getParticipantOptions(),
+      ),
     enabled: !!partyId,
   });
 }
@@ -275,26 +246,12 @@ export function useGetCandleBlowState(partyId: string | undefined) {
 
 export function useBlowCandle() {
   return useMutation({
-    mutationFn: ({
-      partyId,
-      candleId,
-      participantToken,
-    }: {
-      partyId: string;
-      candleId: number;
-      participantToken?: string | null;
-    }) => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.post<components['schemas']['ApiResponseCandleBlowResponse']>(
+    mutationFn: ({ partyId, candleId }: { partyId: string; candleId: number }) =>
+      api.post<components['schemas']['ApiResponseCandleBlowResponse']>(
         `/api/v1/parties/${partyId}/candle-blow/candles/${candleId}`,
         undefined,
-        options,
-      );
-    },
+        getParticipantOptions(),
+      ),
   });
 }
 
@@ -302,31 +259,25 @@ export function useBlowCandle() {
 
 export function useStartBurstGame() {
   return useMutation({
-    mutationFn: ({
-      partyId,
-      participantToken,
-    }: {
-      partyId: string;
-      participantToken?: string | null;
-    }) =>
+    mutationFn: ({ partyId }: { partyId: string; participantToken?: string | null }) =>
       api.post<ApiResponseStartBurstGameResponse>(
         `/api/v1/parties/${partyId}/burst-game/start`,
         undefined,
-        getParticipantTokenOptions(participantToken),
+        getParticipantOptions(),
       ),
   });
 }
 
 export function useGetBurstGameState(
   partyId: string | undefined,
-  participantToken?: string | null,
+  _participantToken?: string | null,
 ) {
   return useQuery({
-    queryKey: ['burstGameState', partyId, participantToken],
+    queryKey: ['burstGameState', partyId],
     queryFn: () =>
       api.get<ApiResponseBurstGameStateResponse>(
         `/api/v1/parties/${partyId}/burst-game`,
-        getParticipantTokenOptions(participantToken),
+        getParticipantOptions(),
       ),
     enabled: !!partyId,
   });
@@ -337,7 +288,6 @@ export function useSubmitBurstGameTaps() {
     mutationFn: ({
       partyId,
       body,
-      participantToken,
     }: {
       partyId: string;
       body: SubmitBurstGameTapRequest;
@@ -346,7 +296,7 @@ export function useSubmitBurstGameTaps() {
       api.post<ApiResponseSubmitBurstGameTapResponse>(
         `/api/v1/parties/${partyId}/burst-game/taps`,
         body,
-        getParticipantTokenOptions(participantToken),
+        getParticipantOptions(),
       ),
   });
 }
@@ -355,20 +305,8 @@ export function useSubmitBurstGameTaps() {
 
 export function useTriggerFireworks() {
   return useMutation({
-    mutationFn: ({
-      partyId,
-      participantToken,
-    }: {
-      partyId: string;
-      participantToken?: string | null;
-    }) => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.post<void>(`/api/v1/parties/${partyId}/fireworks`, undefined, options);
-    },
+    mutationFn: ({ partyId }: { partyId: string }) =>
+      api.post<void>(`/api/v1/parties/${partyId}/fireworks`, undefined, getParticipantOptions()),
   });
 }
 
@@ -376,19 +314,7 @@ export function useTriggerFireworks() {
 
 export function useLeaveParty() {
   return useMutation({
-    mutationFn: ({
-      partyId,
-      participantToken,
-    }: {
-      partyId: string;
-      participantToken?: string | null;
-    }) => {
-      const isLoggedIn = Boolean(useAuthStore.getState().accessToken);
-      const options =
-        !isLoggedIn && participantToken
-          ? { headers: { 'X-Participant-Token': participantToken } }
-          : undefined;
-      return api.delete<void>(`/api/v1/parties/${partyId}/realtime-participants`, options);
-    },
+    mutationFn: ({ partyId }: { partyId: string }) =>
+      api.delete<void>(`/api/v1/parties/${partyId}/realtime-participants`, getParticipantOptions()),
   });
 }

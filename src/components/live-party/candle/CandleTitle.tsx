@@ -1,4 +1,4 @@
-import { T3 } from '@/components/ui/Typography';
+import { H4, T3 } from '@/components/ui/Typography';
 
 interface CandleTitleProps {
   allCandleOff: boolean;
@@ -6,18 +6,18 @@ interface CandleTitleProps {
 
 export function CandleTitle({ allCandleOff }: CandleTitleProps) {
   return (
-    <T3 className="relative text-center text-white">
+    <>
       {allCandleOff ? (
-        <>
+        <T3 className="relative text-center text-white">
           후~ <br />
           모든 촛불이 꺼졌어요
-        </>
+        </T3>
       ) : (
-        <>
-          촛불을 클릭해서 <br />
-          모두 꺼 주세요
-        </>
+        <div className="relative flex flex-col gap-3 text-center">
+          <T3 className="text-white">촛불을 눌러서 꺼주세요!</T3>
+          <H4 className="text-grey-200">참여자 모두가 함께 끌 수 있어요</H4>
+        </div>
       )}
-    </T3>
+    </>
   );
 }

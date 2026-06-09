@@ -33,11 +33,11 @@ function hasLiveEnded(status?: string | null, endedAt?: string | null) {
   return endAt.isValid() && endAt.valueOf() <= Date.now();
 }
 
-export function useHostLivePartyGate(partyId: string, isHost: boolean) {
-  const { data: state } = useRealtimePartyState(partyId);
+export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch = true) {
+  const { data: state } = useRealtimePartyState(partyId, canFetch);
   const { data: participantsData, isLoading: isParticipantsLoading } = usePartyParticipants(
     partyId,
-    isHost,
+    isHost && canFetch,
   );
   const { mutate: startRealtimeEnd, data: startedEnd } = useStartRealtimeEnd();
 

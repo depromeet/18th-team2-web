@@ -19,7 +19,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     ...((options?.headers as Record<string, string>) ?? {}),
   };
 
-  if (token) {
+  if (token && !headers['X-Participant-Token']) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 

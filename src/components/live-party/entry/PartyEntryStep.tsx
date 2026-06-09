@@ -5,12 +5,11 @@ import { PartyEntryFooter } from '@/components/live-party/entry/PartyEntryFooter
 import { PartyEntryStage } from '@/components/live-party/entry/PartyEntryStage';
 
 interface PartyEntryStepProps {
-  hostName?: string;
-  hostCharacterImage?: string | null;
   onComplete?: () => void;
+  isHost: boolean;
 }
 
-export function PartyEntryStep({ hostName, hostCharacterImage, onComplete }: PartyEntryStepProps) {
+export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
   const {
     currentStep,
     isLastStep,
@@ -20,7 +19,7 @@ export function PartyEntryStep({ hostName, hostCharacterImage, onComplete }: Par
     handleClick,
     handleTextAnimationEnd,
     handleStart,
-  } = usePartyEnterIntro(hostName);
+  } = usePartyEnterIntro();
 
   return (
     <div
@@ -47,13 +46,7 @@ export function PartyEntryStep({ hostName, hostCharacterImage, onComplete }: Par
             <PartyEntryFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
-        {isCurtainOpen && (
-          <PartyEntryStage
-            hostName={hostName}
-            characterImage={hostCharacterImage}
-            onComplete={onComplete}
-          />
-        )}
+        {isCurtainOpen && <PartyEntryStage onComplete={onComplete} isHost={isHost} />}
       </div>
     </div>
   );
