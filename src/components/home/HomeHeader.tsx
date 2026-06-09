@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-import hapalinLogo from '@/assets/images/hapalin-logo.png';
+import hapalinLogo from '@/assets/images/common/hapalin-logo.png';
 import iconPerson from '@/assets/icons/icon-person.svg';
 import { ROUTES } from '@/constants/routes';
 import { useDevToken, useLogout } from '@/services/auth';

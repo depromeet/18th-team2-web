@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import hapalinPartyCard from '@/assets/images/hapalin-party-card.png';
+import hapalinPartyCard from '@/assets/images/common/hapalin-party-card.png';
 import { B1, L1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 

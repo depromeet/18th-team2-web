@@ -1,4 +1,4 @@
-import hapalinPartyCard from '@/assets/images/hapalin-party-card.png';
+import hapalinPartyCard from '@/assets/images/common/hapalin-party-card.png';
 import { PartyEndText } from '@/components/live-party/end/PartyEndText';
 import { type PartyUserRole } from '@/constants/live-party';
 import { PartyEndButton } from '@/components/live-party/end/PartyEndButton';
