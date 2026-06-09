@@ -1,41 +1,45 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import CheckCircleFilledSvg from '@/assets/images/icons/check-circle-filled.svg?react';
+import CheckCircleFilledGreySvg from '@/assets/images/icons/check-circle-filled-grey.svg?react';
+import livePartyImg from '@/assets/images/create-party/live-party.svg';
+import livePartyInactiveImg from '@/assets/images/create-party/live-party-inactive.svg';
+import rollingPaperImg from '@/assets/images/create-party/rolling-paper.svg';
+import rollingPaperInactiveImg from '@/assets/images/create-party/rolling-paper-inactive.svg';
 import { Button } from '@/components/ui/Button';
-import { CheckIcon } from '@/components/ui/icons/CheckIcon';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { T4, B1 } from '@/components/ui/Typography';
+import { T4, B1, L1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
+import { CheckCircleFilledIcon } from '@/components/ui/icons/CheckCircleFilledIcon';
 
 type PartyType = 'live' | 'rolling';
 type CardState = 'default' | 'selected' | 'inactive';
 
 function CheckCircle({ state }: { state: CardState }) {
   if (state === 'selected') {
-    return <CheckCircleFilledSvg />;
+    return <CheckCircleFilledIcon />;
   }
 
-  const checkColorClass = state === 'inactive' ? 'text-grey-200' : 'text-grey-500';
-
-  return (
-    <div className="relative shrink-0" style={{ width: 32, height: 32 }}>
-      <div
-        className="absolute rounded-full bg-white"
-        style={{ width: 26.67, height: 26.67, top: 2.67, left: 2.67 }}
-      />
-      <CheckIcon width={32} height={32} className={`absolute inset-0 ${checkColorClass}`} />
-    </div>
-  );
+  return <CheckCircleFilledGreySvg />;
 }
 
 interface PartyTypeCardProps {
   label: string;
+  description: string;
   state: CardState;
+  activeImage: string;
+  inactiveImage: string;
   onClick: () => void;
 }
 
-function PartyTypeCard({ label, state, onClick }: PartyTypeCardProps) {
+function PartyTypeCard({
+  label,
+  description,
+  state,
+  activeImage,
+  inactiveImage,
+  onClick,
+}: PartyTypeCardProps) {
   const cardStyle = {
     default: 'border border-transparent bg-grey-30',
     selected: 'border border-blue-500 bg-blue-30',
@@ -43,27 +47,31 @@ function PartyTypeCard({ label, state, onClick }: PartyTypeCardProps) {
   }[state];
 
   const textStyle = {
-    default: 'text-grey-900 font-medium',
-    selected: 'text-blue-600 font-bold',
-    inactive: 'text-grey-300 font-medium',
+    default: 'text-black font-semibold',
+    selected: 'text-black font-bold',
+    inactive: 'text-grey-600 font-semibold',
   }[state];
 
   return (
     <button
       type="button"
       onClick={onClick}
-      style={{ width: 162, height: 257 }}
-      className={`rounded-btn-md relative transition-colors ${cardStyle}`}
+      style={{ width: 166, height: 274 }}
+      className={`rounded-btn-md flex flex-col gap-5 px-3 py-4 transition-colors ${cardStyle}`}
     >
-      <div className="absolute top-4 right-4">
+      <div className="flex justify-end">
         <CheckCircle state={state} />
       </div>
-      {/* TODO: 에셋 준비되면 이미지 컴포넌트로 교체 */}
-      <div className="absolute" style={{ top: 68, left: 16 }}>
-        <div style={{ width: 130, height: 110 }} className="rounded-md bg-white" />
-      </div>
-      <div className="absolute right-4 bottom-4 left-4 text-left">
+      <img
+        src={state === 'inactive' ? inactiveImage : activeImage}
+        alt=""
+        aria-hidden
+        className="w-full object-contain"
+        style={{ height: 110 }}
+      />
+      <div className="mt-auto text-left">
         <B1 className={`whitespace-pre-line ${textStyle}`}>{label}</B1>
+        <L1 className="text-grey-500 font-medium whitespace-pre-line">{description}</L1>
       </div>
     </button>
   );
@@ -93,15 +101,21 @@ export default function PartyTypePage() {
       <PageHeader />
       <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
         <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-2">
           <PartyTypeCard
-            label={'라이브 파티와\n롤링페이퍼 받기'}
+            label="라이브 파티 열기"
+            description={`함께 짧게 축하하고, \n 롤링 페이퍼도 받아보세요`}
             state={getCardState('live', selected)}
+            activeImage={livePartyImg}
+            inactiveImage={livePartyInactiveImg}
             onClick={() => toggle('live')}
           />
           <PartyTypeCard
             label="롤링페이퍼만 받기"
+            description={`파티 없이 편지만 \n 받을 수 있어요`}
             state={getCardState('rolling', selected)}
+            activeImage={rollingPaperImg}
+            inactiveImage={rollingPaperInactiveImg}
             onClick={() => toggle('rolling')}
           />
         </div>
