@@ -14,6 +14,7 @@ import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
 interface PartyInvitationViewProps {
   partyId: string;
@@ -65,7 +66,7 @@ export function PartyInvitationView({
 
   function handleWriteRollingPaper() {
     setHasWrittenRollingPaper(true);
-    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+    navigate(buildRollingPaperWritePath(partyId, inviteToken), {
       state: {
         completeCta: 'invite',
         invitePath: window.location.pathname,

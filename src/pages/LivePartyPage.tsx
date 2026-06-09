@@ -23,6 +23,7 @@ import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecr
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
+import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -131,7 +132,7 @@ export default function LivePartyPage() {
       return;
     }
 
-    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+    navigate(buildRollingPaperWritePath(partyId, nextAction.inviteToken), {
       replace: true,
       state: {
         completeCta: 'home',
