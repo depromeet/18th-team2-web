@@ -22,7 +22,15 @@ export function PartyEntryStep({ onComplete }: PartyEntryStepProps) {
   } = usePartyEnterIntro();
 
   useEffect(() => {
-    if (isCurtainOpen) onComplete?.();
+    if (!isCurtainOpen) return;
+
+    const timer = window.setTimeout(() => {
+      onComplete?.();
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [isCurtainOpen, onComplete]);
 
   return (
