@@ -51,7 +51,7 @@ export function FloatingCharacter({
 
   return (
     <div
-      className="absolute cursor-pointer"
+      className="pointer-events-auto absolute cursor-pointer"
       style={{ left: initStyle.left, top: initStyle.top, bottom: initStyle.bottom }}
       onClick={handleClick}
     >
