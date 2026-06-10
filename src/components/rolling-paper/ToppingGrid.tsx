@@ -4,9 +4,9 @@ import type { Swiper as SwiperType } from 'swiper/types';
 import 'swiper/css';
 
 import type { RollingPaperMessage, ToppingType } from '@/services/rolling-paper';
-import toppingCherry from '@/assets/images/topping-cherry.png';
-import toppingStrawberry from '@/assets/images/topping-strawberry.png';
-import toppingCandle from '@/assets/images/topping-candle.png';
+import toppingCherry from '@/assets/images/rolling-paper/topping-cherry.png';
+import toppingStrawberry from '@/assets/images/rolling-paper/topping-strawberry.png';
+import toppingCandle from '@/assets/images/rolling-paper/topping-candle.png';
 import { L1 } from '@/components/ui/Typography';
 import { PageIndicator } from '@/components/rolling-paper/PageIndicator';
 

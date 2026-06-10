@@ -1,4 +1,4 @@
-import kakaoShareImage from '@/assets/images/hapalin-party-card.png';
+import kakaoShareImage from '@/assets/images/common/hapalin-party-card.png';
 import { config } from '@/config/env';
 
 const KAKAO_SDK_SRC = 'https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js';
