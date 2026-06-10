@@ -210,7 +210,6 @@ export function useLivePartySSE() {
                 endsAt: (parsed.endsAt as string | undefined) ?? prev?.endsAt,
                 totalTapCount: (parsed.totalTapCount as number | undefined) ?? prev?.totalTapCount,
                 myTapCount: (parsed.myTapCount as number | undefined) ?? prev?.myTapCount,
-                colorChanged: (parsed.colorChanged as boolean | undefined) ?? prev?.colorChanged,
                 stateVersion: nextStateVersion,
                 serverTime: (parsed.serverTime as string | undefined) ?? prev?.serverTime,
                 remainingSeconds:
