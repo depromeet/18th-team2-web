@@ -23,6 +23,7 @@ import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecr
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
+import { Loading } from '@/components/ui/Loading';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -203,6 +204,7 @@ export default function LivePartyPage() {
     <div
       className={`relative h-svh w-full max-w-[600px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
     >
+      {!canFetch && <Loading />}
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
