@@ -1,6 +1,6 @@
-import candleImg from '@/assets/images/topping-candle.png';
-import cherryImg from '@/assets/images/topping-cherry.png';
-import strawberryImg from '@/assets/images/topping-strawberry.png';
+import candleImg from '@/assets/images/rolling-paper/topping-candle.png';
+import cherryImg from '@/assets/images/rolling-paper/topping-cherry.png';
+import strawberryImg from '@/assets/images/rolling-paper/topping-strawberry.png';
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';

@@ -3,7 +3,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { L1 } from '@/components/ui/Typography';
+import { H2, L1 } from '@/components/ui/Typography';
 import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
@@ -117,11 +117,7 @@ function HomePage() {
           </div>
         )}
         <div className="flex flex-col gap-2.25 px-4 py-5">
-          <h2 className="text-head-2 font-bold tracking-tight">
-            오늘은 누구의 생일을
-            <br />
-            축하해볼까요?
-          </h2>
+          <H2 className="tracking-tight">내 생일을 위한 파티를 열어보세요</H2>
           <L1 className="text-grey-400 font-medium">
             축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요
           </L1>

@@ -1,7 +1,7 @@
 import CheckCircleFilledIcon from '@/assets/images/icons/check-circle-filled.svg?react';
-import candleImg from '@/assets/images/topping-candle.png';
-import cherryImg from '@/assets/images/topping-cherry.png';
-import strawberryImg from '@/assets/images/topping-strawberry.png';
+import candleImg from '@/assets/images/rolling-paper/topping-candle.png';
+import cherryImg from '@/assets/images/rolling-paper/topping-cherry.png';
+import strawberryImg from '@/assets/images/rolling-paper/topping-strawberry.png';
 import type { ToppingType } from '@/services/rolling-paper';
 
 interface ToppingOption {
