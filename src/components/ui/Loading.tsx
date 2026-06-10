@@ -7,7 +7,7 @@ interface LoadingProps {
 export function Loading({ variant = 'overlay' }: LoadingProps) {
   if (variant === 'white') {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 bg-white">
+      <div className="flex h-full min-h-screen flex-col items-center justify-center gap-2 bg-white">
         {/** TODO: 로딩 이미지 추가 */}
         <div className="h-38.75 w-38.75 bg-amber-200">이미지 자리</div>
         <B1 as="p" className="text-grey-400">
