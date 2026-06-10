@@ -1,4 +1,4 @@
-import giftImage from '@/assets/images/gift.png';
+import giftImage from '@/assets/images/rolling-paper/gift.png';
 import { Button } from '@/components/ui/Button';
 import { H3, B1 } from '@/components/ui/Typography';
 
