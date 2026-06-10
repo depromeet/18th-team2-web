@@ -13,6 +13,14 @@ interface PartyEndingNoticeProps {
   partyEndingState: RealtimePartyEndingState;
 }
 
+function getTitleMessage({ endingReason, hostNickname }: RealtimePartyEndingState) {
+  if (endingReason === 'HOST_LEFT') {
+    return `${hostNickname ?? '주최자'}님이 파티를 떠났어요`;
+  }
+
+  return '파티가 모두 끝났어요!';
+}
+
 function getRemainingSeconds({ endedAt, endingStartedAt }: RealtimePartyEndingState) {
   if (endedAt) {
     const endTime = parseKstDateTime(endedAt);
@@ -67,7 +75,9 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
 
   const content = useMemo(() => {
     if (noticeStep === 'title') {
-      return <H2 className="text-center font-bold text-white">파티가 모두 끝났어요!</H2>;
+      return (
+        <H2 className="text-center font-bold text-white">{getTitleMessage(partyEndingState)}</H2>
+      );
     }
 
     if (noticeStep === 'thanks') {
@@ -82,7 +92,7 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
         <B1 className="font-semibold text-white">마무리 인사를 해주세요</B1>
       </div>
     );
-  }, [noticeStep, remainingSeconds]);
+  }, [noticeStep, partyEndingState, remainingSeconds]);
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[360px] z-20 mx-auto flex w-full max-w-[600px] justify-center px-6">
