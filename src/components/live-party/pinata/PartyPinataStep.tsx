@@ -323,7 +323,6 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
               displayTapCount === 0
                 ? `linear-gradient(#000000B2, #000000B2), ${pinataBackground}`
                 : pinataBackground,
-            backgroundBlendMode: displayTapCount === 0 ? 'normal, multiply' : 'normal',
           } as PinataStyleProperties
         }
         className={`pointer-events-auto mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 rounded-[600px] border bg-[image:var(--pinata-background)] text-[34px] leading-none font-bold text-white transition-[background,transform,box-shadow] duration-200 ease-out active:scale-[0.97] ${
