@@ -105,30 +105,40 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     }
 
     return (
-      <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center bg-[linear-gradient(180deg,#3042FF_0%,#5A95FF_100%)] px-8 pt-[20.8svh] text-white">
-        {onboardingPhase === 'intro' && (
-          <>
-            <h2 className="text-head-1 text-center font-bold whitespace-pre-line">
-              이번에는 주인공을 위해{'\n'}다 같이 박을 터뜨려볼까요?
-            </h2>
+      <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center bg-[linear-gradient(180deg,#3042FF_0%,#5A95FF_100%)] text-white">
+        <div
+          className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ease-in-out ${
+            onboardingPhase === 'intro' ? 'opacity-100' : 'opacity-0'
+          }`}
+          aria-hidden={onboardingPhase !== 'intro'}
+        >
+          <h2 className="absolute top-[169px] left-1/2 h-16 w-[295px] -translate-x-1/2 text-center text-[24px] leading-8 font-bold tracking-[0] whitespace-pre-line">
+            이번에는 주인공을 위해{'\n'}다 같이 박을 터뜨려볼까요?
+          </h2>
 
-            <img
-              src={pinataBurstImage}
-              alt=""
-              className="mt-[12.4svh] h-auto w-[min(45vw,180px)]"
-            />
-          </>
-        )}
+          <img
+            src={pinataBurstImage}
+            alt=""
+            className="absolute top-[267px] left-1/2 h-[260px] w-[260px] -translate-x-1/2 object-contain"
+          />
+        </div>
 
-        {onboardingPhase === 'howToPlay' && (
-          <>
-            <h2 className="text-head-1 text-center font-bold whitespace-pre-line">
-              많이 누를수록{'\n'}높은 점수를 얻을 수 있어요
-            </h2>
+        <div
+          className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ease-in-out ${
+            onboardingPhase === 'howToPlay' ? 'opacity-100' : 'opacity-0'
+          }`}
+          aria-hidden={onboardingPhase !== 'howToPlay'}
+        >
+          <h2 className="absolute top-[169px] left-1/2 h-16 w-[295px] -translate-x-1/2 text-center text-[24px] leading-8 font-bold tracking-[0] whitespace-pre-line">
+            많이 누를수록{'\n'}높은 점수를 얻을 수 있어요
+          </h2>
 
-            <img src={pinataCardImage} alt="" className="mt-[10.8svh] h-auto w-[min(68vw,252px)]" />
-          </>
-        )}
+          <img
+            src={pinataCardImage}
+            alt=""
+            className="absolute top-[267px] left-1/2 h-[260px] w-[260px] -translate-x-1/2 object-contain"
+          />
+        </div>
 
         <div className="mt-auto mb-[calc(16.6svh+env(safe-area-inset-bottom))] text-center">
           <p className="text-[32px] leading-none font-bold text-white/65">
