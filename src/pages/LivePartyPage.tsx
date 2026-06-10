@@ -67,6 +67,7 @@ export default function LivePartyPage() {
     handleEntryComplete,
     isEntryReady,
     isTransitioning,
+    isInitialized,
     goToEndStep,
   } = useLivePartyStep({
     partyId,
@@ -204,7 +205,7 @@ export default function LivePartyPage() {
     <div
       className={`relative h-svh w-full max-w-[600px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
     >
-      {!canFetch && <Loading />}
+      {(!canFetch || !isInitialized) && <Loading />}
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader

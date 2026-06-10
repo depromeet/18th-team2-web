@@ -89,12 +89,11 @@ export function useLivePartyStep({
 
     const initialStep = apiPhaseToStep(phase);
 
-    if (stepRef.current !== LIVE_PARTY_STEP.ENTRY) {
-      return;
+    if (stepRef.current === LIVE_PARTY_STEP.ENTRY) {
+      stepRef.current = initialStep;
+      setStep(initialStep);
     }
 
-    stepRef.current = initialStep;
-    setStep(initialStep);
     setIsInitialized(true);
   }, [phaseData, isInitialized]);
 
@@ -102,6 +101,7 @@ export function useLivePartyStep({
   useEffect(() => {
     if (!ssePhase) return;
     applyStepTransition(apiPhaseToStep(ssePhase));
+    setIsInitialized(true);
   }, [ssePhase, applyStepTransition]);
 
   // SSE party-ended 반영
@@ -109,6 +109,7 @@ export function useLivePartyStep({
     if (!isPartyEnded) return;
     stepRef.current = LIVE_PARTY_STEP.END;
     setStep(LIVE_PARTY_STEP.END);
+    setIsInitialized(true);
   }, [isPartyEnded]);
 
   const handleEntryComplete = useCallback(() => {
@@ -142,6 +143,7 @@ export function useLivePartyStep({
   return {
     step,
     isTransitioning,
+    isInitialized,
     partyEnd,
     showChatBottomSheet,
     handleNextStep,
