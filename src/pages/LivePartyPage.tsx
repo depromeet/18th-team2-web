@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
@@ -31,7 +31,6 @@ export default function LivePartyPage() {
   const locationState = location.state as { inviteToken?: string; hostName?: string } | null;
   const inviteToken = locationState?.inviteToken ?? '';
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
-  const hasNavigatedAfterPartyEndRef = useRef(false);
 
   const {
     messages,
@@ -109,37 +108,19 @@ export default function LivePartyPage() {
     }
   }, [goToEndStep, partyEndingState?.ended]);
 
-  useEffect(() => {
-    if (!nextAction || hasNavigatedAfterPartyEndRef.current) {
-      return;
+  const endUserRole = useMemo(() => {
+    if (!nextAction) {
+      return userRole;
     }
-
-    hasNavigatedAfterPartyEndRef.current = true;
 
     if (nextAction.type === 'HOST_ROLLING_PAPER_LIST') {
-      navigate(generatePath(ROUTES.rollingPaper, { id: String(nextAction.partyId) }), {
-        replace: true,
-      });
-      return;
+      return PARTY_USER.HOST;
     }
 
-    if (nextAction.rollingPaperWritten) {
-      navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
-        replace: true,
-        state: { inviteToken: nextAction.inviteToken },
-      });
-      return;
-    }
-
-    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
-      replace: true,
-      state: {
-        completeCta: 'home',
-        inviteToken: nextAction.inviteToken,
-        hostName,
-      },
-    });
-  }, [hostName, navigate, nextAction, partyId]);
+    return nextAction.rollingPaperWritten
+      ? PARTY_USER.PARTICIPANT_WRITTEN
+      : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
+  }, [nextAction, userRole]);
 
   useEffect(() => {
     if (!step || step !== LIVE_PARTY_STEP.PINATA) {
@@ -213,14 +194,16 @@ export default function LivePartyPage() {
         />
       )}
       {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
-      {!isPartyEndingFlow && !(isEntryStep && isEntryReady) && (
+      {!isPartyEnding && !(isEntryStep && isEntryReady) && (
         <StepRenderer
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
           showPinataOverlay={showPinataOverlay}
           onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
           isHost={isHost}
-          userRole={userRole}
+          userRole={partyEnd ? endUserRole : userRole}
+          endAction={nextAction}
+          endHostName={hostName}
           candleBlowState={candleBlowState}
           burstGameState={burstGameState}
         />

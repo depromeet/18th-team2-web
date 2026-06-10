@@ -3,7 +3,12 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
 
-export function useLaterWriteDialog() {
+interface UseLaterWriteDialogParams {
+  inviteToken?: string;
+  hostName?: string;
+}
+
+export function useLaterWriteDialog({ inviteToken, hostName }: UseLaterWriteDialogParams = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { partyId } = useParams<{ partyId: string }>();
@@ -13,7 +18,15 @@ export function useLaterWriteDialog() {
 
   const handleWriteNow = () => {
     setIsOpen(false);
-    if (partyId) navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }));
+    if (!partyId) return;
+
+    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+      state: {
+        completeCta: 'home',
+        inviteToken,
+        hostName,
+      },
+    });
   };
 
   const handleWriteLater = () => {
