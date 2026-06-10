@@ -28,16 +28,10 @@ export type PinataOnboardingPhase = 'intro' | 'howToPlay' | 'start';
 
 const EMPTY_RANKINGS: PinataRanking[] = [];
 
-export function getPinataColor(tapCount: number) {
-  const progress = Math.min(tapCount, MAX_COLOR_TAP_COUNT) / MAX_COLOR_TAP_COUNT;
-  const start = { r: 88, g: 146, b: 255 };
-  const end = { r: 239, g: 57, b: 60 };
+export function getPinataBackground(tapCount: number) {
+  const yellowStop = Math.max(0, 100 - Math.min(tapCount, MAX_COLOR_TAP_COUNT));
 
-  const r = Math.round(start.r + (end.r - start.r) * progress);
-  const g = Math.round(start.g + (end.g - start.g) * progress);
-  const b = Math.round(start.b + (end.b - start.b) * progress);
-
-  return `rgb(${r}, ${g}, ${b})`;
+  return `linear-gradient(180deg, var(--color-yellow-500) 0%, var(--color-yellow-500) ${yellowStop}%, var(--color-red-500) 100%)`;
 }
 
 export function formatRank(rank: number) {
@@ -255,7 +249,7 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     return () => window.clearTimeout(animationTimerId);
   }, [isResultVisible]);
 
-  const pinataColor = getPinataColor(displayTapCount);
+  const pinataBackground = getPinataBackground(displayTapCount);
   const progressPercent = (displayRemainingSeconds / PINATA_DURATION_SECONDS) * 100;
   const shouldShowOnboarding =
     isContentVisible && (!isGameStarted || isStartCueVisible) && !isResultVisible;
@@ -288,7 +282,7 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     startCountdownSeconds,
     isResultVisible,
     isResultAnimated,
-    pinataColor,
+    pinataBackground,
     progressPercent,
     handleTapPinata,
   };
