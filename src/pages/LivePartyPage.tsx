@@ -51,7 +51,7 @@ export default function LivePartyPage() {
     usePartyExitDialog();
   const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
     inviteToken,
-    canFetch,
+    isAuthenticated,
   );
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
