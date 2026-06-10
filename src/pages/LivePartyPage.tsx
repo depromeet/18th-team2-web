@@ -25,6 +25,7 @@ import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
+import { B1 } from '@/components/ui/Typography';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -147,7 +148,7 @@ export default function LivePartyPage() {
 
   const showPartyMain =
     isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
-  const showStartPartyButton = isEntryReady && isHost && isEntryStep && !isPartyEndingFlow;
+  const showEntryReadyUI = isEntryReady && isEntryStep && !isPartyEndingFlow;
 
   if (sseError || isPhaseError) {
     return (
@@ -224,11 +225,21 @@ export default function LivePartyPage() {
           burstGameState={burstGameState}
         />
       )}
-      {showStartPartyButton && (
+      {showEntryReadyUI && isHost && (
         <div className="absolute right-0 bottom-[336px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center px-4">
           <Button type="button" size="md" className="w-auto" onClick={handleNextStep}>
             파티 시작하기
           </Button>
+        </div>
+      )}
+      {showEntryReadyUI && !isHost && (
+        <div className="fixed right-0 bottom-[300px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center">
+          <div className="flex w-full flex-col items-center justify-center bg-white/10 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] py-6 backdrop-blur-xs">
+            <B1 className="text-center font-semibold text-white">
+              {hostName}님이 곧 파티를 시작할 거예요 <br />
+              잠시만 기다려주세요!
+            </B1>
+          </div>
         </div>
       )}
       {showHostEndingButton && (
