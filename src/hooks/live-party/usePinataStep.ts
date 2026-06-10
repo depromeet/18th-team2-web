@@ -1,17 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import characterBlueThumb from '@/assets/images/character/character-blue-circle-thumbnail.png';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useBurstGameTaps } from '@/hooks/live-party/useBurstGameTaps';
 import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
-import { useGetBurstGameState, useStartBurstGame } from '@/services/live-party';
-import { isApiErrorStatus } from '@/utils/api-error';
+import { useGetBurstGameState } from '@/services/live-party';
 import { resolveImageUrl } from '@/utils/image';
 
 export const PINATA_DURATION_SECONDS = 20;
+export const PINATA_ONBOARDING_SECONDS = 5;
 export const MAX_COLOR_TAP_COUNT = 100;
 const CONTENT_ENTER_DELAY_MS = 420;
+const TIMER_SYNC_INTERVAL_MS = 250;
+const START_CUE_DURATION_MS = 900;
 export const RANK_ROW_GAP = 40;
 
 export interface PinataRanking {
@@ -22,18 +24,14 @@ export interface PinataRanking {
   isMe?: boolean;
 }
 
+export type PinataOnboardingPhase = 'intro' | 'howToPlay' | 'start';
+
 const EMPTY_RANKINGS: PinataRanking[] = [];
 
-export function getPinataColor(tapCount: number) {
-  const progress = Math.min(tapCount, MAX_COLOR_TAP_COUNT) / MAX_COLOR_TAP_COUNT;
-  const start = { r: 88, g: 146, b: 255 };
-  const end = { r: 239, g: 57, b: 60 };
+export function getPinataBackground(tapCount: number) {
+  const yellowStop = Math.max(0, 100 - Math.min(tapCount, MAX_COLOR_TAP_COUNT));
 
-  const r = Math.round(start.r + (end.r - start.r) * progress);
-  const g = Math.round(start.g + (end.g - start.g) * progress);
-  const b = Math.round(start.b + (end.b - start.b) * progress);
-
-  return `rgb(${r}, ${g}, ${b})`;
+  return `linear-gradient(180deg, var(--color-yellow-500) 0%, var(--color-yellow-500) ${yellowStop}%, var(--color-red-500) 100%)`;
 }
 
 export function formatRank(rank: number) {
@@ -79,6 +77,14 @@ function getRankedParticipants(participants: PinataRanking[]) {
     });
 }
 
+function parseDateTime(dateTime: string | undefined) {
+  if (!dateTime) return null;
+
+  const time = Date.parse(dateTime);
+
+  return Number.isNaN(time) ? null : time;
+}
+
 interface UsePinataStepParams {
   burstGameState: BurstGameState | null;
 }
@@ -87,17 +93,17 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
   const { partyId } = useParams<{ partyId: string }>();
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const { queueTap, flushTaps } = useBurstGameTaps();
-  const {
-    data: recoveredBurstGameData,
-    error: recoverError,
-    isError,
-  } = useGetBurstGameState(partyId, participantToken);
-  const { mutate: startBurstGame, data: startedBurstGameData } = useStartBurstGame();
+  const { data: recoveredBurstGameData } = useGetBurstGameState(partyId, participantToken);
   const [tapCount, setTapCount] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(PINATA_DURATION_SECONDS);
   const [isContentVisible, setIsContentVisible] = useState(false);
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [isResultAnimated, setIsResultAnimated] = useState(false);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isStartCueVisible, setIsStartCueVisible] = useState(false);
+  const [startCountdownSeconds, setStartCountdownSeconds] = useState(PINATA_ONBOARDING_SECONDS);
+  const [serverClockOffsetMs, setServerClockOffsetMs] = useState(0);
+  const startCueTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const enterTimerId = window.setTimeout(() => {
@@ -107,73 +113,91 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     return () => window.clearTimeout(enterTimerId);
   }, []);
 
-  useEffect(() => {
-    if (!isContentVisible) return;
-
-    const timerId = window.setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev <= 1) {
-          window.clearInterval(timerId);
-          return 0;
-        }
-
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(timerId);
-  }, [isContentVisible]);
-
-  useEffect(() => {
-    if (
-      !partyId ||
-      burstGameState ||
-      recoveredBurstGameData?.data ||
-      startedBurstGameData?.data ||
-      !isError ||
-      !isApiErrorStatus(recoverError, 404)
-    ) {
-      return;
-    }
-
-    startBurstGame({
-      partyId,
-      participantToken,
-    });
-  }, [
-    burstGameState,
-    isError,
-    partyId,
-    participantToken,
-    recoverError,
-    recoveredBurstGameData?.data,
-    startBurstGame,
-    startedBurstGameData?.data,
-  ]);
-
-  const startedBurstGameState = useMemo<BurstGameState | null>(() => {
-    if (!startedBurstGameData?.data) return null;
-
-    return {
-      ...startedBurstGameData.data,
-      ended: false,
-      status: 'ACTIVE',
-    };
-  }, [startedBurstGameData?.data]);
-
   const effectiveBurstGameState: BurstGameState | null =
-    burstGameState ?? recoveredBurstGameData?.data ?? startedBurstGameState;
+    burstGameState ?? recoveredBurstGameData?.data ?? null;
 
   const displayTapCount = effectiveBurstGameState?.myTapCount ?? tapCount;
-  const displayRemainingSeconds = effectiveBurstGameState?.remainingSeconds ?? remainingSeconds;
+  const displayRemainingSeconds = remainingSeconds;
   const isServerEnded =
     effectiveBurstGameState?.ended === true || effectiveBurstGameState?.status === 'ENDED';
+
+  useEffect(() => {
+    const serverTime = parseDateTime(effectiveBurstGameState?.serverTime);
+
+    if (serverTime == null) return;
+
+    setServerClockOffsetMs(Date.now() - serverTime);
+  }, [effectiveBurstGameState?.serverTime]);
 
   useEffect(() => {
     if (effectiveBurstGameState?.remainingSeconds == null) return;
 
     setRemainingSeconds(effectiveBurstGameState.remainingSeconds);
   }, [effectiveBurstGameState?.remainingSeconds]);
+
+  useEffect(() => {
+    if (!isContentVisible) return;
+
+    const syncTimer = () => {
+      const startedAt = parseDateTime(effectiveBurstGameState?.startedAt);
+      const endsAt = parseDateTime(effectiveBurstGameState?.endsAt);
+
+      if (startedAt == null || endsAt == null) {
+        setIsGameStarted(false);
+        setStartCountdownSeconds(PINATA_ONBOARDING_SECONDS);
+        setRemainingSeconds(PINATA_DURATION_SECONDS);
+        return;
+      }
+
+      const serverNow = Date.now() - serverClockOffsetMs;
+      const hasStarted = serverNow >= startedAt;
+      const secondsUntilStart = Math.max(0, Math.ceil((startedAt - serverNow) / 1000));
+
+      setIsGameStarted((prev) => {
+        if (!prev && hasStarted) {
+          setIsStartCueVisible(true);
+
+          if (startCueTimerRef.current != null) {
+            window.clearTimeout(startCueTimerRef.current);
+          }
+
+          startCueTimerRef.current = window.setTimeout(() => {
+            setIsStartCueVisible(false);
+            startCueTimerRef.current = null;
+          }, START_CUE_DURATION_MS);
+        }
+
+        return hasStarted;
+      });
+      setStartCountdownSeconds(secondsUntilStart);
+
+      if (!hasStarted) {
+        setRemainingSeconds(PINATA_DURATION_SECONDS);
+        return;
+      }
+
+      setRemainingSeconds(Math.max(0, Math.ceil((endsAt - serverNow) / 1000)));
+    };
+
+    syncTimer();
+
+    const timerId = window.setInterval(syncTimer, TIMER_SYNC_INTERVAL_MS);
+
+    return () => window.clearInterval(timerId);
+  }, [
+    effectiveBurstGameState?.endsAt,
+    effectiveBurstGameState?.startedAt,
+    isContentVisible,
+    serverClockOffsetMs,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (startCueTimerRef.current != null) {
+        window.clearTimeout(startCueTimerRef.current);
+      }
+    };
+  }, []);
 
   const serverRankings = useMemo(
     () =>
@@ -225,11 +249,21 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     return () => window.clearTimeout(animationTimerId);
   }, [isResultVisible]);
 
-  const pinataColor = getPinataColor(displayTapCount);
+  const pinataBackground = getPinataBackground(displayTapCount);
   const progressPercent = (displayRemainingSeconds / PINATA_DURATION_SECONDS) * 100;
+  const shouldShowOnboarding =
+    isContentVisible && (!isGameStarted || isStartCueVisible) && !isResultVisible;
+  const onboardingPhase: PinataOnboardingPhase = isStartCueVisible
+    ? 'start'
+    : startCountdownSeconds <= 2
+      ? 'howToPlay'
+      : 'intro';
 
   const handleTapPinata = () => {
-    if (displayRemainingSeconds === 0 || !isContentVisible || isResultVisible) return;
+    if (displayRemainingSeconds === 0 || !isContentVisible || !isGameStarted || isResultVisible) {
+      return;
+    }
+
     queueTap();
     setTapCount((prev) => prev + 1);
   };
@@ -242,9 +276,13 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
     restRankings,
     totalTapCount,
     isContentVisible,
+    isGameStarted,
+    shouldShowOnboarding,
+    onboardingPhase,
+    startCountdownSeconds,
     isResultVisible,
     isResultAnimated,
-    pinataColor,
+    pinataBackground,
     progressPercent,
     handleTapPinata,
   };

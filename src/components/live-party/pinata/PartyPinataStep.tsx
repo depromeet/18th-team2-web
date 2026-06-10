@@ -1,7 +1,9 @@
 import ReactCanvasConfetti from 'react-canvas-confetti';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 
 import crownIcon from '@/assets/images/icons/crown.svg';
+import clickIcon from '@/assets/images/live-party/click.png';
+import { PartyPinataOnboarding } from '@/components/live-party/pinata/PartyPinataOnboarding';
 import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
 import {
@@ -27,6 +29,12 @@ function CrownIcon({ color, className = '' }: { color: string; className?: strin
   );
 }
 
+type PinataStyleProperties = CSSProperties & {
+  '--pinata-background'?: string;
+  '--rank-offset'?: string;
+  '--time-progress'?: string;
+};
+
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
   burstGameState: BurstGameState | null;
@@ -42,9 +50,13 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     restRankings,
     totalTapCount,
     isContentVisible,
+    isGameStarted,
+    shouldShowOnboarding,
+    onboardingPhase,
+    startCountdownSeconds,
     isResultVisible,
     isResultAnimated,
-    pinataColor,
+    pinataBackground,
     progressPercent,
     handleTapPinata,
   } = usePinataStep({ burstGameState });
@@ -81,17 +93,21 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     return fireResultFireworks();
   }, [fireResultFireworks, isConfettiReady, isResultVisible]);
 
+  if (shouldShowOnboarding) {
+    return (
+      <PartyPinataOnboarding phase={onboardingPhase} countdownSeconds={startCountdownSeconds} />
+    );
+  }
+
   if (isResultVisible) {
-    const podiumSlots = [
+    const podiumSlots: { ranking?: PinataRanking; className: string }[] = [
       { ranking: topRankings[1], className: 'translate-y-5' },
       { ranking: topRankings[0], className: '-translate-y-3' },
       { ranking: topRankings[2], className: 'translate-y-5' },
-    ].filter((slot): slot is { ranking: PinataRanking; className: string } =>
-      Boolean(slot.ranking),
-    );
+    ];
 
     return (
-      <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[18.4svh] text-white">
+      <section className="pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[18.4svh] text-white">
         <ReactCanvasConfetti
           onInit={({ confetti }) => {
             confettiRef.current = confetti;
@@ -123,7 +139,11 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
             isResultAnimated ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
           }`}
         >
-          {podiumSlots.map(({ ranking, className }) => {
+          {podiumSlots.map(({ ranking, className }, slotIndex) => {
+            if (!ranking) {
+              return <div key={`empty-podium-${slotIndex}`} className="w-[100px]" aria-hidden />;
+            }
+
             const rankColor = getPodiumColor(ranking.rank);
 
             return (
@@ -206,28 +226,34 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
       }`}
     >
       <h2 className="text-head-1 text-center font-bold whitespace-pre-line">
-        주인공을 축하하는 마음으로{'\n'}박을 터뜨려볼까요?
+        박을 열심히 눌러서{'\n'}터뜨려주세요!
       </h2>
 
-      <div className="relative mt-8 h-[104px] w-full max-w-[311px]">
+      <div
+        className={`relative mt-8 h-[104px] w-full ${
+          rankings.length === 0 ? 'max-w-[120px]' : 'max-w-[311px]'
+        }`}
+      >
         {rankings.length === 0
           ? [1, 2, 3].map((rank) => (
               <div
                 key={rank}
-                className="absolute left-0 grid h-7 w-full grid-cols-[32px_1fr_42px] items-center gap-2"
-                style={{ transform: `translateY(${(rank - 1) * RANK_ROW_GAP}px)` }}
+                className="absolute left-0 grid h-7 w-full translate-y-[var(--rank-offset)] grid-cols-[32px_1fr] items-center gap-5"
+                style={
+                  { '--rank-offset': `${(rank - 1) * RANK_ROW_GAP}px` } as PinataStyleProperties
+                }
               >
-                <span className={rank === 1 ? 'text-blue-300' : 'text-grey-300'}>
+                <span className="text-grey-200 text-center font-bold whitespace-nowrap">
                   {formatRank(rank)}
                 </span>
                 <span className="text-grey-100">-</span>
               </div>
             ))
-          : rankings.map((ranking) => (
+          : rankings.map((ranking, index) => (
               <div
                 key={`${ranking.nickname}-${ranking.isMe ? 'me' : 'participant'}`}
-                className="absolute left-0 grid h-7 w-full grid-cols-[32px_1fr_42px] items-center gap-2 transition-transform duration-300 ease-out"
-                style={{ transform: `translateY(${(ranking.rank - 1) * RANK_ROW_GAP}px)` }}
+                className="absolute left-0 grid h-7 w-full translate-y-[var(--rank-offset)] grid-cols-[32px_1fr_42px] items-center gap-2 transition-transform duration-300 ease-out"
+                style={{ '--rank-offset': `${index * RANK_ROW_GAP}px` } as PinataStyleProperties}
               >
                 <span className={ranking.rank === 1 ? 'text-blue-300' : 'text-grey-300'}>
                   {formatRank(ranking.rank)}
@@ -249,23 +275,43 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
       <button
         type="button"
-        className="pointer-events-auto mt-10 flex aspect-square w-[min(63vw,236px)] items-center justify-center rounded-full text-[34px] leading-none font-bold text-white transition-[background-color,transform,box-shadow] duration-200 ease-out active:scale-[0.97]"
-        style={{ backgroundColor: pinataColor }}
+        disabled={!isGameStarted}
+        style={
+          {
+            '--pinata-background':
+              displayTapCount === 0
+                ? `linear-gradient(#000000B2, #000000B2), ${pinataBackground}`
+                : pinataBackground,
+          } as PinataStyleProperties
+        }
+        className={`pointer-events-auto mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 rounded-[600px] border bg-[image:var(--pinata-background)] text-[34px] leading-none font-bold text-white transition-[background,transform,box-shadow] duration-200 ease-out active:scale-[0.97] ${
+          displayTapCount === 0 ? 'border-dashed border-white/70' : 'border-transparent'
+        }`}
         onClick={handleTapPinata}
       >
-        {displayTapCount}
+        {displayTapCount === 0 ? (
+          <>
+            <img src={clickIcon} alt="" className="h-[54px] w-[54px] object-contain" />
+            <span className="text-label-1 font-bold">원 안을 터치해 주세요!</span>
+          </>
+        ) : (
+          displayTapCount
+        )}
       </button>
 
       <div className="mt-auto mb-[calc(54px+env(safe-area-inset-bottom))] w-full max-w-[311px]">
-        <p className="text-body-1 text-center font-semibold">
-          <span className="text-red-400">{displayRemainingSeconds}</span>초 남았어요
-        </p>
-        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/20">
+        <div className="bg-grey-500 h-1 overflow-hidden rounded-full">
           <div
-            className="h-full rounded-full bg-red-600 transition-[width] duration-300"
-            style={{ width: `${progressPercent}%` }}
+            className="h-full w-[var(--time-progress)] rounded-full bg-red-600 transition-[width] duration-300"
+            style={{ '--time-progress': `${progressPercent}%` } as PinataStyleProperties}
           />
         </div>
+        <p className="mt-4 text-center">
+          <span className="text-[16px] leading-5 font-bold text-red-400">
+            {displayRemainingSeconds}
+          </span>
+          <span className="text-[14px] leading-5 font-medium text-white">초 남았어요</span>
+        </p>
       </div>
     </section>
   );
