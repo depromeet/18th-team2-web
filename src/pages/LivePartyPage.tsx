@@ -26,6 +26,7 @@ import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live
 import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { B1 } from '@/components/ui/Typography';
+import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -103,10 +104,44 @@ export default function LivePartyPage() {
     startRealtimeEnd(partyId);
   }
 
+  function handleErrorRetry() {
+    window.location.reload();
+  }
+
+  function handleErrorBack() {
+    navigate(-1);
+  }
+
+  function handleCreateParty() {
+    navigate(ROUTES.createParty);
+  }
+
+  function handleGoHome() {
+    navigate(ROUTES.home, { replace: true });
+  }
+
+  function handleReturnToPartyRoom() {
+    setIsPinataOverlayDismissed(true);
+  }
+
+  function handleOpenPartyStartSheet() {
+    setIsPartyStartSheetOpen(true);
+  }
+
+  function handleClosePartyStartSheet() {
+    setIsPartyStartSheetOpen(false);
+  }
+
+  function handleStartParty() {
+    setIsPartyStartSheetOpen(false);
+    handleNextStep();
+  }
+
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
+  const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
 
   useEffect(() => {
     if (partyEndingState?.ended) {
@@ -154,8 +189,8 @@ export default function LivePartyPage() {
     return (
       <ErrorView
         variant="retry"
-        onPrimaryClick={() => window.location.reload()}
-        onSecondaryClick={() => navigate(-1)}
+        onPrimaryClick={handleErrorRetry}
+        onSecondaryClick={handleErrorBack}
       />
     );
   }
@@ -167,9 +202,9 @@ export default function LivePartyPage() {
   if (hostGate.isEnded) {
     return (
       <AutoEndedBottomSheet
-        onCreateParty={() => navigate(ROUTES.createParty)}
-        onHome={() => navigate(ROUTES.home, { replace: true })}
-        onClose={() => navigate(ROUTES.home, { replace: true })}
+        onCreateParty={handleCreateParty}
+        onHome={handleGoHome}
+        onClose={handleGoHome}
       />
     );
   }
@@ -216,7 +251,7 @@ export default function LivePartyPage() {
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
           showPinataOverlay={showPinataOverlay}
-          onReturnToPartyRoom={() => setIsPinataOverlayDismissed(true)}
+          onReturnToPartyRoom={handleReturnToPartyRoom}
           isHost={isHost}
           userRole={partyEnd ? endUserRole : userRole}
           endAction={nextAction}
@@ -227,14 +262,27 @@ export default function LivePartyPage() {
       )}
       {showEntryReadyUI && isHost && (
         <div className="absolute right-0 bottom-[336px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center px-4">
-          <Button type="button" size="md" className="w-auto" onClick={handleNextStep}>
+          <Button type="button" size="md" className="w-auto" onClick={handleOpenPartyStartSheet}>
             파티 시작하기
           </Button>
         </div>
       )}
+
+      {isPartyStartSheetOpen && (
+        <div className="fixed inset-0 z-60 flex items-end justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={handleClosePartyStartSheet} />
+          <div className="relative">
+            <PartyStartSheet
+              partyId={partyId}
+              onClose={handleClosePartyStartSheet}
+              onStart={handleStartParty}
+            />
+          </div>
+        </div>
+      )}
       {showEntryReadyUI && !isHost && (
         <div className="fixed right-0 bottom-[300px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center">
-          <div className="flex w-full flex-col items-center justify-center bg-white/10 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] py-6 backdrop-blur-xs">
+          <div className="flex w-full flex-col items-center justify-center bg-white/10 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] py-9 backdrop-blur-xs">
             <B1 className="text-center font-semibold text-white/50">파티 시작 준비중이에요...</B1>
           </div>
         </div>
