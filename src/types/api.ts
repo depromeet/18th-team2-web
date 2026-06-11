@@ -1155,10 +1155,10 @@ export interface components {
              */
             characterId?: number;
             /**
-             * @description 선택한 캐릭터 이미지 URL입니다.
+             * @description 선택한 캐릭터 썸네일 이미지 URL입니다.
              * @example https://example.com/rabbit.png
              */
-            characterImageUrl?: string;
+            characterThumbnailImageUrl?: string;
             /**
              * @description 실시간 파티 참여자 역할입니다.
              * @example CELEBRANT
