@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, Navigate, useNavigate } from 'react-router-dom';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -17,6 +17,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { canShareParty } from '@/utils/party';
 
 import type { UpcomingParty } from '@/types/home';
+import { ONBOARDING_SEEN_KEY } from '@/constants/onboarding';
 
 // 카드 CTA → 이동 경로. 디자인상 primary 버튼만 목적지가 있고, 비활성 안내문은 null.
 function getCardRoutePath(party: UpcomingParty): string | null {
@@ -45,23 +46,24 @@ function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: archiveData } = useArchiveList();
+  const { data: upcomingParties } = useUpcomingParties();
+  const [shareToken, setShareToken] = useState<string | null>(null);
+
   const archiveCount = isAuthenticated ? (archiveData?.totalCount ?? 0) : 0;
   const archivePreview = isAuthenticated ? archiveData?.items[0] : undefined;
-
-  const { data: upcomingParties } = useUpcomingParties();
   const parties = upcomingParties ?? [];
-
-  // 호스트 카드 '링크 복사' → 공유 시트. 공유할 파티의 inviteToken을 보관.
-  const [shareToken, setShareToken] = useState<string | null>(null);
   const shareLink = shareToken
     ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: shareToken })}`
     : '';
 
   const handleCardShare = useCallback((party: UpcomingParty) => {
-    // 카드의 링크 복사 노출 규칙과 동일 기준으로 가드 (canShareParty 단일 소스)
     if (!canShareParty(party) || !party.inviteToken) return;
     setShareToken(party.inviteToken);
   }, []);
+
+  if (!isAuthenticated && !sessionStorage.getItem(ONBOARDING_SEEN_KEY)) {
+    return <Navigate to={ROUTES.onboarding} replace />;
+  }
 
   const handleCardAction = (party: UpcomingParty) => {
     const path = getCardRoutePath(party);

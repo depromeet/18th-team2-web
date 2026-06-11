@@ -26,3 +26,5 @@ export const ONBOARDING_CONTENTS = [
     },
   },
 ];
+
+export const ONBOARDING_SEEN_KEY = 'onboarding_seen';
