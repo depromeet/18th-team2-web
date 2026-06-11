@@ -161,7 +161,7 @@ export function useLivePartySSE() {
               },
             ]);
 
-            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+            queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
 
             return;
           }
@@ -178,7 +178,7 @@ export function useLivePartySSE() {
               },
             ]);
 
-            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+            queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
 
             return;
           }
