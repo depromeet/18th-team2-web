@@ -23,7 +23,7 @@ function mapArchiveItem(item: ArchiveItemResponse): ArchiveListItem {
     id: item.id ?? '',
     partyId: item.partyId != null ? String(item.partyId) : '',
     type: item.type ?? 'PARTY',
-    title: item.title ?? '',
+    title: item.celebrantName ?? '',
     celebrantName: item.celebrantName ?? null,
     date: item.date ? formatArchiveDate(item.date) : '',
   };
@@ -41,7 +41,7 @@ function formatKstOrEmpty(iso: string | null | undefined, pattern: string): stri
 function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
   return {
     id: res.partyId != null ? String(res.partyId) : '',
-    partyName: res.partyName ?? '',
+    partyName: res.celebrantNickname ?? '',
     date: formatKstOrEmpty(res.partyStartedAt, 'YY.MM.DD'),
     time: formatKstOrEmpty(res.partyStartedAt, 'HH:mm'),
     endDate: formatKstOrEmpty(res.partyEndedAt, 'YY.MM.DD'),
