@@ -59,7 +59,7 @@ export function useLivePartyStep({
   const [isEntryReady, setIsEntryReady] = useState(false);
   const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
-  const { data: phaseData } = useGetPhase(partyId, enabled);
+  const { data: phaseData, isError: isPhaseError } = useGetPhase(partyId, enabled);
   const { mutate: advancePhase } = useAdvancePhase();
 
   const applyStepTransition = useCallback((nextStep: PartyStep) => {
@@ -144,6 +144,7 @@ export function useLivePartyStep({
     step,
     isTransitioning,
     isInitialized,
+    isPhaseError,
     partyEnd,
     showChatBottomSheet,
     handleNextStep,

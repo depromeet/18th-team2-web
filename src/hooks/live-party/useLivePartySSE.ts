@@ -42,6 +42,7 @@ export function useLivePartySSE() {
   const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
   const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
   const [hasParticipantToken, setHasParticipantToken] = useState(false);
+  const [sseError, setSseError] = useState(false);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -62,6 +63,7 @@ export function useLivePartySSE() {
   });
 
   const hasInitializedRef = useRef(false);
+  const sseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { mutate: sendMessage } = useSendChatMessage();
 
@@ -73,6 +75,12 @@ export function useLivePartySSE() {
     }
 
     const controller = new AbortController();
+
+    sseTimeoutRef.current = window.setTimeout(() => {
+      if (!hasInitializedRef.current) {
+        setSseError(true);
+      }
+    }, 15000);
 
     connectRealtimeParty(
       {
@@ -92,6 +100,11 @@ export function useLivePartySSE() {
             }
 
             hasInitializedRef.current = true;
+
+            if (sseTimeoutRef.current) {
+              clearTimeout(sseTimeoutRef.current);
+              sseTimeoutRef.current = null;
+            }
 
             const token = parsed.participantToken as string | undefined;
 
@@ -274,6 +287,10 @@ export function useLivePartySSE() {
 
     return () => {
       controller.abort();
+      if (sseTimeoutRef.current) {
+        clearTimeout(sseTimeoutRef.current);
+        sseTimeoutRef.current = null;
+      }
     };
   }, [partyId, queryClient, fire]);
 
@@ -293,5 +310,6 @@ export function useLivePartySSE() {
     partyEndingState,
     currentPhase,
     hasParticipantToken,
+    sseError,
   };
 }

@@ -24,6 +24,7 @@ import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
 import { Loading } from '@/components/ui/Loading';
+import { ErrorView } from '@/components/ui/ErrorView';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -42,6 +43,7 @@ export default function LivePartyPage() {
     partyEndingState,
     currentPhase,
     hasParticipantToken,
+    sseError,
   } = useLivePartySSE();
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -68,6 +70,7 @@ export default function LivePartyPage() {
     isEntryReady,
     isTransitioning,
     isInitialized,
+    isPhaseError,
     goToEndStep,
   } = useLivePartyStep({
     partyId,
@@ -164,6 +167,16 @@ export default function LivePartyPage() {
   const showPartyMain =
     isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showStartPartyButton = isEntryReady && isHost && isEntryStep && !isPartyEndingFlow;
+
+  if (sseError || isPhaseError) {
+    return (
+      <ErrorView
+        variant="retry"
+        onPrimaryClick={() => window.location.reload()}
+        onSecondaryClick={() => navigate(-1)}
+      />
+    );
+  }
 
   if (inviteToken && isProfileLoading) {
     return <div className="bg-blue-1000 h-svh w-full" />;
