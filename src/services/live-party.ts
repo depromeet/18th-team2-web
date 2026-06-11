@@ -217,7 +217,7 @@ export function useSendChatMessage() {
 
 export function useGetPartyParticipants(partyId: string | undefined) {
   return useQuery({
-    queryKey: ['partyParticipants', partyId],
+    queryKey: ['party-participants', partyId],
     queryFn: () =>
       api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
         `/api/v1/parties/${partyId}/participants`,

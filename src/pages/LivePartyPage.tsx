@@ -23,6 +23,8 @@ import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecr
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
+import { Loading } from '@/components/ui/Loading';
+import { ErrorView } from '@/components/ui/ErrorView';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -40,6 +42,7 @@ export default function LivePartyPage() {
     partyEndingState,
     currentPhase,
     hasParticipantToken,
+    sseError,
   } = useLivePartySSE();
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -49,7 +52,7 @@ export default function LivePartyPage() {
     usePartyExitDialog();
   const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
     inviteToken,
-    canFetch,
+    isAuthenticated,
   );
   const isHost = profile?.isHost ?? false;
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
@@ -65,6 +68,8 @@ export default function LivePartyPage() {
     handleEntryComplete,
     isEntryReady,
     isTransitioning,
+    isInitialized,
+    isPhaseError,
     goToEndStep,
   } = useLivePartyStep({
     partyId,
@@ -144,6 +149,16 @@ export default function LivePartyPage() {
     isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showStartPartyButton = isEntryReady && isHost && isEntryStep && !isPartyEndingFlow;
 
+  if (sseError || isPhaseError) {
+    return (
+      <ErrorView
+        variant="retry"
+        onPrimaryClick={() => window.location.reload()}
+        onSecondaryClick={() => navigate(-1)}
+      />
+    );
+  }
+
   if (inviteToken && isProfileLoading) {
     return <div className="bg-blue-1000 h-svh w-full" />;
   }
@@ -184,6 +199,7 @@ export default function LivePartyPage() {
     <div
       className={`relative h-svh w-full max-w-[600px] bg-cover bg-center bg-no-repeat ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
     >
+      {(!canFetch || !isInitialized) && <Loading />}
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader

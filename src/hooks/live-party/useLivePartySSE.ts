@@ -45,9 +45,8 @@ export function useLivePartySSE() {
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
   const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
   const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
-  const [hasParticipantToken, setHasParticipantToken] = useState(() =>
-    Boolean(sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)),
-  );
+  const [hasParticipantToken, setHasParticipantToken] = useState(false);
+  const [sseError, setSseError] = useState(false);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -68,6 +67,7 @@ export function useLivePartySSE() {
   });
 
   const hasInitializedRef = useRef(false);
+  const sseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { mutate: sendMessage } = useSendChatMessage();
 
@@ -79,6 +79,12 @@ export function useLivePartySSE() {
     }
 
     const controller = new AbortController();
+
+    sseTimeoutRef.current = window.setTimeout(() => {
+      if (!hasInitializedRef.current) {
+        setSseError(true);
+      }
+    }, 15000);
 
     connectRealtimeParty(
       {
@@ -99,10 +105,19 @@ export function useLivePartySSE() {
 
             hasInitializedRef.current = true;
 
+            if (sseTimeoutRef.current) {
+              clearTimeout(sseTimeoutRef.current);
+              sseTimeoutRef.current = null;
+            }
+
             const token = parsed.participantToken as string | undefined;
 
             if (token) {
               sessionStorage.setItem(PARTICIPANT_TOKEN_KEY, token);
+            }
+
+            // entered = 서버가 연결을 승인. 토큰이 세션에 있으면 API 호출 허용.
+            if (sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)) {
               setHasParticipantToken(true);
             }
 
@@ -163,7 +178,7 @@ export function useLivePartySSE() {
               },
             ]);
 
-            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+            queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
 
             return;
           }
@@ -180,7 +195,7 @@ export function useLivePartySSE() {
               },
             ]);
 
-            queryClient.invalidateQueries({ queryKey: ['partyParticipants', partyId] });
+            queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
 
             return;
           }
@@ -281,6 +296,10 @@ export function useLivePartySSE() {
 
     return () => {
       controller.abort();
+      if (sseTimeoutRef.current) {
+        clearTimeout(sseTimeoutRef.current);
+        sseTimeoutRef.current = null;
+      }
     };
   }, [partyId, queryClient, fire]);
 
@@ -300,5 +319,6 @@ export function useLivePartySSE() {
     partyEndingState,
     currentPhase,
     hasParticipantToken,
+    sseError,
   };
 }
