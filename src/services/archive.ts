@@ -5,10 +5,10 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 
-import { PARTY_ROLE, type PartyRole } from '@/constants/party';
+import { PARTY_ROLE } from '@/constants/party';
 import { api } from '@/services/api';
 import type { components } from '@/types/api';
-import type { ArchiveListItem, PartyDetail } from '@/types/archive';
+import type { ArchiveItemType, ArchiveListItem, PartyDetail } from '@/types/archive';
 import { formatArchiveDate, parseKstDateTime } from '@/utils/date';
 
 const ARCHIVE_PAGE_SIZE = 20;
@@ -18,27 +18,26 @@ type ArchiveItemResponse = components['schemas']['ArchiveListItemResponse'];
 type ArchivePartyDetailResponse = components['schemas']['ArchivePartyDetailResponse'];
 
 // 표시용 제목 조합 — 디자인은 "{주인공}의 파티 / {주인공}의 롤링페이퍼" 형식.
-// BE title(party.name)은 비어 오는 경우가 많아(커스텀 이름 미입력) celebrantName + type으로 조합한다.
-function buildArchiveTitle(item: ArchiveItemResponse): string {
-  const kind = item.type === 'PAPER' ? '롤링페이퍼' : '파티';
-  const name = item.celebrantName?.trim();
-  if (name) return `${name}의 ${kind}`;
-  // 주인공 이름이 없으면 BE title fallback, 그것도 없으면 종류만
-  return item.title?.trim() || kind;
+// BE는 제목 필드를 주지 않아(응답 title 제거됨) 주인공 닉네임 + 종류로 조합한다.
+function buildArchiveTitle(
+  celebrantName: string | null | undefined,
+  type: ArchiveItemType,
+): string {
+  const kind = type === 'PAPER' ? '롤링페이퍼' : '파티';
+  const name = celebrantName?.trim();
+  return name ? `${name}의 ${kind}` : kind;
 }
 
 function mapArchiveItem(item: ArchiveItemResponse): ArchiveListItem {
   // stamp는 BE 미제공 — ArchiveStampCard에서 partyId 해시(getStampForId)로 채운다.
-  // BE TODO: ArchiveListItemResponse에 role(HOST/PARTICIPANT) 추가 필요 — 상세 응답과 동일 필드.
-  //          추가 전엔 undefined → "내가 만든 파티" 필터 ON 시 빈 목록. (api 타입 재생성 후 캐스팅 제거)
+  const type = item.type ?? 'PARTY';
   return {
     id: item.id ?? '',
     partyId: item.partyId != null ? String(item.partyId) : '',
-    type: item.type ?? 'PARTY',
-    title: buildArchiveTitle(item),
-    celebrantName: item.celebrantName ?? null,
+    type,
+    title: buildArchiveTitle(item.celebrantName, type),
     date: item.date ? formatArchiveDate(item.date) : '',
-    role: (item as { role?: PartyRole }).role,
+    role: item.role ?? PARTY_ROLE.PARTICIPANT,
   };
 }
 
@@ -54,7 +53,11 @@ function formatKstOrEmpty(iso: string | null | undefined, pattern: string): stri
 function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
   return {
     id: res.partyId != null ? String(res.partyId) : '',
-    partyName: res.partyName ?? '',
+    // 상세엔 BE 제목 필드가 없음 — celebrantNickname + partyOption으로 리스트와 동일 패턴 조합
+    title: buildArchiveTitle(
+      res.celebrantNickname,
+      res.partyOption === 'PAPER_ONLY' ? 'PAPER' : 'PARTY',
+    ),
     date: formatKstOrEmpty(res.partyStartedAt, 'YY.MM.DD'),
     time: formatKstOrEmpty(res.partyStartedAt, 'HH:mm'),
     endDate: formatKstOrEmpty(res.partyEndedAt, 'YY.MM.DD'),

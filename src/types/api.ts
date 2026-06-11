@@ -981,7 +981,7 @@ export interface components {
              * @example HOST_REQUEST
              * @enum {string}
              */
-            endingReason: "HOST_REQUEST" | "TIME_LIMIT_REACHED";
+            endingReason: "HOST_REQUEST" | "HOST_LEFT" | "TIME_LIMIT_REACHED";
             /**
              * @description 파티 주최자 닉네임
              * @example 홍길동
@@ -1621,12 +1621,27 @@ export interface components {
              * @example TIME_LIMIT_REACHED
              * @enum {string}
              */
-            endingReason?: "HOST_REQUEST" | "TIME_LIMIT_REACHED";
+            endingReason?: "HOST_REQUEST" | "HOST_LEFT" | "TIME_LIMIT_REACHED";
             /**
              * @description 파티 주최자 닉네임
              * @example 홍길동
              */
             hostNickname: string;
+            /**
+             * @description 현재 주최자 종료 인사하기 버튼 사용 가능 여부
+             * @example false
+             */
+            hostFarewellAvailable: boolean;
+            /**
+             * Format: date-time
+             * @description 주최자 입장 기준 종료 인사하기 버튼 활성화 시각
+             */
+            hostFarewellAvailableAt?: string;
+            /**
+             * Format: date-time
+             * @description 응답 생성 서버 시각
+             */
+            serverNow: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseRealtimePartyNextActionResult: {
@@ -1940,10 +1955,11 @@ export interface components {
              */
             type: "PARTY" | "PAPER" | "PARTY" | "PAPER";
             /**
-             * @description 파티 이름. 없으면 빈 문자열
-             * @example 김루카 생일 파티
+             * @description 조회자 역할
+             * @example HOST
+             * @enum {string}
              */
-            title: string;
+            role: "HOST" | "PARTICIPANT" | "HOST" | "PARTICIPANT";
             /**
              * @description 파티 주인공 닉네임. 없으면 null
              * @example 김루카
@@ -2011,8 +2027,8 @@ export interface components {
              * @description 파티 ID
              */
             partyId: number;
-            /** @description 파티 이름. Party.name이 null이면 빈 문자열 */
-            partyName: string;
+            /** @description 파티 주인공 닉네임. 없으면 null */
+            celebrantNickname?: string;
             /**
              * @description REALTIME 또는 PAPER_ONLY
              * @enum {string}

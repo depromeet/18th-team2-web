@@ -37,8 +37,8 @@ export default function ArchivePaperDetailPage() {
   };
 
   return (
-    <ArchiveDetailLayout title={data.partyName} id={data.id}>
-      <PaperInfoSection title={data.partyName} startDate={data.date} endDate={data.endDate} />
+    <ArchiveDetailLayout title={data.title} id={data.id}>
+      <PaperInfoSection title={data.title} startDate={data.date} endDate={data.endDate} />
 
       {showPaperSection && (
         <MyPaperSection

@@ -27,8 +27,8 @@ export default function ArchivePage() {
     );
   }
 
-  // "내가 만든 파티" 필터는 클라이언트 측 — cursor 무한스크롤 특성상 로드된 페이지 내에서만 거른다.
-  // (정확한 전체 카운트가 필요해지면 BE 필터 파라미터로 전환 권장. 현재 보관함 규모에선 충분.)
+  // "내가 만든 파티" 필터는 클라이언트 측 — 스크롤로 페이지를 계속 로드하며 로드분에서 거른다.
+  // (BE 필터 파라미터 도입 시 서버 필터로 전환 권장. 현재 보관함 규모에선 충분.)
   // 헤더 카운트는 디자인대로 필터와 무관하게 항상 전체(totalCount)를 표시한다.
   const items = mineOnly ? data.items.filter((item) => item.role === PARTY_ROLE.HOST) : data.items;
 
@@ -48,8 +48,9 @@ export default function ArchivePage() {
         ))}
       </ul>
 
-      {/* 필터 OFF일 때만 추가 로드 (필터 ON 상태의 페이지네이션은 BE 파라미터 도입 시 정교화) */}
-      {!mineOnly && hasNextPage ? <div ref={sentinelRef} aria-hidden className="h-px" /> : null}
+      {/* 필터 ON에서도 sentinel 유지 — 걸러진 항목이 적으면 sentinel이 바로 노출돼
+          미로드 페이지를 이어서 로드한다(클라이언트 필터의 HOST 누락 방지). */}
+      {hasNextPage ? <div ref={sentinelRef} aria-hidden className="h-px" /> : null}
     </div>
   );
 }

@@ -39,9 +39,9 @@ export default function ArchivePartyDetailPage() {
   };
 
   return (
-    <ArchiveDetailLayout title={data.partyName} id={data.id}>
+    <ArchiveDetailLayout title={data.title} id={data.id}>
       <PartyInfoSection
-        partyName={data.partyName}
+        partyName={data.title}
         date={data.date}
         time={data.time}
         participantCount={data.participantCount}
