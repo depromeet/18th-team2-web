@@ -34,7 +34,8 @@ export default function RollingPaperWritePage() {
 
   const completeCta = locationState?.completeCta ?? storedContext?.completeCta;
   const invitePath = locationState?.invitePath ?? storedContext?.invitePath;
-  const inviteToken = locationState?.inviteToken ?? queryInviteToken ?? storedContext?.inviteToken ?? '';
+  const inviteToken =
+    locationState?.inviteToken ?? queryInviteToken ?? storedContext?.inviteToken ?? '';
   const hostName = locationState?.hostName ?? storedContext?.hostName ?? '';
 
   const [step, setStep] = useState<Step>('nickname');

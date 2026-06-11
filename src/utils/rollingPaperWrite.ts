@@ -33,10 +33,7 @@ export function readRollingPaperWriteContext(partyId: string): RollingPaperWrite
   }
 }
 
-export function saveRollingPaperWriteContext(
-  partyId: string,
-  context: RollingPaperWriteContext,
-) {
+export function saveRollingPaperWriteContext(partyId: string, context: RollingPaperWriteContext) {
   if (typeof window === 'undefined' || !context.inviteToken) return;
 
   window.sessionStorage.setItem(`${STORAGE_KEY_PREFIX}${partyId}`, JSON.stringify(context));
