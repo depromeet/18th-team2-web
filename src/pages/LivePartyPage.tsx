@@ -235,10 +235,7 @@ export default function LivePartyPage() {
       {showEntryReadyUI && !isHost && (
         <div className="fixed right-0 bottom-[300px] left-0 z-40 mx-auto flex w-full max-w-[600px] justify-center">
           <div className="flex w-full flex-col items-center justify-center bg-white/10 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] py-6 backdrop-blur-xs">
-            <B1 className="text-center font-semibold text-white">
-              {hostName}님이 곧 파티를 시작할 거예요 <br />
-              잠시만 기다려주세요!
-            </B1>
+            <B1 className="text-center font-semibold text-white/50">파티 시작 준비중이에요...</B1>
           </div>
         </div>
       )}
