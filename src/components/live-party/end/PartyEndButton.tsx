@@ -4,21 +4,34 @@ import { ROUTES } from '@/constants/routes';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { LaterWriteRollingPaperDialog } from '@/components/live-party/end/LaterWriteRollingPaperDialog';
 import { useLaterWriteDialog } from '@/hooks/live-party/useLaterWriteDialog';
+import type { RealtimePartyNextActionResult } from '@/services/live-party';
 
 interface PartyEndButtonProps {
   role: PartyUserRole;
+  action?: RealtimePartyNextActionResult | null;
+  hostName?: string;
 }
 
-export function PartyEndButton({ role }: PartyEndButtonProps) {
+export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) {
   const navigate = useNavigate();
   const { partyId } = useParams<{ partyId: string }>();
+  const isActionReady = Boolean(action);
+  const rollingPaperId =
+    action?.type === 'HOST_ROLLING_PAPER_LIST' ? String(action.partyId) : (partyId ?? '');
+  const rollingPaperWriteInviteToken =
+    action?.type === 'PARTICIPANT_ROLLING_PAPER_WRITE' ? action.inviteToken : undefined;
 
   const handleHome = () => navigate(ROUTES.home);
   const handleRollingPaperCheck = () =>
-    navigate(generatePath(ROUTES.rollingPaper, { id: partyId ?? '' }));
+    navigate(generatePath(ROUTES.rollingPaper, { id: rollingPaperId }));
 
-  const { isOpen, handleOpen, handleClose, handleWriteNow, handleWriteLater } =
-    useLaterWriteDialog();
+  const { isOpen, handleOpen, handleClose, handleWriteNow, handleWriteLater } = useLaterWriteDialog(
+    { inviteToken: rollingPaperWriteInviteToken, hostName },
+  );
+
+  if (!isActionReady) {
+    return null;
+  }
 
   return (
     <>

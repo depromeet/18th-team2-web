@@ -17,10 +17,14 @@ type CandleBlowState = components['schemas']['CandleBlowResponse'];
 export type BurstGameState = Partial<components['schemas']['BurstGameStateResponse']> & {
   status?: 'ACTIVE' | 'ENDED';
 };
+type PartyEndingReason = components['schemas']['RealtimePartyStateResult']['endingReason'];
+
 export interface RealtimePartyEndingState {
   partyId?: number;
   endingStartedAt?: string;
   endedAt?: string;
+  endingReason?: PartyEndingReason;
+  hostNickname?: string;
   ended: boolean;
 }
 
@@ -241,6 +245,8 @@ export function useLivePartySSE() {
               partyId: parsed.partyId as number | undefined,
               endingStartedAt: parsed.endingStartedAt as string | undefined,
               endedAt: parsed.endedAt as string | undefined,
+              endingReason: parsed.endingReason as PartyEndingReason | undefined,
+              hostNickname: parsed.hostNickname as string | undefined,
               ended: false,
             });
 
@@ -252,6 +258,9 @@ export function useLivePartySSE() {
               ...prev,
               partyId: parsed.partyId as number | undefined,
               endedAt: parsed.endedAt as string | undefined,
+              endingReason:
+                (parsed.endingReason as PartyEndingReason | undefined) ?? prev?.endingReason,
+              hostNickname: (parsed.hostNickname as string | undefined) ?? prev?.hostNickname,
               ended: true,
             }));
 
