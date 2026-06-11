@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
 import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
-export function useLaterWriteDialog() {
+interface UseLaterWriteDialogParams {
+  inviteToken?: string;
+  hostName?: string;
+}
+
+export function useLaterWriteDialog({ inviteToken, hostName }: UseLaterWriteDialogParams = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const locationState = location.state as { inviteToken?: string; hostName?: string } | null;
   const { partyId } = useParams<{ partyId: string }>();
 
   const handleOpen = () => setIsOpen(true);
@@ -16,13 +19,13 @@ export function useLaterWriteDialog() {
 
   const handleWriteNow = () => {
     setIsOpen(false);
-    if (!partyId || !locationState?.inviteToken) return;
+    if (!partyId) return;
 
-    navigate(buildRollingPaperWritePath(partyId, locationState.inviteToken), {
+    navigate(buildRollingPaperWritePath(partyId, inviteToken), {
       state: {
         completeCta: 'home',
-        inviteToken: locationState.inviteToken,
-        hostName: locationState.hostName,
+        inviteToken,
+        hostName,
       },
     });
   };

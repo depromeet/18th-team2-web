@@ -1,6 +1,6 @@
-import onboardingFirstImage from '@/assets/images/onboarding/onboarding-first.png';
-import onboardingSecondImage from '@/assets/images/onboarding/onboarding-second.png';
-import onboardingThirdImage from '@/assets/images/onboarding/onboarding-third.png';
+import onboardingFirstImage from '@/assets/images/onboarding/onboarding-first.svg';
+import onboardingSecondImage from '@/assets/images/onboarding/onboarding-second.svg';
+import onboardingThirdImage from '@/assets/images/onboarding/onboarding-third.svg';
 
 export const ONBOARDING_CONTENTS = [
   //TODO: 2,3번째 이미지 추후 디자인팀에서 추가 예정
@@ -26,3 +26,5 @@ export const ONBOARDING_CONTENTS = [
     },
   },
 ];
+
+export const ONBOARDING_SEEN_KEY = 'onboarding_seen';

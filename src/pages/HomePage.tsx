@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, Navigate, useNavigate } from 'react-router-dom';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { L1 } from '@/components/ui/Typography';
+import { H2, L1 } from '@/components/ui/Typography';
 import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
@@ -17,28 +17,30 @@ import { getCardRoutePath } from '@/utils/homeRoute';
 import { canShareParty } from '@/utils/party';
 
 import type { UpcomingParty } from '@/types/home';
+import { ONBOARDING_SEEN_KEY } from '@/constants/onboarding';
 
 function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: archiveData } = useArchiveList();
+  const { data: upcomingParties } = useUpcomingParties();
+  const [shareToken, setShareToken] = useState<string | null>(null);
+
   const archiveCount = isAuthenticated ? (archiveData?.totalCount ?? 0) : 0;
   const archivePreview = isAuthenticated ? archiveData?.items[0] : undefined;
-
-  const { data: upcomingParties } = useUpcomingParties();
   const parties = upcomingParties ?? [];
-
-  // 호스트 카드 '링크 복사' → 공유 시트. 공유할 파티의 inviteToken을 보관.
-  const [shareToken, setShareToken] = useState<string | null>(null);
   const shareLink = shareToken
     ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: shareToken })}`
     : '';
 
   const handleCardShare = useCallback((party: UpcomingParty) => {
-    // 카드의 링크 복사 노출 규칙과 동일 기준으로 가드 (canShareParty 단일 소스)
     if (!canShareParty(party) || !party.inviteToken) return;
     setShareToken(party.inviteToken);
   }, []);
+
+  if (!isAuthenticated && !sessionStorage.getItem(ONBOARDING_SEEN_KEY)) {
+    return <Navigate to={ROUTES.onboarding} replace />;
+  }
 
   const handleCardAction = (party: UpcomingParty) => {
     const path = getCardRoutePath(party);
@@ -94,11 +96,7 @@ function HomePage() {
           </div>
         )}
         <div className="flex flex-col gap-2.25 px-4 py-5">
-          <h2 className="text-head-2 font-bold tracking-tight">
-            오늘은 누구의 생일을
-            <br />
-            축하해볼까요?
-          </h2>
+          <H2 className="tracking-tight">내 생일을 위한 파티를 열어보세요</H2>
           <L1 className="text-grey-400 font-medium">
             축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요
           </L1>

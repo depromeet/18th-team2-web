@@ -573,7 +573,7 @@ export interface paths {
         };
         /**
          * 파티 참여자 목록 조회
-         * @description 실시간 파티 진행 기본화면용. 입장 순서로 정렬된 참여자 목록을 반환한다. RealtimeParty 전용, 참여자만 조회 가능.
+         * @description 실시간 파티 진행 기본화면용. 현재 SSE에 연결된 참여자 목록을 입장 순서로 반환한다. RealtimeParty 전용, 참여자만 조회 가능.
          *
          *     **인증**
          *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참가자는 `X-Participant-Token: {participantToken}` 헤더를 사용한다. 둘 중 하나는 반드시 포함해야 한다.
@@ -981,7 +981,7 @@ export interface components {
              * @example HOST_REQUEST
              * @enum {string}
              */
-            endingReason: "HOST_REQUEST" | "TIME_LIMIT_REACHED";
+            endingReason: "HOST_REQUEST" | "HOST_LEFT" | "TIME_LIMIT_REACHED";
             /**
              * @description 파티 주최자 닉네임
              * @example 홍길동
@@ -1155,10 +1155,10 @@ export interface components {
              */
             characterId?: number;
             /**
-             * @description 선택한 캐릭터 이미지 URL입니다.
+             * @description 선택한 캐릭터 썸네일 이미지 URL입니다.
              * @example https://example.com/rabbit.png
              */
-            characterImageUrl?: string;
+            characterThumbnailImageUrl?: string;
             /**
              * @description 실시간 파티 참여자 역할입니다.
              * @example CELEBRANT
@@ -1621,12 +1621,27 @@ export interface components {
              * @example TIME_LIMIT_REACHED
              * @enum {string}
              */
-            endingReason?: "HOST_REQUEST" | "TIME_LIMIT_REACHED";
+            endingReason?: "HOST_REQUEST" | "HOST_LEFT" | "TIME_LIMIT_REACHED";
             /**
              * @description 파티 주최자 닉네임
              * @example 홍길동
              */
             hostNickname: string;
+            /**
+             * @description 현재 주최자 종료 인사하기 버튼 사용 가능 여부
+             * @example false
+             */
+            hostFarewellAvailable: boolean;
+            /**
+             * Format: date-time
+             * @description 주최자 입장 기준 종료 인사하기 버튼 활성화 시각
+             */
+            hostFarewellAvailableAt?: string;
+            /**
+             * Format: date-time
+             * @description 응답 생성 서버 시각
+             */
+            serverNow: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseRealtimePartyNextActionResult: {
@@ -1738,7 +1753,7 @@ export interface components {
         PartyParticipantsResponse: {
             /**
              * Format: int32
-             * @description 현재 참여자 수
+             * @description 현재 온라인 참여자 수
              * @example 4
              */
             totalCount: number;
@@ -1748,7 +1763,7 @@ export interface components {
              * @example 14
              */
             maxCount: number;
-            /** @description 입장 순서대로 정렬된 참여자 목록 */
+            /** @description 입장 순서대로 정렬된 온라인 참여자 목록 */
             participants: components["schemas"]["PartyParticipantResponse"][];
         };
         /** @description 공통 성공 응답 */
@@ -1940,10 +1955,11 @@ export interface components {
              */
             type: "PARTY" | "PAPER" | "PARTY" | "PAPER";
             /**
-             * @description 파티 이름. 없으면 빈 문자열
-             * @example 김루카 생일 파티
+             * @description 조회자 역할
+             * @example HOST
+             * @enum {string}
              */
-            title: string;
+            role: "HOST" | "PARTICIPANT" | "HOST" | "PARTICIPANT";
             /**
              * @description 파티 주인공 닉네임. 없으면 null
              * @example 김루카
@@ -2011,8 +2027,8 @@ export interface components {
              * @description 파티 ID
              */
             partyId: number;
-            /** @description 파티 이름. Party.name이 null이면 빈 문자열 */
-            partyName: string;
+            /** @description 파티 주인공 닉네임. 없으면 null */
+            celebrantNickname?: string;
             /**
              * @description REALTIME 또는 PAPER_ONLY
              * @enum {string}
