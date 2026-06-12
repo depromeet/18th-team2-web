@@ -1,6 +1,5 @@
 import { B2, L2 } from '@/components/ui/Typography';
 
-import StarIconSvg from '@/assets/images/live-party/star.svg?react';
 import PartyHatSvg from '@/assets/images/live-party/party-hat.svg?react';
 
 interface ChatItemProps {
@@ -18,7 +17,7 @@ export function ChatItem({ name, profileImage, text, senderRole }: ChatItemProps
       <div className="relative shrink-0">
         <div
           className={`rounded-full p-[2px] ${
-            isCelebrant ? 'bg-linear-to-b from-[#E8B55D] to-[#F0409B]' : 'bg-white'
+            isCelebrant && 'bg-linear-to-b from-[#E8B55D] to-[#F0409B]'
           }`}
         >
           {profileImage ? (
@@ -38,14 +37,9 @@ export function ChatItem({ name, profileImage, text, senderRole }: ChatItemProps
       </div>
 
       <div className="flex flex-col">
-        <span className="flex items-center gap-1">
-          <L2 as="p" className={isCelebrant ? 'text-yellow-300' : 'text-white'}>
-            {name}
-          </L2>
-
-          {isCelebrant && <StarIconSvg />}
-        </span>
-
+        <L2 as="p" className="font-bold text-white">
+          {name}
+        </L2>
         <B2 as="p" className="font-normal text-white">
           {text}
         </B2>

@@ -20,7 +20,7 @@ export function ChatBottomSheet({ messages, onSend, isBlurred = false }: ChatBot
     >
       <div className="flex h-full flex-col">
         <ChatHeader onPointerDown={handlePointerDown} />
-        <ChatList messages={messages} isExpanded={isExpanded} />
+        <ChatList messages={messages} />
         <ChipList onChipClick={onSend} />
         <ChatFooter onSend={onSend} />
       </div>
