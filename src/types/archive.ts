@@ -9,11 +9,11 @@ export interface ArchiveListItem {
   /** 상세 조회용 파티 ID */
   partyId: string;
   type: ArchiveItemType;
+  /** 표시용 제목 — BE 제목 필드 없음, celebrantName + type으로 FE 조합 ("{주인공}의 파티/롤링페이퍼") */
   title: string;
-  /** 파티 주인공 닉네임. BE 응답 `celebrantName`. 없으면 null */
-  celebrantName?: string | null;
   date: string;
-  stamp?: StampType;
+  /** "내가 만든 파티" 필터용 — 본인 역할(HOST/PARTICIPANT) */
+  role: PartyRole;
 }
 
 export interface ChatMessage {
@@ -27,7 +27,8 @@ export interface ChatMessage {
 // PAPER_ONLY는 participants/chatMessages가 빈 배열, endDate(파티 종료=롤페 기한)로 표시.
 export interface PartyDetail {
   id: string;
-  partyName: string;
+  /** 표시용 제목 — BE 제목 필드 없음, celebrantNickname + partyOption으로 FE 조합 (리스트와 동일 패턴) */
+  title: string;
   date: string;
   time: string;
   /** 파티 종료 시각 (PAPER_ONLY 롤페 기간 종료) */
@@ -41,5 +42,4 @@ export interface PartyDetail {
   myPaperWriterNickname?: string;
   paperCount: number;
   chatMessages: ChatMessage[];
-  stamp?: StampType;
 }

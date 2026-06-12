@@ -1955,10 +1955,11 @@ export interface components {
              */
             type: "PARTY" | "PAPER" | "PARTY" | "PAPER";
             /**
-             * @description 파티 이름. 없으면 빈 문자열
-             * @example 김루카 생일 파티
+             * @description 조회자 역할
+             * @example HOST
+             * @enum {string}
              */
-            title: string;
+            role: "HOST" | "PARTICIPANT" | "HOST" | "PARTICIPANT";
             /**
              * @description 파티 주인공 닉네임. 없으면 null
              * @example 김루카
@@ -2026,8 +2027,8 @@ export interface components {
              * @description 파티 ID
              */
             partyId: number;
-            /** @description 파티 이름. Party.name이 null이면 빈 문자열 */
-            partyName: string;
+            /** @description 파티 주인공 닉네임. 없으면 null */
+            celebrantNickname?: string;
             /**
              * @description REALTIME 또는 PAPER_ONLY
              * @enum {string}

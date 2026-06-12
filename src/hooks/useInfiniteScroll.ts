@@ -13,8 +13,10 @@ interface UseInfiniteScrollOptions {
  * 리스트 끝의 센티넬 엘리먼트가 보이면 다음 페이지를 불러온다.
  * 반환한 ref를 리스트 하단 엘리먼트에 연결해 사용한다.
  *
- * `onLoadMore`/`isFetching`은 ref로 최신 값을 참조하므로,
- * observer는 `hasNextPage` 변화에만 재구독된다.
+ * fetch 완료(`isFetching` false 전환) 시 observer를 재구독한다 — IO는 교차 상태가
+ * 변할 때만 발화하므로, 로드된 페이지가 화면에 항목을 추가하지 못해(예: 클라이언트
+ * 필터로 전부 걸러짐) 센티넬이 교차 중인 채 남으면 재구독의 초기 콜백으로 이어서
+ * 로드한다. fetch 시작 시점 재구독은 `isFetchingRef` 가드로 no-op.
  */
 export function useInfiniteScroll<T extends HTMLElement>({
   hasNextPage,
@@ -42,7 +44,7 @@ export function useInfiniteScroll<T extends HTMLElement>({
     observer.observe(sentinel);
 
     return () => observer.disconnect();
-  }, [hasNextPage]);
+  }, [hasNextPage, isFetching]);
 
   return sentinelRef;
 }
