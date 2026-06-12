@@ -122,7 +122,7 @@ export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetPr
           {celebrant && <L2>{celebrant.nickname}님 외</L2>}
 
           <L1 className="font-bold text-blue-400">
-            {totalCount}/{maxCount}명
+            {totalCount - 1}/{maxCount}명
           </L1>
         </div>
       </div>
