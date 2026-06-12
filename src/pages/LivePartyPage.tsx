@@ -90,63 +90,66 @@ export default function LivePartyPage() {
   const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
   const [isPartyStartSheetVisible, setIsPartyStartSheetVisible] = useState(false);
 
-  function handleInvite() {
+  const handleInvite = () => {
     if (!inviteToken) return;
-    navigate(generatePath(ROUTES.partyInvite, { inviteToken }));
-  }
 
-  function handleDeleteParty() {
+    navigate(generatePath(ROUTES.partyInvite, { inviteToken }));
+  };
+
+  const handleDeleteParty = () => {
     if (!partyId) return;
+
     deleteParty(partyId, {
       onSuccess: () => navigate(ROUTES.home, { replace: true }),
     });
-  }
+  };
 
-  function handleStartPartyEnding() {
+  const handleStartPartyEnding = () => {
     if (!partyId || !isHost) return;
+
     startRealtimeEnd(partyId);
-  }
+  };
 
-  function handleErrorRetry() {
+  const handleErrorRetry = () => {
     window.location.reload();
-  }
+  };
 
-  function handleErrorBack() {
+  const handleErrorBack = () => {
     navigate(-1);
-  }
+  };
 
-  function handleCreateParty() {
+  const handleCreateParty = () => {
     navigate(ROUTES.createParty);
-  }
+  };
 
-  function handleGoHome() {
+  const handleGoHome = () => {
     navigate(ROUTES.home, { replace: true });
-  }
+  };
 
-  function handleReturnToPartyRoom() {
+  const handleReturnToPartyRoom = () => {
     setIsPinataOverlayDismissed(true);
-  }
+  };
 
-  function handleOpenPartyStartSheet() {
+  const handleOpenPartyStartSheet = () => {
     setIsPartyStartSheetOpen(true);
 
     requestAnimationFrame(() => {
       setIsPartyStartSheetVisible(true);
     });
-  }
+  };
 
-  function handleClosePartyStartSheet() {
+  const handleClosePartyStartSheet = () => {
     setIsPartyStartSheetVisible(false);
 
     setTimeout(() => {
       setIsPartyStartSheetOpen(false);
     }, 300);
-  }
+  };
 
-  function handleStartParty() {
+  const handleStartParty = () => {
     setIsPartyStartSheetOpen(false);
     handleNextStep();
-  }
+  };
 
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
