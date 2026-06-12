@@ -39,7 +39,6 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
             image={hostParticipant.image}
             name={hostParticipant.name}
             size="xl"
-            isHost
             isJumping={jumpingParticipantId === hostParticipant.id}
             initStyle={hostInitStyle}
           />
@@ -79,7 +78,7 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 bottom-[320px] z-1 flex items-center justify-center"
       >
-        <img src={cake} alt="" className="h-40 w-60" />
+        <img src={cake} alt="" className="h-33.25 w-50" />
       </div>
     </div>
   );

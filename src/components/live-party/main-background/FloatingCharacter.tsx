@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { characterSizeStyles } from '@/constants/live-party';
 import { Caption } from '@/components/ui/Typography';
-import StarIconSvg from '@/assets/images/live-party/star.svg?react';
 
 interface CharacterInitStyle {
   left: string;
@@ -14,9 +13,8 @@ interface CharacterInitStyle {
 
 interface FloatingCharacterProps {
   image: string;
-  name?: string;
-  size?: 'xl' | 'lg' | 'sm';
-  isHost?: boolean;
+  name: string;
+  size: 'xl' | 'lg' | 'sm';
   isJumping?: boolean;
   initStyle: CharacterInitStyle;
 }
@@ -27,7 +25,6 @@ export function FloatingCharacter({
   image,
   name,
   size = 'sm',
-  isHost = false,
   isJumping = false,
   initStyle,
 }: FloatingCharacterProps) {
@@ -68,15 +65,14 @@ export function FloatingCharacter({
               src={image}
               alt={name ?? '파티 참여자'}
               draggable={false}
-              className={`object-contain select-none ${characterSizeStyles[size].imageWidth}`}
+              className={`object-contain select-none ${characterSizeStyles[size]}`}
             />
           </div>
           <Caption
             as="p"
-            className={`${isHost ? 'text-yellow-400' : 'text-grey-100'} flex items-center gap-0.5 font-semibold`}
+            className={`text-white ${size === 'xl' || size === 'lg' ? 'font-semibold' : 'font-normal'} flex items-center gap-0.5 font-semibold`}
           >
             {name}
-            {isHost && <StarIconSvg />}
           </Caption>
         </div>
       </div>
