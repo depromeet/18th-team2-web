@@ -9,7 +9,7 @@ export function usePartyUserRole() {
   const { data: participantsData } = useGetPartyParticipants(partyId);
 
   return useMemo(() => {
-    const me = participantsData?.data?.participants?.find((p) => p.isMe);
+    const me = participantsData?.participants?.find((p) => p.isMe);
     if (me?.isCelebrant) return PARTY_USER.HOST;
     return PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   }, [participantsData]);
