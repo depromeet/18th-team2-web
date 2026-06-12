@@ -6,13 +6,11 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 
 import characterBlue from '@/assets/images/character/character-blue-full.png';
-import characterBrown from '@/assets/images/character/character-brown-full.png';
+import characterGreen from '@/assets/images/character/character-green-full.png';
 import characterPink from '@/assets/images/character/character-pink-full.png';
-import characterWhite from '@/assets/images/character/character-white-full.png';
+import characterPurple from '@/assets/images/character/character-purple-full.png';
 import characterYellow from '@/assets/images/character/character-yellow-full.png';
 import { Button } from '@/components/ui/Button';
-import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
-import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
 import { CHARACTER_LABEL_MAP } from '@/constants/character';
@@ -24,9 +22,9 @@ import { resolveImageUrl } from '@/utils/image';
 
 const FALLBACK_CHARACTERS = [
   { id: 1, name: CHARACTER_LABEL_MAP[1], image: characterBlue },
-  { id: 2, name: CHARACTER_LABEL_MAP[2], image: characterBrown },
+  { id: 2, name: CHARACTER_LABEL_MAP[2], image: characterGreen },
   { id: 3, name: CHARACTER_LABEL_MAP[3], image: characterPink },
-  { id: 4, name: CHARACTER_LABEL_MAP[4], image: characterWhite },
+  { id: 4, name: CHARACTER_LABEL_MAP[4], image: characterPurple },
   { id: 5, name: CHARACTER_LABEL_MAP[5], image: characterYellow },
 ];
 
@@ -149,64 +147,59 @@ export default function PartyCharacterSelectPage() {
         나는 어떤 캐릭터로 등장할까요?
       </H1>
 
-      <div className="mt-21">
+      <div className="mt-[184px] flex h-[230px] w-full items-center">
         <Swiper
           modules={[EffectCoverflow]}
           effect="coverflow"
           slidesPerView="auto"
           centeredSlides
-          spaceBetween={0}
+          spaceBetween={24}
           initialSlide={selectedIndex}
           coverflowEffect={{
             rotate: 0,
-            stretch: 28,
+            stretch: 0,
             depth: 0,
             modifier: 1,
-            scale: 0.62,
+            scale: 1,
             slideShadows: false,
           }}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
           }}
           onSlideChange={(swiper) => setSelectedIndex(swiper.realIndex)}
-          className="w-full overflow-visible"
+          className="h-full w-full overflow-visible"
         >
           {visibleCharacters.map((character, index) => (
             <SwiperSlide
               key={character.id}
               aria-label={character.name}
-              style={{ width: 200 }}
-              className="flex items-center justify-center"
+              className="!flex !w-[200px] items-center justify-center"
             >
-              <div
-                className={`h-50 w-50 rounded-2xl p-3 transition-all duration-200 ${
-                  index === selectedIndex
-                    ? 'border-2 border-blue-500 bg-white'
-                    : 'border-2 border-transparent bg-[#EEEEEE]'
+              <img
+                src={character.image}
+                alt={character.name}
+                className={`h-50 w-50 object-contain transition-opacity duration-200 ${
+                  index === selectedIndex ? 'opacity-100' : 'opacity-45'
                 }`}
-              >
-                <img
-                  src={character.image}
-                  alt={character.name}
-                  className="h-full w-full object-contain"
-                />
-              </div>
+              />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
 
-      <div className="mt-13 flex justify-center gap-10">
-        <CarouselButton
-          label="이전 캐릭터"
-          onClick={() => swiperRef.current?.slidePrev()}
-          direction="prev"
-        />
-        <CarouselButton
-          label="다음 캐릭터"
-          onClick={() => swiperRef.current?.slideNext()}
-          direction="next"
-        />
+      <div className="mt-6 flex justify-center gap-2">
+        {visibleCharacters.map((character, index) => (
+          <button
+            key={character.id}
+            type="button"
+            aria-label={`${character.name} 선택`}
+            aria-current={index === selectedIndex}
+            onClick={() => swiperRef.current?.slideTo(index)}
+            className={`h-1.5 rounded-full transition-all duration-200 ${
+              index === selectedIndex ? 'w-3 bg-blue-500' : 'bg-grey-200 w-1.5'
+            }`}
+          />
+        ))}
       </div>
 
       <div className="mt-auto px-5 pb-6">
@@ -215,25 +208,5 @@ export default function PartyCharacterSelectPage() {
         </Button>
       </div>
     </div>
-  );
-}
-
-interface CarouselButtonProps {
-  label: string;
-  direction: 'prev' | 'next';
-  onClick: () => void;
-}
-
-function CarouselButton({ label, direction, onClick }: CarouselButtonProps) {
-  const Icon = direction === 'prev' ? ChevronLeftIcon : ChevronRightIcon;
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="flex h-13 w-13 items-center justify-center rounded-full bg-blue-50 text-blue-600"
-    >
-      <Icon width={20} height={20} />
-    </button>
   );
 }
