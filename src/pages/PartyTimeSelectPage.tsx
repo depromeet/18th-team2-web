@@ -150,11 +150,19 @@ export default function PartyTimeSelectPage() {
 
   return (
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
-      <PageHeader />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-0 bottom-0 left-0 z-0 h-[38vh] bg-gradient-to-b from-[#EEF5FF]/0 via-[#EEF5FF] to-[#F5F9FF]"
+      />
+      <div className="relative z-10">
+        <PageHeader />
+      </div>
 
-      <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 초대장 내용을 완성해 주세요</H1>
+      <H1 className="relative z-10 mt-2 px-5 tracking-[-0.0002em]">
+        파티 초대장 내용을 완성해 주세요
+      </H1>
 
-      <div className="relative mt-6">
+      <div className="relative mt-[clamp(44px,7vh,72px)] [@media_(min-height:900px)]:mt-[120px]">
         {pickerMode && (
           <button
             type="button"
