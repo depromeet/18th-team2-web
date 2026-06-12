@@ -12,7 +12,7 @@ export function PartyEntryStage() {
 
   const { partyId } = useParams<{ partyId: string }>();
   const { data: participantsData } = useGetPartyParticipants(partyId);
-  const celebrant = participantsData?.data?.participants.find((p) => p.isCelebrant);
+  const celebrant = participantsData?.participants.find((p) => p.isCelebrant);
   const characterImage = resolveImageUrl(celebrant?.characterImageUrl ?? null);
 
   const hostLabel = hostName ? `${hostName}님이` : '주인공이';
@@ -30,7 +30,7 @@ export function PartyEntryStage() {
         <img
           src={characterImage ?? characterBlueHostSrc}
           alt={hostName ? `${hostName}님 캐릭터` : '주인공 캐릭터'}
-          className="party-enter-character h-44 w-44 object-contain"
+          className="party-enter-character h-40.5 w-40.5 object-contain"
           draggable={false}
         />
         <T3 className="text-center text-white">

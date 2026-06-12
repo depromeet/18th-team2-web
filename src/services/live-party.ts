@@ -68,10 +68,6 @@ export function useRealtimePartyState(partyId: string, enabled = true) {
   return useQuery({ ...realtimePartyQueries.state(partyId), enabled: Boolean(partyId) && enabled });
 }
 
-export function usePartyParticipants(partyId: string, enabled = true) {
-  return useQuery(realtimePartyQueries.participants(partyId, enabled));
-}
-
 export function useRealtimePartyNextAction(
   partyId: string,
   participantToken?: string | null,
@@ -215,15 +211,25 @@ export function useSendChatMessage() {
 
 // ── 파티 참여자 목록 조회 (비회원 지원) ──
 
-export function useGetPartyParticipants(partyId: string | undefined) {
+export function useGetPartyParticipants(
+  partyId?: string,
+  options?: {
+    enabled?: boolean;
+    refetchInterval?: number;
+  },
+) {
   return useQuery({
     queryKey: ['party-participants', partyId],
-    queryFn: () =>
-      api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
+    queryFn: async () => {
+      const res = await api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
         `/api/v1/parties/${partyId}/participants`,
         getParticipantOptions(),
-      ),
-    enabled: !!partyId,
+      );
+
+      return res.data ?? null;
+    },
+    enabled: Boolean(partyId) && (options?.enabled ?? true),
+    refetchInterval: options?.refetchInterval,
   });
 }
 
