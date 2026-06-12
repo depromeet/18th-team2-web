@@ -12,9 +12,9 @@ const variantStyles: Record<Variant, string> = {
   filled:
     'bg-[linear-gradient(180deg,#3444F3_0%,#5B8AFC_70%)] text-white font-semibold tracking-[-0.0002em]',
   outlined:
-    'border border-grey-300 bg-white text-head-2 font-medium text-grey-500 tracking-[-0.0001em]',
-  active: 'border-2 border-blue-600 bg-white text-grey-800 font-semibold tracking-[-0.0002em]',
-  selected: 'border-2 border-blue-600 bg-white text-grey-800 font-semibold tracking-[-0.0002em]',
+    'bg-white text-head-2 font-medium text-grey-500 tracking-[-0.0001em] ring-1 ring-grey-300',
+  active: 'bg-white text-grey-800 font-semibold tracking-[-0.0002em] ring-2 ring-blue-600',
+  selected: 'bg-white text-grey-800 font-semibold tracking-[-0.0002em] ring-2 ring-blue-600',
 };
 
 export function HighlightPill({
