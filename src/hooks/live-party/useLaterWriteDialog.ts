@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
+import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
 interface UseLaterWriteDialogParams {
   inviteToken?: string;
@@ -20,7 +21,7 @@ export function useLaterWriteDialog({ inviteToken, hostName }: UseLaterWriteDial
     setIsOpen(false);
     if (!partyId) return;
 
-    navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+    navigate(buildRollingPaperWritePath(partyId, inviteToken), {
       state: {
         completeCta: 'home',
         inviteToken,

@@ -1,4 +1,4 @@
-import { generatePath, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { RollingPaperInvitationCard } from '@/components/party-ended/RollingPaperInvitationCard';
 import { BottomActionBar } from '@/components/ui/BottomActionBar';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { H1, H3 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { isFuture } from '@/utils/date';
+import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
 interface PartyEndedViewProps {
   partyId: string;
@@ -29,7 +30,7 @@ export function PartyEndedView({
     if (isExpired) {
       navigate(ROUTES.home);
     } else {
-      navigate(generatePath(ROUTES.rollingPaperWrite, { partyId }), {
+      navigate(buildRollingPaperWritePath(partyId, inviteToken), {
         state: {
           completeCta: 'home',
           invitePath: window.location.pathname,

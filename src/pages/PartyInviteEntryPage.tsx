@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { PartyEndedView } from '@/components/party-ended/PartyEndedView';
 import { PartyInvitationView } from '@/components/party-invitation/PartyInvitationView';
@@ -51,6 +51,10 @@ export default function PartyInviteEntryPage() {
 
   // 파티 종료 후 화면
   if (data.partyEnded) {
+    if (data.isHost) {
+      return <Navigate to={generatePath(ROUTES.rollingPaper, { id: data.partyId })} replace />;
+    }
+
     if (!data.partyStartDate || !data.partyEndDate) {
       return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
     }
