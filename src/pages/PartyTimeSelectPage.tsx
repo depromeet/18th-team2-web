@@ -137,7 +137,7 @@ export default function PartyTimeSelectPage() {
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
       <PageHeader />
 
-      <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 시간을 선택해 주세요</H1>
+      <H1 className="mt-2 px-5 tracking-[-0.0002em]">파티 초대장 내용을 완성해 주세요</H1>
 
       <div className="relative mt-6">
         {pickerMode && (
@@ -183,7 +183,7 @@ export default function PartyTimeSelectPage() {
                 </span>
                 <span>에</span>
               </div>
-              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+              <div className="flex flex-nowrap items-center gap-x-1.5">
                 <span ref={timePillRef} className="inline-flex">
                   <HighlightPill
                     variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
@@ -199,7 +199,7 @@ export default function PartyTimeSelectPage() {
                     {isTimePickerOpen ? pendingTime : (selectedTime ?? '시간선택')}
                   </HighlightPill>
                 </span>
-                <span>부터 {PARTY_DURATION_MINUTES}분 동안</span>
+                <span className="shrink-0">부터 {PARTY_DURATION_MINUTES}분 동안</span>
               </div>
               <span>온라인 생일 파티가 열려요</span>
             </div>
