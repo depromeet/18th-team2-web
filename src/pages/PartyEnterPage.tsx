@@ -46,11 +46,10 @@ export default function PartyEnterPage() {
           <footer className="flex w-full flex-col items-center gap-2">
             {countdown && (
               <B2 className="text-grey-500 font-medium">
-                파티 시작까지{' '}
                 <span className="text-red-500">
                   {countdown.minutes}분 {countdown.seconds}초
                 </span>{' '}
-                남았어요
+                후에 입장할 수 있어요
               </B2>
             )}
             {hasPartyStarted && !isHost && (
