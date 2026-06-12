@@ -87,6 +87,9 @@ export default function LivePartyPage() {
     locationState?.hostName ??
     (isHost ? profile?.nickname : undefined);
 
+  const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
+  const [isPartyStartSheetVisible, setIsPartyStartSheetVisible] = useState(false);
+
   function handleInvite() {
     if (!inviteToken) return;
     navigate(generatePath(ROUTES.partyInvite, { inviteToken }));
@@ -126,10 +129,18 @@ export default function LivePartyPage() {
 
   function handleOpenPartyStartSheet() {
     setIsPartyStartSheetOpen(true);
+
+    requestAnimationFrame(() => {
+      setIsPartyStartSheetVisible(true);
+    });
   }
 
   function handleClosePartyStartSheet() {
-    setIsPartyStartSheetOpen(false);
+    setIsPartyStartSheetVisible(false);
+
+    setTimeout(() => {
+      setIsPartyStartSheetOpen(false);
+    }, 300);
   }
 
   function handleStartParty() {
@@ -141,7 +152,6 @@ export default function LivePartyPage() {
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
-  const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
 
   useEffect(() => {
     if (partyEndingState?.ended) {
@@ -270,8 +280,18 @@ export default function LivePartyPage() {
 
       {isPartyStartSheetOpen && (
         <div className="fixed inset-0 z-60 flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={handleClosePartyStartSheet} />
-          <div className="relative">
+          <div
+            className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
+              isPartyStartSheetVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={handleClosePartyStartSheet}
+          />
+
+          <div
+            className={`relative transition-transform duration-300 ease-out ${
+              isPartyStartSheetVisible ? 'translate-y-0' : 'translate-y-[calc(100%+32px)]'
+            }`}
+          >
             <PartyStartSheet
               partyId={partyId}
               onClose={handleClosePartyStartSheet}

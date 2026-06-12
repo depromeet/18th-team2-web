@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 
 import { useGetPartyParticipants } from '@/services/live-party';
@@ -28,40 +29,51 @@ export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetPr
   const celebrant = participants.find((p) => p.isCelebrant);
   const thumbnailParticipants = participants.slice(0, 3);
 
-  const initialSlide = participants.findIndex((p) => p.isCelebrant);
+  const celebrantSlide = Math.max(
+    participants.findIndex((p) => p.isCelebrant),
+    0,
+  );
 
-  const celebrantSlide = initialSlide >= 0 ? initialSlide : 0;
-
-  const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [activeIndex, setActiveIndex] = useState(celebrantSlide);
 
   useEffect(() => {
+    if (!swiperRef.current) return;
+
+    swiperRef.current.slideTo(celebrantSlide, 0);
     setActiveIndex(celebrantSlide);
   }, [celebrantSlide]);
 
   return (
-    <div className="mb-4 flex h-102.5 w-88.75 flex-col rounded-3xl bg-white px-5 pt-8 shadow-lg">
+    <div className="mb-4 flex h-102.5 w-88.75 flex-col rounded-3xl bg-white px-5 pt-7 shadow-lg">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-1">
           <H2 className="font-semibold">파티를 시작할까요?</H2>
-
-          <B1 className="text-gray-400">친구들이 다 모였는지 확인해 주세요</B1>
+          <B1 className="text-grey-400">친구들이 다 모였는지 확인해 주세요</B1>
         </div>
 
         <button type="button" onClick={onClose}>
-          <CloseIcon className="h-5 w-5 text-gray-400" />
+          <CloseIcon className="text-grey-400 h-5 w-5" />
         </button>
       </div>
 
-      <div className="mt-4 h-px bg-gray-50" />
+      <div className="bg-grey-50 mt-4 h-px" />
 
       <Swiper
         className="h-44 w-full"
         slidesPerView="auto"
         centeredSlides
-        centeredSlidesBounds
+        centeredSlidesBounds={false}
         watchSlidesProgress
         spaceBetween={10}
-        initialSlide={initialSlide}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+
+          requestAnimationFrame(() => {
+            swiper.slideTo(celebrantSlide, 0);
+            setActiveIndex(celebrantSlide);
+          });
+        }}
         onSlideChange={(swiper) => {
           setActiveIndex(swiper.realIndex);
         }}
