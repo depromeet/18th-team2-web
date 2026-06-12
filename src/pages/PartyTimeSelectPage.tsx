@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Picker from 'react-mobile-picker';
 import { useNavigate } from 'react-router-dom';
 import CalendarColorIcon from '@/assets/images/icons/calendar-color.svg?react';
@@ -50,6 +50,12 @@ function formatStartTime(value: TimePickerValue): string {
   return `${String(hour24).padStart(2, '0')}:${value.minute}`;
 }
 
+function getHour24(period: string, hour: string): number {
+  const hourNumber = Number(hour);
+  const isPm = period.includes('후');
+  return isPm ? (hourNumber === 12 ? 12 : hourNumber + 12) : hourNumber === 12 ? 0 : hourNumber;
+}
+
 function getNearestTimePickerValue(): TimePickerValue {
   const now = new Date();
   const roundedMinute = Math.ceil(now.getMinutes() / 5) * 5;
@@ -61,6 +67,59 @@ function getNearestTimePickerValue(): TimePickerValue {
     period: hour24 < 12 ? '오전' : '오후',
     hour: String(hour24 % 12 === 0 ? 12 : hour24 % 12),
     minute: String(minute).padStart(2, '0'),
+  };
+}
+
+function isSameCalendarDate(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function getTimePickerDate(date: Date, value: TimePickerValue): Date {
+  const nextDate = new Date(date);
+  nextDate.setHours(getHour24(value.period, value.hour), Number(value.minute), 0, 0);
+  return nextDate;
+}
+
+function isSelectableTime(date: Date, value: TimePickerValue): boolean {
+  if (!isSameCalendarDate(date, new Date())) return true;
+  return getTimePickerDate(date, value).getTime() >= Date.now();
+}
+
+function getFirstSelectableTimePickerValue(date: Date): TimePickerValue | null {
+  const nearestTime = getNearestTimePickerValue();
+  if (isSelectableTime(date, nearestTime)) return nearestTime;
+
+  for (const period of TIME_PICKER_OPTIONS.period) {
+    for (const hour of TIME_PICKER_OPTIONS.hour) {
+      for (const minute of TIME_PICKER_OPTIONS.minute) {
+        const value = { period, hour, minute };
+        if (isSelectableTime(date, value)) return value;
+      }
+    }
+  }
+
+  return null;
+}
+
+function getAvailableTimePickerOptions(date: Date, value: TimePickerValue) {
+  const isSelectable = (nextValue: TimePickerValue) => isSelectableTime(date, nextValue);
+
+  return {
+    period: TIME_PICKER_OPTIONS.period.filter((period) =>
+      TIME_PICKER_OPTIONS.hour.some((hour) =>
+        TIME_PICKER_OPTIONS.minute.some((minute) => isSelectable({ period, hour, minute })),
+      ),
+    ),
+    hour: TIME_PICKER_OPTIONS.hour.filter((hour) =>
+      TIME_PICKER_OPTIONS.minute.some((minute) =>
+        isSelectable({ period: value.period, hour, minute }),
+      ),
+    ),
+    minute: TIME_PICKER_OPTIONS.minute.filter((minute) => isSelectable({ ...value, minute })),
   };
 }
 
@@ -82,6 +141,10 @@ export default function PartyTimeSelectPage() {
   );
   const isReady = Boolean(hostName && selectedTime);
   const hostNameParticle = getObjectParticle(hostName || defaultHostName);
+  const timePickerOptions = useMemo(
+    () => getAvailableTimePickerOptions(selectedDate, timePickerValue),
+    [selectedDate, timePickerValue],
+  );
 
   const isDatePickerOpen = pickerMode === 'date';
   const isTimePickerOpen = pickerMode === 'time';
@@ -100,6 +163,17 @@ export default function PartyTimeSelectPage() {
     return () => window.clearTimeout(timeoutId);
   }, [hasOpenedTimePicker]);
 
+  useEffect(() => {
+    if (isSelectableTime(selectedDate, timePickerValue)) return;
+
+    const nextTime = getFirstSelectableTimePickerValue(selectedDate);
+    if (!nextTime) return;
+
+    setTimePickerValue(nextTime);
+    setPendingTime((current) => (current ? formatDisplayTime(nextTime) : current));
+    setSelectedTime((current) => (current ? null : current));
+  }, [selectedDate, timePickerValue]);
+
   const handleOpenDatePicker = () => {
     setPickerMode((current) => (current === 'date' ? null : 'date'));
   };
@@ -108,19 +182,25 @@ export default function PartyTimeSelectPage() {
     setHasOpenedTimePicker(true);
     setShowTimeTooltip(false);
 
-    if (!selectedTime) {
-      const nearestTime = getNearestTimePickerValue();
-      setTimePickerValue(nearestTime);
-      setPendingTime(formatDisplayTime(nearestTime));
+    const nextTime =
+      selectedTime && isSelectableTime(selectedDate, timePickerValue)
+        ? timePickerValue
+        : getFirstSelectableTimePickerValue(selectedDate);
+
+    if (nextTime) {
+      setTimePickerValue(nextTime);
+      setPendingTime(formatDisplayTime(nextTime));
     } else {
-      setPendingTime(formatDisplayTime(timePickerValue));
+      setPendingTime(null);
     }
     setPickerMode((current) => (current === 'time' ? null : 'time'));
   };
 
   const handleClosePicker = () => {
     if (pickerMode === 'time') {
-      setSelectedTime(pendingTime ?? formatDisplayTime(timePickerValue));
+      setSelectedTime(
+        isSelectableTime(selectedDate, timePickerValue) ? formatDisplayTime(timePickerValue) : null,
+      );
     }
     setPickerMode(null);
   };
@@ -128,6 +208,12 @@ export default function PartyTimeSelectPage() {
   const handleSelectDate = (date: Date | undefined) => {
     if (!date) return;
     setSelectedDate(date);
+    if (!isSelectableTime(date, timePickerValue)) {
+      const nextTime = getFirstSelectableTimePickerValue(date);
+      setTimePickerValue(nextTime ?? getNearestTimePickerValue());
+      setSelectedTime(null);
+      setPendingTime(nextTime ? formatDisplayTime(nextTime) : null);
+    }
     setPickerMode(null);
   };
 
@@ -260,7 +346,7 @@ export default function PartyTimeSelectPage() {
             wheelMode="natural"
           >
             <Picker.Column name="period">
-              {TIME_PICKER_OPTIONS.period.map((option) => (
+              {timePickerOptions.period.map((option) => (
                 <Picker.Item key={option} value={option}>
                   {({ selected }) => (
                     <span className={`text-head-2 ${selected ? 'text-white' : 'text-grey-300'}`}>
@@ -271,7 +357,7 @@ export default function PartyTimeSelectPage() {
               ))}
             </Picker.Column>
             <Picker.Column name="hour">
-              {TIME_PICKER_OPTIONS.hour.map((option) => (
+              {timePickerOptions.hour.map((option) => (
                 <Picker.Item key={option} value={option}>
                   {({ selected }) => (
                     <span className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}>
@@ -282,7 +368,7 @@ export default function PartyTimeSelectPage() {
               ))}
             </Picker.Column>
             <Picker.Column name="minute">
-              {TIME_PICKER_OPTIONS.minute.map((option) => (
+              {timePickerOptions.minute.map((option) => (
                 <Picker.Item key={option} value={option}>
                   {({ selected }) => (
                     <span className={`text-head-1 ${selected ? 'text-white' : 'text-grey-300'}`}>
