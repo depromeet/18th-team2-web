@@ -6,12 +6,14 @@ import { getEntryData } from '@/constants/live-party';
 export function usePartyEnterIntro() {
   const location = useLocation();
   const hostName = (location.state as { hostName?: string } | null)?.hostName;
+
   const [step, setStep] = useState(0);
 
   const [isExiting, setIsExiting] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
 
   const [isCurtainOpen, setIsCurtainOpen] = useState(false);
+  const [showHostNotEnter, setShowHostNotEnter] = useState(false);
 
   const entryData = getEntryData(hostName ?? '');
   const currentStep = entryData[step];
@@ -37,21 +39,37 @@ export function usePartyEnterIntro() {
     setIsEntering(false);
   };
 
-  const handleStart = (e: MouseEvent) => {
+  const handleStart = (e: MouseEvent, hasCelebrant: boolean, isHost: boolean) => {
     e.stopPropagation();
+
+    if (isHost) {
+      setIsCurtainOpen(true);
+      return;
+    }
+
+    if (!hasCelebrant) {
+      setShowHostNotEnter(true);
+      return;
+    }
 
     setIsCurtainOpen(true);
   };
 
+  const handleCelebrantEntered = () => {
+    setShowHostNotEnter(false);
+    setIsCurtainOpen(true);
+  };
+
   return {
-    step,
     currentStep,
     isLastStep,
     isExiting,
     isEntering,
     isCurtainOpen,
+    showHostNotEnter,
     handleClick,
     handleTextAnimationEnd,
     handleStart,
+    handleCelebrantEntered,
   };
 }
