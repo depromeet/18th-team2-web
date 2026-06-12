@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
-  usePartyParticipants,
+  useGetPartyParticipants,
   useRealtimePartyState,
   useStartRealtimeEnd,
 } from '@/services/live-party';
@@ -35,9 +35,12 @@ function hasLiveEnded(status?: string | null, endedAt?: string | null) {
 
 export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch = true) {
   const { data: state } = useRealtimePartyState(partyId, canFetch);
-  const { data: participantsData, isLoading: isParticipantsLoading } = usePartyParticipants(
+  const { data: participantsData, isPending: isParticipantsPending } = useGetPartyParticipants(
     partyId,
-    isHost && canFetch,
+    {
+      refetchInterval: 3000,
+      enabled: isHost && canFetch,
+    },
   );
   const { mutate: startRealtimeEnd, data: startedEnd } = useStartRealtimeEnd();
 
@@ -49,9 +52,16 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
   const endingStartedAt = state?.endingStartedAt ?? startedEnd?.endingStartedAt ?? null;
   const hasEnded = hasLiveEnded(state?.status, state?.endedAt);
 
+  // 게스트가 한 번이라도 입장했는지 추적 — 입장 전 LIVE_ENDING 전환 방지
+  const hadGuestsRef = useRef(false);
+
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
     getRemainingEndSeconds(endingStartedAt),
   );
+
+  useEffect(() => {
+    if (hasGuest) hadGuestsRef.current = true;
+  }, [hasGuest]);
 
   useEffect(() => {
     setRemainingSeconds(getRemainingEndSeconds(endingStartedAt));
@@ -68,11 +78,12 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
     if (
       !partyId ||
       !isHost ||
-      isParticipantsLoading ||
+      isParticipantsPending ||
       hasGuest ||
       hasEnded ||
       !started ||
-      endingStartedAt
+      endingStartedAt ||
+      !hadGuestsRef.current
     ) {
       return;
     }
@@ -82,15 +93,15 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
     endingStartedAt,
     hasGuest,
     isHost,
-    isParticipantsLoading,
+    isParticipantsPending,
     partyId,
     startRealtimeEnd,
     started,
   ]);
 
-  const shouldGateHost = isHost && !isParticipantsLoading && !hasGuest;
-  const isEnding = shouldGateHost && started && !hasEnded;
-  const isEnded = shouldGateHost && started && (hasEnded || remainingSeconds <= 0);
+  const shouldGateHost = isHost && !isParticipantsPending && !hasGuest;
+  const isEnding = shouldGateHost && started && !hasEnded && Boolean(endingStartedAt);
+  const isEnded = shouldGateHost && hasEnded;
 
   return {
     shouldGateHost,

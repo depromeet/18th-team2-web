@@ -851,7 +851,7 @@ export interface components {
             name: string;
             /**
              * @description 캐릭터 이미지 URL
-             * @example /images/characters/Type=Default, Shape=Default.png
+             * @example /images/characters/blue.svg
              */
             characterImageUrl?: string;
             /**

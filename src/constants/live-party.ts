@@ -149,7 +149,7 @@ export const MUSIC_TEXT_HEIGHT = 84;
 export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 
 export const characterSizeStyles = {
-  lg: { imageWidth: 'w-[98px]' },
-  sm: { imageWidth: 'w-10' },
-  xl: { imageWidth: 'w-[125px]' },
+  lg: 'w-20 h-20',
+  sm: 'w-9 h-9',
+  xl: 'w-30 h-30',
 } as const;
