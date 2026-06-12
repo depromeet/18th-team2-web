@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CalendarColorIcon from '@/assets/images/icons/calendar-color.svg?react';
+import CalendarMonoIcon from '@/assets/images/icons/calendar-mono.svg?react';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
@@ -133,6 +135,19 @@ export default function RollingPaperCreateSetupPage() {
                 <span ref={datePillRef} className="inline-flex">
                   <HighlightPill
                     variant={isDatePickerOpen ? 'active' : 'filled'}
+                    icon={
+                      isDatePickerOpen ? (
+                        <CalendarColorIcon
+                          className="h-[26px] w-[26px] shrink-0"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <CalendarMonoIcon
+                          className="h-[26px] w-[26px] shrink-0"
+                          aria-hidden="true"
+                        />
+                      )
+                    }
                     onClick={() => setIsDatePickerOpen((open) => !open)}
                   >
                     {formatKoreanDate(selectedDate)}

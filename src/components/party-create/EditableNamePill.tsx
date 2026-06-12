@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import PencilColorIcon from '@/assets/images/icons/pencil-color.svg?react';
+import PencilMonoIcon from '@/assets/images/icons/pencil-mono.svg?react';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { HOST_NAME_MAX_LENGTH } from '@/constants/partyCreate';
 import { clampHostName } from '@/utils/string';
@@ -33,32 +35,36 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
 
   if (isEditing) {
     return (
-      <input
-        ref={inputRef}
-        value={draftName}
-        size={Math.max(2, Math.min(HOST_NAME_MAX_LENGTH, draftName.length || 2))}
-        maxLength={HOST_NAME_MAX_LENGTH}
-        aria-label="이름 입력"
-        onChange={(event) => setDraftName(clampHostName(event.target.value))}
-        onBlur={commitName}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            commitName();
-          }
-          if (event.key === 'Escape') {
-            event.preventDefault();
-            cancelEditing();
-          }
-        }}
-        className="text-head-1 text-grey-800 inline-flex h-11 max-w-56 min-w-18 rounded-full border-2 border-blue-600 bg-white px-5 font-semibold tracking-[-0.0002em] outline-none"
-      />
+      <span className="text-grey-800 text-head-1 inline-flex h-11 max-w-56 items-center gap-1.5 rounded-full border-2 border-blue-600 bg-white px-3 align-middle font-semibold tracking-[-0.0002em]">
+        <PencilColorIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
+        <input
+          ref={inputRef}
+          value={draftName}
+          size={Math.max(2, Math.min(HOST_NAME_MAX_LENGTH, draftName.length || 2))}
+          maxLength={HOST_NAME_MAX_LENGTH}
+          aria-label="이름 입력"
+          onChange={(event) => setDraftName(clampHostName(event.target.value))}
+          onBlur={commitName}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commitName();
+            }
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              cancelEditing();
+            }
+          }}
+          className="min-w-8 bg-transparent p-0 outline-none"
+        />
+      </span>
     );
   }
 
   return (
     <HighlightPill
       variant="filled"
+      icon={<PencilMonoIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />}
       onClick={() => {
         setDraftName(value);
         setIsEditing(true);

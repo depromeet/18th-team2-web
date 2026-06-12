@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import Picker from 'react-mobile-picker';
 import { useNavigate } from 'react-router-dom';
+import CalendarColorIcon from '@/assets/images/icons/calendar-color.svg?react';
+import CalendarMonoIcon from '@/assets/images/icons/calendar-mono.svg?react';
+import ClockColorIcon from '@/assets/images/icons/clock-color.svg?react';
+import ClockMonoIcon from '@/assets/images/icons/clock-mono.svg?react';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
@@ -22,6 +26,7 @@ import {
   formatKoreanDate,
   getTodayMidnight,
 } from '@/utils/date';
+import { getObjectParticle } from '@/utils/koreanPostposition';
 
 type PickerMode = 'date' | 'time' | null;
 
@@ -45,6 +50,20 @@ function formatStartTime(value: TimePickerValue): string {
   return `${String(hour24).padStart(2, '0')}:${value.minute}`;
 }
 
+function getNearestTimePickerValue(): TimePickerValue {
+  const now = new Date();
+  const roundedMinute = Math.ceil(now.getMinutes() / 5) * 5;
+  const hourOffset = roundedMinute === 60 ? 1 : 0;
+  const hour24 = (now.getHours() + hourOffset) % 24;
+  const minute = roundedMinute === 60 ? 0 : roundedMinute;
+
+  return {
+    period: hour24 < 12 ? '오전' : '오후',
+    hour: String(hour24 % 12 === 0 ? 12 : hour24 % 12),
+    minute: String(minute).padStart(2, '0'),
+  };
+}
+
 export default function PartyTimeSelectPage() {
   const navigate = useNavigate();
   const { data: meData } = useMe();
@@ -56,12 +75,11 @@ export default function PartyTimeSelectPage() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [pendingTime, setPendingTime] = useState<string | null>(null);
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
-  const [timePickerValue, setTimePickerValue] = useState<TimePickerValue>({
-    period: '오후',
-    hour: '4',
-    minute: '00',
-  });
+  const [timePickerValue, setTimePickerValue] = useState<TimePickerValue>(() =>
+    getNearestTimePickerValue(),
+  );
   const isReady = Boolean(hostName && selectedTime);
+  const hostNameParticle = getObjectParticle(hostName || defaultHostName);
 
   const isDatePickerOpen = pickerMode === 'date';
   const isTimePickerOpen = pickerMode === 'time';
@@ -75,7 +93,13 @@ export default function PartyTimeSelectPage() {
   };
 
   const handleOpenTimePicker = () => {
-    setPendingTime(selectedTime ?? formatDisplayTime(timePickerValue));
+    if (!selectedTime) {
+      const nearestTime = getNearestTimePickerValue();
+      setTimePickerValue(nearestTime);
+      setPendingTime(formatDisplayTime(nearestTime));
+    } else {
+      setPendingTime(formatDisplayTime(timePickerValue));
+    }
     setPickerMode((current) => (current === 'time' ? null : 'time'));
   };
 
@@ -133,12 +157,25 @@ export default function PartyTimeSelectPage() {
                   fallbackValue={defaultHostName}
                   onChange={setHostName}
                 />
-                <span>를 위해</span>
+                <span>{hostNameParticle} 위해</span>
               </div>
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <span ref={datePillRef} className="inline-flex">
                   <HighlightPill
                     variant={isDatePickerOpen ? 'active' : 'filled'}
+                    icon={
+                      isDatePickerOpen ? (
+                        <CalendarColorIcon
+                          className="h-[26px] w-[26px] shrink-0"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <CalendarMonoIcon
+                          className="h-[26px] w-[26px] shrink-0"
+                          aria-hidden="true"
+                        />
+                      )
+                    }
                     onClick={handleOpenDatePicker}
                   >
                     {formatKoreanDate(selectedDate)}
@@ -150,6 +187,13 @@ export default function PartyTimeSelectPage() {
                 <span ref={timePillRef} className="inline-flex">
                   <HighlightPill
                     variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
+                    icon={
+                      isTimePickerOpen || !selectedTime ? (
+                        <ClockColorIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
+                      ) : (
+                        <ClockMonoIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
+                      )
+                    }
                     onClick={handleOpenTimePicker}
                   >
                     {isTimePickerOpen ? pendingTime : (selectedTime ?? '시간선택')}
