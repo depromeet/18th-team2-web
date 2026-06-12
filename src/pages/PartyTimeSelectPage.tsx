@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Picker from 'react-mobile-picker';
 import { useNavigate } from 'react-router-dom';
 import CalendarColorIcon from '@/assets/images/icons/calendar-color.svg?react';
@@ -75,6 +75,8 @@ export default function PartyTimeSelectPage() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [pendingTime, setPendingTime] = useState<string | null>(null);
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
+  const [showTimeTooltip, setShowTimeTooltip] = useState(false);
+  const [hasOpenedTimePicker, setHasOpenedTimePicker] = useState(false);
   const [timePickerValue, setTimePickerValue] = useState<TimePickerValue>(() =>
     getNearestTimePickerValue(),
   );
@@ -88,11 +90,24 @@ export default function PartyTimeSelectPage() {
   const { anchorRef: timePillRef, position: timePickerPosition } =
     useAnchoredOverlay<HTMLSpanElement>(isTimePickerOpen);
 
+  useEffect(() => {
+    if (hasOpenedTimePicker) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setShowTimeTooltip(true);
+    }, 1500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasOpenedTimePicker]);
+
   const handleOpenDatePicker = () => {
     setPickerMode((current) => (current === 'date' ? null : 'date'));
   };
 
   const handleOpenTimePicker = () => {
+    setHasOpenedTimePicker(true);
+    setShowTimeTooltip(false);
+
     if (!selectedTime) {
       const nearestTime = getNearestTimePickerValue();
       setTimePickerValue(nearestTime);
@@ -183,7 +198,7 @@ export default function PartyTimeSelectPage() {
                 </span>
                 <span>에</span>
               </div>
-              <div className="flex flex-nowrap items-center gap-x-1.5">
+              <div className="relative flex flex-nowrap items-center gap-x-1.5">
                 <span ref={timePillRef} className="inline-flex">
                   <HighlightPill
                     variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
@@ -200,6 +215,16 @@ export default function PartyTimeSelectPage() {
                   </HighlightPill>
                 </span>
                 <span className="shrink-0">부터 {PARTY_DURATION_MINUTES}분 동안</span>
+                {showTimeTooltip && !hasOpenedTimePicker && (
+                  <div className="pointer-events-none absolute top-[52px] left-12 z-20 flex h-14 w-[131px] items-center rounded-xl bg-[#000341] px-3 py-2 text-[13px] leading-[20px] font-semibold whitespace-nowrap text-white shadow-[0px_4px_12px_0px_#00000033]">
+                    <span className="absolute -top-1.5 left-5 h-3 w-3 rotate-45 bg-[#000341]" />
+                    <span className="relative z-10">
+                      원하는 파티 시간을
+                      <br />
+                      선택해 주세요!
+                    </span>
+                  </div>
+                )}
               </div>
               <span>온라인 생일 파티가 열려요</span>
             </div>
