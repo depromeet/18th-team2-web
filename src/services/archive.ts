@@ -53,7 +53,6 @@ function formatKstOrEmpty(iso: string | null | undefined, pattern: string): stri
 function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
   return {
     id: res.partyId != null ? String(res.partyId) : '',
-    // 상세엔 BE 제목 필드가 없음 — celebrantNickname + partyOption으로 리스트와 동일 패턴 조합
     title: buildArchiveTitle(
       res.celebrantNickname,
       res.partyOption === 'PAPER_ONLY' ? 'PAPER' : 'PARTY',

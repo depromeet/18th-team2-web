@@ -53,7 +53,7 @@ function mapBurstGameRanking(
     rank: ranking.rank,
     nickname: ranking.nickname,
     tapCount: ranking.tapCount,
-    image: resolveImageUrl(ranking.characterImageUrl) ?? characterBlueThumb,
+    image: resolveImageUrl(ranking.characterThumbnailImageUrl) ?? characterBlueThumb,
     isMe: ranking.participantId === myParticipantId,
   };
 }
