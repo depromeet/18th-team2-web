@@ -21,9 +21,9 @@ interface PartyStartSheetProps {
 export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetProps) {
   const { data } = useGetPartyParticipants(partyId);
 
-  const participants: PartyParticipant[] = data?.data?.participants ?? [];
-  const totalCount = data?.data?.totalCount ?? 0;
-  const maxCount = data?.data?.maxCount ?? 0;
+  const participants: PartyParticipant[] = data?.participants ?? [];
+  const totalCount = data?.totalCount ?? 0;
+  const maxCount = data?.maxCount ?? 0;
 
   const celebrant = participants.find((p) => p.isCelebrant);
   const thumbnailParticipants = participants.slice(0, 3);
