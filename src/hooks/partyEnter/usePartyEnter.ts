@@ -34,7 +34,9 @@ export function usePartyEnter() {
 
   // 호스트는 자기 파티 참여자라 /participants 호출 가능. 비인증 참가자는 BE 제약상 호출 불가 → undefined로 비활성화.
   // TODO(BE): 비인증 참가자도 만원 판정할 수 있도록 invite lookup에 participantCount/maxCount 추가 요청.
-  const { data: participantsResponse } = useGetPartyParticipants(isHost ? partyId : undefined);
+  const { data: participantsResponse } = useGetPartyParticipants(isHost ? partyId : undefined, {
+    refetchInterval: 3000,
+  });
   const beParticipants = participantsResponse?.participants ?? [];
   const guestParticipants = beParticipants.filter((participant) => !participant.isCelebrant);
   const totalCount = guestParticipants.length;
@@ -138,6 +140,7 @@ export function usePartyEnter() {
     inputValue: nickname,
     isNicknameEditable,
     inputMessage,
+    guestParticipants,
     isInputError: !!errorMessage,
     selectedCharacterId,
     handleChangeNickname,
