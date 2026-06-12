@@ -7,9 +7,10 @@ import { useGetPartyParticipants } from '@/services/live-party';
 import { resolveImageUrl } from '@/utils/image';
 import type { components } from '@/types/api';
 
-import { Button } from '../ui/Button';
-import { CloseIcon } from '../ui/icons/CloseIcon';
-import { B1, Caption, H2, L1, L2 } from '../ui/Typography';
+import { Button } from '@/components/ui/Button';
+import { CloseIcon } from '@/components/ui/icons/CloseIcon';
+import { B1, Caption, H2, L1, L2 } from '@/components/ui/Typography';
+import { ParticipantAvatarGroup } from '@/components/live-party/ParticipantAvatarGroup';
 
 type PartyParticipant = components['schemas']['PartyParticipantResponse'];
 
@@ -107,16 +108,7 @@ export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetPr
       </Swiper>
 
       <div className="flex items-center justify-center gap-2">
-        <div className="flex -space-x-2">
-          {thumbnailParticipants.map((participant) => (
-            <img
-              key={participant.participantId}
-              src={resolveImageUrl(participant.characterImageUrl) ?? ''}
-              alt={participant.nickname}
-              className="h-6 w-6 rounded-full object-cover ring-1 ring-white"
-            />
-          ))}
-        </div>
+        <ParticipantAvatarGroup participants={thumbnailParticipants} size="sm" />
 
         <div className="flex items-center gap-1">
           {celebrant && <L2>{celebrant.nickname}님 외</L2>}
