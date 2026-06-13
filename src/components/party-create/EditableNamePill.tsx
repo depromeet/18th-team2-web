@@ -35,7 +35,7 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
 
   if (isEditing) {
     return (
-      <span className="text-grey-800 text-head-1 inline-flex h-11 max-w-56 items-center gap-1.5 rounded-full border-2 border-blue-600 bg-white px-3 align-middle font-semibold tracking-[-0.0002em]">
+      <span className="text-grey-800 text-head-1 inline-flex h-11 max-w-56 items-center gap-1.5 rounded-full bg-white px-3 align-middle font-semibold tracking-[-0.0002em] ring-2 ring-blue-600">
         <PencilColorIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
         <input
           ref={inputRef}
