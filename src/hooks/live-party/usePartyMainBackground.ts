@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 
 import fireworkBig from '@/assets/images/live-party/firework-big.svg';
 import fireworkSmall from '@/assets/images/live-party/firework-small.svg';
-import defaultCharacterSrc from '@/assets/images/character/character-brown-full.png';
+import defaultCharacterSrc from '@/assets/images/character/character-blue-full.png';
 
 import { PARTY_USER } from '@/constants/live-party';
 import { useGetPartyParticipants } from '@/services/live-party';
