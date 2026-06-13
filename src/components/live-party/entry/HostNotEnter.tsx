@@ -4,8 +4,8 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, T4 } from '@/components/ui/Typography';
-import { ParticipantAvatarGroup } from '@/components/live-party/ParticipantAvatarGroup';
 import type { components } from '@/types/api';
+import ParticipantsAvatarSvg from '@/assets/images/live-party/participants-avatar.svg?react';
 
 type PartyParticipant = components['schemas']['PartyParticipantResponse'];
 
@@ -34,11 +34,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
                 임시이미지
               </div>
 
-              {participants.length > 1 && (
-                <div className="absolute right-[-2px] bottom-[-5px] z-10">
-                  <ParticipantAvatarGroup participants={participants.slice(0, 3)} size="lg" />
-                </div>
-              )}
+              <ParticipantsAvatarSvg className="absolute right-[-25px] bottom-[-5px] z-10" />
             </div>
 
             <div className="flex flex-col items-center gap-4 text-center">
