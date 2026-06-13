@@ -40,7 +40,7 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
     handleTextAnimationEnd,
     handleStart,
     handleCelebrantEntered,
-  } = usePartyEnterIntro();
+  } = usePartyEnterIntro({ hasCelebrant, isHost });
 
   useEffect(() => {
     if (!isCurtainOpen) return;
@@ -53,6 +53,8 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
       window.clearTimeout(timer);
     };
   }, [isCurtainOpen, onComplete]);
+
+  // 주최자 입장 시 HostNotEnter를 닫고 "두근두근" step으로 복귀
   useEffect(() => {
     if (!showHostNotEnter) return;
     if (!hasCelebrant) return;
@@ -87,7 +89,7 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
 
             <PartyEntryFooter
               showButton={!!currentStep.showButton}
-              onStart={(e) => handleStart(e, hasCelebrant, isHost)}
+              onStart={handleStart}
             />
           </>
         )}
