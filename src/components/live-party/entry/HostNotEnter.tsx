@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { generatePath, useLocation } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, T4 } from '@/components/ui/Typography';
+import { ROUTES } from '@/constants/routes';
 import type { components } from '@/types/api';
 import ParticipantsAvatarSvg from '@/assets/images/live-party/participants-avatar.svg?react';
 
@@ -14,14 +15,15 @@ interface HostNotEnterProps {
 }
 
 export function HostNotEnter({ participants }: HostNotEnterProps) {
-  const { partyId = '' } = useParams();
+  const location = useLocation();
+  const locationState = location.state as { inviteToken?: string } | null;
+  const inviteToken = locationState?.inviteToken ?? '';
 
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
-  {
-    /**TODO: 수정 필요 */
-  }
-  const shareLink = `${window.location.origin}/party/${partyId}/enter`;
+  const shareLink = inviteToken
+    ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`
+    : '';
 
   return (
     <>
@@ -66,7 +68,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
         isOpen={isShareSheetOpen}
         link={shareLink}
         title="입장 링크 보내기"
-        shareText="친구들이 파티방에서 애타게 기다리고 있어요. 얼른 와서 축하 파티를 시작해 주세요!"
+        shareText="친구들이 파티방에서 애타게 기다리고 있어요."
         onClose={() => setIsShareSheetOpen(false)}
       />
     </>
