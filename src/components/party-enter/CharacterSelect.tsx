@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { EffectCoverflow } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper/types';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
-import { Caption } from '@/components/ui/Typography';
 import { CHARACTER_LABEL_MAP } from '@/constants/character';
 import { useCharacters } from '@/services/character';
 import { resolveImageUrl } from '@/utils/image';
@@ -12,10 +15,15 @@ interface CharacterSelectProps {
 
 export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {
   const { data: characters = [], isLoading } = useCharacters();
+  const swiperRef = useRef<SwiperType | null>(null);
   const [internalId, setInternalId] = useState<number | null>(null);
 
   const isControlled = value !== undefined;
   const selectedId = isControlled ? value : internalId;
+  const selectedIndex = Math.max(
+    0,
+    characters.findIndex((character) => character.characterId === selectedId),
+  );
 
   useEffect(() => {
     if (characters.length > 0 && selectedId === null) {
@@ -25,69 +33,99 @@ export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {
     }
   }, [characters, selectedId, onSelect, isControlled]);
 
+  useEffect(() => {
+    if (selectedIndex >= 0) {
+      swiperRef.current?.slideTo(selectedIndex);
+    }
+  }, [selectedIndex]);
+
   const handleSelect = (characterId: number) => {
     if (!isControlled) setInternalId(characterId);
     onSelect?.(characterId);
   };
 
-  const selectedCharacter = characters.find((c) => c.characterId === selectedId);
-  const selectedImageUrl = resolveImageUrl(selectedCharacter?.characterImageUrl);
-
   if (isLoading) {
-    return <div className="bg-grey-100 h-[174px] w-full animate-pulse rounded-lg" />;
+    return <div className="bg-grey-100 h-[230px] w-full animate-pulse rounded-lg" />;
   }
 
   return (
-    <>
-      <figure className="h-14 w-full">
-        <ul className="flex h-full items-center justify-center gap-4">
-          {characters.map((character) => {
+    <div className="flex w-full flex-col items-center">
+      <div className="flex h-[230px] w-full items-center">
+        <Swiper
+          modules={[EffectCoverflow]}
+          effect="coverflow"
+          slidesPerView="auto"
+          centeredSlides
+          spaceBetween={24}
+          initialSlide={selectedIndex}
+          coverflowEffect={{
+            rotate: 0,
+            stretch: 0,
+            depth: 0,
+            modifier: 1,
+            scale: 1,
+            slideShadows: false,
+          }}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
+          onSlideChange={(swiper) => {
+            const selectedCharacter = characters[swiper.realIndex];
+            const id = selectedCharacter?.characterId;
+            if (id != null) handleSelect(id);
+          }}
+          className="h-full w-full overflow-visible"
+        >
+          {characters.map((character, index) => {
             const id = character.characterId;
             if (id == null) return null;
-            const isSelected = selectedId === id;
-            const thumbnailUrl = resolveImageUrl(character.characterThumbnailImageUrl);
+            const imageUrl = resolveImageUrl(character.characterImageUrl);
 
             return (
-              <li
+              <SwiperSlide
                 key={id}
-                className="flex cursor-pointer flex-col items-center gap-1"
-                onClick={() => handleSelect(id)}
+                aria-label={CHARACTER_LABEL_MAP[id] ?? character.name ?? '캐릭터'}
+                className="!flex !w-[200px] items-center justify-center"
               >
-                <div
-                  className={`rounded-full border-2 ${isSelected ? 'border-blue-600' : 'border-white'}`}
-                >
-                  {thumbnailUrl ? (
-                    <img
-                      src={thumbnailUrl}
-                      alt={character.name ?? '캐릭터'}
-                      className="h-8 w-8 rounded-full"
-                    />
-                  ) : (
-                    <div className="bg-grey-100 h-8 w-8 rounded-full" />
-                  )}
-                </div>
-                <Caption
-                  as="p"
-                  className={`font-semibold ${isSelected ? 'text-blue-600' : 'text-grey-500'}`}
-                >
-                  {CHARACTER_LABEL_MAP[id] ?? character.name}
-                </Caption>
-              </li>
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={CHARACTER_LABEL_MAP[id] ?? character.name ?? '캐릭터'}
+                    className={`h-50 w-50 object-contain transition-opacity duration-200 ${
+                      index === selectedIndex ? 'opacity-100' : 'opacity-45'
+                    }`}
+                  />
+                ) : (
+                  <div className="bg-grey-100 h-50 w-50 rounded-full" />
+                )}
+              </SwiperSlide>
             );
           })}
-        </ul>
-      </figure>
-      <figure className="h-[160px] w-[160px]">
-        {selectedImageUrl ? (
-          <img
-            src={selectedImageUrl}
-            alt={selectedCharacter?.name ?? '캐릭터'}
-            className="h-full w-full object-contain"
-          />
-        ) : (
-          <div className="bg-grey-100 h-full w-full rounded-lg" />
-        )}
-      </figure>
-    </>
+        </Swiper>
+      </div>
+
+      <div className="mt-6 flex justify-center gap-2">
+        {characters.map((character, index) => {
+          const id = character.characterId;
+          if (id == null) return null;
+
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-label={`${CHARACTER_LABEL_MAP[id] ?? character.name ?? '캐릭터'} 선택`}
+              aria-current={index === selectedIndex}
+              onClick={() => {
+                swiperRef.current?.slideTo(index);
+                handleSelect(id);
+              }}
+              className={`h-1.5 rounded-full transition-all duration-200 ${
+                index === selectedIndex ? 'w-3 bg-blue-500' : 'bg-grey-200 w-1.5'
+              }`}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
