@@ -35,28 +35,32 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
 
   if (isEditing) {
     return (
-      <span className="text-grey-800 text-head-1 inline-flex h-11 max-w-56 items-center gap-1.5 rounded-full bg-white px-3 align-middle font-semibold tracking-[-0.0002em] ring-2 ring-blue-600">
-        <PencilColorIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
-        <input
-          ref={inputRef}
-          value={draftName}
-          size={Math.max(2, Math.min(HOST_NAME_MAX_LENGTH, draftName.length || 2))}
-          maxLength={HOST_NAME_MAX_LENGTH}
-          aria-label="이름 입력"
-          onChange={(event) => setDraftName(clampHostName(event.target.value))}
-          onBlur={commitName}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              commitName();
-            }
-            if (event.key === 'Escape') {
-              event.preventDefault();
-              cancelEditing();
-            }
-          }}
-          className="min-w-8 bg-transparent p-0 outline-none"
-        />
+      <span className="text-grey-800 text-head-2 inline-flex h-10 max-w-56 items-center gap-1.5 rounded-full bg-white px-3 align-middle font-semibold tracking-[-0.0002em] ring-2 ring-blue-600">
+        <PencilColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+        <span className="grid min-w-8">
+          <span className="invisible col-start-1 row-start-1 whitespace-pre" aria-hidden="true">
+            {draftName || ' '}
+          </span>
+          <input
+            ref={inputRef}
+            value={draftName}
+            maxLength={HOST_NAME_MAX_LENGTH}
+            aria-label="이름 입력"
+            onChange={(event) => setDraftName(clampHostName(event.target.value))}
+            onBlur={commitName}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                commitName();
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                cancelEditing();
+              }
+            }}
+            className="col-start-1 row-start-1 w-full min-w-0 bg-transparent p-0 outline-none"
+          />
+        </span>
       </span>
     );
   }
@@ -64,7 +68,7 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
   return (
     <HighlightPill
       variant="filled"
-      icon={<PencilMonoIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />}
+      icon={<PencilMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />}
       onClick={() => {
         setDraftName(value);
         setIsEditing(true);

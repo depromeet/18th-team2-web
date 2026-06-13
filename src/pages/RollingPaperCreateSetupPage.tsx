@@ -131,14 +131,16 @@ export default function RollingPaperCreateSetupPage() {
           <InvitationCard title="롤링페이퍼 초대장" footerDate={footerDate}>
             <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                <EditableNamePill
-                  value={hostName}
-                  fallbackValue={defaultHostName}
-                  onChange={setHostName}
-                />
-                <span>의</span>
+                <span className="inline-flex items-center gap-x-1.5 whitespace-nowrap">
+                  <EditableNamePill
+                    value={hostName}
+                    fallbackValue={defaultHostName}
+                    onChange={setHostName}
+                  />
+                  <span className="text-head-3">의</span>
+                </span>
               </div>
-              <span>롤링페이퍼를</span>
+              <span className="text-head-3">롤링페이퍼를</span>
               <div className="relative flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <span ref={datePillRef} className="inline-flex">
                   <HighlightPill
@@ -146,12 +148,12 @@ export default function RollingPaperCreateSetupPage() {
                     icon={
                       isDatePickerOpen ? (
                         <CalendarColorIcon
-                          className="h-[26px] w-[26px] shrink-0"
+                          className="h-6 w-6 shrink-0"
                           aria-hidden="true"
                         />
                       ) : (
                         <CalendarMonoIcon
-                          className="h-[26px] w-[26px] shrink-0"
+                          className="h-6 w-6 shrink-0"
                           aria-hidden="true"
                         />
                       )
@@ -161,13 +163,13 @@ export default function RollingPaperCreateSetupPage() {
                     {formatKoreanDate(selectedDate)}
                   </HighlightPill>
                 </span>
-                <span>부터</span>
+                <span className="text-head-3">부터</span>
               </div>
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <strong className="font-semibold text-blue-500">
                   {formatKoreanShortDate(endDate)}
                 </strong>
-                <span>까지 받아요</span>
+                <span className="text-head-3">까지 받아요</span>
               </div>
             </div>
           </InvitationCard>

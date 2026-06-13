@@ -30,7 +30,7 @@ export function HighlightPill({
   return (
     <button
       type={type}
-      className={`inline-flex h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full ${paddingClassName} align-middle whitespace-nowrap ${variant === 'outlined' ? '' : 'text-head-1'} ${variantStyles[variant]} ${className ?? ''}`}
+      className={`inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-full ${paddingClassName} align-middle whitespace-nowrap ${variant === 'outlined' ? '' : 'text-head-2'} ${variantStyles[variant]} ${className ?? ''}`}
       {...props}
     >
       {icon}

@@ -261,12 +261,14 @@ export default function PartyTimeSelectPage() {
           <InvitationCard title="파티 초대장" footerDate={formatDotDate(selectedDate)}>
             <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                <EditableNamePill
-                  value={hostName}
-                  fallbackValue={defaultHostName}
-                  onChange={setHostName}
-                />
-                <span>{hostNameParticle} 위해</span>
+                <span className="inline-flex items-center gap-x-1.5 whitespace-nowrap">
+                  <EditableNamePill
+                    value={hostName}
+                    fallbackValue={defaultHostName}
+                    onChange={setHostName}
+                  />
+                  <span className="text-head-3">{hostNameParticle} 위해</span>
+                </span>
               </div>
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <span ref={datePillRef} className="inline-flex">
@@ -275,12 +277,12 @@ export default function PartyTimeSelectPage() {
                     icon={
                       isDatePickerOpen ? (
                         <CalendarColorIcon
-                          className="h-[26px] w-[26px] shrink-0"
+                          className="h-6 w-6 shrink-0"
                           aria-hidden="true"
                         />
                       ) : (
                         <CalendarMonoIcon
-                          className="h-[26px] w-[26px] shrink-0"
+                          className="h-6 w-6 shrink-0"
                           aria-hidden="true"
                         />
                       )
@@ -290,7 +292,7 @@ export default function PartyTimeSelectPage() {
                     {formatKoreanDate(selectedDate)}
                   </HighlightPill>
                 </span>
-                <span>에</span>
+                <span className="text-head-3">에</span>
               </div>
               <div className="relative flex flex-nowrap items-center gap-x-1.5">
                 <span ref={timePillRef} className="inline-flex">
@@ -298,9 +300,9 @@ export default function PartyTimeSelectPage() {
                     variant={isTimePickerOpen ? 'active' : selectedTime ? 'filled' : 'outlined'}
                     icon={
                       isTimePickerOpen || !selectedTime ? (
-                        <ClockColorIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
+                        <ClockColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
                       ) : (
-                        <ClockMonoIcon className="h-[26px] w-[26px] shrink-0" aria-hidden="true" />
+                        <ClockMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
                       )
                     }
                     onClick={handleOpenTimePicker}
@@ -308,7 +310,7 @@ export default function PartyTimeSelectPage() {
                     {isTimePickerOpen ? pendingTime : (selectedTime ?? '시간선택')}
                   </HighlightPill>
                 </span>
-                <span className="shrink-0">부터 {PARTY_DURATION_MINUTES}분 동안</span>
+                <span className="text-head-3 shrink-0">부터 {PARTY_DURATION_MINUTES}분 동안</span>
                 {showTimeTooltip && !hasOpenedTimePicker && (
                   <div className="pointer-events-none absolute top-[52px] left-12 z-20 flex h-14 w-[131px] items-center rounded-xl bg-[#000341] px-3 py-2 text-[13px] leading-[20px] font-semibold whitespace-nowrap text-white shadow-[0px_4px_12px_0px_#00000033]">
                     <span className="absolute -top-1.5 left-5 h-3 w-3 rotate-45 bg-[#000341]" />
@@ -320,7 +322,7 @@ export default function PartyTimeSelectPage() {
                   </div>
                 )}
               </div>
-              <span>온라인 생일 파티가 열려요</span>
+              <span className="text-head-3">온라인 생일 파티가 열려요</span>
             </div>
           </InvitationCard>
         </div>
