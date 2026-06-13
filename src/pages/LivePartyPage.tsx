@@ -36,6 +36,12 @@ export default function LivePartyPage() {
   const inviteToken = locationState?.inviteToken ?? '';
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
 
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem(PARTICIPANT_TOKEN_KEY);
+    };
+  }, []);
+
   const {
     messages,
     addMessage,
