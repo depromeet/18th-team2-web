@@ -9,6 +9,7 @@ import { CANDLES } from '@/constants/live-party';
 import { useCandleStep } from '@/hooks/live-party/useCandleStep';
 import { useFallConfetti } from '@/hooks/live-party/useFallConfetti';
 import type { components } from '@/types/api';
+import { WaitingHostActionOverlay } from './WaitingHostActionOverlay';
 
 interface PartyCandleStepProps {
   onComplete?: () => void;
@@ -22,6 +23,9 @@ export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCa
   const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
     candleBlowState,
   });
+
+  const showHostNextButton = allCandleOff && isHost;
+  const showWaitingOverlay = allCandleOff && !isHost;
 
   useEffect(() => {
     if (allCandleOff) {
@@ -46,11 +50,13 @@ export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCa
         onClickCandle={handleClickCandle}
       />
 
-      {allCandleOff && isHost && (
+      {showHostNextButton && (
         <div className="absolute right-4 bottom-8 left-4 z-40 animate-[party-complete-fade-in_300ms_ease-out_forwards]">
           <Button onClick={onComplete}>다음</Button>
         </div>
       )}
+
+      {showWaitingOverlay && <WaitingHostActionOverlay />}
     </div>
   );
 }
