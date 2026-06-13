@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { generatePath, useLocation } from 'react-router-dom';
+import Lottie from 'lottie-react';
 
 import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
@@ -7,6 +8,8 @@ import { B1, T4 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import type { components } from '@/types/api';
 import ParticipantsAvatarSvg from '@/assets/images/live-party/participants-avatar.svg?react';
+import noOwnerAnimation from '@/assets/images/live-party/no-owner.json';
+import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 
 type PartyParticipant = components['schemas']['PartyParticipantResponse'];
 
@@ -31,9 +34,8 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
         <div className="flex flex-1 items-center justify-center">
           <div className="flex flex-col items-center gap-15">
             <div className="relative">
-              {/**TODO: 이미지 추가 필요 */}
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                임시이미지
+                <Lottie animationData={noOwnerAnimation} className="h-full w-full" loop />
               </div>
 
               <ParticipantsAvatarSvg className="absolute right-[-25px] bottom-[-5px] z-10" />
@@ -52,8 +54,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
               </B1>
             </div>
 
-            {/** 이미지 추가 필요 */}
-            <div className="h-9 w-9 bg-amber-100">임시</div>
+            <Lottie animationData={loadingBarAnimation} className="h-9 w-9" loop />
           </div>
         </div>
 
