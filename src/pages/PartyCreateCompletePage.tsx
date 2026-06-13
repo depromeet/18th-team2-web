@@ -32,7 +32,7 @@ export default function PartyCreateCompletePage() {
   const partyState = getPartyCompleteState(location.state);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
-  const hostName = partyState.hostName ?? DUMMY_HOST_NAME;
+  const hostName = partyState.hostName || DUMMY_HOST_NAME;
   const partyDate = partyState.partyDate ? new Date(partyState.partyDate) : getTodayMidnight();
   const partyTime = partyState.partyTime ?? DEFAULT_PARTY_TIME;
   const inviteToken = partyState.inviteToken;
