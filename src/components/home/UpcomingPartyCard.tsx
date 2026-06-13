@@ -47,7 +47,7 @@ const UPCOMING_PARTY_CARD_VIEW: Record<
     PAPER_ONLY: {
       closed: {
         ...PAPER_BADGE,
-        actionText: '파티 당일 밤 10시에 공개되어요',
+        actionText: '밤 10시 공개 예정',
         actionVariant: 'disabled',
       },
       open: { ...PAPER_BADGE, actionText: '롤링페이퍼 확인하기', actionVariant: 'primary' },

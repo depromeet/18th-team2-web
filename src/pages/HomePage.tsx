@@ -69,8 +69,6 @@ function HomePage() {
                   slidesPerView="auto"
                   spaceBetween={8}
                   centeredSlides
-                  loop
-                  loopAdditionalSlides={1}
                   pagination={{
                     clickable: true,
                     el: '.upcoming-party-pagination',
