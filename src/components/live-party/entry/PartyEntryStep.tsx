@@ -87,10 +87,7 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
               onAnimationEnd={handleTextAnimationEnd}
             />
 
-            <PartyEntryFooter
-              showButton={!!currentStep.showButton}
-              onStart={handleStart}
-            />
+            <PartyEntryFooter showButton={!!currentStep.showButton} onStart={handleStart} />
           </>
         )}
 
