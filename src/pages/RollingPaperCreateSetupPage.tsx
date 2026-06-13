@@ -147,15 +147,9 @@ export default function RollingPaperCreateSetupPage() {
                     variant={isDatePickerOpen ? 'active' : 'filled'}
                     icon={
                       isDatePickerOpen ? (
-                        <CalendarColorIcon
-                          className="h-6 w-6 shrink-0"
-                          aria-hidden="true"
-                        />
+                        <CalendarColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
                       ) : (
-                        <CalendarMonoIcon
-                          className="h-6 w-6 shrink-0"
-                          aria-hidden="true"
-                        />
+                        <CalendarMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
                       )
                     }
                     onClick={() => setIsDatePickerOpen((open) => !open)}
