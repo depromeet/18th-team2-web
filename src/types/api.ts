@@ -1733,6 +1733,8 @@ export interface components {
             characterId?: number;
             /** @description 캐릭터 메인 이미지 URL */
             characterImageUrl?: string;
+            /** @description 캐릭터 썸네일 이미지 URL */
+            thumbnailImageUrl?: string;
             /**
              * @description 파티 주최자 여부
              * @example true
