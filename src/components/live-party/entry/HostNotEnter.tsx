@@ -67,7 +67,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
       <LinkShareSheet
         isOpen={isShareSheetOpen}
         link={shareLink}
-        title="입장 링크 보내기"
+        title="주인공에게 입장 링크 보내기"
         shareText="친구들이 파티방에서 애타게 기다리고 있어요."
         onClose={() => setIsShareSheetOpen(false)}
       />
