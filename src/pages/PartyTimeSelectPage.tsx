@@ -40,7 +40,7 @@ interface TimePickerValue {
 const TIME_PICKER_OPTIONS = {
   period: ['오전', '오후'],
   hour: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-  minute: ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'],
+  minute: Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, '0')),
 } as const;
 
 function formatStartTime(value: TimePickerValue): string {
@@ -58,15 +58,19 @@ function getHour24(period: string, hour: string): number {
 
 function getNearestTimePickerValue(): TimePickerValue {
   const now = new Date();
-  const roundedMinute = Math.ceil(now.getMinutes() / 5) * 5;
-  const hourOffset = roundedMinute === 60 ? 1 : 0;
-  const hour24 = (now.getHours() + hourOffset) % 24;
-  const minute = roundedMinute === 60 ? 0 : roundedMinute;
+  const nextMinute = new Date(now);
+
+  nextMinute.setSeconds(0, 0);
+  if (nextMinute.getTime() < now.getTime()) {
+    nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+  }
+
+  const hour24 = nextMinute.getHours();
 
   return {
     period: hour24 < 12 ? '오전' : '오후',
     hour: String(hour24 % 12 === 0 ? 12 : hour24 % 12),
-    minute: String(minute).padStart(2, '0'),
+    minute: String(nextMinute.getMinutes()).padStart(2, '0'),
   };
 }
 
