@@ -93,7 +93,7 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
         )}
 
         {showHostNotEnter && !isHost && !hasCelebrant && (
-          <div className="absolute inset-0 z-20">
+          <div className="party-enter-text-in absolute inset-0 z-20">
             <HostNotEnter participants={participants} />
           </div>
         )}
