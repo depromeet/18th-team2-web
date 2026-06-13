@@ -64,10 +64,7 @@ export function usePartyMainBackground() {
     };
   }, [firecrackerId, firingParticipantId]);
 
-  const rawParticipants = useMemo(
-    () => participantsData?.data?.participants ?? [],
-    [participantsData],
-  );
+  const rawParticipants = useMemo(() => participantsData?.participants ?? [], [participantsData]);
 
   const hostParticipant = useMemo(() => {
     const host = rawParticipants.find((p) => p.isCelebrant);

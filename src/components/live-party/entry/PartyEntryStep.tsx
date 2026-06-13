@@ -26,7 +26,7 @@ export function PartyEntryStep({ onComplete }: PartyEntryStepProps) {
 
     const timer = window.setTimeout(() => {
       onComplete?.();
-    }, 2500);
+    }, 1800);
 
     return () => {
       window.clearTimeout(timer);
