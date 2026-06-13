@@ -35,7 +35,7 @@ export function StepRenderer({
 }: StepRendererProps) {
   switch (step) {
     case 'ENTRY':
-      return <PartyEntryStep onComplete={onStepComplete} />;
+      return <PartyEntryStep onComplete={onStepComplete} isHost={isHost} />;
     case 'MUSIC':
       return <PartyMusicText onComplete={onStepComplete} />;
     case 'CANDLE':
