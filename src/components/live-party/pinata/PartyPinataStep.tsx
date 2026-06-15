@@ -3,6 +3,7 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from 're
 
 import crownIcon from '@/assets/images/icons/crown.svg';
 import clickIcon from '@/assets/images/live-party/click.png';
+import pinataFailImage from '@/assets/images/live-party/pinata-fail.png';
 import { PartyPinataOnboarding } from '@/components/live-party/pinata/PartyPinataOnboarding';
 import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
@@ -61,6 +62,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     handleTapPinata,
   } = usePinataStep({ burstGameState });
   const [isConfettiReady, setIsConfettiReady] = useState(false);
+  const isPinataFailed = isResultVisible && totalTapCount === 0;
 
   const fireResultFireworks = useCallback(() => {
     const firework = () => {
@@ -88,10 +90,10 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
   }, []);
 
   useEffect(() => {
-    if (!isResultVisible || !isConfettiReady) return;
+    if (!isResultVisible || !isConfettiReady || isPinataFailed) return;
 
     return fireResultFireworks();
-  }, [fireResultFireworks, isConfettiReady, isResultVisible]);
+  }, [fireResultFireworks, isConfettiReady, isPinataFailed, isResultVisible]);
 
   if (shouldShowOnboarding) {
     return (
@@ -100,6 +102,35 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
   }
 
   if (isResultVisible) {
+    if (isPinataFailed) {
+      return (
+        <section className="pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[32.6svh] text-white">
+          <div
+            className={`flex flex-col items-center transition-opacity duration-500 ease-out ${
+              isResultAnimated ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <h2 className="text-head-1 text-center font-bold">박이 터지지 않았어요</h2>
+
+            <img
+              src={pinataFailImage}
+              alt=""
+              aria-hidden="true"
+              className="mt-7 h-[180px] w-[250px] object-contain"
+            />
+          </div>
+
+          <div
+            className={`pointer-events-auto absolute right-4 bottom-[calc(46px+env(safe-area-inset-bottom))] left-4 z-30 transition-opacity duration-300 ${
+              isResultAnimated ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <Button onClick={onReturnToPartyRoom}>파티방으로 돌아가기</Button>
+          </div>
+        </section>
+      );
+    }
+
     const podiumSlots: { ranking?: PinataRanking; className: string }[] = [
       { ranking: topRankings[1], className: 'translate-y-5' },
       { ranking: topRankings[0], className: '-translate-y-3' },
