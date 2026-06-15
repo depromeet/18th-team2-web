@@ -3,7 +3,6 @@ import onboardingSecondImage from '@/assets/images/onboarding/onboarding-second.
 import onboardingThirdImage from '@/assets/images/onboarding/onboarding-third.svg';
 
 export const ONBOARDING_CONTENTS = [
-  //TODO: 2,3번째 이미지 추후 디자인팀에서 추가 예정
   {
     imageSrc: onboardingFirstImage,
     text: {
