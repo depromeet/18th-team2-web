@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CalendarColorIcon from '@/assets/images/icons/calendar-color.svg?react';
+import CalendarMonoIcon from '@/assets/images/icons/calendar-mono.svg?react';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
@@ -98,7 +100,13 @@ export default function RollingPaperCreateSetupPage() {
 
   return (
     <div className="bg-gradient-bg relative flex min-h-screen flex-col">
-      <PageHeader />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-0 bottom-0 left-0 z-0 h-[38vh] bg-gradient-to-b from-[#EEF5FF]/0 via-[#EEF5FF] to-[#F5F9FF]"
+      />
+      <div className="relative z-10">
+        <PageHeader />
+      </div>
 
       {createError && (
         <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-3 text-sm text-white">
@@ -106,9 +114,11 @@ export default function RollingPaperCreateSetupPage() {
         </div>
       )}
 
-      <H1 className="mt-2 px-5 tracking-[-0.0002em]">일주일 동안 롤링페이퍼를 받아요</H1>
+      <H1 className="relative z-10 mt-2 px-5 tracking-[-0.0002em]">
+        일주일 동안 롤링페이퍼를 받아요
+      </H1>
 
-      <div className="relative mt-8">
+      <div className="relative mt-[clamp(44px,7vh,72px)] [@media_(min-height:900px)]:mt-[120px]">
         {isDatePickerOpen && (
           <button
             type="button"
@@ -121,30 +131,39 @@ export default function RollingPaperCreateSetupPage() {
           <InvitationCard title="롤링페이퍼 초대장" footerDate={footerDate}>
             <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
-                <EditableNamePill
-                  value={hostName}
-                  fallbackValue={defaultHostName}
-                  onChange={setHostName}
-                />
-                <span>의</span>
+                <span className="inline-flex items-center gap-x-1.5 whitespace-nowrap">
+                  <EditableNamePill
+                    value={hostName}
+                    fallbackValue={defaultHostName}
+                    onChange={setHostName}
+                  />
+                  <span className="text-head-3">의</span>
+                </span>
               </div>
-              <span>롤링페이퍼를</span>
+              <span className="text-head-3">롤링페이퍼를</span>
               <div className="relative flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <span ref={datePillRef} className="inline-flex">
                   <HighlightPill
                     variant={isDatePickerOpen ? 'active' : 'filled'}
+                    icon={
+                      isDatePickerOpen ? (
+                        <CalendarColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <CalendarMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+                      )
+                    }
                     onClick={() => setIsDatePickerOpen((open) => !open)}
                   >
                     {formatKoreanDate(selectedDate)}
                   </HighlightPill>
                 </span>
-                <span>부터</span>
+                <span className="text-head-3">부터</span>
               </div>
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <strong className="font-semibold text-blue-500">
                   {formatKoreanShortDate(endDate)}
                 </strong>
-                <span>까지 받아요</span>
+                <span className="text-head-3">까지 받아요</span>
               </div>
             </div>
           </InvitationCard>

@@ -5,6 +5,7 @@ import { NicknameInput } from '@/components/ui/NicknameInput';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { B2, H1 } from '@/components/ui/Typography';
 import { usePartyEnter } from '@/hooks/partyEnter/usePartyEnter';
+import { ParticipantStatus } from '@/components/party-enter/ParticipantStatus';
 
 export default function PartyEnterPage() {
   const {
@@ -15,6 +16,7 @@ export default function PartyEnterPage() {
     hasPartyStarted,
     isPartyFull,
     inputValue,
+    guestParticipants,
     isNicknameEditable,
     inputMessage,
     isInputError,
@@ -55,6 +57,7 @@ export default function PartyEnterPage() {
             {hasPartyStarted && !isHost && (
               <B2 className="text-center font-medium text-blue-700">파티가 이미 진행 중이에요!</B2>
             )}
+            {isHost && <ParticipantStatus participants={guestParticipants} />}
             {isPartyFull && (
               <div className="bg-red-30 flex h-12 w-full items-center justify-center gap-2 rounded-xl px-4 py-2">
                 <ErrorCircleFilledIcon width={20} height={20} aria-hidden="true" />

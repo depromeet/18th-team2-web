@@ -1,5 +1,6 @@
 import { B1, H2 } from '@/components/ui/Typography';
 import { formatDotDate, formatKoreanDate } from '@/utils/date';
+import { getObjectParticle } from '@/utils/koreanPostposition';
 
 interface CompletedInvitationCardProps {
   title: string;
@@ -19,6 +20,7 @@ export function CompletedInvitationCard({
   className,
 }: CompletedInvitationCardProps) {
   const footerText = `${formatDotDate(partyDate)}  |  ${partyTime}`;
+  const hostNameParticle = getObjectParticle(hostName);
 
   return (
     <div className={`rounded-lg bg-white px-9 pt-10 pb-9 ${className ?? ''}`}>
@@ -28,7 +30,7 @@ export function CompletedInvitationCard({
       <div className="text-head-1 text-grey-600 mt-8 flex flex-col gap-3 font-normal tracking-[-0.0002em]">
         <div>
           <strong className="text-blue-500">{hostName}</strong>
-          <span>를 위해</span>
+          <span>{hostNameParticle} 위해</span>
         </div>
         <div>
           <strong className="text-blue-500">{formatKoreanDate(partyDate)}</strong>
