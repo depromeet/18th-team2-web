@@ -19,7 +19,7 @@ export function ParticipantAvatarGroup({ participants, size = 'sm' }: Participan
       {participants.map((participant) => (
         <img
           key={participant.participantId}
-          src={resolveImageUrl(participant.characterImageUrl) ?? ''}
+          src={resolveImageUrl(participant.thumbnailImageUrl) ?? ''}
           alt={participant.nickname}
           className={`${avatarSizeStyles[size]} rounded-full object-cover ring-1 ring-white`}
         />
