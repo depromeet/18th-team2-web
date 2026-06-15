@@ -17,7 +17,7 @@ export default function OnboardingPage() {
   } = useOnboarding();
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-between bg-linear-to-b from-[#3F00B5] to-[#5892FF] px-4 py-4">
+    <main className="flex flex-1 flex-col items-center justify-between bg-linear-to-b from-[#588FFD] to-[#2D38E0] px-4 py-4">
       <header className="flex h-11 w-full justify-end">
         <button className="cursor-pointer p-3" onClick={handleSkip}>
           <B1 className="text-white/50">건너뛰기</B1>

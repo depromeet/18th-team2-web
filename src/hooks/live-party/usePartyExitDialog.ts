@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
 import { useLeaveParty } from '@/services/live-party';
 
@@ -27,7 +26,6 @@ export function usePartyExitDialog() {
     const from = (location.state as { from?: string } | null)?.from;
 
     const doNavigate = () => {
-      sessionStorage.removeItem(PARTICIPANT_TOKEN_KEY);
       navigate(from ?? ROUTES.home);
     };
 
