@@ -1,4 +1,7 @@
+import Lottie from 'lottie-react';
+
 import { T4 } from '@/components/ui/Typography';
+import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 
 export function WaitingHostActionOverlay() {
   return (
@@ -9,7 +12,7 @@ export function WaitingHostActionOverlay() {
         진행을 기다리고 있어요
       </T4>
 
-      <div className="h-9 w-9 bg-amber-200">임시</div>
+      <Lottie animationData={loadingBarAnimation} className="h-9 w-9" loop />
     </div>
   );
 }
