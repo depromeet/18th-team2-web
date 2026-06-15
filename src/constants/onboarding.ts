@@ -1,6 +1,6 @@
-import onboardingFirstImage from '@/assets/images/onboarding/onboarding-first.svg';
-import onboardingSecondImage from '@/assets/images/onboarding/onboarding-second.svg';
-import onboardingThirdImage from '@/assets/images/onboarding/onboarding-third.svg';
+import onboardingFirstImage from '@/assets/images/onboarding/onboarding-first.png';
+import onboardingSecondImage from '@/assets/images/onboarding/onboarding-second.png';
+import onboardingThirdImage from '@/assets/images/onboarding/onboarding-third.png';
 
 export const ONBOARDING_CONTENTS = [
   {
