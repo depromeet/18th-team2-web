@@ -21,9 +21,17 @@ export function LivePartyHeader({
       {step !== LIVE_PARTY_STEP.ENTRY && (
         <button onClick={handleToggleMute}>
           {musicIsMuted ? (
-            <img src={musicMutedIcon} alt="음악 음소거" className="h-9 w-9" />
+            <img
+              src={musicMutedIcon}
+              alt="음악 음소거"
+              className="h-9 w-9 transform-[translateZ(0)]"
+            />
           ) : (
-            <img src={musicPlayIcon} alt="음악 재생" className="h-9 w-9" />
+            <img
+              src={musicPlayIcon}
+              alt="음악 재생"
+              className="h-9 w-9 transform-[translateZ(0)]"
+            />
           )}
         </button>
       )}
