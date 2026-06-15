@@ -38,13 +38,6 @@ export function formatRank(rank: number) {
   return `${rank}등`;
 }
 
-export function getPodiumColor(rank: number) {
-  if (rank === 1) return '#FFC94D';
-  if (rank === 2) return '#FFFFFF';
-  if (rank === 3) return '#B8872B';
-  return '#D7A43A';
-}
-
 function mapBurstGameRanking(
   ranking: NonNullable<BurstGameState['rankings']>[number],
   myParticipantId: number | undefined,

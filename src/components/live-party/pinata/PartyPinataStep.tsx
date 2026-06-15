@@ -1,7 +1,9 @@
 import ReactCanvasConfetti from 'react-canvas-confetti';
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 
-import crownIcon from '@/assets/images/icons/crown.svg';
+import crownBrownIcon from '@/assets/images/icons/crown-brown.png';
+import crownGoldIcon from '@/assets/images/icons/crown-gold.png';
+import crownSilverIcon from '@/assets/images/icons/crown-silver.png';
 import clickIcon from '@/assets/images/live-party/click.png';
 import pinataFailImage from '@/assets/images/live-party/pinata-fail.png';
 import { PartyPinataOnboarding } from '@/components/live-party/pinata/PartyPinataOnboarding';
@@ -9,25 +11,20 @@ import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
 import {
   formatRank,
-  getPodiumColor,
   type PinataRanking,
   RANK_ROW_GAP,
   usePinataStep,
 } from '@/hooks/live-party/usePinataStep';
 import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
 
-function CrownIcon({ color, className = '' }: { color: string; className?: string }) {
-  return (
-    <span
-      className={`inline-block shrink-0 ${className}`}
-      style={{
-        backgroundColor: color,
-        WebkitMask: `url(${crownIcon}) center / contain no-repeat`,
-        mask: `url(${crownIcon}) center / contain no-repeat`,
-      }}
-      aria-hidden="true"
-    />
-  );
+const PODIUM_STYLES = {
+  1: { color: '#FFDA85', crown: crownGoldIcon },
+  2: { color: '#DCDCDC', crown: crownSilverIcon },
+  3: { color: '#B58B48', crown: crownBrownIcon },
+} as const;
+
+function getPodiumStyle(rank: number) {
+  return PODIUM_STYLES[rank as keyof typeof PODIUM_STYLES] ?? PODIUM_STYLES[3];
 }
 
 type PinataStyleProperties = CSSProperties & {
@@ -175,7 +172,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
               return <div key={`empty-podium-${slotIndex}`} className="w-[100px]" aria-hidden />;
             }
 
-            const rankColor = getPodiumColor(ranking.rank);
+            const { color: rankColor, crown } = getPodiumStyle(ranking.rank);
 
             return (
               <div
@@ -186,7 +183,12 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
                   className="text-body-1 flex items-center gap-1 font-bold"
                   style={{ color: rankColor }}
                 >
-                  <CrownIcon color={rankColor} className="h-[18px] w-[22px]" />
+                  <img
+                    src={crown}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-[18px] w-[22px] shrink-0 object-contain"
+                  />
                   <span>{formatRank(ranking.rank)}</span>
                 </div>
 
