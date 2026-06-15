@@ -42,6 +42,10 @@ interface CharacterOption {
   image: string;
 }
 
+type ClickableSwiper = SwiperType & {
+  allowClick?: boolean;
+};
+
 function mapCharacterOption(character: CharacterResult, index: number): CharacterOption | null {
   const id = character.characterId;
   if (id == null) return null;
@@ -76,6 +80,18 @@ export default function PartyCharacterSelectPage() {
   const { mutate: createRealtimeParty, isPending: isCreatingParty } = useCreateRealtimeParty();
   const { mutate: activateInviteLink, isPending: isActivatingInviteLink } = useActivateInviteLink();
   const isPending = isCreatingParty || isActivatingInviteLink;
+
+  const handleSelectIndex = (index: number) => {
+    swiperRef.current?.slideTo(index);
+    setSelectedIndex(index);
+  };
+
+  const handleClickCharacter = (index: number) => {
+    const swiper = swiperRef.current as ClickableSwiper | null;
+    if (swiper?.allowClick === false) return;
+
+    handleSelectIndex(index);
+  };
 
   const handleSelectCharacter = () => {
     const { hostName, startedDate, startTime } = locationState;
@@ -172,16 +188,24 @@ export default function PartyCharacterSelectPage() {
           {visibleCharacters.map((character, index) => (
             <SwiperSlide
               key={character.id}
-              aria-label={character.name}
               className="!flex !w-[200px] items-center justify-center"
             >
-              <img
-                src={character.image}
-                alt={character.name}
-                className={`h-50 w-50 object-contain transition-opacity duration-200 ${
-                  index === selectedIndex ? 'opacity-100' : 'opacity-45'
-                }`}
-              />
+              <button
+                type="button"
+                aria-label={`${character.name} 선택`}
+                aria-current={index === selectedIndex}
+                className="flex h-50 w-50 cursor-pointer items-center justify-center"
+                onClick={() => handleClickCharacter(index)}
+              >
+                <img
+                  src={character.image}
+                  alt=""
+                  aria-hidden="true"
+                  className={`h-50 w-50 object-contain transition-opacity duration-200 ${
+                    index === selectedIndex ? 'opacity-100' : 'opacity-45'
+                  }`}
+                />
+              </button>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -194,7 +218,7 @@ export default function PartyCharacterSelectPage() {
             type="button"
             aria-label={`${character.name} 선택`}
             aria-current={index === selectedIndex}
-            onClick={() => swiperRef.current?.slideTo(index)}
+            onClick={() => handleSelectIndex(index)}
             className={`h-1.5 rounded-full transition-all duration-200 ${
               index === selectedIndex ? 'w-3 bg-blue-500' : 'bg-grey-200 w-1.5'
             }`}

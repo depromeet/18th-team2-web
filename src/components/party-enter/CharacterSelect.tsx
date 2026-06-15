@@ -13,6 +13,10 @@ interface CharacterSelectProps {
   onSelect?: (characterId: number) => void;
 }
 
+type ClickableSwiper = SwiperType & {
+  allowClick?: boolean;
+};
+
 export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {
   const { data: characters = [], isLoading } = useCharacters();
   const swiperRef = useRef<SwiperType | null>(null);
@@ -42,6 +46,14 @@ export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {
   const handleSelect = (characterId: number) => {
     if (!isControlled) setInternalId(characterId);
     onSelect?.(characterId);
+  };
+
+  const handleClickCharacter = (index: number, characterId: number) => {
+    const swiper = swiperRef.current as ClickableSwiper | null;
+    if (swiper?.allowClick === false) return;
+
+    swiperRef.current?.slideTo(index);
+    handleSelect(characterId);
   };
 
   if (isLoading) {
@@ -82,22 +94,27 @@ export function CharacterSelect({ value, onSelect }: CharacterSelectProps) {
             const imageUrl = resolveImageUrl(character.characterImageUrl);
 
             return (
-              <SwiperSlide
-                key={id}
-                aria-label={CHARACTER_LABEL_MAP[id] ?? character.name ?? '캐릭터'}
-                className="!flex !w-[200px] items-center justify-center"
-              >
-                {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt={CHARACTER_LABEL_MAP[id] ?? character.name ?? '캐릭터'}
-                    className={`h-50 w-50 object-contain transition-opacity duration-200 ${
-                      index === selectedIndex ? 'opacity-100' : 'opacity-45'
-                    }`}
-                  />
-                ) : (
-                  <div className="bg-grey-100 h-50 w-50 rounded-full" />
-                )}
+              <SwiperSlide key={id} className="!flex !w-[200px] items-center justify-center">
+                <button
+                  type="button"
+                  aria-label={`${CHARACTER_LABEL_MAP[id] ?? character.name ?? '캐릭터'} 선택`}
+                  aria-current={index === selectedIndex}
+                  className="flex h-50 w-50 cursor-pointer items-center justify-center"
+                  onClick={() => handleClickCharacter(index, id)}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt=""
+                      aria-hidden="true"
+                      className={`h-50 w-50 object-contain transition-opacity duration-200 ${
+                        index === selectedIndex ? 'opacity-100' : 'opacity-45'
+                      }`}
+                    />
+                  ) : (
+                    <div className="bg-grey-100 h-50 w-50 rounded-full" />
+                  )}
+                </button>
               </SwiperSlide>
             );
           })}
