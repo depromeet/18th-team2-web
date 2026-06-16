@@ -4,6 +4,7 @@ import { generatePath, useLocation, useNavigate, useParams } from 'react-router-
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
+import { RollingPaperLockedView } from '@/components/rolling-paper/RollingPaperLockedView';
 import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
@@ -120,16 +121,9 @@ export default function RollingPaperPage() {
 
   if (isError) {
     // 403: 권한 없음 또는 "아직 열람 불가"(롤페만 작성 파티의 조회 가능 시간 전).
-    // 정상 진입한 화면이므로 권한 오류보다 "오픈 전" 케이스가 대부분 → 안내 문구로 분기한다.
+    // 정상 진입한 화면이므로 권한 오류보다 "오픈 전" 케이스가 대부분 → 에러 대신 잠금 화면.
     if (isApiErrorStatus(error, 403)) {
-      return (
-        <ErrorView
-          variant="notFound"
-          title="아직 롤링페이퍼를 확인할 수 없어요"
-          description={'공개 시간이 되면\n받은 롤링페이퍼를 확인할 수 있어요.'}
-          onPrimaryClick={() => navigate(ROUTES.home)}
-        />
-      );
+      return <RollingPaperLockedView />;
     }
 
     if (isApiErrorStatus(error, 404)) {
