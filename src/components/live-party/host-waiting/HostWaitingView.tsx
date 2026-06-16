@@ -1,9 +1,6 @@
-import { useState } from 'react';
-
 import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
 import cakeSrc from '@/assets/images/live-party/cake.svg';
 import partyLightSrc from '@/assets/images/live-party/party-light.png';
-import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
 import { Button } from '@/components/ui/Button';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B2, H2 } from '@/components/ui/Typography';
@@ -14,9 +11,7 @@ interface HostWaitingViewProps {
   celebrant?: PartyParticipantResult;
   remainingSeconds?: number;
   isEnding: boolean;
-  isDeleting?: boolean;
   onInvite: () => void;
-  onDelete: () => void;
   onClose: () => void;
 }
 
@@ -30,17 +25,13 @@ export function HostWaitingView({
   celebrant,
   remainingSeconds = 60,
   isEnding,
-  isDeleting = false,
   onInvite,
-  onDelete,
   onClose,
 }: HostWaitingViewProps) {
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const characterImage = resolveImageUrl(celebrant?.characterImageUrl) ?? characterBlueHostSrc;
 
   return (
-    <>
-      <main className="bg-blue-1000 relative h-svh w-full overflow-hidden text-white">
+    <main className="bg-blue-1000 relative h-svh w-full overflow-hidden text-white">
         <img
           src={partyLightSrc}
           alt=""
@@ -92,23 +83,13 @@ export function HostWaitingView({
             )}
           </div>
 
+          {/* 시작한 파티는 삭제할 수 없어 삭제 진입점을 노출하지 않는다. */}
           <div className="mt-auto flex w-full flex-col items-center gap-2">
             <Button type="button" onClick={onInvite}>
               초대하기
             </Button>
-            <Button type="button" variant="link-white" onClick={() => setIsDeleteDialogOpen(true)}>
-              파티삭제하기
-            </Button>
           </div>
         </section>
       </main>
-
-      <PartyDeleteDialog
-        isOpen={isDeleteDialogOpen}
-        isPending={isDeleting}
-        onCancel={() => setIsDeleteDialogOpen(false)}
-        onConfirm={onDelete}
-      />
-    </>
   );
 }
