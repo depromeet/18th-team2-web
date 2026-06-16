@@ -46,8 +46,7 @@ export function RollingPaperLockedView() {
 
         <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
           받은 롤링페이퍼는
-          <br />
-          밤 10시에 공개돼요
+          <br />밤 10시에 공개돼요
         </H1>
         <B1 className="mt-2 text-blue-100">
           공개 시간이 되면

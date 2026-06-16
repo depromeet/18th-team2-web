@@ -32,64 +32,64 @@ export function HostWaitingView({
 
   return (
     <main className="bg-blue-1000 relative h-svh w-full overflow-hidden text-white">
-        <img
-          src={partyLightSrc}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70"
-        />
-        <button
-          type="button"
-          aria-label="닫기"
-          className="absolute top-[9px] right-4 z-10 flex h-6 w-6 items-center justify-center"
-          onClick={onClose}
-        >
-          <CloseIcon className="text-white" />
-        </button>
+      <img
+        src={partyLightSrc}
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70"
+      />
+      <button
+        type="button"
+        aria-label="닫기"
+        className="absolute top-[9px] right-4 z-10 flex h-6 w-6 items-center justify-center"
+        onClick={onClose}
+      >
+        <CloseIcon className="text-white" />
+      </button>
 
-        <section className="relative z-1 flex h-full flex-col items-center px-4 pt-[190px] pb-8">
-          <div className="relative h-[220px] w-[260px]">
-            <img
-              src={cakeSrc}
-              alt=""
-              aria-hidden
-              className="absolute top-0 left-1/2 h-40 w-60 -translate-x-1/2"
-            />
-            <img
-              src={characterImage}
-              alt={celebrant?.nickname ?? '주인공 캐릭터'}
-              className="party-enter-character absolute top-[92px] left-1/2 h-[125px] w-[125px] -translate-x-1/2 object-contain"
-              draggable={false}
-            />
-          </div>
+      <section className="relative z-1 flex h-full flex-col items-center px-4 pt-[190px] pb-8">
+        <div className="relative h-[220px] w-[260px]">
+          <img
+            src={cakeSrc}
+            alt=""
+            aria-hidden
+            className="absolute top-0 left-1/2 h-40 w-60 -translate-x-1/2"
+          />
+          <img
+            src={characterImage}
+            alt={celebrant?.nickname ?? '주인공 캐릭터'}
+            className="party-enter-character absolute top-[92px] left-1/2 h-[125px] w-[125px] -translate-x-1/2 object-contain"
+            draggable={false}
+          />
+        </div>
 
-          <div className="mt-[82px] flex w-full flex-col items-center gap-4 text-center">
-            {isEnding ? (
-              <>
-                <H2 className="font-bold text-white">
-                  참가자가 아무도 없어서
-                  <br />
-                  파티가 <span className="text-red-400">{remainingSeconds}초</span> 후 없어질
-                  예정이에요
-                </H2>
-                <B2 className="text-white/60">파티는 없어져도 롤링페이퍼는 계속 받을 수 있어요</B2>
-              </>
-            ) : (
+        <div className="mt-[82px] flex w-full flex-col items-center gap-4 text-center">
+          {isEnding ? (
+            <>
               <H2 className="font-bold text-white">
-                아직 참가자가 없어요
+                참가자가 아무도 없어서
                 <br />
-                친구를 초대해 볼까요?
+                파티가 <span className="text-red-400">{remainingSeconds}초</span> 후 없어질
+                예정이에요
               </H2>
-            )}
-          </div>
+              <B2 className="text-white/60">파티는 없어져도 롤링페이퍼는 계속 받을 수 있어요</B2>
+            </>
+          ) : (
+            <H2 className="font-bold text-white">
+              아직 참가자가 없어요
+              <br />
+              친구를 초대해 볼까요?
+            </H2>
+          )}
+        </div>
 
-          {/* 시작한 파티는 삭제할 수 없어 삭제 진입점을 노출하지 않는다. */}
-          <div className="mt-auto flex w-full flex-col items-center gap-2">
-            <Button type="button" onClick={onInvite}>
-              초대하기
-            </Button>
-          </div>
-        </section>
-      </main>
+        {/* 시작한 파티는 삭제할 수 없어 삭제 진입점을 노출하지 않는다. */}
+        <div className="mt-auto flex w-full flex-col items-center gap-2">
+          <Button type="button" onClick={onInvite}>
+            초대하기
+          </Button>
+        </div>
+      </section>
+    </main>
   );
 }
