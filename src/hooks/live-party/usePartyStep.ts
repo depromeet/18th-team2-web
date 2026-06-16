@@ -104,6 +104,19 @@ export function useLivePartyStep({
     setIsInitialized(true);
   }, [ssePhase, applyStepTransition]);
 
+  // 파티 중간 입장: entry 완료 후 현재 phase로 step 전환
+  useEffect(() => {
+    if (!isEntryReady) return;
+    if (stepRef.current !== LIVE_PARTY_STEP.ENTRY) return;
+
+    const phase = phaseData?.data?.phase ?? ssePhase ?? null;
+    if (!phase || phase === 'ENTRY') return;
+
+    const currentStep = apiPhaseToStep(phase);
+    stepRef.current = currentStep;
+    setStep(currentStep);
+  }, [isEntryReady, phaseData, ssePhase]);
+
   // SSE party-ended 반영
   useEffect(() => {
     if (!isPartyEnded) return;
