@@ -21,7 +21,6 @@ import { ROUTES } from '@/constants/routes';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
-import { useDeleteParty } from '@/services/party';
 import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
@@ -63,7 +62,6 @@ export default function LivePartyPage() {
     isAuthenticated,
   );
   const isHost = profile?.isHost ?? false;
-  const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
   const hostGate = useHostLivePartyGate(partyId, isHost, canFetch);
 
@@ -100,14 +98,6 @@ export default function LivePartyPage() {
     if (!inviteToken) return;
 
     navigate(generatePath(ROUTES.partyInvite, { inviteToken }));
-  };
-
-  const handleDeleteParty = () => {
-    if (!partyId) return;
-
-    deleteParty(partyId, {
-      onSuccess: () => navigate(ROUTES.home, { replace: true }),
-    });
   };
 
   const handleStartPartyEnding = () => {
@@ -235,9 +225,7 @@ export default function LivePartyPage() {
           celebrant={hostGate.celebrant}
           remainingSeconds={hostGate.remainingSeconds}
           isEnding={hostGate.isEnding}
-          isDeleting={isDeletingParty}
           onInvite={handleInvite}
-          onDelete={handleDeleteParty}
           onClose={handleOpenExitDialog}
         />
         <PartyExitDialog

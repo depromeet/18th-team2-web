@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
+import { RollingPaperLockedView } from '@/components/rolling-paper/RollingPaperLockedView';
 import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +14,7 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
+import { useActivateInviteLink } from '@/services/party-create';
 import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -45,6 +47,8 @@ export default function RollingPaperPage() {
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
+  const [inviteShareLink, setInviteShareLink] = useState<string | null>(null);
+  const { mutate: activateInviteLink, isPending: isActivatingInvite } = useActivateInviteLink();
 
   const isWritable = isFuture(data?.writableUntil);
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
@@ -56,10 +60,26 @@ export default function RollingPaperPage() {
   // 초대장으로 돌아가야 할 케이스는 호출부가 locationState.completeCta로 명시 지정.
   const completeCta = locationState?.completeCta ?? 'home';
 
-  const shareLink = useMemo(
-    () => `${window.location.origin}${generatePath(ROUTES.rollingPaper, { id: id ?? '' })}`,
-    [id],
-  );
+  // 공유 버튼은 "롤링페이퍼 작성 권유"용이므로 조회 라우트가 아닌 초대 링크를 공유해야 한다.
+  // 초대 토큰은 주최자만 발급 가능하며, 작성 가능 기간(isWritable)에만 버튼이 노출된다.
+  function handleShareClick() {
+    if (inviteShareLink) {
+      setIsShareSheetOpen(true);
+      return;
+    }
+    if (!id) return;
+
+    activateInviteLink(Number(id), {
+      onSuccess: (res) => {
+        const token = res.data?.token;
+        if (!token) return;
+        setInviteShareLink(
+          `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: token })}`,
+        );
+        setIsShareSheetOpen(true);
+      },
+    });
+  }
 
   useEffect(() => {
     if (requiresLogin) {
@@ -100,7 +120,13 @@ export default function RollingPaperPage() {
   if (isLoading) return null;
 
   if (isError) {
-    if (isApiErrorStatus(error, 404) || isApiErrorStatus(error, 403)) {
+    // 403: 권한 없음 또는 "아직 열람 불가"(롤페만 작성 파티의 조회 가능 시간 전).
+    // 정상 진입한 화면이므로 권한 오류보다 "오픈 전" 케이스가 대부분 → 에러 대신 잠금 화면.
+    if (isApiErrorStatus(error, 403)) {
+      return <RollingPaperLockedView />;
+    }
+
+    if (isApiErrorStatus(error, 404)) {
       return <ErrorView variant="notFound" onPrimaryClick={() => navigate(ROUTES.home)} />;
     }
 
@@ -203,7 +229,12 @@ export default function RollingPaperPage() {
             }}
           >
             {data.writableUntil && <CountdownTimer targetDate={data.writableUntil} />}
-            <Button variant="primary" size="full" onClick={() => setIsShareSheetOpen(true)}>
+            <Button
+              variant="primary"
+              size="full"
+              disabled={isActivatingInvite}
+              onClick={handleShareClick}
+            >
               롤링페이퍼 공유하기
             </Button>
           </div>
@@ -212,7 +243,7 @@ export default function RollingPaperPage() {
         {/* 공유 바텀시트 */}
         <LinkShareSheet
           isOpen={isShareSheetOpen}
-          link={shareLink}
+          link={inviteShareLink ?? ''}
           title="롤링페이퍼 링크 공유하기"
           shareText="롤링페이퍼 작성 초대장이 왔어요"
           onClose={() => setIsShareSheetOpen(false)}
