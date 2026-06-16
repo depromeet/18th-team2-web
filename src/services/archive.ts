@@ -7,6 +7,7 @@ import {
 
 import { PARTY_ROLE } from '@/constants/party';
 import { api } from '@/services/api';
+import { useAuthStore } from '@/stores/useAuthStore';
 import type { components } from '@/types/api';
 import type { ArchiveItemType, ArchiveListItem, PartyDetail } from '@/types/archive';
 import { formatArchiveDate, parseKstDateTime } from '@/utils/date';
@@ -111,8 +112,11 @@ export const archiveQueries = {
 };
 
 export function useArchiveList() {
+  // 비로그인 사용자(홈 진입 등)에서는 호출하지 않아 불필요한 401을 막는다.
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useInfiniteQuery({
     ...archiveQueries.list(),
+    enabled: isAuthenticated,
     select: (data) => ({
       items: data.pages.flatMap((page) => (page.items ?? []).map(mapArchiveItem)),
       totalCount: data.pages[0]?.totalCount ?? 0,

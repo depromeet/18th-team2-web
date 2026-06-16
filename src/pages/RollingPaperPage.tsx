@@ -19,8 +19,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { isFuture } from '@/utils/date';
 
-const TOPPINGS_PER_PAGE = 7;
-
 interface RollingPaperLocationState {
   mode?: 'write-complete';
   completeCta?: 'invite' | 'home';
@@ -39,7 +37,6 @@ export default function RollingPaperPage() {
   const { data, isLoading, isError, error, refetch } = useRollingPaper(
     id ?? '',
     inviteToken,
-    1,
     !requiresLogin,
   );
 
@@ -50,8 +47,6 @@ export default function RollingPaperPage() {
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
   const messages = data?.messages ?? [];
   const messageCount = messages.length;
-  const initialToppingPage =
-    isWriteCompleteMode && messageCount > 0 ? Math.ceil(messageCount / TOPPINGS_PER_PAGE) - 1 : 0;
   // BE 응답에 partyStartedAt이 없어 "파티 시작 전" 판정이 사실상 불가 → 기본 'home'.
   // 초대장으로 돌아가야 할 케이스는 호출부가 locationState.completeCta로 명시 지정.
   const completeCta = locationState?.completeCta ?? 'home';
@@ -176,11 +171,7 @@ export default function RollingPaperPage() {
         </div>
 
         {messageCount > 0 && (
-          <ToppingGrid
-            messages={messages}
-            onToppingClick={handleToppingClick}
-            initialPage={initialToppingPage}
-          />
+          <ToppingGrid messages={messages} onToppingClick={handleToppingClick} />
         )}
 
         {/* 하단 Action Area */}

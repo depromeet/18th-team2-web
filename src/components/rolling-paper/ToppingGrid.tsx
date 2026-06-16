@@ -33,13 +33,11 @@ const TOPPING_POSITIONS = [
 interface ToppingGridProps {
   messages: RollingPaperMessage[];
   onToppingClick: (messageIndex: number) => void;
-  initialPage?: number;
 }
 
-export function ToppingGrid({ messages, onToppingClick, initialPage = 0 }: ToppingGridProps) {
+export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
   const totalPages = Math.ceil(messages.length / TOPPINGS_PER_PAGE);
-  const safeInitialPage = Math.min(Math.max(initialPage, 0), Math.max(totalPages - 1, 0));
-  const [currentPage, setCurrentPage] = useState(safeInitialPage);
+  const [currentPage, setCurrentPage] = useState(0);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const showIndicator = messages.length > TOPPINGS_PER_PAGE;
 
@@ -59,7 +57,6 @@ export function ToppingGrid({ messages, onToppingClick, initialPage = 0 }: Toppi
       >
         <Swiper
           slidesPerView={1}
-          initialSlide={safeInitialPage}
           onSwiper={setSwiperInstance}
           onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
           className="h-full w-full"
