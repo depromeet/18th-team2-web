@@ -12,9 +12,13 @@ export function PaperInfoSection({ title, startDate, endDate }: PaperInfoSection
       <H2 as="h2" className="text-black">
         {title}
       </H2>
-      <L1 className="text-grey-500">
-        {startDate} - {endDate}
-      </L1>
+      {(startDate || endDate) && (
+        <L1 className="text-grey-500">
+          {startDate}
+          {startDate && endDate ? ' - ' : ''}
+          {endDate}
+        </L1>
+      )}
     </section>
   );
 }
