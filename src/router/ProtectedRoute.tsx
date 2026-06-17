@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { ROUTES } from '@/constants/routes';
@@ -39,6 +39,7 @@ function getLoginPromptTitlePrefix(pathname: string): string {
 
 export function ProtectedRoute() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useEffect(() => {
@@ -47,12 +48,21 @@ export function ProtectedRoute() {
     }
   }, [isAuthenticated, location.pathname]);
 
+  // 직접 진입(새 탭/외부 링크 등)으로 이전 히스토리가 없으면 뒤로가기가 무반응 → 홈으로 폴백.
+  const handleCloseLoginPrompt = () => {
+    if (window.history.length <= 1) {
+      navigate(ROUTES.home, { replace: true });
+      return;
+    }
+    navigate(-1);
+  };
+
   if (!isAuthenticated) {
     return (
       <LoginPromptSheet
         isOpen
         titlePrefix={getLoginPromptTitlePrefix(location.pathname)}
-        onClose={() => window.history.back()}
+        onClose={handleCloseLoginPrompt}
       />
     );
   }

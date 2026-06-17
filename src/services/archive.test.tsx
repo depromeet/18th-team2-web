@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useArchiveDetail, useArchiveList } from '@/services/archive';
 import { api } from '@/services/api';
+import { useAuthStore } from '@/stores/useAuthStore';
 import type { components } from '@/types/api';
 
 vi.mock('@/services/api', () => ({
@@ -66,6 +67,14 @@ beforeEach(() => {
 });
 
 describe('useArchiveList', () => {
+  // useArchiveList는 enabled: isAuthenticated 가드가 있어 인증 상태에서만 조회한다.
+  beforeEach(() => {
+    useAuthStore.setState({ isAuthenticated: true });
+  });
+  afterEach(() => {
+    useAuthStore.setState({ isAuthenticated: false });
+  });
+
   it('celebrantName이 있는 PARTY 항목을 "{이름}의 파티" 제목으로 매핑한다', async () => {
     mockListResponse([makeListItem()], 37);
 

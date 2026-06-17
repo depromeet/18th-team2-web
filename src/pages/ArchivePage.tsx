@@ -1,14 +1,19 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ArchiveFilterToggle } from '@/components/archive/ArchiveFilterToggle';
 import { ArchiveStampCard } from '@/components/archive/ArchiveStampCard';
+import { ErrorView } from '@/components/ui/ErrorView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PARTY_ROLE } from '@/constants/party';
+import { ROUTES } from '@/constants/routes';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useArchiveList } from '@/services/archive';
 
 export default function ArchivePage() {
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useArchiveList();
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useArchiveList();
   const [mineOnly, setMineOnly] = useState(false);
 
   const sentinelRef = useInfiniteScroll<HTMLDivElement>({
@@ -18,6 +23,16 @@ export default function ArchivePage() {
       fetchNextPage();
     },
   });
+
+  if (isError) {
+    return (
+      <ErrorView
+        variant="retry"
+        onPrimaryClick={() => void refetch()}
+        onSecondaryClick={() => navigate(ROUTES.home)}
+      />
+    );
+  }
 
   if (isLoading || !data) {
     return (
