@@ -1,5 +1,5 @@
 import ReactCanvasConfetti from 'react-canvas-confetti';
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useId, useRef, useState } from 'react';
 
 import crownBrownIcon from '@/assets/images/icons/crown-brown.png';
 import crownGoldIcon from '@/assets/images/icons/crown-gold.png';
@@ -28,10 +28,11 @@ function getPodiumStyle(rank: number) {
 }
 
 type PinataStyleProperties = CSSProperties & {
-  '--pinata-background'?: string;
   '--rank-offset'?: string;
   '--time-progress'?: string;
 };
+
+const PINATA_SVG_SIZE = 255;
 
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
@@ -40,6 +41,9 @@ interface PartyPinataStepProps {
 
 export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPinataStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
+  const pinataSvgId = useId().replace(/:/g, '');
+  const pinataClipId = `pinata-clip-${pinataSvgId}`;
+  const pinataGradientId = `pinata-gradient-${pinataSvgId}`;
   const {
     displayTapCount,
     displayRemainingSeconds,
@@ -54,12 +58,14 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     startCountdownSeconds,
     isResultVisible,
     isResultAnimated,
-    pinataBackground,
     progressPercent,
     handleTapPinata,
   } = usePinataStep({ burstGameState });
   const [isConfettiReady, setIsConfettiReady] = useState(false);
   const isPinataFailed = isResultVisible && totalTapCount === 0;
+  const pinataFillPercent = Math.min(displayTapCount, 100);
+  const pinataFillHeight = (PINATA_SVG_SIZE * pinataFillPercent) / 100;
+  const pinataFillY = PINATA_SVG_SIZE - pinataFillHeight;
 
   const fireResultFireworks = useCallback(() => {
     const firework = () => {
@@ -309,26 +315,50 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
       <button
         type="button"
         disabled={!isGameStarted}
-        style={
-          {
-            '--pinata-background':
-              displayTapCount === 0
-                ? `linear-gradient(#000000B2, #000000B2), ${pinataBackground}`
-                : pinataBackground,
-          } as PinataStyleProperties
-        }
-        className={`pointer-events-auto mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 rounded-[600px] border bg-[image:var(--pinata-background)] text-[34px] leading-none font-bold text-white transition-[background,transform,box-shadow] duration-200 ease-out active:scale-[0.97] ${
+        className={`pointer-events-auto relative mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[600px] border text-[34px] leading-none font-bold text-white transition-transform duration-200 ease-out active:scale-[0.97] ${
           displayTapCount === 0 ? 'border-dashed border-white/70' : 'border-transparent'
         }`}
         onClick={handleTapPinata}
       >
+        <svg
+          className="absolute inset-0 h-full w-full"
+          viewBox={`0 0 ${PINATA_SVG_SIZE} ${PINATA_SVG_SIZE}`}
+          aria-hidden="true"
+        >
+          <defs>
+            <clipPath id={pinataClipId}>
+              <circle cx={PINATA_SVG_SIZE / 2} cy={PINATA_SVG_SIZE / 2} r={PINATA_SVG_SIZE / 2} />
+            </clipPath>
+            <linearGradient id={pinataGradientId} x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="var(--color-red-500)" />
+              <stop offset="100%" stopColor="var(--color-yellow-500)" />
+            </linearGradient>
+          </defs>
+
+          <g clipPath={`url(#${pinataClipId})`}>
+            <rect width={PINATA_SVG_SIZE} height={PINATA_SVG_SIZE} fill="var(--color-yellow-500)" />
+            <rect
+              x="0"
+              y={pinataFillY}
+              width={PINATA_SVG_SIZE}
+              height={pinataFillHeight}
+              fill={`url(#${pinataGradientId})`}
+            />
+          </g>
+        </svg>
+
         {displayTapCount === 0 ? (
           <>
-            <img src={clickIcon} alt="" className="h-[54px] w-[54px] object-contain" />
-            <span className="text-label-1 font-bold">원 안을 터치해 주세요!</span>
+            <span className="absolute inset-0 bg-black/70" aria-hidden="true" />
+            <img
+              src={clickIcon}
+              alt=""
+              className="relative z-10 h-[54px] w-[54px] object-contain"
+            />
+            <span className="text-label-1 relative z-10 font-bold">원 안을 터치해 주세요!</span>
           </>
         ) : (
-          displayTapCount
+          <span className="relative z-10">{displayTapCount}</span>
         )}
       </button>
 
