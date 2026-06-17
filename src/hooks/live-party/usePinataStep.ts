@@ -119,7 +119,6 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
       remainingSeconds:
         burstGameState?.remainingSeconds ?? recoveredBurstGameState?.remainingSeconds,
       rankings: burstGameState?.rankings ?? recoveredBurstGameState?.rankings,
-      status: burstGameState?.status ?? recoveredBurstGameState?.status,
     };
   }, [burstGameState, recoveredBurstGameState]);
 
@@ -128,8 +127,7 @@ export function usePinataStep({ burstGameState }: UsePinataStepParams) {
   const hasBurstGameTiming = Boolean(
     effectiveBurstGameState?.startedAt && effectiveBurstGameState?.endsAt,
   );
-  const isServerEnded =
-    effectiveBurstGameState?.ended === true || effectiveBurstGameState?.status === 'ENDED';
+  const isServerEnded = effectiveBurstGameState?.ended === true;
 
   useEffect(() => {
     hasSyncedBurstTimingRef.current = false;
