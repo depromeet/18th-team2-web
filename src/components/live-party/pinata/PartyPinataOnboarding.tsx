@@ -18,7 +18,7 @@ export function PartyPinataOnboarding({ phase, countdownSeconds }: PartyPinataOn
   }
 
   return (
-    <section className="pointer-events-none absolute inset-0 z-[60] flex flex-col items-center bg-[linear-gradient(180deg,#3042FF_0%,#5A95FF_100%)] text-white">
+    <section className="pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center bg-[linear-gradient(180deg,#3042FF_0%,#5A95FF_100%)] text-white">
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ease-in-out ${
           phase === 'intro' ? 'opacity-100' : 'opacity-0'

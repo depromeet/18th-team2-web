@@ -260,7 +260,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
   return (
     <section
-      className={`pointer-events-none absolute inset-0 z-[60] flex flex-col items-center px-8 pt-[17.2svh] text-white transition-opacity duration-500 ease-out ${
+      className={`pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center px-8 pt-[17.2svh] text-white transition-opacity duration-500 ease-out ${
         isContentVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
