@@ -88,38 +88,56 @@ export const rollingPaperQueries = {
       },
       enabled: Boolean(partyId && rollingPaperId),
     }),
-  // 참가자: inviteToken 기반, 주최자: partyId 기반
-  list: (partyId: string, inviteToken?: string, page = 1, enabled = true) =>
+  // 참가자: inviteToken 기반, 주최자: partyId 기반.
+  // 목록은 페이지네이션되지만 ToppingGrid가 캐러셀로 전체 페이지를 한 번에 노출하므로,
+  // totalPages만큼 순회해 모든 토핑을 받아온다. (1페이지만 받으면 2페이지 이상이 영구 누락됨)
+  list: (partyId: string, inviteToken?: string, enabled = true) =>
     queryOptions({
-      queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`, page],
+      queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`],
       queryFn: async (): Promise<RollingPaperData> => {
         if (inviteToken) {
-          const res = await api.get<
-            components['schemas']['ApiResponseParticipantRollingPaperListResponse']
-          >(`/api/v1/party-invites/${inviteToken}/rolling-papers?page=${page}`);
-          const raw = res.data;
-          if (!raw) throw new Error('no data');
+          const fetchPage = (page: number) =>
+            api.get<components['schemas']['ApiResponseParticipantRollingPaperListResponse']>(
+              `/api/v1/party-invites/${inviteToken}/rolling-papers?page=${page}`,
+            );
+          const first = (await fetchPage(1)).data;
+          if (!first) throw new Error('no data');
+          // 2페이지부터는 병렬로 받아 직렬 워터폴을 피한다.
+          const rest = await Promise.all(
+            Array.from({ length: Math.max(first.pageInfo.totalPages - 1, 0) }, (_, i) =>
+              fetchPage(i + 2),
+            ),
+          );
+          const items = [...(first.items ?? []), ...rest.flatMap((res) => res.data?.items ?? [])];
           // 참가자 응답엔 celebrantNickname/마감 시각이 없음 — BE가 주는 만큼만 매핑한다.
           return {
             partyId,
-            messages: mapItems(raw.items),
-            totalCount: raw.pageInfo?.totalCount ?? 0,
+            messages: mapItems(items),
+            totalCount: first.pageInfo.totalCount,
           };
         }
 
-        const res = await api.get<
-          components['schemas']['ApiResponseOwnerRollingPaperListResponse']
-        >(`/api/v1/parties/${partyId}/rolling-papers?page=${page}`);
-        const raw = res.data;
-        if (!raw) throw new Error('no data');
+        const fetchPage = (page: number) =>
+          api.get<components['schemas']['ApiResponseOwnerRollingPaperListResponse']>(
+            `/api/v1/parties/${partyId}/rolling-papers?page=${page}`,
+          );
+        const first = (await fetchPage(1)).data;
+        if (!first) throw new Error('no data');
+        // 2페이지부터는 병렬로 받아 직렬 워터폴을 피한다.
+        const rest = await Promise.all(
+          Array.from({ length: Math.max(first.pageInfo.totalPages - 1, 0) }, (_, i) =>
+            fetchPage(i + 2),
+          ),
+        );
+        const items = [...(first.items ?? []), ...rest.flatMap((res) => res.data?.items ?? [])];
         return {
           partyId,
-          hostName: raw.celebrantNickname ?? undefined,
-          messages: mapItems(raw.items),
+          hostName: first.celebrantNickname ?? undefined,
+          messages: mapItems(items),
           // partyEndAt = startedAt + 7일 = 작성 마감 (BE Party.endedAt 기준).
           // OpenAPI 설명("파티 자체 종료 시각")은 오해 소지 — 실제 파티 종료는 liveEndAt. +7일 금지.
-          writableUntil: raw.partyEndAt ?? undefined,
-          totalCount: raw.pageInfo?.totalCount ?? 0,
+          writableUntil: first.partyEndAt ?? undefined,
+          totalCount: first.pageInfo.totalCount,
         };
       },
       enabled: enabled && Boolean(partyId),
@@ -128,8 +146,8 @@ export const rollingPaperQueries = {
 
 // ── Query hooks ──
 
-export function useRollingPaper(partyId: string, inviteToken?: string, page = 1, enabled = true) {
-  return useQuery(rollingPaperQueries.list(partyId, inviteToken, page, enabled));
+export function useRollingPaper(partyId: string, inviteToken?: string, enabled = true) {
+  return useQuery(rollingPaperQueries.list(partyId, inviteToken, enabled));
 }
 
 export function useRollingPaperDetail(partyId: string, rollingPaperId: string) {
