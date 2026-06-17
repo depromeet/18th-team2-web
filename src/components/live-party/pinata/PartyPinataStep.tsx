@@ -33,7 +33,7 @@ type PinataStyleProperties = CSSProperties & {
 };
 
 const PINATA_SVG_SIZE = 255;
-const RESULT_STICKY_RANKING_START_INDEX = 2;
+const RESULT_LIST_ANIMATION_DURATION_MS = 600;
 
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
@@ -142,14 +142,19 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     };
 
     updatePreviewVisibility();
+    const animationTimerId = window.setTimeout(
+      updatePreviewVisibility,
+      RESULT_LIST_ANIMATION_DURATION_MS,
+    );
     scrollRoot.addEventListener('scroll', updatePreviewVisibility, { passive: true });
     window.addEventListener('resize', updatePreviewVisibility);
 
     return () => {
+      window.clearTimeout(animationTimerId);
       scrollRoot.removeEventListener('scroll', updatePreviewVisibility);
       window.removeEventListener('resize', updatePreviewVisibility);
     };
-  }, [isResultVisible, totalTapCount]);
+  }, [isResultAnimated, isResultVisible, totalTapCount]);
 
   if (shouldShowOnboarding) {
     return (
@@ -192,10 +197,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
     const displayRestRankings = displayResultRankings.slice(3);
     const myRestRankingIndex = displayRestRankings.findIndex((ranking) => ranking.isMe);
     const myRestRanking = myRestRankingIndex >= 0 ? displayRestRankings[myRestRankingIndex] : null;
-    const shouldShowMyRankingPreview =
-      Boolean(myRestRanking) &&
-      myRestRankingIndex >= RESULT_STICKY_RANKING_START_INDEX &&
-      isMyRankingPreviewVisible;
+    const shouldShowMyRankingPreview = Boolean(myRestRanking) && isMyRankingPreviewVisible;
     const podiumSlots: { ranking?: PinataRanking; className: string }[] = [
       { ranking: displayTopRankings[1], className: 'translate-y-5' },
       { ranking: displayTopRankings[0], className: '-translate-y-3' },
