@@ -1,18 +1,56 @@
+import { useEffect, useState } from 'react';
 import { generatePath, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { PartyEndedView } from '@/components/party-ended/PartyEndedView';
 import { PartyInvitationView } from '@/components/party-invitation/PartyInvitationView';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { ROUTES } from '@/constants/routes';
+import { getRealtimePartyState } from '@/services/live-party';
 import { getRollingPaperWritableUntil, usePartyInvite } from '@/services/party-invite';
 import { isApiErrorStatus } from '@/utils/api-error';
+import { parseKstDateTime } from '@/utils/date';
 
 export default function PartyInviteEntryPage() {
   const { inviteToken } = useParams<{ inviteToken: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as { rollingPaperWritten?: boolean } | null;
+  const locationState = location.state as {
+    rollingPaperWritten?: boolean;
+    showRealtimeEndingView?: boolean;
+  } | null;
   const { data, isLoading, isError, error, refetch } = usePartyInvite(inviteToken ?? '');
+  const [showRealtimeEndingView, setShowRealtimeEndingView] = useState(
+    Boolean(locationState?.showRealtimeEndingView),
+  );
+  const [isCheckingRealtimeState, setIsCheckingRealtimeState] = useState(false);
+
+  useEffect(() => {
+    if (!data || data.partyOption !== 'REALTIME' || data.partyEnded || showRealtimeEndingView) {
+      return;
+    }
+
+    let ignore = false;
+    setIsCheckingRealtimeState(true);
+
+    getRealtimePartyState(data.partyId)
+      .then((state) => {
+        if (!ignore && state?.status === 'LIVE_ENDING') {
+          setShowRealtimeEndingView(true);
+        }
+      })
+      .catch(() => {
+        // 상태 확인 실패 시 기존 초대장 흐름을 유지한다.
+      })
+      .finally(() => {
+        if (!ignore) {
+          setIsCheckingRealtimeState(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [data, showRealtimeEndingView]);
 
   if (!inviteToken) {
     return <InvalidLinkLayout message="잘못된 초대링크예요." />;
@@ -48,9 +86,20 @@ export default function PartyInviteEntryPage() {
   }
 
   const hostName = data.celebrantNickname ?? '';
+  const liveEndAt = data.realtimeSchedule?.liveEndAt
+    ? parseKstDateTime(data.realtimeSchedule.liveEndAt).toDate()
+    : undefined;
+  const isRealtimeLiveEnded = Boolean(
+    data.partyOption === 'REALTIME' && liveEndAt && liveEndAt.getTime() <= Date.now(),
+  );
+  const isRealtimeEnding = showRealtimeEndingView;
+
+  if (isCheckingRealtimeState) {
+    return <LoadingLayout />;
+  }
 
   // 파티 종료 후 화면
-  if (data.partyEnded) {
+  if (data.partyEnded || isRealtimeEnding || isRealtimeLiveEnded) {
     if (data.isHost) {
       return <Navigate to={generatePath(ROUTES.rollingPaper, { id: data.partyId })} replace />;
     }
@@ -85,6 +134,7 @@ export default function PartyInviteEntryPage() {
       isHost={data.isHost}
       rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten ?? false}
       partyOption={data.partyOption ?? 'REALTIME'}
+      onRealtimePartyEnding={() => setShowRealtimeEndingView(true)}
     />
   );
 }
