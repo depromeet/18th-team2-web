@@ -69,10 +69,10 @@ export interface paths {
          *
          *     **입장 가능 조건**
          *     - 초대 링크가 만료되지 않아야 합니다
-         *     - 신규 입장은 실시간 파티가 LIVE_OPEN 상태일 때만 가능합니다
+         *     - 실시간 파티가 LIVE_OPEN 상태일 때만 입장할 수 있습니다
          *
          *     **재입장**
-         *     기존 participantToken으로 다시 호출하면 LIVE_ENDING 상태에서도 SSE 스트림을 복구할 수 있습니다.
+         *     기존 participantToken으로 다시 호출해도 LIVE_ENDING 상태에서는 입장할 수 없습니다.
          *
          *     ---
          *
@@ -1383,6 +1383,17 @@ export interface components {
              */
             partyEndDate: string;
             realtimeSchedule?: components["schemas"]["RealtimeSchedule"];
+            /**
+             * @description 현재 실시간 파티 상태. PAPER_ONLY면 null
+             * @example LIVE_ENDING
+             * @enum {string}
+             */
+            realtimeStatus?: "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED" | "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED";
+            /**
+             * @description 현재 실시간 파티 신규/재입장 가능 여부
+             * @example false
+             */
+            realtimeEnterable: boolean;
         };
         /** @description 실시간 파티 일정 기준 시각 */
         RealtimeSchedule: {

@@ -11,7 +11,6 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
-import { getRealtimePartyState } from '@/services/live-party';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -26,7 +25,6 @@ interface PartyInvitationViewProps {
   isHost: boolean;
   rollingPaperWritten: boolean;
   partyOption: 'REALTIME' | 'PAPER_ONLY';
-  onRealtimePartyEnding?: () => void;
 }
 
 export function PartyInvitationView({
@@ -38,7 +36,6 @@ export function PartyInvitationView({
   isHost,
   rollingPaperWritten,
   partyOption,
-  onRealtimePartyEnding,
 }: PartyInvitationViewProps) {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -46,29 +43,12 @@ export function PartyInvitationView({
 
   const [hasWrittenRollingPaper, setHasWrittenRollingPaper] = useState(rollingPaperWritten);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isCheckingRealtimeState, setIsCheckingRealtimeState] = useState(false);
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: joinPartyInvite, isPending: isJoining } = useJoinPartyInvite();
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const inviteLink = `${window.location.origin}${window.location.pathname}`;
 
-  async function handleEnterParty() {
-    if (partyOption === 'REALTIME') {
-      setIsCheckingRealtimeState(true);
-
-      try {
-        const state = await getRealtimePartyState(partyId);
-        if (state?.status === 'LIVE_ENDING') {
-          onRealtimePartyEnding?.();
-          return;
-        }
-      } catch {
-        // 상태 확인 실패 시 기존 입장 흐름을 유지한다.
-      } finally {
-        setIsCheckingRealtimeState(false);
-      }
-    }
-
+  function handleEnterParty() {
     const partyEnterPath = generatePath(ROUTES.partyEnter, { partyId });
     const from = generatePath(ROUTES.partyInvite, { inviteToken });
     if (isHost) {
@@ -135,7 +115,7 @@ export function PartyInvitationView({
               isWithin5Minutes={isWithin5Minutes}
               hasWrittenRollingPaper={hasWrittenRollingPaper}
               canEnterParty={partyOption === 'REALTIME'}
-              isJoining={isJoining || isCheckingRealtimeState}
+              isJoining={isJoining}
               onEnterParty={handleEnterParty}
               onWriteRollingPaper={handleWriteRollingPaper}
             />

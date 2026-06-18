@@ -27,7 +27,12 @@ export function ParticipantActions({
     return (
       <div className="flex w-full flex-col gap-2">
         <PartyHintText>{hint}</PartyHintText>
-        <Button variant="primary" size="full" disabled={isJoining} onClick={onEnterParty}>
+        <Button
+          variant="primary"
+          size="full"
+          disabled={isJoining}
+          onClick={onEnterParty}
+        >
           {isJoining ? '참가 중...' : '생일파티 참가하기'}
         </Button>
       </div>

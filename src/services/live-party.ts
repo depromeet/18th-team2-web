@@ -64,15 +64,6 @@ export const realtimePartyQueries = {
     }),
 };
 
-export async function getRealtimePartyState(partyId: string) {
-  const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
-    `/api/v1/parties/${partyId}/realtime-state`,
-    getParticipantOptions(),
-  );
-
-  return res.data ?? null;
-}
-
 export function useRealtimePartyState(partyId: string, enabled = true) {
   return useQuery({ ...realtimePartyQueries.state(partyId), enabled: Boolean(partyId) && enabled });
 }

@@ -1,17 +1,12 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 
-import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { VALIDATION_MESSAGES } from '@/constants/validation';
 import { ROUTES } from '@/constants/routes';
 import { ApiError } from '@/services/api';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePartyStartCountdown } from '@/hooks/partyEnter/usePartyStartCountdown';
 import { useGetMyRealtimeProfile, useUpsertMyRealtimeProfile } from '@/services/party-enter';
-import {
-  getRealtimePartyState,
-  useGetPartyParticipants,
-  useRealtimePartyState,
-} from '@/services/live-party';
+import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePartyStore } from '@/stores/usePartyStore';
@@ -27,17 +22,12 @@ export function usePartyEnter() {
   } | null;
   const inviteToken = locationState?.inviteToken ?? '';
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
 
   const navigate = useNavigate();
   const setHostName = usePartyStore((s) => s.setHostName);
 
   const { data: profile } = useGetMyRealtimeProfile(inviteToken, isAuthenticated);
   const { data: invite } = usePartyInvite(inviteToken);
-  const { data: realtimeState } = useRealtimePartyState(
-    partyId ?? '',
-    Boolean(partyId) && (isAuthenticated || Boolean(participantToken)),
-  );
   const { mutate: upsertProfile, isPending } = useUpsertMyRealtimeProfile();
 
   const isHost = profile?.isHost ?? false;
@@ -62,11 +52,15 @@ export function usePartyEnter() {
   const [nickname, setNickname] = useState('');
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const [isCheckingRealtimeState, setIsCheckingRealtimeState] = useState(false);
   const liveEndAt = invite?.realtimeSchedule?.liveEndAt
     ? parseKstDateTime(invite.realtimeSchedule.liveEndAt).toDate()
     : undefined;
   const isRealtimeLiveEnded = Boolean(liveEndAt && liveEndAt.getTime() <= Date.now());
+  const isRealtimeClosed =
+    invite?.partyOption === 'REALTIME' &&
+    (invite.realtimeStatus === 'LIVE_ENDING' ||
+      invite.realtimeStatus === 'LIVE_CLOSED' ||
+      invite.realtimeStatus === 'ROLLING_PAPER_CLOSED');
 
   useEffect(() => {
     if (!profile) return;
@@ -85,23 +79,20 @@ export function usePartyEnter() {
 
   useEffect(() => {
     if (!partyId || !inviteToken) return;
-    if (!isRealtimeLiveEnded && realtimeState?.status !== 'LIVE_ENDING') return;
+    if (!isRealtimeLiveEnded && !isRealtimeClosed) return;
 
     navigate(locationState?.from ?? generatePath(ROUTES.partyInvite, { inviteToken }), {
       replace: true,
-      state: {
-        showRealtimeEndingView: true,
-        rollingPaperWritten: invite?.rollingPaperWritten,
-      },
+      state: { rollingPaperWritten: invite?.rollingPaperWritten },
     });
   }, [
     invite?.rollingPaperWritten,
     inviteToken,
+    isRealtimeClosed,
     isRealtimeLiveEnded,
     locationState?.from,
     navigate,
     partyId,
-    realtimeState?.status,
   ]);
 
   const title = isHost
@@ -125,35 +116,12 @@ export function usePartyEnter() {
     if (!partyId || !inviteToken) return;
     if (selectedCharacterId == null) return;
 
-    if (isRealtimeLiveEnded) {
+    if (isRealtimeLiveEnded || isRealtimeClosed) {
       navigate(locationState?.from ?? generatePath(ROUTES.partyInvite, { inviteToken }), {
         replace: true,
-        state: {
-          showRealtimeEndingView: true,
-          rollingPaperWritten: invite?.rollingPaperWritten,
-        },
+        state: { rollingPaperWritten: invite?.rollingPaperWritten },
       });
       return;
-    }
-
-    setIsCheckingRealtimeState(true);
-
-    try {
-      const state = await getRealtimePartyState(partyId);
-      if (state?.status === 'LIVE_ENDING') {
-        navigate(locationState?.from ?? generatePath(ROUTES.partyInvite, { inviteToken }), {
-          replace: true,
-          state: {
-            showRealtimeEndingView: true,
-            rollingPaperWritten: invite?.rollingPaperWritten,
-          },
-        });
-        return;
-      }
-    } catch {
-      // 상태 확인 실패 시 기존 입장 흐름을 유지한다.
-    } finally {
-      setIsCheckingRealtimeState(false);
     }
 
     if (!isAuthenticated) {
@@ -199,7 +167,7 @@ export function usePartyEnter() {
   return {
     title,
     isHost,
-    isPending: isPending || isCheckingRealtimeState,
+    isPending,
     // 시작 전(유효 스케줄 보유)에만 "X분 Y초 남았어요" 노출
     countdown: isReady && !hasStarted ? { minutes, seconds } : null,
     // 시작 시각 도달 후 "파티가 이미 진행 중이에요!" 노출
