@@ -31,7 +31,7 @@ export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const locationState = location.state as { inviteToken?: string; hostName?: string } | null;
+  const locationState = location.state as { inviteToken?: string; hostName?: string; nickname?: string } | null;
   const inviteToken = locationState?.inviteToken ?? '';
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
 
@@ -50,10 +50,24 @@ export default function LivePartyPage() {
     currentPhase,
     hasParticipantToken,
     sseError,
+    nicknameDuplicate,
   } = useLivePartySSE();
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
+
+  useEffect(() => {
+    if (!nicknameDuplicate) return;
+    navigate(generatePath(ROUTES.partyEnter, { partyId }), {
+      replace: true,
+      state: {
+        inviteToken,
+        hostName: locationState?.hostName,
+        nicknameDuplicateError: true,
+        nickname: locationState?.nickname,
+      },
+    });
+  }, [nicknameDuplicate, navigate, partyId, inviteToken, locationState?.hostName, locationState?.nickname]);
 
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
     usePartyExitDialog();

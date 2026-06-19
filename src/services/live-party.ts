@@ -150,7 +150,11 @@ export function connectRealtimeParty(
       signal,
     },
   ).then(async (response) => {
-    if (!response.ok || !response.body) return;
+    if (!response.ok || !response.body) {
+      const err = new Error(response.statusText);
+      (err as Error & { status: number }).status = response.status;
+      throw err;
+    }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
