@@ -10,6 +10,7 @@ import { useGetPartyParticipants } from '@/services/live-party';
 import { usePartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePartyStore } from '@/stores/usePartyStore';
+import { parseKstDateTime } from '@/utils/date';
 
 export function usePartyEnter() {
   const { partyId } = useParams<{ partyId: string }>();
@@ -51,6 +52,15 @@ export function usePartyEnter() {
   const [nickname, setNickname] = useState('');
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const liveEndAt = invite?.realtimeSchedule?.liveEndAt
+    ? parseKstDateTime(invite.realtimeSchedule.liveEndAt).toDate()
+    : undefined;
+  const isRealtimeLiveEnded = Boolean(liveEndAt && liveEndAt.getTime() <= Date.now());
+  const isRealtimeClosed =
+    invite?.partyOption === 'REALTIME' &&
+    (invite.realtimeStatus === 'LIVE_ENDING' ||
+      invite.realtimeStatus === 'LIVE_CLOSED' ||
+      invite.realtimeStatus === 'ROLLING_PAPER_CLOSED');
 
   useEffect(() => {
     if (!profile) return;
@@ -66,6 +76,24 @@ export function usePartyEnter() {
     const hostName = locationState?.hostName ?? '';
     if (hostName) setHostName(hostName);
   }, [locationState?.hostName, setHostName]);
+
+  useEffect(() => {
+    if (!partyId || !inviteToken) return;
+    if (!isRealtimeLiveEnded && !isRealtimeClosed) return;
+
+    navigate(locationState?.from ?? generatePath(ROUTES.partyInvite, { inviteToken }), {
+      replace: true,
+      state: { rollingPaperWritten: invite?.rollingPaperWritten },
+    });
+  }, [
+    invite?.rollingPaperWritten,
+    inviteToken,
+    isRealtimeClosed,
+    isRealtimeLiveEnded,
+    locationState?.from,
+    navigate,
+    partyId,
+  ]);
 
   const title = isHost
     ? '해당 닉네임과 캐릭터로\n입장하시겠어요?'
@@ -83,10 +111,18 @@ export function usePartyEnter() {
     setSelectedCharacterId(characterId);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!partyId || !inviteToken) return;
     if (selectedCharacterId == null) return;
+
+    if (isRealtimeLiveEnded || isRealtimeClosed) {
+      navigate(locationState?.from ?? generatePath(ROUTES.partyInvite, { inviteToken }), {
+        replace: true,
+        state: { rollingPaperWritten: invite?.rollingPaperWritten },
+      });
+      return;
+    }
 
     if (!isAuthenticated) {
       navigate(generatePath(ROUTES.liveParty, { partyId }), {
