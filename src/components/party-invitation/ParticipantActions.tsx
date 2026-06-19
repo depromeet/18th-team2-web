@@ -19,6 +19,21 @@ export function ParticipantActions({
   onEnterParty,
   onWriteRollingPaper,
 }: ParticipantActionsProps) {
+  if (!canEnterParty) {
+    return (
+      <div className="flex w-full flex-col gap-2">
+        <Button
+          variant={hasWrittenRollingPaper ? 'secondary' : 'primary'}
+          size="full"
+          disabled={hasWrittenRollingPaper}
+          onClick={onWriteRollingPaper}
+        >
+          {hasWrittenRollingPaper ? '롤링페이퍼 작성 완료' : '롤링페이퍼 남기러 가기'}
+        </Button>
+      </div>
+    );
+  }
+
   if (isWithin5Minutes && canEnterParty) {
     const hint = hasWrittenRollingPaper
       ? '롤링페이퍼를 이미 작성했어요'

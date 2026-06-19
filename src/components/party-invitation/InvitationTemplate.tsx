@@ -1,20 +1,49 @@
 import { H1 } from '@/components/ui/Typography';
 import { getObjectParticle } from '@/utils/koreanPostposition';
-import { formatKoreanDate, formatKoreanTime } from '@/utils/date';
+import { formatKoreanDate, formatKoreanShortDate, formatKoreanTime } from '@/utils/date';
 
 import { InvitationHighlightText } from './InvitationHighlightText';
 
 interface InvitationTemplateProps {
   hostName: string;
   startsAt: Date;
+  endsAt?: Date;
+  partyOption: 'REALTIME' | 'PAPER_ONLY';
 }
 
-export function InvitationTemplate({ hostName, startsAt }: InvitationTemplateProps) {
+export function InvitationTemplate({
+  hostName,
+  startsAt,
+  endsAt,
+  partyOption,
+}: InvitationTemplateProps) {
   const dateLabel = formatKoreanDate(startsAt);
   const timeLabel = formatKoreanTime(startsAt);
+  const startDateLabel = formatKoreanShortDate(startsAt);
   const hostNameObjectParticle = getObjectParticle(hostName);
   const rowClassName =
     'flex h-11 w-full items-center gap-0.5 font-medium tracking-[-0.0044px] text-grey-500';
+
+  if (partyOption === 'PAPER_ONLY') {
+    if (!endsAt) return null;
+
+    const endDateLabel = formatKoreanShortDate(endsAt);
+
+    return (
+      <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
+        <span className={rowClassName}>
+          <InvitationHighlightText>{hostName}</InvitationHighlightText>의
+        </span>
+        <span className={rowClassName}>롤링페이퍼를</span>
+        <span className={rowClassName}>
+          <InvitationHighlightText>{startDateLabel}</InvitationHighlightText>부터
+        </span>
+        <span className={rowClassName}>
+          <InvitationHighlightText>{endDateLabel}</InvitationHighlightText>까지 받아요
+        </span>
+      </H1>
+    );
+  }
 
   return (
     <H1 as="p" className="flex w-full flex-col items-start gap-0.5 font-medium">
