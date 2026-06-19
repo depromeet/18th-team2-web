@@ -19,6 +19,8 @@ export function usePartyEnter() {
     inviteToken?: string;
     from?: string;
     hostName?: string;
+    nicknameDuplicateError?: boolean;
+    nickname?: string;
   } | null;
   const inviteToken = locationState?.inviteToken ?? '';
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -76,6 +78,15 @@ export function usePartyEnter() {
     const hostName = locationState?.hostName ?? '';
     if (hostName) setHostName(hostName);
   }, [locationState?.hostName, setHostName]);
+
+  useEffect(() => {
+    if (locationState?.nicknameDuplicateError) {
+      setErrorMessage(VALIDATION_MESSAGES.nickname.duplicate);
+      if (locationState.nickname) {
+        setNickname(locationState.nickname);
+      }
+    }
+  }, [locationState?.nicknameDuplicateError, locationState?.nickname]);
 
   useEffect(() => {
     if (!partyId || !inviteToken) return;

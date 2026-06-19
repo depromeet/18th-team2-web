@@ -47,6 +47,7 @@ export function useLivePartySSE() {
   const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
   const [hasParticipantToken, setHasParticipantToken] = useState(false);
   const [sseError, setSseError] = useState(false);
+  const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
 
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -291,6 +292,11 @@ export function useLivePartySSE() {
         return;
       }
 
+      if ((err as Error & { status?: number }).status === 409) {
+        setNicknameDuplicate(true);
+        return;
+      }
+
       console.error('[SSE] 연결 오류:', err);
     });
 
@@ -320,5 +326,6 @@ export function useLivePartySSE() {
     currentPhase,
     hasParticipantToken,
     sseError,
+    nicknameDuplicate,
   };
 }
