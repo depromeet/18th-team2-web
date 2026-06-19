@@ -53,6 +53,8 @@ export function StepRenderer({
           burstGameState={burstGameState}
         />
       ) : null;
+    case 'CLOSEABLE':
+      return null;
     case 'END':
       return <PartyEndStep role={userRole} action={endAction} hostName={endHostName} />;
     default:
