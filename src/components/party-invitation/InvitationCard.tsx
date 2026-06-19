@@ -6,6 +6,8 @@ import { InvitationTemplate } from './InvitationTemplate';
 interface InvitationCardProps {
   hostName: string;
   startsAt: Date;
+  endsAt?: Date;
+  partyOption: 'REALTIME' | 'PAPER_ONLY';
   isHost?: boolean;
   onDeleteClick?: () => void;
 }
@@ -13,10 +15,13 @@ interface InvitationCardProps {
 export function InvitationCard({
   hostName,
   startsAt,
+  endsAt,
+  partyOption,
   isHost = false,
   onDeleteClick,
 }: InvitationCardProps) {
   const canDelete = isHost && startsAt.getTime() > Date.now();
+  const isRollingPaper = partyOption === 'PAPER_ONLY';
 
   return (
     <article
@@ -25,9 +30,14 @@ export function InvitationCard({
     >
       {/* 카드 상단: 타이틀 + 구분선 + 템플릿 */}
       <div className="flex flex-col items-center gap-6">
-        <H2>파티 초대장</H2>
+        <H2>{isRollingPaper ? '롤링페이퍼 초대장' : '파티 초대장'}</H2>
         <hr className="w-full border-blue-50" />
-        <InvitationTemplate hostName={hostName} startsAt={startsAt} />
+        <InvitationTemplate
+          hostName={hostName}
+          startsAt={startsAt}
+          endsAt={endsAt}
+          partyOption={partyOption}
+        />
       </div>
 
       {/* 카드 하단: 구분선 + 날짜 뱃지 */}
@@ -35,6 +45,8 @@ export function InvitationCard({
         <hr className="w-full border-blue-50" />
         <InvitationDateBadge
           startsAt={startsAt}
+          endsAt={endsAt}
+          partyOption={partyOption}
           showDeleteButton={canDelete}
           onDeleteClick={onDeleteClick}
         />

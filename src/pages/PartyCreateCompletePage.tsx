@@ -75,7 +75,7 @@ export default function PartyCreateCompletePage() {
         />
 
         <B1 className="party-complete-notice mt-3 font-medium text-white">
-          * 파티 시작 24시간 전까지 수정할 수 있어요
+          * 파티 정보는 시작 24시간 전까지 수정할 수 있어요
         </B1>
 
         <div className="party-complete-button mt-auto pb-6">

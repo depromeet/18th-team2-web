@@ -7,6 +7,7 @@ import { InvitationCard } from '@/components/party-invitation/InvitationCard';
 import { ParticipantActions } from '@/components/party-invitation/ParticipantActions';
 import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
 import { BottomActionBar } from '@/components/ui/BottomActionBar';
+import { Button } from '@/components/ui/Button';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ROUTES } from '@/constants/routes';
@@ -21,6 +22,7 @@ interface PartyInvitationViewProps {
   inviteToken: string;
   hostName: string;
   startsAt: Date;
+  endsAt?: Date;
 
   isHost: boolean;
   rollingPaperWritten: boolean;
@@ -32,6 +34,7 @@ export function PartyInvitationView({
   inviteToken,
   hostName,
   startsAt,
+  endsAt,
 
   isHost,
   rollingPaperWritten,
@@ -62,6 +65,10 @@ export function PartyInvitationView({
     joinPartyInvite(inviteToken, {
       onSuccess: () => navigate(partyEnterPath, { state: { inviteToken, from, hostName } }),
     });
+  }
+
+  function handleViewRollingPaper() {
+    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }));
   }
 
   function handleWriteRollingPaper() {
@@ -98,13 +105,28 @@ export function PartyInvitationView({
           <InvitationCard
             hostName={hostName}
             startsAt={startsAt}
+            endsAt={endsAt}
             isHost={isHost}
+            partyOption={partyOption}
             onDeleteClick={() => setIsDeleteDialogOpen(true)}
           />
         </section>
 
         <BottomActionBar>
-          {isHost ? (
+          {isHost && partyOption === 'PAPER_ONLY' ? (
+            <div className="flex w-full flex-col gap-2">
+              <Button variant="primary" size="full" onClick={handleViewRollingPaper}>
+                롤링페이퍼 확인하기
+              </Button>
+              <button
+                type="button"
+                className="text-label-1 flex h-9 w-full cursor-pointer items-center justify-center font-semibold text-blue-600 underline underline-offset-2"
+                onClick={() => setIsShareSheetOpen(true)}
+              >
+                초대 링크 공유하기
+              </button>
+            </div>
+          ) : isHost ? (
             <HostActions
               isWithin5Minutes={isWithin5Minutes}
               onEnterParty={handleEnterParty}

@@ -179,11 +179,15 @@ export default function LivePartyPage() {
   }, [step]);
 
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
   const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
   const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
   const showHostEndingButton =
-    isHost && isPinataStep && isPinataOverlayDismissed && !isPartyEndingFlow && !partyEnd;
+    isHost &&
+    ((isPinataStep && isPinataOverlayDismissed) || isCloseableStep) &&
+    !isPartyEndingFlow &&
+    !partyEnd;
 
   const shouldShowByStep =
     step !== LIVE_PARTY_STEP.ENTRY &&

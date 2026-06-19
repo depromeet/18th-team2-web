@@ -6,12 +6,15 @@ import { ErrorView } from '@/components/ui/ErrorView';
 import { ROUTES } from '@/constants/routes';
 import { getRollingPaperWritableUntil, usePartyInvite } from '@/services/party-invite';
 import { isApiErrorStatus } from '@/utils/api-error';
+import { parseKstDateTime } from '@/utils/date';
 
 export default function PartyInviteEntryPage() {
   const { inviteToken } = useParams<{ inviteToken: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as { rollingPaperWritten?: boolean } | null;
+  const locationState = location.state as {
+    rollingPaperWritten?: boolean;
+  } | null;
   const { data, isLoading, isError, error, refetch } = usePartyInvite(inviteToken ?? '');
 
   if (!inviteToken) {
@@ -48,9 +51,20 @@ export default function PartyInviteEntryPage() {
   }
 
   const hostName = data.celebrantNickname ?? '';
+  const liveEndAt = data.realtimeSchedule?.liveEndAt
+    ? parseKstDateTime(data.realtimeSchedule.liveEndAt).toDate()
+    : undefined;
+  const isRealtimeLiveEnded = Boolean(
+    data.partyOption === 'REALTIME' && liveEndAt && liveEndAt.getTime() <= Date.now(),
+  );
+  const isRealtimeClosed =
+    data.partyOption === 'REALTIME' &&
+    (data.realtimeStatus === 'LIVE_ENDING' ||
+      data.realtimeStatus === 'LIVE_CLOSED' ||
+      data.realtimeStatus === 'ROLLING_PAPER_CLOSED');
 
   // 파티 종료 후 화면
-  if (data.partyEnded) {
+  if (data.partyEnded || isRealtimeClosed || isRealtimeLiveEnded) {
     if (data.isHost) {
       return <Navigate to={generatePath(ROUTES.rollingPaper, { id: data.partyId })} replace />;
     }
@@ -82,6 +96,7 @@ export default function PartyInviteEntryPage() {
       inviteToken={inviteToken}
       hostName={hostName}
       startsAt={new Date(startsAtSource)}
+      endsAt={data.partyEndDate ? new Date(data.partyEndDate) : undefined}
       isHost={data.isHost}
       rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten ?? false}
       partyOption={data.partyOption ?? 'REALTIME'}
