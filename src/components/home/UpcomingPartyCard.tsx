@@ -19,7 +19,7 @@ interface UpcomingPartyCardView {
   actionVariant: ActionVariant;
 }
 
-const LIVE_BADGE = { badgeText: '라이브 파티', badgeClassName: 'bg-blue-200 text-blue-900' };
+const LIVE_BADGE = { badgeText: '라이브 파티', badgeClassName: 'bg-blue-50 text-blue-700' };
 const PAPER_BADGE = { badgeText: '롤링페이퍼', badgeClassName: 'bg-yellow-100 text-yellow-900' };
 
 // 카드 분기 매핑 단일 소스 — 디자인(메인 UI) 7개 상태.
@@ -80,40 +80,37 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
 
   return (
     <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span className="text-grey-500 text-label-1 font-medium">예정된 파티</span>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center justify-between gap-2">
+          <H2>{partyName}</H2>
           <span
-            className={`text-label-2 rounded-md px-2 py-1 font-semibold ${view.badgeClassName}`}
+            className={`text-label-2 shrink-0 rounded-md px-2 py-1 font-semibold ${view.badgeClassName}`}
           >
             {view.badgeText}
           </span>
         </div>
-        <div className="flex flex-col gap-0.5">
-          <H2>{partyName}</H2>
-          <div className="flex items-center gap-1.5">
-            <B1 className="font-medium">{date}</B1>
-            {isRollingPaper && endDate ? (
+        <div className="flex items-center gap-1.5">
+          <B1 className="font-medium">{date}</B1>
+          {isRollingPaper && endDate ? (
+            <>
+              <span className="text-grey-200 text-body-1 font-medium">~</span>
+              <B1 className="font-medium">{endDate}</B1>
+            </>
+          ) : (
+            time && (
               <>
-                <span className="text-grey-200 text-body-1 font-medium">~</span>
-                <B1 className="font-medium">{endDate}</B1>
+                <span className="border-grey-200 h-3 border-l" />
+                <B1 className="font-medium">{time}</B1>
               </>
-            ) : (
-              time && (
-                <>
-                  <span className="border-grey-200 h-3 border-l" />
-                  <B1 className="font-medium">{time}</B1>
-                </>
-              )
-            )}
-          </div>
+            )
+          )}
         </div>
       </div>
       {showShareButton ? (
         <div className="flex gap-2">
           <button
             type="button"
-            className="rounded-btn-sm text-label-1 border-grey-100 disabled:bg-grey-50 disabled:text-grey-300 text-grey-900 flex-1 border bg-white py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="rounded-btn-sm text-label-1 disabled:bg-grey-50 disabled:text-grey-300 flex-1 border border-blue-200 bg-white py-2 font-semibold text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             onClick={canShare ? onShare : undefined}
             disabled={!canShare}
           >
