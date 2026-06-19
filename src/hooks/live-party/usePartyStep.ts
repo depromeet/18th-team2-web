@@ -20,6 +20,7 @@ function apiPhaseToStep(phase: PartyApiPhase): PartyStep {
     case 'BURST':
       return LIVE_PARTY_STEP.PINATA;
     case 'CLOSEABLE':
+      return LIVE_PARTY_STEP.CLOSEABLE;
     case 'END':
       return LIVE_PARTY_STEP.END;
   }
@@ -35,6 +36,8 @@ function stepToApiPhase(step: PartyStep): PartyApiPhase {
       return 'CANDLE';
     case 'PINATA':
       return 'BURST';
+    case 'CLOSEABLE':
+      return 'CLOSEABLE';
     case 'END':
       return 'END';
   }

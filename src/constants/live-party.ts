@@ -41,6 +41,7 @@ export const LIVE_PARTY_STEP = {
   MUSIC: 'MUSIC', // 노래
   CANDLE: 'CANDLE', // 촛불 불기
   PINATA: 'PINATA', // 박 깨기
+  CLOSEABLE: 'CLOSEABLE', // 파티 종료 가능 상태
   END: 'END', // 파티 종료
 } as const;
 
@@ -51,6 +52,7 @@ export const LIVE_PARTY_STEP_ARRAY: PartyStep[] = [
   LIVE_PARTY_STEP.MUSIC,
   LIVE_PARTY_STEP.CANDLE,
   LIVE_PARTY_STEP.PINATA,
+  LIVE_PARTY_STEP.CLOSEABLE,
   LIVE_PARTY_STEP.END,
 ];
 
