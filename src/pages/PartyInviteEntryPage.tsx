@@ -96,6 +96,7 @@ export default function PartyInviteEntryPage() {
       inviteToken={inviteToken}
       hostName={hostName}
       startsAt={new Date(startsAtSource)}
+      endsAt={data.partyEndDate ? new Date(data.partyEndDate) : undefined}
       isHost={data.isHost}
       rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten ?? false}
       partyOption={data.partyOption ?? 'REALTIME'}
