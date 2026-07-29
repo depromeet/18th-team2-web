@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import * as Sentry from '@sentry/react';
 
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import {
@@ -282,8 +283,9 @@ export function useLivePartySSE() {
 
             return;
           }
-        } catch {
+        } catch (err) {
           console.error('[SSE] 이벤트 파싱 실패');
+          Sentry.captureException(err, { extra: { message: '[SSE] 이벤트 파싱 실패' } });
         }
       },
       controller.signal,
@@ -298,6 +300,7 @@ export function useLivePartySSE() {
       }
 
       console.error('[SSE] 연결 오류:', err);
+      Sentry.captureException(err, { extra: { message: '[SSE] 연결 오류' } });
     });
 
     return () => {
