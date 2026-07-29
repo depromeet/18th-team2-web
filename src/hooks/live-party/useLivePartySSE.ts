@@ -283,9 +283,9 @@ export function useLivePartySSE() {
 
             return;
           }
-        } catch {
+        } catch (err) {
           console.error('[SSE] 이벤트 파싱 실패');
-          Sentry.captureMessage('[SSE] 이벤트 파싱 실패', { level: 'error' });
+          Sentry.captureException(err, { extra: { message: '[SSE] 이벤트 파싱 실패' } });
         }
       },
       controller.signal,
