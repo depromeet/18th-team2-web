@@ -1,12 +1,38 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRoot } from 'react-dom/client';
+import * as Sentry from '@sentry/react';
 
 import { ApiError } from '@/services/api';
 import App from './App';
 import './index.css';
 
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+  tracesSampleRate: 0.2,
+  replaysOnErrorSampleRate: 1.0,
+  environment: import.meta.env.MODE,
+  enabled: import.meta.env.MODE === 'production',
+});
+
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (error instanceof ApiError && error.status < 500) return;
+
+      Sentry.captureException(error, {
+        tags: { queryKey: JSON.stringify(query.queryKey) },
+      });
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, _mutation) => {
+      if (error instanceof ApiError && error.status < 500) return;
+
+      Sentry.captureException(error);
+    },
+  }),
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60,

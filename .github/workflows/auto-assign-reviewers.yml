@@ -18,7 +18,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const codeowners = ['hjlee2778', 'xxxjinn', 'minsukim-29cm', 'hxezu'];
+            const codeowners = ['hjlee2778', 'xxxjinn'];
             const author = context.payload.pull_request.user.login;
             const reviewers = codeowners.filter(u => u !== author);
             const prNumber = context.payload.pull_request.number;
