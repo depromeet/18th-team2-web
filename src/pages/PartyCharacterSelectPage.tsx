@@ -163,7 +163,7 @@ export default function PartyCharacterSelectPage() {
         나는 어떤 캐릭터로 등장할까요?
       </H1>
 
-      <div className="mt-[clamp(72px,20svh,184px)] flex h-[clamp(190px,30svh,230px)] w-full items-center">
+      <div className="mt-[clamp(56px,14svh,144px)] flex h-[clamp(190px,30svh,230px)] w-full items-center">
         <Swiper
           modules={[EffectCoverflow]}
           effect="coverflow"

@@ -252,7 +252,7 @@ export default function PartyTimeSelectPage() {
         파티 초대장 내용을 완성해 주세요
       </H1>
 
-      <div className="relative mt-[clamp(44px,7vh,72px)] [@media_(min-height:900px)]:mt-[120px]">
+      <div className="relative mt-[clamp(36px,7svh,72px)]">
         {pickerMode && (
           <button
             type="button"

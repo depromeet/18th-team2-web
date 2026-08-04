@@ -56,8 +56,7 @@ function PartyTypeCard({
     <button
       type="button"
       onClick={onClick}
-      style={{ width: 166, height: 274 }}
-      className={`rounded-btn-md flex flex-col gap-5 px-3 py-4 transition-colors ${cardStyle}`}
+      className={`rounded-btn-md flex h-[clamp(236px,41svh,274px)] w-[min(166px,calc((100vw-48px)/2))] flex-col gap-[clamp(12px,2.4svh,20px)] px-3 py-[clamp(12px,2.4svh,16px)] transition-colors ${cardStyle}`}
     >
       <div className="flex justify-end">
         <CheckCircle state={state} />
@@ -66,8 +65,7 @@ function PartyTypeCard({
         src={state === 'inactive' ? inactiveImage : activeImage}
         alt=""
         aria-hidden
-        className="w-full object-contain"
-        style={{ height: 110 }}
+        className="h-[clamp(88px,16svh,110px)] w-full object-contain"
       />
       <div className="mt-auto flex flex-col gap-[6px] text-left">
         <B1 className={`whitespace-pre-line ${textStyle}`}>{label}</B1>
@@ -101,7 +99,7 @@ export default function PartyTypePage() {
   return (
     <div className="flex min-h-dvh flex-col">
       <PageHeader />
-      <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
+      <div className="mx-auto flex w-full max-w-93.75 flex-col gap-[clamp(24px,5svh,40px)] pt-[clamp(48px,14svh,140px)]">
         <T4 className="px-5">어떤 파티를 열어볼까요?</T4>
         <div className="flex justify-center gap-2">
           <PartyTypeCard

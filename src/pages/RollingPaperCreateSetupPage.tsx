@@ -118,7 +118,7 @@ export default function RollingPaperCreateSetupPage() {
         일주일 동안 롤링페이퍼를 받아요
       </H1>
 
-      <div className="relative mt-[clamp(44px,7vh,72px)] [@media_(min-height:900px)]:mt-[120px]">
+      <div className="relative mt-[clamp(36px,7svh,72px)]">
         {isDatePickerOpen && (
           <button
             type="button"
