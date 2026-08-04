@@ -122,7 +122,7 @@ export default function PartyTypePage() {
           />
         </div>
       </div>
-      <div className="mt-auto px-5 pb-6">
+      <div className="mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
         <Button
           variant={selected ? 'primary' : 'secondary'}
           size="full"

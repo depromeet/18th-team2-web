@@ -70,7 +70,7 @@ export function RollingPaperWriteComplete({
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pt-8 pb-6">
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pt-8 pb-[calc(24px+env(safe-area-inset-bottom))]">
         <B2 as="p" className="text-grey-500 font-medium">
           완료를 누르면 수정이 불가합니다.
         </B2>
