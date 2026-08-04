@@ -112,163 +112,178 @@ export function useLivePartySSE() {
         let parsed: Record<string, unknown>;
 
         try {
-          parsed = JSON.parse(data) as Record<string, unknown>;
+          const result = JSON.parse(data) as unknown;
+
+          if (typeof result !== 'object' || result === null || Array.isArray(result)) {
+            throw new Error(`Unexpected SSE payload shape for event "${event}"`);
+          }
+
+          parsed = result as Record<string, unknown>;
         } catch (err) {
           console.error(SSE_ERROR_MESSAGE.PARSE_FAILED);
           Sentry.captureException(err, { extra: { message: SSE_ERROR_MESSAGE.PARSE_FAILED } });
           return;
         }
 
-        switch (event) {
-          // 실시간 파티 입장
-          case SSE_EVENT.ENTERED: {
-            if (hasInitializedRef.current) {
+        try {
+          switch (event) {
+            // 실시간 파티 입장
+            case SSE_EVENT.ENTERED: {
+              if (hasInitializedRef.current) {
+                return;
+              }
+
+              hasInitializedRef.current = true;
+
+              if (sseTimeoutRef.current) {
+                clearTimeout(sseTimeoutRef.current);
+                sseTimeoutRef.current = null;
+              }
+
+              const token = parsed.participantToken as string | undefined;
+
+              if (token) {
+                sessionStorage.setItem(PARTICIPANT_TOKEN_KEY, token);
+              }
+
+              // entered = 서버가 연결을 승인. 토큰이 세션에 있으면 API 호출 허용.
+              if (sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)) {
+                setHasParticipantToken(true);
+              }
+
+              queryClient.invalidateQueries({ queryKey: ['partyPhase', partyId] });
+              queryClient.invalidateQueries({ queryKey: ['realtime-profile'] });
+
+              const initialMessages = ((parsed.messages as unknown[]) ?? []).map((m) =>
+                toChatMessage(m as Record<string, unknown>),
+              );
+
+              setMessages(initialMessages);
+
               return;
             }
 
-            hasInitializedRef.current = true;
+            // 실시간 파티 메시지 수신
+            case SSE_EVENT.MESSAGE: {
+              setMessages((prev) => [...prev, toChatMessage(parsed)]);
 
-            if (sseTimeoutRef.current) {
-              clearTimeout(sseTimeoutRef.current);
-              sseTimeoutRef.current = null;
+              return;
             }
 
-            const token = parsed.participantToken as string | undefined;
+            // 실시간 파티 유저 입장
+            case SSE_EVENT.USER_ENTERED: {
+              const userName = (parsed.nickname ?? parsed.senderNickname ?? '') as string;
 
-            if (token) {
-              sessionStorage.setItem(PARTICIPANT_TOKEN_KEY, token);
-            }
-
-            // entered = 서버가 연결을 승인. 토큰이 세션에 있으면 API 호출 허용.
-            if (sessionStorage.getItem(PARTICIPANT_TOKEN_KEY)) {
-              setHasParticipantToken(true);
-            }
-
-            queryClient.invalidateQueries({ queryKey: ['partyPhase', partyId] });
-            queryClient.invalidateQueries({ queryKey: ['realtime-profile'] });
-
-            const initialMessages = ((parsed.messages as unknown[]) ?? []).map((m) =>
-              toChatMessage(m as Record<string, unknown>),
-            );
-
-            setMessages(initialMessages);
-
-            return;
-          }
-
-          // 실시간 파티 메시지 수신
-          case SSE_EVENT.MESSAGE: {
-            setMessages((prev) => [...prev, toChatMessage(parsed)]);
-
-            return;
-          }
-
-          // 실시간 파티 유저 입장
-          case SSE_EVENT.USER_ENTERED: {
-            const userName = (parsed.nickname ?? parsed.senderNickname ?? '') as string;
-
-            setMessages((prev) => [...prev, { type: 'entry' as const, id: Date.now(), userName }]);
-            queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
-
-            return;
-          }
-
-          // 실시간 파티 유저 퇴장
-          case SSE_EVENT.USER_LEFT: {
-            const userName = (parsed.nickname ?? parsed.senderNickname ?? '') as string;
-
-            setMessages((prev) => [...prev, { type: 'exit' as const, id: Date.now(), userName }]);
-            queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
-
-            return;
-          }
-
-          // 촛불 불기
-          case SSE_EVENT.CANDLE_BLOW_STARTED:
-          case SSE_EVENT.CANDLE_BLOW_PROGRESS:
-          case SSE_EVENT.CANDLE_BLOW_ENDED: {
-            setCandleBlowState(parsed as CandleBlowState);
-
-            return;
-          }
-
-          // 박 깨기
-          case SSE_EVENT.BURST_GAME_STARTED:
-          case SSE_EVENT.BURST_GAME_PROGRESS:
-          case SSE_EVENT.BURST_GAME_ENDED: {
-            setBurstGameState((prev) => {
-              const nextStateVersion = parsed.stateVersion as number | undefined;
-
-              if (!shouldUpdateBurstGameState(prev, nextStateVersion)) {
-                return prev;
-              }
-
-              return {
+              setMessages((prev) => [
                 ...prev,
-                partyId: (parsed.partyId as number | undefined) ?? prev?.partyId,
-                startedAt: (parsed.startedAt as string | undefined) ?? prev?.startedAt,
-                endsAt: (parsed.endsAt as string | undefined) ?? prev?.endsAt,
-                totalTapCount: (parsed.totalTapCount as number | undefined) ?? prev?.totalTapCount,
-                myTapCount: (parsed.myTapCount as number | undefined) ?? prev?.myTapCount,
-                stateVersion: nextStateVersion,
-                serverTime: (parsed.serverTime as string | undefined) ?? prev?.serverTime,
-                remainingSeconds:
-                  (parsed.remainingSeconds as number | undefined) ?? prev?.remainingSeconds,
-                rankings: (parsed.rankings as BurstGameState['rankings']) ?? prev?.rankings,
-                ended: event === SSE_EVENT.BURST_GAME_ENDED ? true : prev?.ended,
-                status: event === SSE_EVENT.BURST_GAME_ENDED ? 'ENDED' : 'ACTIVE',
-              };
-            });
+                { type: 'entry' as const, id: Date.now(), userName },
+              ]);
+              queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
 
-            return;
+              return;
+            }
+
+            // 실시간 파티 유저 퇴장
+            case SSE_EVENT.USER_LEFT: {
+              const userName = (parsed.nickname ?? parsed.senderNickname ?? '') as string;
+
+              setMessages((prev) => [...prev, { type: 'exit' as const, id: Date.now(), userName }]);
+              queryClient.invalidateQueries({ queryKey: ['party-participants', partyId] });
+
+              return;
+            }
+
+            // 촛불 불기
+            case SSE_EVENT.CANDLE_BLOW_STARTED:
+            case SSE_EVENT.CANDLE_BLOW_PROGRESS:
+            case SSE_EVENT.CANDLE_BLOW_ENDED: {
+              setCandleBlowState(parsed as CandleBlowState);
+
+              return;
+            }
+
+            // 박 깨기
+            case SSE_EVENT.BURST_GAME_STARTED:
+            case SSE_EVENT.BURST_GAME_PROGRESS:
+            case SSE_EVENT.BURST_GAME_ENDED: {
+              setBurstGameState((prev) => {
+                const nextStateVersion = parsed.stateVersion as number | undefined;
+
+                if (!shouldUpdateBurstGameState(prev, nextStateVersion)) {
+                  return prev;
+                }
+
+                return {
+                  ...prev,
+                  partyId: (parsed.partyId as number | undefined) ?? prev?.partyId,
+                  startedAt: (parsed.startedAt as string | undefined) ?? prev?.startedAt,
+                  endsAt: (parsed.endsAt as string | undefined) ?? prev?.endsAt,
+                  totalTapCount:
+                    (parsed.totalTapCount as number | undefined) ?? prev?.totalTapCount,
+                  myTapCount: (parsed.myTapCount as number | undefined) ?? prev?.myTapCount,
+                  stateVersion: nextStateVersion,
+                  serverTime: (parsed.serverTime as string | undefined) ?? prev?.serverTime,
+                  remainingSeconds:
+                    (parsed.remainingSeconds as number | undefined) ?? prev?.remainingSeconds,
+                  rankings: (parsed.rankings as BurstGameState['rankings']) ?? prev?.rankings,
+                  ended: event === SSE_EVENT.BURST_GAME_ENDED ? true : prev?.ended,
+                  status: event === SSE_EVENT.BURST_GAME_ENDED ? 'ENDED' : 'ACTIVE',
+                };
+              });
+
+              return;
+            }
+
+            // 폭죽 터뜨리기
+            case SSE_EVENT.FIREWORKS: {
+              const participantId = parsed.participantId as number | undefined;
+              fire(participantId);
+
+              return;
+            }
+
+            // 실시간 파티 상태 변경
+            case SSE_EVENT.PARTY_PHASE_CHANGED: {
+              setCurrentPhase(parsed.phase as PartyApiPhase);
+
+              return;
+            }
+
+            // 실시간 파티 종료 시작
+            case SSE_EVENT.PARTY_ENDING: {
+              setPartyEndingState({
+                partyId: parsed.partyId as number | undefined,
+                endingStartedAt: parsed.endingStartedAt as string | undefined,
+                endedAt: parsed.endedAt as string | undefined,
+                endingReason: parsed.endingReason as PartyEndingReason | undefined,
+                hostNickname: parsed.hostNickname as string | undefined,
+                ended: false,
+              });
+
+              return;
+            }
+
+            // 실시간 파티 종료
+            case SSE_EVENT.PARTY_ENDED: {
+              setPartyEndingState((prev) => ({
+                ...prev,
+                partyId: parsed.partyId as number | undefined,
+                endedAt: parsed.endedAt as string | undefined,
+                endingReason:
+                  (parsed.endingReason as PartyEndingReason | undefined) ?? prev?.endingReason,
+                hostNickname: (parsed.hostNickname as string | undefined) ?? prev?.hostNickname,
+                ended: true,
+              }));
+
+              return;
+            }
+
+            default:
+              return;
           }
-
-          // 폭죽 터뜨리기
-          case SSE_EVENT.FIREWORKS: {
-            const participantId = parsed.participantId as number | undefined;
-            fire(participantId);
-
-            return;
-          }
-
-          // 실시간 파티 상태 변경
-          case SSE_EVENT.PARTY_PHASE_CHANGED: {
-            setCurrentPhase(parsed.phase as PartyApiPhase);
-
-            return;
-          }
-
-          // 실시간 파티 종료 시작
-          case SSE_EVENT.PARTY_ENDING: {
-            setPartyEndingState({
-              partyId: parsed.partyId as number | undefined,
-              endingStartedAt: parsed.endingStartedAt as string | undefined,
-              endedAt: parsed.endedAt as string | undefined,
-              endingReason: parsed.endingReason as PartyEndingReason | undefined,
-              hostNickname: parsed.hostNickname as string | undefined,
-              ended: false,
-            });
-
-            return;
-          }
-
-          // 실시간 파티 종료
-          case SSE_EVENT.PARTY_ENDED: {
-            setPartyEndingState((prev) => ({
-              ...prev,
-              partyId: parsed.partyId as number | undefined,
-              endedAt: parsed.endedAt as string | undefined,
-              endingReason:
-                (parsed.endingReason as PartyEndingReason | undefined) ?? prev?.endingReason,
-              hostNickname: (parsed.hostNickname as string | undefined) ?? prev?.hostNickname,
-              ended: true,
-            }));
-
-            return;
-          }
-
-          default:
-            return;
+        } catch (err) {
+          console.error(SSE_ERROR_MESSAGE.HANDLE_FAILED);
+          Sentry.captureException(err, { extra: { message: SSE_ERROR_MESSAGE.HANDLE_FAILED } });
         }
       },
       controller.signal,

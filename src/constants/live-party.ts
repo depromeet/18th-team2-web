@@ -172,6 +172,7 @@ export type SSEEventName = (typeof SSE_EVENT)[keyof typeof SSE_EVENT];
 
 export const SSE_ERROR_MESSAGE = {
   PARSE_FAILED: '[SSE] 이벤트 파싱 실패',
+  HANDLE_FAILED: '[SSE] 이벤트 처리 실패',
   CONNECTION_FAILED: '[SSE] 연결 오류',
 } as const;
 
