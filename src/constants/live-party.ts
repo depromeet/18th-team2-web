@@ -150,6 +150,31 @@ export const MUSIC_TEXT_HEIGHT = 84;
 
 export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 
+/** SSE 이벤트 이름 */
+export const SSE_EVENT = {
+  ENTERED: 'entered',
+  MESSAGE: 'message',
+  USER_ENTERED: 'user-entered',
+  USER_LEFT: 'user-left',
+  CANDLE_BLOW_STARTED: 'candle-blow-started',
+  CANDLE_BLOW_PROGRESS: 'candle-blow-progress',
+  CANDLE_BLOW_ENDED: 'candle-blow-ended',
+  BURST_GAME_STARTED: 'burst-game-started',
+  BURST_GAME_PROGRESS: 'burst-game-progress',
+  BURST_GAME_ENDED: 'burst-game-ended',
+  FIREWORKS: 'fireworks',
+  PARTY_PHASE_CHANGED: 'party-phase-changed',
+  PARTY_ENDING: 'party-ending',
+  PARTY_ENDED: 'party-ended',
+} as const;
+
+export type SSEEventName = (typeof SSE_EVENT)[keyof typeof SSE_EVENT];
+
+export const SSE_ERROR_MESSAGE = {
+  PARSE_FAILED: '[SSE] 이벤트 파싱 실패',
+  CONNECTION_FAILED: '[SSE] 연결 오류',
+} as const;
+
 export const characterSizeStyles = {
   lg: 'w-20 h-20',
   sm: 'w-9 h-9',
