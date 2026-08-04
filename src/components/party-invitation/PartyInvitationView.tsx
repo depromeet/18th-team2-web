@@ -99,7 +99,7 @@ export function PartyInvitationView({
       <main className="bg-gradient-bg flex min-h-dvh flex-col">
         {isHost && <PageHeader />}
         <section
-          className={`flex flex-1 flex-col items-center gap-7 px-4 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:gap-5 ${isHost ? 'pt-4' : 'pt-[clamp(40px,10svh,64px)]'}`}
+          className={`flex flex-1 flex-col items-center gap-7 px-4 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-8 [@media_(max-height:700px)]:gap-5 ${isHost ? 'pt-4' : 'pt-[clamp(40px,10svh,64px)]'}`}
         >
           {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
           <InvitationCard
@@ -112,7 +112,10 @@ export function PartyInvitationView({
           />
         </section>
 
-        <BottomActionBar>
+        <BottomActionBar
+          className="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:static [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:z-auto [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:min-h-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:bg-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:px-4 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pt-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10"
+          contentClassName="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px]"
+        >
           {isHost && partyOption === 'PAPER_ONLY' ? (
             <div className="flex w-full flex-col gap-2">
               <Button variant="primary" size="full" onClick={handleViewRollingPaper}>

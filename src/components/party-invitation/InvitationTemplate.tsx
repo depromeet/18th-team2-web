@@ -22,7 +22,7 @@ export function InvitationTemplate({
   const startDateLabel = formatKoreanShortDate(startsAt);
   const hostNameObjectParticle = getObjectParticle(hostName);
   const rowClassName =
-    'flex h-11 w-full items-center gap-0.5 font-medium tracking-[-0.0044px] text-grey-500';
+    'flex min-h-11 w-full flex-wrap items-center gap-x-0.5 gap-y-1 font-medium break-keep tracking-[-0.0044px] text-grey-500';
 
   if (partyOption === 'PAPER_ONLY') {
     if (!endsAt) return null;

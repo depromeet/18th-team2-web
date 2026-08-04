@@ -226,7 +226,7 @@ export default function PartyCharacterSelectPage() {
         ))}
       </div>
 
-      <div className="mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
+      <div className="mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
         <Button size="full" disabled={isPending} onClick={handleSelectCharacter}>
           선택하기
         </Button>

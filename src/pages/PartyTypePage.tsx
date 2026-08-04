@@ -26,6 +26,7 @@ function CheckCircle({ state }: { state: CardState }) {
 interface PartyTypeCardProps {
   label: string;
   description: string;
+  compactDescription?: string;
   state: CardState;
   activeImage: string;
   inactiveImage: string;
@@ -35,6 +36,7 @@ interface PartyTypeCardProps {
 function PartyTypeCard({
   label,
   description,
+  compactDescription,
   state,
   activeImage,
   inactiveImage,
@@ -70,7 +72,12 @@ function PartyTypeCard({
       <div className="mt-auto flex flex-col gap-[6px] text-left">
         <B1 className={`whitespace-pre-line ${textStyle}`}>{label}</B1>
         <L1 as="p" className="text-grey-500 leading-snug font-medium whitespace-pre-line">
-          {description}
+          <span className={compactDescription ? '[@media_(max-width:375px)]:hidden' : undefined}>
+            {description}
+          </span>
+          {compactDescription && (
+            <span className="hidden [@media_(max-width:375px)]:inline">{compactDescription}</span>
+          )}
         </L1>
       </div>
     </button>
@@ -105,6 +112,7 @@ export default function PartyTypePage() {
           <PartyTypeCard
             label="라이브 파티 열기"
             description={`함께 짧게 축하하고, \n 롤링 페이퍼도 받아보세요`}
+            compactDescription={`함께 짧게 축하하고,\n롤링 페이퍼도\n받아보세요`}
             state={getCardState('live', selected)}
             activeImage={livePartyImg}
             inactiveImage={livePartyInactiveImg}
@@ -120,7 +128,7 @@ export default function PartyTypePage() {
           />
         </div>
       </div>
-      <div className="mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
+      <div className="mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
         <Button
           variant={selected ? 'primary' : 'secondary'}
           size="full"

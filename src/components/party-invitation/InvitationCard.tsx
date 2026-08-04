@@ -25,7 +25,7 @@ export function InvitationCard({
 
   return (
     <article
-      className="flex w-full flex-col gap-10 rounded-lg bg-white px-7.5 py-9 [@media_(max-height:700px)]:gap-6 [@media_(max-height:700px)]:px-6 [@media_(max-height:700px)]:py-7"
+      className="flex w-full max-w-[343px] flex-col gap-10 rounded-lg bg-white px-7.5 py-9 [@media_(max-height:700px)]:gap-6 [@media_(max-height:700px)]:px-6 [@media_(max-height:700px)]:py-7"
       style={{ boxShadow: '0px 0px 8px 0px #5892FF4D' }}
     >
       {/* 카드 상단: 타이틀 + 구분선 + 템플릿 */}
