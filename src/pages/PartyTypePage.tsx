@@ -99,7 +99,7 @@ export default function PartyTypePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       <PageHeader />
       <div className="mx-auto flex w-full max-w-93.75 flex-col gap-10 pt-35">
         <T4 className="px-5">어떤 파티를 열어볼까요?</T4>

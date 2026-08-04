@@ -38,7 +38,7 @@ export function RollingPaperMessageForm({
   }
 
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col">
+    <main className="bg-gradient-bg flex min-h-dvh flex-col">
       <PageHeader onBack={onBack} />
 
       <section className="flex flex-1 flex-col gap-7 px-4 pt-5 pb-30">

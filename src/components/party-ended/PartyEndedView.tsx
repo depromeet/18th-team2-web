@@ -42,7 +42,7 @@ export function PartyEndedView({
   }
 
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col">
+    <main className="bg-gradient-bg flex min-h-dvh flex-col">
       <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
         {isExpired ? (
           <H1 as="h1" className="w-full text-center tracking-[-0.0044px] text-black">

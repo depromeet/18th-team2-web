@@ -34,7 +34,7 @@ export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCa
   }, [allCandleOff, fireConfetti]);
 
   return (
-    <div className="bg-blue-1000 relative flex h-screen w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14">
+    <div className="bg-blue-1000 relative flex h-svh w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14">
       <ReactCanvasConfetti
         onInit={handleInitConfetti}
         className="pointer-events-none absolute inset-0 z-30 h-full w-full"

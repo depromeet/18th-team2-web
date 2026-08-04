@@ -239,7 +239,7 @@ export default function PartyTimeSelectPage() {
   };
 
   return (
-    <div className="bg-gradient-bg relative flex min-h-screen flex-col">
+    <div className="bg-gradient-bg relative flex min-h-dvh flex-col">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute right-0 bottom-0 left-0 z-0 h-[38vh] bg-gradient-to-b from-[#EEF5FF]/0 via-[#EEF5FF] to-[#F5F9FF]"

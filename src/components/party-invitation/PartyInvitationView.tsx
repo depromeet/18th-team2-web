@@ -96,10 +96,10 @@ export function PartyInvitationView({
 
   return (
     <>
-      <main className="bg-gradient-bg flex min-h-screen flex-col">
+      <main className="bg-gradient-bg flex min-h-dvh flex-col">
         {isHost && <PageHeader />}
         <section
-          className={`flex flex-1 flex-col items-center gap-7 px-4 ${isHost ? 'pt-4' : 'pt-16'}`}
+          className={`flex flex-1 flex-col items-center gap-7 px-4 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:gap-5 ${isHost ? 'pt-4' : 'pt-[clamp(40px,10svh,64px)]'}`}
         >
           {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
           <InvitationCard

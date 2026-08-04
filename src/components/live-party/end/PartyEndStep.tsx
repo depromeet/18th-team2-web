@@ -12,7 +12,7 @@ interface PartyEndStepProps {
 
 export function PartyEndStep({ role, action, hostName }: PartyEndStepProps) {
   return (
-    <div className="party-intro-screen relative flex h-screen w-full flex-col items-center overflow-hidden pt-[20vh]">
+    <div className="party-intro-screen relative flex h-svh w-full flex-col items-center overflow-hidden pt-[20vh]">
       <PartyEndText role={role} />
       <div className="relative z-10 mt-[4vh] w-full">
         <img
