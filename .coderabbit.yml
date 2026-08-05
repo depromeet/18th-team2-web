@@ -5,7 +5,7 @@ reviews:
   poem: false
   path_filters: []
   path_instructions:
-    - path: "src/**/*.{ts,tsx}"
+    - path: 'src/**/*.{ts,tsx}'
       instructions: |
         리뷰 시 저장소의 `.claude/conventions/` 하위 문서들을 읽고, 그 규칙을 기준으로 검토한다:
         naming.md, code-style.md, styling.md, react-patterns.md, component-patterns.md,
@@ -16,4 +16,3 @@ reviews:
     drafts: false
     base_branches:
       - dev
-      - main
