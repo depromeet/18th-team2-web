@@ -165,7 +165,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
   if (isResultVisible) {
     if (isPinataFailed) {
       return (
-        <section className="pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[32.6svh] text-white">
+        <section className="pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[32.6svh] text-white [@media_(max-height:700px)]:pt-[24svh]">
           <div
             className={`flex flex-col items-center transition-opacity duration-500 ease-out ${
               isResultAnimated ? 'opacity-100' : 'opacity-0'
@@ -216,7 +216,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
         <div
           ref={resultScrollRef}
-          className="scrollbar-hide pointer-events-auto absolute inset-x-4 top-0 bottom-[calc(126px+env(safe-area-inset-bottom))] z-20 overflow-y-auto pt-[18.4svh] pb-6"
+          className="scrollbar-hide pointer-events-auto absolute inset-x-4 top-0 bottom-[calc(126px+env(safe-area-inset-bottom))] z-20 overflow-y-auto pt-[18.4svh] pb-6 [@media_(max-height:700px)]:pt-[12svh]"
         >
           <h2
             className={`text-head-1 text-center font-bold whitespace-pre-line transition-transform duration-300 ease-out ${
@@ -237,7 +237,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
           </div>
 
           <div
-            className={`mx-auto mt-[7.3svh] flex w-full max-w-[342px] items-end justify-center gap-3 transition-all duration-[600ms] ease-in-out ${
+            className={`mx-auto mt-[7.3svh] flex w-full max-w-[342px] items-end justify-center gap-3 transition-all duration-[600ms] ease-in-out [@media_(max-height:700px)]:mt-[5svh] ${
               isResultAnimated ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
             }`}
           >
@@ -287,7 +287,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
           </div>
 
           <div
-            className={`mx-auto mt-14 flex w-full max-w-[343px] flex-col gap-5 transition-all duration-[600ms] ease-in-out ${
+            className={`mx-auto mt-14 flex w-full max-w-[343px] flex-col gap-5 transition-all duration-[600ms] ease-in-out [@media_(max-height:700px)]:mt-10 ${
               isResultAnimated ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
             }`}
           >
@@ -327,7 +327,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
   return (
     <section
-      className={`pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center px-8 pt-[17.2svh] text-white transition-opacity duration-500 ease-out ${
+      className={`pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center px-8 pt-[17.2svh] text-white transition-opacity duration-500 ease-out [@media_(max-height:700px)]:pt-[12svh] ${
         isContentVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
@@ -336,7 +336,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
       </h2>
 
       <div
-        className={`relative mt-8 h-[104px] w-full ${
+        className={`relative mt-8 h-[104px] w-full [@media_(max-height:700px)]:mt-6 ${
           rankings.length === 0 ? 'max-w-[120px]' : 'max-w-[311px]'
         }`}
       >
@@ -382,7 +382,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
       <button
         type="button"
         disabled={!isGameStarted}
-        className={`pointer-events-auto relative mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[600px] border text-[34px] leading-none font-bold text-white transition-transform duration-200 ease-out active:scale-[0.97] ${
+        className={`pointer-events-auto relative mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[600px] border text-[34px] leading-none font-bold text-white transition-transform duration-200 ease-out active:scale-[0.97] [@media_(max-height:700px)]:mt-6 [@media_(max-height:700px)]:h-[min(62vw,232px)] [@media_(max-height:700px)]:w-[min(62vw,232px)] ${
           displayTapCount === 0 ? 'border-dashed border-white/70' : 'border-transparent'
         }`}
         onClick={handleTapPinata}
@@ -429,7 +429,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
         )}
       </button>
 
-      <div className="mt-auto mb-[calc(54px+env(safe-area-inset-bottom))] w-full max-w-[311px]">
+      <div className="mt-auto mb-[calc(54px+env(safe-area-inset-bottom))] w-full max-w-[311px] [@media_(max-height:700px)]:mb-[calc(32px+env(safe-area-inset-bottom))]">
         <div className="bg-grey-500 h-1 overflow-hidden rounded-full">
           <div
             className="h-full w-[var(--time-progress)] rounded-full bg-red-600 transition-[width] duration-300"

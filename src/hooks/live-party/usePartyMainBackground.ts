@@ -104,7 +104,7 @@ export function usePartyMainBackground() {
   const hostInitStyle = useMemo(
     () => ({
       left: 'calc(50% - 63px)',
-      top: 'calc((100svh - 320px) / 2 + 20px)',
+      top: 'calc((100svh - var(--live-party-chat-min-height, 320px)) / 2 + 20px)',
       animationDuration: '3s',
       animationDelay: '0s',
     }),
@@ -114,7 +114,7 @@ export function usePartyMainBackground() {
   const featuredInitStyle = useMemo(
     () => ({
       left: 'calc(50% - 49px)',
-      bottom: 'calc((100svh + 320px) / 2 + 70px)',
+      bottom: 'calc((100svh + var(--live-party-chat-min-height, 320px)) / 2 + 70px)',
       animationDuration: '3s',
       animationDelay: '0s',
     }),
@@ -128,7 +128,7 @@ export function usePartyMainBackground() {
         const left = isLeftSide ? `${4 + Math.random() * 24}%` : `${72 + Math.random() * 20}%`;
         return {
           left,
-          top: `calc(80px + ${Math.random().toFixed(3)} * (100svh - 620px))`,
+          top: `calc(80px + ${Math.random().toFixed(3)} * max(0px, (100svh - var(--live-party-chat-min-height, 320px) - 300px)))`,
           animationDuration: `${(2.5 + Math.random()).toFixed(2)}s`,
           animationDelay: `${(Math.random() * 2).toFixed(2)}s`,
         };
