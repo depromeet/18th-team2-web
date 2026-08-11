@@ -26,11 +26,11 @@ export function PartyEntryStage() {
         className="pointer-events-none absolute top-0 left-0 w-full"
       />
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-20 px-2">
+      <div className="flex flex-1 flex-col items-center justify-center gap-20 px-2 [@media_(max-height:700px)]:gap-12">
         <img
           src={characterImage ?? characterBlueHostSrc}
           alt={hostName ? `${hostName}님 캐릭터` : '주인공 캐릭터'}
-          className="party-enter-character h-40.5 w-40.5 object-contain"
+          className="party-enter-character h-40.5 w-40.5 object-contain [@media_(max-height:700px)]:h-34 [@media_(max-height:700px)]:w-34"
           draggable={false}
         />
         <T3 className="text-center text-white">

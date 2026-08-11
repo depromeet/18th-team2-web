@@ -32,7 +32,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
     <>
       <div className="flex h-full w-full flex-col px-4">
         <div className="flex flex-1 items-center justify-center">
-          <div className="flex flex-col items-center gap-15">
+          <div className="flex flex-col items-center gap-15 [@media_(max-height:700px)]:gap-10">
             <div className="relative">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
                 <Lottie animationData={noOwnerAnimation} className="h-full w-full" loop />
@@ -41,7 +41,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
               <ParticipantsAvatarSvg className="absolute right-[-25px] bottom-[-5px] z-10" />
             </div>
 
-            <div className="flex flex-col items-center gap-4 text-center">
+            <div className="flex flex-col items-center gap-4 text-center [@media_(max-height:700px)]:gap-3">
               <T4 className="text-white">
                 아직 주인공이
                 <br />
@@ -58,7 +58,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
           </div>
         </div>
 
-        <div className="pb-[calc(env(safe-area-inset-bottom)+24px)]">
+        <div className="pb-[calc(env(safe-area-inset-bottom)+24px)] [@media_(max-height:700px)]:pb-[calc(env(safe-area-inset-bottom)+16px)]">
           <Button variant="white" size="full" onClick={() => setIsShareSheetOpen(true)}>
             주인공에게 입장 링크 보내기
           </Button>
