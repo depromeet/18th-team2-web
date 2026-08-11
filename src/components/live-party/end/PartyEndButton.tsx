@@ -35,7 +35,7 @@ export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) 
 
   return (
     <>
-      <footer className="z-11 mt-auto flex w-full flex-col gap-3 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <footer className="z-11 mt-auto flex w-full flex-col gap-3 px-4 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:gap-2 [@media_(max-height:700px)]:pb-[calc(16px+env(safe-area-inset-bottom))]">
         {role === PARTY_USER.HOST && (
           <>
             <Button variant="white" onClick={handleRollingPaperCheck}>

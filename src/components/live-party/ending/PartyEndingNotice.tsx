@@ -95,7 +95,7 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
   }, [noticeStep, partyEndingState, remainingSeconds]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[360px] z-20 mx-auto flex w-full max-w-[600px] justify-center px-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--live-party-chat-min-height,320px)+40px)] z-20 mx-auto flex w-full max-w-[600px] justify-center px-6 [@media_(max-height:700px)]:bottom-[calc(var(--live-party-chat-min-height,280px)+24px)]">
       <div className="transition-opacity duration-300 ease-out">{content}</div>
     </div>
   );
