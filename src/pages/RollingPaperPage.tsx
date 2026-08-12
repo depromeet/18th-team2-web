@@ -203,7 +203,7 @@ export default function RollingPaperPage() {
         {/* 하단 Action Area */}
         {isWriteCompleteMode ? (
           <div
-            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-12"
+            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-[calc(48px+env(safe-area-inset-bottom))]"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}
@@ -214,7 +214,7 @@ export default function RollingPaperPage() {
           </div>
         ) : isWritable ? (
           <div
-            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-12"
+            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-[calc(48px+env(safe-area-inset-bottom))]"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
             }}

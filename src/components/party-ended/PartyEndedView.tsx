@@ -42,8 +42,8 @@ export function PartyEndedView({
   }
 
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col">
-      <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16">
+    <main className="bg-gradient-bg flex min-h-dvh flex-col">
+      <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-8">
         {isExpired ? (
           <H1 as="h1" className="w-full text-center tracking-[-0.0044px] text-black">
             아쉽지만 작성이 <span className="text-red-500">마감</span>됐어요.
@@ -69,7 +69,10 @@ export function PartyEndedView({
         />
       </section>
 
-      <BottomActionBar>
+      <BottomActionBar
+        className="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:static [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:z-auto [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:min-h-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:bg-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:px-4 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pt-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10"
+        contentClassName="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px]"
+      >
         <Button variant="primary" size="full" onClick={handlePrimaryClick}>
           {isExpired ? '홈으로' : '롤링페이퍼 작성하기'}
         </Button>

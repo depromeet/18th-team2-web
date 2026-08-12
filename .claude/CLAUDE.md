@@ -7,6 +7,16 @@
 - **작업 지침**: [.claude/guidelines/workflow.md](.claude/guidelines/workflow.md) — 제안 먼저/승인 후 실행, 근거 제시, 스킬 제안 기준
 - 한국어로 응답합니다.
 
+## 명령어
+
+```bash
+npm run dev           # 개발 서버
+npm run build         # tsc -b && vite build
+npm run lint          # eslint
+npm run test          # vitest
+npm run type-check    # tsc --noEmit
+```
+
 ## 아키텍처 & 컨벤션
 
 - **폴더 구조**: [.claude/architecture/folder-structure.md](.claude/architecture/folder-structure.md)

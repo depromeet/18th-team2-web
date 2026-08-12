@@ -27,7 +27,7 @@ export default function PartyEnterPage() {
   } = usePartyEnter();
 
   return (
-    <section className="flex min-h-screen flex-col">
+    <section className="flex min-h-dvh flex-col">
       <PageHeader />
       <main className="flex flex-1 flex-col justify-between gap-6 p-4">
         <form className="flex flex-1 flex-col justify-between gap-6" onSubmit={handleSubmit}>

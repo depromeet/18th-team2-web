@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
-const MIN_HEIGHT = 320;
+const DEFAULT_MIN_HEIGHT = 320;
+const COMPACT_MIN_HEIGHT = 280;
+const MAX_HEIGHT_TOP_OFFSET = 160;
+
+function getViewportHeight() {
+  return window.visualViewport?.height ?? window.innerHeight;
+}
+
+function getSheetBounds() {
+  const viewportHeight = getViewportHeight();
+  const minHeight = viewportHeight < 700 ? COMPACT_MIN_HEIGHT : DEFAULT_MIN_HEIGHT;
+  const maxHeight = Math.max(minHeight, viewportHeight - MAX_HEIGHT_TOP_OFFSET);
+
+  return { minHeight, maxHeight };
+}
 
 export interface ChatMessage {
   id: number;
@@ -35,12 +49,12 @@ export type ChatListItem =
     };
 
 export function useChatBottomSheet() {
-  const [height, setHeight] = useState(MIN_HEIGHT);
+  const [bounds, setBounds] = useState(getSheetBounds);
+  const [height, setHeight] = useState(bounds.minHeight);
   const [isDragging, setIsDragging] = useState(false);
 
-  const MAX_HEIGHT = window.innerHeight - 160;
-  const MID = (MIN_HEIGHT + MAX_HEIGHT) / 2;
-  const isExpanded = height > MIN_HEIGHT;
+  const midHeight = (bounds.minHeight + bounds.maxHeight) / 2;
+  const isExpanded = height > bounds.minHeight + 1;
 
   const draggingRef = useRef(false);
   const startYRef = useRef(0);
@@ -56,7 +70,10 @@ export function useChatBottomSheet() {
   const handlePointerMove = (e: PointerEvent) => {
     if (!draggingRef.current) return;
     const delta = e.clientY - startYRef.current;
-    const nextHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, startHeightRef.current - delta));
+    const nextHeight = Math.max(
+      bounds.minHeight,
+      Math.min(bounds.maxHeight, startHeightRef.current - delta),
+    );
     setHeight(nextHeight);
   };
 
@@ -64,9 +81,35 @@ export function useChatBottomSheet() {
     if (!draggingRef.current) return;
     draggingRef.current = false;
     setIsDragging(false);
-    if (height > MID) setHeight(MAX_HEIGHT);
-    else setHeight(MIN_HEIGHT);
+    if (height > midHeight) setHeight(bounds.maxHeight);
+    else setHeight(bounds.minHeight);
   };
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+
+    function syncBounds() {
+      const nextBounds = getSheetBounds();
+      setBounds(nextBounds);
+      setHeight((currentHeight) => {
+        const isCollapsed = currentHeight <= bounds.minHeight + 1;
+        if (isCollapsed) return nextBounds.minHeight;
+
+        return Math.max(nextBounds.minHeight, Math.min(nextBounds.maxHeight, currentHeight));
+      });
+    }
+
+    syncBounds();
+    window.addEventListener('resize', syncBounds);
+    viewport?.addEventListener('resize', syncBounds);
+    viewport?.addEventListener('scroll', syncBounds);
+
+    return () => {
+      window.removeEventListener('resize', syncBounds);
+      viewport?.removeEventListener('resize', syncBounds);
+      viewport?.removeEventListener('scroll', syncBounds);
+    };
+  }, [bounds.minHeight]);
 
   useEffect(() => {
     window.addEventListener('pointermove', handlePointerMove);

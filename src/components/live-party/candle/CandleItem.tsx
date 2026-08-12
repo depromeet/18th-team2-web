@@ -17,7 +17,7 @@ export function CandleItem({ src, alt, disabled, onClick }: CandleItemProps) {
         src={src}
         alt={alt}
         draggable={false}
-        className="transition-all duration-500 ease-out select-none"
+        className="h-auto w-[clamp(72px,24vw,96px)] transition-all duration-500 ease-out select-none"
       />
     </button>
   );

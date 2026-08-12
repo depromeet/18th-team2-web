@@ -47,23 +47,23 @@ export function HostWaitingView({
         <CloseIcon className="text-white" />
       </button>
 
-      <section className="relative z-1 flex h-full flex-col items-center px-4 pt-[190px] pb-8">
-        <div className="relative h-[220px] w-[260px]">
+      <section className="relative z-1 flex h-full flex-col items-center px-4 pt-[190px] pb-[calc(32px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-[110px] [@media_(max-height:700px)]:pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <div className="relative h-[220px] w-[260px] [@media_(max-height:700px)]:h-[190px] [@media_(max-height:700px)]:w-[240px]">
           <img
             src={cakeSrc}
             alt=""
             aria-hidden
-            className="absolute top-0 left-1/2 h-40 w-60 -translate-x-1/2"
+            className="absolute top-0 left-1/2 h-40 w-60 -translate-x-1/2 [@media_(max-height:700px)]:h-36 [@media_(max-height:700px)]:w-54"
           />
           <img
             src={characterImage}
             alt={celebrant?.nickname ?? '주인공 캐릭터'}
-            className="party-enter-character absolute top-[92px] left-1/2 h-[125px] w-[125px] -translate-x-1/2 object-contain"
+            className="party-enter-character absolute top-[92px] left-1/2 h-[125px] w-[125px] -translate-x-1/2 object-contain [@media_(max-height:700px)]:top-[82px] [@media_(max-height:700px)]:h-[112px] [@media_(max-height:700px)]:w-[112px]"
             draggable={false}
           />
         </div>
 
-        <div className="mt-[82px] flex w-full flex-col items-center gap-4 text-center">
+        <div className="mt-[82px] flex w-full flex-col items-center gap-4 text-center [@media_(max-height:700px)]:mt-10 [@media_(max-height:700px)]:gap-3">
           {isEnding ? (
             <>
               <H2 className="font-bold text-white">

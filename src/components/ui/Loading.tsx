@@ -10,7 +10,7 @@ interface LoadingProps {
 export function Loading({ variant = 'overlay' }: LoadingProps) {
   if (variant === 'white') {
     return (
-      <div className="flex h-full min-h-screen flex-col items-center justify-center gap-2 bg-white">
+      <div className="flex h-full min-h-dvh flex-col items-center justify-center gap-2 bg-white">
         <Lottie animationData={loadingAnimation} className="h-38.75 w-38.75" loop />
         <B1 as="p" className="text-grey-400">
           로딩중이에요

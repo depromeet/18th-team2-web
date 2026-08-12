@@ -48,8 +48,6 @@ body {
 
 body {
   font-family: var(--font-sans);
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-    env(safe-area-inset-left);
 }
 
 /* 예정된 파티 캐러셀 인디케이터 */

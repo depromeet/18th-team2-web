@@ -50,7 +50,7 @@ export default function PartyCreateCompletePage() {
   };
 
   return (
-    <div className="party-complete-page relative flex min-h-screen flex-col overflow-hidden px-5">
+    <div className="party-complete-page relative flex min-h-dvh flex-col overflow-hidden px-5">
       <header className="relative h-[42px]">
         <button
           type="button"
@@ -62,9 +62,11 @@ export default function PartyCreateCompletePage() {
         </button>
       </header>
 
-      <H1 className="party-complete-title mt-10 text-center">파티 초대장이 완성되었어요</H1>
+      <H1 className="party-complete-title mt-[clamp(24px,5svh,40px)] text-center">
+        파티 초대장이 완성되었어요
+      </H1>
 
-      <div className="mx-auto mt-16 flex w-full max-w-[343px] flex-1 flex-col">
+      <div className="mx-auto mt-[clamp(24px,7svh,64px)] flex w-full max-w-[343px] flex-1 flex-col [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none">
         <CompletedInvitationCard
           className="party-complete-card"
           title="파티 초대장"
@@ -78,7 +80,7 @@ export default function PartyCreateCompletePage() {
           * 파티 정보는 시작 24시간 전까지 수정할 수 있어요
         </B1>
 
-        <div className="party-complete-button mt-auto pb-6">
+        <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <Button variant="white" size="full" disabled={!canShare} onClick={handleShareLink}>
             링크 공유하기
           </Button>

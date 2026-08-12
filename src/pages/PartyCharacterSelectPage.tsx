@@ -148,7 +148,7 @@ export default function PartyCharacterSelectPage() {
   };
 
   return (
-    <div className="bg-gradient-bg flex min-h-screen flex-col overflow-hidden">
+    <div className="bg-gradient-bg flex min-h-dvh flex-col overflow-hidden">
       <PageHeader />
 
       {createError && (
@@ -157,13 +157,13 @@ export default function PartyCharacterSelectPage() {
         </div>
       )}
 
-      <H1 className="mt-12 px-5">
+      <H1 className="mt-[clamp(32px,7svh,48px)] px-5">
         내 파티날,
         <br />
         나는 어떤 캐릭터로 등장할까요?
       </H1>
 
-      <div className="mt-[184px] flex h-[230px] w-full items-center">
+      <div className="mt-[clamp(56px,14svh,144px)] flex h-[clamp(190px,30svh,230px)] w-full items-center">
         <Swiper
           modules={[EffectCoverflow]}
           effect="coverflow"
@@ -188,20 +188,20 @@ export default function PartyCharacterSelectPage() {
           {visibleCharacters.map((character, index) => (
             <SwiperSlide
               key={character.id}
-              className="!flex !w-[200px] items-center justify-center"
+              className="!flex !w-[clamp(176px,32svh,200px)] items-center justify-center"
             >
               <button
                 type="button"
                 aria-label={`${character.name} 선택`}
                 aria-current={index === selectedIndex}
-                className="flex h-50 w-50 cursor-pointer items-center justify-center"
+                className="flex h-[clamp(176px,28svh,200px)] w-[clamp(176px,28svh,200px)] cursor-pointer items-center justify-center"
                 onClick={() => handleClickCharacter(index)}
               >
                 <img
                   src={character.image}
                   alt=""
                   aria-hidden="true"
-                  className={`h-50 w-50 object-contain transition-opacity duration-200 ${
+                  className={`h-[clamp(176px,28svh,200px)] w-[clamp(176px,28svh,200px)] object-contain transition-opacity duration-200 ${
                     index === selectedIndex ? 'opacity-100' : 'opacity-45'
                   }`}
                 />
@@ -211,7 +211,7 @@ export default function PartyCharacterSelectPage() {
         </Swiper>
       </div>
 
-      <div className="mt-6 flex justify-center gap-2">
+      <div className="mt-[clamp(16px,3svh,24px)] flex justify-center gap-2">
         {visibleCharacters.map((character, index) => (
           <button
             key={character.id}
@@ -226,7 +226,7 @@ export default function PartyCharacterSelectPage() {
         ))}
       </div>
 
-      <div className="mt-auto px-5 pb-6">
+      <div className="mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
         <Button size="full" disabled={isPending} onClick={handleSelectCharacter}>
           선택하기
         </Button>

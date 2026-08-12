@@ -49,7 +49,7 @@ function HomePage() {
   };
 
   return (
-    <div className="bg-gradient-bg flex min-h-screen flex-col">
+    <div className="bg-gradient-bg flex min-h-dvh flex-col">
       <HomeHeader />
       <div className="flex flex-col gap-2">
         {parties.length > 0 && (

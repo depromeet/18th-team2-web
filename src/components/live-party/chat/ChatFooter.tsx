@@ -21,13 +21,13 @@ export function ChatFooter({ onSend }: ChatFooterProps) {
   };
 
   return (
-    <div className="flex items-center gap-3 pt-2 pb-4">
+    <div className="flex items-center gap-3 pt-2 pb-[calc(16px+env(safe-area-inset-bottom))]">
       <input
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="하고 싶은 말을 남겨주세요!"
-        className="placeholder:text-grey-300 w-full rounded-[200px] border border-white/60 bg-white/10 px-4 py-2 font-semibold text-white outline-none placeholder:font-normal"
+        className="placeholder:text-grey-300 min-w-0 flex-1 rounded-[200px] border border-white/60 bg-white/10 px-4 py-2 font-semibold text-white outline-none placeholder:font-normal"
       />
       <FirecrackerButton />
     </div>

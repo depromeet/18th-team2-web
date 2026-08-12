@@ -199,7 +199,7 @@ export function LinkShareSheet({
           role="dialog"
           aria-modal="true"
           aria-labelledby="link-share-title"
-          className={`absolute bottom-8 left-1/2 flex h-[282px] w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-1 rounded-2xl bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
+          className={`absolute bottom-[calc(32px+env(safe-area-inset-bottom))] left-1/2 flex h-[282px] w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-1 rounded-2xl bg-white px-5 pt-3 pb-4 transition-transform duration-300 ease-out ${
             isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+32px)]'
           }`}
         >
@@ -284,7 +284,7 @@ export function LinkShareSheet({
       </div>
 
       {isCopyToastVisible && (
-        <div className="pointer-events-none absolute right-0 bottom-10 left-0 z-50 flex justify-center">
+        <div className="pointer-events-none absolute right-0 bottom-[calc(40px+env(safe-area-inset-bottom))] left-0 z-50 flex justify-center">
           <div
             className={`link-share-toast flex h-[54px] w-[343px] max-w-[calc(100%-32px)] items-center justify-center gap-2 rounded-lg bg-black/70 px-4 py-4 text-white ${
               isCopyToastExiting ? 'link-share-toast-exit' : ''

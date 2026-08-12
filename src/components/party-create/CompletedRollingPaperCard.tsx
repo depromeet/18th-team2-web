@@ -18,7 +18,7 @@ export function CompletedRollingPaperCard({
 
   return (
     <div
-      className={`relative flex min-h-[419px] w-full flex-col gap-6 rounded-lg bg-white px-7.5 pt-7.5 pb-17.5 ${className ?? ''}`}
+      className={`relative flex min-h-[419px] w-full flex-col gap-6 rounded-lg bg-white px-7.5 pt-7.5 pb-17.5 [@media_(max-height:700px)]:min-h-[360px] [@media_(max-height:700px)]:gap-4 [@media_(max-height:700px)]:px-7 [@media_(max-height:700px)]:pt-6 [@media_(max-height:700px)]:pb-14 ${className ?? ''}`}
     >
       <H2 className="text-center tracking-[-0.0001em]">롤링페이퍼 초대장</H2>
       <div className="border-grey-50 border-t" />
@@ -39,8 +39,11 @@ export function CompletedRollingPaperCard({
         </div>
       </div>
 
-      <div className="border-grey-50 absolute right-7.5 bottom-20 left-7.5 border-t" />
-      <B1 as="span" className="text-grey-200 absolute right-7.5 bottom-10.5 left-7.5 font-medium">
+      <div className="border-grey-50 absolute right-7.5 bottom-20 left-7.5 border-t [@media_(max-height:700px)]:right-7 [@media_(max-height:700px)]:bottom-16 [@media_(max-height:700px)]:left-7" />
+      <B1
+        as="span"
+        className="text-grey-200 absolute right-7.5 bottom-10.5 left-7.5 font-medium [@media_(max-height:700px)]:right-7 [@media_(max-height:700px)]:bottom-8 [@media_(max-height:700px)]:left-7"
+      >
         {footerText}
       </B1>
     </div>

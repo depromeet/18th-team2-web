@@ -50,7 +50,7 @@ export default function RollingPaperCreateCompletePage() {
   const canShare = Boolean(inviteToken);
 
   return (
-    <div className="party-complete-page relative flex min-h-screen flex-col overflow-hidden px-5">
+    <div className="party-complete-page relative flex min-h-dvh flex-col overflow-hidden px-5">
       <header className="relative h-[42px]">
         <button
           type="button"
@@ -62,7 +62,7 @@ export default function RollingPaperCreateCompletePage() {
         </button>
       </header>
 
-      <div className="relative mt-10 min-h-18">
+      <div className="relative mt-[clamp(24px,5svh,40px)] min-h-18">
         <H1 className="rolling-paper-complete-title text-center">롤링페이퍼가 완성되었어요</H1>
         <H1 className="rolling-paper-complete-open-title absolute inset-x-0 top-0 text-center">
           {openDateLabel} {ROLLING_PAPER_OPEN_TIME}부터
@@ -71,7 +71,7 @@ export default function RollingPaperCreateCompletePage() {
         </H1>
       </div>
 
-      <div className="mx-auto mt-7 flex w-full max-w-[343px] flex-1 flex-col">
+      <div className="mx-auto mt-[clamp(20px,4svh,28px)] flex w-full max-w-[343px] flex-1 flex-col [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none">
         <CompletedRollingPaperCard
           className="party-complete-card"
           hostName={hostName}
@@ -83,7 +83,7 @@ export default function RollingPaperCreateCompletePage() {
           * 파티 정보는 시작 24시간 전까지 수정할 수 있어요
         </B1>
 
-        <div className="party-complete-button mt-auto pb-6">
+        <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <Button
             variant="white"
             size="full"

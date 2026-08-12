@@ -5,7 +5,7 @@ import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 
 export function WaitingHostActionOverlay() {
   return (
-    <div className="absolute inset-0 z-40 flex h-full w-full flex-col items-center justify-center gap-10 backdrop-blur-lg">
+    <div className="absolute inset-0 z-40 flex h-full w-full flex-col items-center justify-center gap-10 backdrop-blur-lg [@media_(max-height:700px)]:gap-7">
       <T4 className="text-center text-white">
         주인공의
         <br />
