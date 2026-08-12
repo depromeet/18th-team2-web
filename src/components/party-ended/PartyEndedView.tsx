@@ -43,7 +43,7 @@ export function PartyEndedView({
 
   return (
     <main className="bg-gradient-bg flex min-h-dvh flex-col">
-      <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-8">
+      <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-8">
         {isExpired ? (
           <H1 as="h1" className="w-full text-center tracking-[-0.0044px] text-black">
             아쉽지만 작성이 <span className="text-red-500">마감</span>됐어요.

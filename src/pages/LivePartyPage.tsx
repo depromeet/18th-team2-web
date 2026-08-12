@@ -269,7 +269,7 @@ export default function LivePartyPage() {
 
   return (
     <div
-      className={`relative h-svh w-full max-w-150 bg-cover bg-center bg-no-repeat [--live-party-chat-min-height:320px] [@media_(max-height:700px)]:[--live-party-chat-min-height:280px] ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
+      className={`relative h-svh w-full max-w-150 bg-cover bg-center bg-no-repeat [--live-party-chat-min-height:320px] [@media_(max-height:699px)]:[--live-party-chat-min-height:280px] ${partyEnd ? 'backdrop-blur-lg' : 'bg-blue-1000'} `}
     >
       {(!canFetch || !isInitialized) && <Loading />}
       {showPartyMain && <PartyFirecrackerEffect />}

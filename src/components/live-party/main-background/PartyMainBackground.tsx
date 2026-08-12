@@ -22,7 +22,7 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
 
   return (
     <div
-      className={`pointer-events-none absolute inset-0 transition-[filter] duration-300 [--live-party-chat-min-height:320px] [@media_(max-height:700px)]:[--live-party-chat-min-height:280px] ${
+      className={`pointer-events-none absolute inset-0 transition-[filter] duration-300 [--live-party-chat-min-height:320px] [@media_(max-height:699px)]:[--live-party-chat-min-height:280px] ${
         isBlurred ? 'blur-[6px] brightness-[0.55]' : ''
       }`}
     >

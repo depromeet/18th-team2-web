@@ -19,6 +19,7 @@ interface Firework {
 }
 
 const FIREWORK_DURATION = 1400;
+const SHORT_SCREEN_PARTICIPANT_TOPS = ['76px', '118px', '160px', '202px', '244px', '286px'];
 
 export function usePartyMainBackground() {
   const { partyId } = useParams<{ partyId: string }>();
@@ -129,6 +130,7 @@ export function usePartyMainBackground() {
         return {
           left,
           top: `calc(80px + ${Math.random().toFixed(3)} * max(0px, (100svh - var(--live-party-chat-min-height, 320px) - 300px)))`,
+          shortTop: SHORT_SCREEN_PARTICIPANT_TOPS[index % SHORT_SCREEN_PARTICIPANT_TOPS.length],
           animationDuration: `${(2.5 + Math.random()).toFixed(2)}s`,
           animationDelay: `${(Math.random() * 2).toFixed(2)}s`,
         };

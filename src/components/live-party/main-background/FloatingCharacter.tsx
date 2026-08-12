@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 
 import { characterSizeStyles } from '@/constants/live-party';
 import { Caption } from '@/components/ui/Typography';
@@ -6,6 +6,7 @@ import { Caption } from '@/components/ui/Typography';
 interface CharacterInitStyle {
   left: string;
   top?: string;
+  shortTop?: string;
   bottom?: string;
   animationDuration: string;
   animationDelay: string;
@@ -45,11 +46,20 @@ export function FloatingCharacter({
           ? 'character-jump-lg'
           : 'character-jump'
       : '';
+  const positionClass = initStyle.top
+    ? 'top-[var(--floating-top)] [@media_(max-height:580px)]:top-[var(--floating-short-top)]'
+    : '';
+  const positionStyle = {
+    left: initStyle.left,
+    bottom: initStyle.bottom,
+    '--floating-top': initStyle.top,
+    '--floating-short-top': initStyle.shortTop ?? initStyle.top,
+  } as CSSProperties;
 
   return (
     <div
-      className="pointer-events-auto absolute cursor-pointer"
-      style={{ left: initStyle.left, top: initStyle.top, bottom: initStyle.bottom }}
+      className={`pointer-events-auto absolute cursor-pointer ${positionClass}`}
+      style={positionStyle}
       onClick={handleClick}
     >
       <div className={animationClass}>
