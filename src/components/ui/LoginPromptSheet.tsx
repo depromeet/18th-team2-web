@@ -39,7 +39,7 @@ export function LoginPromptSheet({
         onClick={onClose}
       />
       <div
-        className={`relative w-full max-w-93.75 px-2.5 pb-6 transition-transform duration-300 ease-out ${isAnimatedOpen ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`relative w-full max-w-93.75 px-2.5 pb-[calc(24px+env(safe-area-inset-bottom))] transition-transform duration-300 ease-out ${isAnimatedOpen ? 'translate-y-0' : 'translate-y-full'}`}
       >
         <div className="relative rounded-2xl bg-white px-5 pt-3 pb-5">
           <div className="bg-grey-100 mx-auto mb-3 h-1 w-9 rounded-full" />

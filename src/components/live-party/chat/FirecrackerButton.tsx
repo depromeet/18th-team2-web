@@ -19,8 +19,9 @@ export function FirecrackerButton() {
 
   return (
     <button
+      type="button"
       onClick={handleClick}
-      className="cursor-pointer transition-all duration-150 active:scale-90"
+      className="shrink-0 cursor-pointer transition-all duration-150 active:scale-90"
     >
       {active ? (
         <FirecrackerFilledIconSvg className="h-9 w-9" />

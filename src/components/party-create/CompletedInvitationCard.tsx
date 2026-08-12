@@ -23,11 +23,13 @@ export function CompletedInvitationCard({
   const hostNameParticle = getObjectParticle(hostName);
 
   return (
-    <div className={`rounded-lg bg-white px-9 pt-10 pb-9 ${className ?? ''}`}>
+    <div
+      className={`rounded-lg bg-white px-9 pt-10 pb-9 [@media_(max-height:700px)]:px-7 [@media_(max-height:700px)]:pt-7 [@media_(max-height:700px)]:pb-6 ${className ?? ''}`}
+    >
       <H2 className="text-center">{title}</H2>
-      <div className="border-grey-50 mt-7 border-t" />
+      <div className="border-grey-50 mt-7 border-t [@media_(max-height:700px)]:mt-5" />
 
-      <div className="text-head-1 text-grey-600 mt-8 flex flex-col gap-3 font-normal tracking-[-0.0002em]">
+      <div className="text-head-1 text-grey-600 mt-8 flex flex-col gap-3 font-normal tracking-[-0.0002em] [@media_(max-height:700px)]:mt-6 [@media_(max-height:700px)]:gap-2">
         <div>
           <strong className="text-blue-500">{hostName}</strong>
           <span>{hostNameParticle} 위해</span>
@@ -43,8 +45,10 @@ export function CompletedInvitationCard({
         <span>온라인 생일 파티가 열려요</span>
       </div>
 
-      <div className="border-grey-50 mt-12 border-t" />
-      <B1 className="text-grey-200 mt-7 font-medium">{footerText}</B1>
+      <div className="border-grey-50 mt-12 border-t [@media_(max-height:700px)]:mt-8" />
+      <B1 className="text-grey-200 mt-7 font-medium [@media_(max-height:700px)]:mt-5">
+        {footerText}
+      </B1>
     </div>
   );
 }

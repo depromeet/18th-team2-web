@@ -239,7 +239,7 @@ export default function PartyTimeSelectPage() {
   };
 
   return (
-    <div className="bg-gradient-bg relative flex min-h-screen flex-col">
+    <div className="bg-gradient-bg relative flex min-h-dvh flex-col">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute right-0 bottom-0 left-0 z-0 h-[38vh] bg-gradient-to-b from-[#EEF5FF]/0 via-[#EEF5FF] to-[#F5F9FF]"
@@ -252,7 +252,7 @@ export default function PartyTimeSelectPage() {
         파티 초대장 내용을 완성해 주세요
       </H1>
 
-      <div className="relative mt-[clamp(44px,7vh,72px)] [@media_(min-height:900px)]:mt-[120px]">
+      <div className="relative mt-[clamp(36px,7svh,72px)]">
         {pickerMode && (
           <button
             type="button"
@@ -388,7 +388,7 @@ export default function PartyTimeSelectPage() {
         </AnchoredPopover>
       )}
 
-      <div className="relative z-30 mt-auto px-5 pb-6">
+      <div className="relative z-30 mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
         <Button
           variant={isReady ? 'primary' : 'secondary'}
           size="full"

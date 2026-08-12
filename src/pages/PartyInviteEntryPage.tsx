@@ -106,7 +106,7 @@ export default function PartyInviteEntryPage() {
 
 function LoadingLayout() {
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col items-center justify-center">
+    <main className="bg-gradient-bg flex min-h-dvh flex-col items-center justify-center">
       <p className="text-grey-500">초대장을 불러오는 중...</p>
     </main>
   );
@@ -114,7 +114,7 @@ function LoadingLayout() {
 
 function InvalidLinkLayout({ message }: { message: string }) {
   return (
-    <main className="bg-gradient-bg flex min-h-screen flex-col items-center justify-center px-4">
+    <main className="bg-gradient-bg flex min-h-dvh flex-col items-center justify-center px-4">
       <p className="text-grey-700 text-center">{message}</p>
     </main>
   );

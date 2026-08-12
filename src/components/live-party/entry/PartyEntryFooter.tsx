@@ -10,7 +10,7 @@ interface PartyEntryFooterProps {
 
 export function PartyEntryFooter({ showButton, onStart }: PartyEntryFooterProps) {
   return (
-    <footer className="absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center pb-28">
+    <footer className="absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center pb-[calc(112px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pb-[calc(72px+env(safe-area-inset-bottom))]">
       {showButton ? (
         <Button onClick={onStart} className="party-enter-button" size="md">
           커튼열기

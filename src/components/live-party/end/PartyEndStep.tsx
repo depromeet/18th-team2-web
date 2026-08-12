@@ -12,9 +12,9 @@ interface PartyEndStepProps {
 
 export function PartyEndStep({ role, action, hostName }: PartyEndStepProps) {
   return (
-    <div className="party-intro-screen relative flex h-screen w-full flex-col items-center overflow-hidden pt-[20vh]">
+    <div className="party-intro-screen relative flex h-svh w-full flex-col items-center overflow-hidden pt-[20vh] [@media_(max-height:700px)]:pt-[13vh]">
       <PartyEndText role={role} />
-      <div className="relative z-10 mt-[4vh] w-full">
+      <div className="relative z-10 mx-auto mt-[4vh] w-full max-w-[560px] flex-none [@media_(max-height:700px)]:mt-[2vh] [@media_(max-height:700px)]:max-w-[480px]">
         <img
           src={hapalinPartyCard}
           alt="파티 케이크"
@@ -22,7 +22,7 @@ export function PartyEndStep({ role, action, hostName }: PartyEndStepProps) {
           draggable={false}
         />
       </div>
-      <div className="party-intro-overlay pointer-events-none absolute right-0 bottom-0 left-0 h-[50%]" />
+      <div className="party-intro-overlay pointer-events-none absolute right-0 bottom-0 left-0 h-[50%] [@media_(max-height:700px)]:h-[46%]" />
       <PartyEndButton role={role} action={action} hostName={hostName} />
     </div>
   );

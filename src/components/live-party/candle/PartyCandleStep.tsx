@@ -34,7 +34,7 @@ export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCa
   }, [allCandleOff, fireConfetti]);
 
   return (
-    <div className="bg-blue-1000 relative flex h-screen w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14">
+    <div className="bg-blue-1000 relative flex h-svh w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14 [@media_(max-height:700px)]:gap-8 [@media_(max-height:700px)]:pt-10">
       <ReactCanvasConfetti
         onInit={handleInitConfetti}
         className="pointer-events-none absolute inset-0 z-30 h-full w-full"
@@ -51,7 +51,7 @@ export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCa
       />
 
       {showHostNextButton && (
-        <div className="absolute right-4 bottom-8 left-4 z-40 animate-[party-complete-fade-in_300ms_ease-out_forwards]">
+        <div className="absolute right-4 bottom-[calc(24px+env(safe-area-inset-bottom))] left-4 z-40 animate-[party-complete-fade-in_300ms_ease-out_forwards] [@media_(max-height:700px)]:bottom-[calc(16px+env(safe-area-inset-bottom))]">
           <Button onClick={onComplete}>다음</Button>
         </div>
       )}
