@@ -59,17 +59,21 @@ type GetUsersRes =
 ### 재생성
 
 ```bash
-openapi-typescript http://suker.iptime.org:8081/v3/api-docs -o src/types/api.ts
+openapi-typescript https://dev-api.hapalin.com/v3/api-docs -o src/types/api.ts
 ```
 
 ## 인증 헤더 추가
 
-인증 토큰이 필요하면 `api` 클라이언트의 `options.headers`로 전달합니다.
+`api` 클라이언트는 `useAuthStore`의 `accessToken`을 자동으로 `Authorization: Bearer` 헤더에 주입합니다. 수동으로 넣지 마세요.
+
+### 비회원 참여 토큰 (파티 참여 플로우)
+
+로그인하지 않은 참여자는 `sessionStorage`에 저장된 참여 토큰을 `X-Participant-Token` 헤더로 전달합니다.
 
 ```ts
-api.get<User>('/me', {
-  headers: { Authorization: `Bearer ${token}` },
-});
+import { getParticipantOptions } from '@/utils/headers';
+
+api.get('/parties/live', getParticipantOptions());
 ```
 
-또는 `request` 함수를 확장해 `useAuthStore`에서 토큰을 자동 주입하도록 수정합니다.
+`getParticipantOptions()`는 로그인 상태면 `undefined`를 반환합니다(Bearer 인증 우선).
