@@ -1645,7 +1645,7 @@ export interface components {
             hostFarewellAvailable: boolean;
             /**
              * Format: date-time
-             * @description 주최자 입장 기준 종료 인사하기 버튼 활성화 시각
+             * @description 파티 시작 기준 종료 인사하기 버튼 활성화 시각
              */
             hostFarewellAvailableAt?: string;
             /**
