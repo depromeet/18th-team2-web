@@ -278,7 +278,7 @@ export default function LivePartyPage() {
           onExitClick={handleOpenExitDialog}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
-          step={step}
+          showMuteButton={step !== LIVE_PARTY_STEP.ENTRY}
         />
       )}
       {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}

@@ -1,24 +1,25 @@
+import { memo } from 'react';
+
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
-import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
 import musicPlayIcon from '@/assets/images/live-party/music-play.png';
 import musicMutedIcon from '@/assets/images/live-party/music-muted.png';
 
 interface LivePartyHeaderProps {
   onExitClick: () => void;
-  step: PartyStep;
+  showMuteButton: boolean;
   handleToggleMute: () => void;
   musicIsMuted: boolean;
 }
 
-export function LivePartyHeader({
+export const LivePartyHeader = memo(function LivePartyHeader({
   onExitClick,
-  step,
+  showMuteButton,
   handleToggleMute,
   musicIsMuted,
 }: LivePartyHeaderProps) {
   return (
-    <header className="absolute top-0 right-0 left-0 z-[70] flex items-center justify-between p-4">
-      {step !== LIVE_PARTY_STEP.ENTRY && (
+    <header className="absolute top-0 right-0 left-0 z-70 flex items-center justify-between p-4">
+      {showMuteButton && (
         <button onClick={handleToggleMute}>
           {musicIsMuted ? (
             <img
@@ -40,4 +41,4 @@ export function LivePartyHeader({
       </button>
     </header>
   );
-}
+});
