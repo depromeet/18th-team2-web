@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
@@ -147,9 +147,9 @@ export default function LivePartyPage() {
     navigate(ROUTES.home, { replace: true });
   };
 
-  const handleReturnToPartyRoom = () => {
+  const handleReturnToPartyRoom = useCallback(() => {
     setIsPinataOverlayDismissed(true);
-  };
+  }, []);
 
   const handleOpenPartyStartSheet = () => {
     setIsPartyStartSheetOpen(true);

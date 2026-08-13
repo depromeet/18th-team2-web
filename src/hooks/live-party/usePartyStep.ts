@@ -138,10 +138,10 @@ export function useLivePartyStep({
     }, OVERLAY_FADE_DURATION);
   }, []);
 
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     if (!partyId) return;
     advancePhase({ partyId, currentPhase: stepToApiPhase(stepRef.current) });
-  };
+  }, [partyId, advancePhase]);
 
   const goToEndStep = useCallback(() => {
     setIsTransitioning(false);

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
 import { type PartyStep, type PartyUserRole } from '@/constants/live-party';
 import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep';
@@ -21,7 +23,7 @@ interface StepRendererProps {
   burstGameState: BurstGameState | null;
 }
 
-export function StepRenderer({
+export const StepRenderer = memo(function StepRenderer({
   step,
   onStepComplete,
   showPinataOverlay = true,
@@ -60,4 +62,4 @@ export function StepRenderer({
     default:
       return null;
   }
-}
+});
