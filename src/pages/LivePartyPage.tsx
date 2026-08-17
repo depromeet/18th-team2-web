@@ -299,7 +299,7 @@ export default function LivePartyPage() {
       {showEntryReadyUI && isHost && (
         <div className="absolute right-0 bottom-[calc(var(--live-party-chat-min-height)+16px)] left-0 z-40 mx-auto flex w-full max-w-150 justify-center px-4">
           <Button type="button" size="md" className="w-auto" onClick={handleOpenPartyStartSheet}>
-            파티 시작하기
+            파티 입장하기
           </Button>
         </div>
       )}
