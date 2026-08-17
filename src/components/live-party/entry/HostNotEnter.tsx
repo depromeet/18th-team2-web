@@ -7,8 +7,7 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, T4 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import type { components } from '@/types/api';
-import ParticipantsAvatarSvg from '@/assets/images/live-party/participants-avatar.svg?react';
-import noOwnerAnimation from '@/assets/images/live-party/no-owner.json';
+import noOwnerImage from '@/assets/images/live-party/no-owner.svg';
 import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 
 type PartyParticipant = components['schemas']['PartyParticipantResponse'];
@@ -21,6 +20,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
   const location = useLocation();
   const locationState = location.state as { inviteToken?: string } | null;
   const inviteToken = locationState?.inviteToken ?? '';
+  const waitingParticipantCount = Math.max(participants.length - 1, 0);
 
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
@@ -34,11 +34,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
         <div className="flex flex-1 items-center justify-center">
           <div className="flex flex-col items-center gap-15 [@media_(max-height:700px)]:gap-10">
             <div className="relative">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                <Lottie animationData={noOwnerAnimation} className="h-full w-full" loop />
-              </div>
-
-              <ParticipantsAvatarSvg className="absolute right-[-25px] bottom-[-5px] z-10" />
+              <img src={noOwnerImage} alt="" aria-hidden className="h-20 w-20" />
             </div>
 
             <div className="flex flex-col items-center gap-4 text-center [@media_(max-height:700px)]:gap-3">
@@ -49,7 +45,7 @@ export function HostNotEnter({ participants }: HostNotEnterProps) {
               </T4>
 
               <B1 className="text-white/80">
-                <span className="font-semibold">{participants.length - 1}명</span>이 함께 기다리는
+                <span className="font-semibold">{waitingParticipantCount}명</span>이 함께 기다리는
                 중
               </B1>
             </div>
