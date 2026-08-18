@@ -8,6 +8,7 @@ interface LivePartyHeaderProps {
   step: PartyStep;
   handleToggleMute: () => void;
   musicIsMuted: boolean;
+  forceShowMusicButton?: boolean;
 }
 
 export function LivePartyHeader({
@@ -15,10 +16,13 @@ export function LivePartyHeader({
   step,
   handleToggleMute,
   musicIsMuted,
+  forceShowMusicButton = false,
 }: LivePartyHeaderProps) {
+  const showMusicButton = forceShowMusicButton || step !== LIVE_PARTY_STEP.ENTRY;
+
   return (
     <header className="absolute top-0 right-0 left-0 z-[70] flex items-center justify-between p-4">
-      {step !== LIVE_PARTY_STEP.ENTRY && (
+      {showMusicButton && (
         <button onClick={handleToggleMute}>
           {musicIsMuted ? (
             <img

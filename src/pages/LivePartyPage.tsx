@@ -21,11 +21,15 @@ import { ROUTES } from '@/constants/routes';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
-import { useRealtimePartyNextAction, useStartRealtimeEnd } from '@/services/live-party';
+import {
+  useGetPartyParticipants,
+  useRealtimePartyNextAction,
+  useStartRealtimeEnd,
+} from '@/services/live-party';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
-import { B1 } from '@/components/ui/Typography';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
+import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -222,6 +226,10 @@ export default function LivePartyPage() {
   const showPartyMain =
     isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showEntryReadyUI = isEntryReady && isEntryStep && !isPartyEndingFlow;
+  const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
+    enabled: canFetch && showEntryReadyUI,
+    refetchInterval: 3000,
+  });
 
   if (sseError || isPhaseError) {
     return (
@@ -279,9 +287,15 @@ export default function LivePartyPage() {
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
           step={step}
+          forceShowMusicButton={showEntryReadyUI}
         />
       )}
-      {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
+      {showPartyMain && !showEntryReadyUI && (
+        <PartyMainBackground isBlurred={isPinataOverlayActive} />
+      )}
+      {showEntryReadyUI && (
+        <PartyEntryReadyOverlay isHost={isHost} onStartClick={handleOpenPartyStartSheet} />
+      )}
       {!isPartyEnding && !(isEntryStep && isEntryReady) && (
         <StepRenderer
           step={step}
@@ -296,14 +310,6 @@ export default function LivePartyPage() {
           burstGameState={burstGameState}
         />
       )}
-      {showEntryReadyUI && isHost && (
-        <div className="absolute right-0 bottom-[calc(var(--live-party-chat-min-height)+16px)] left-0 z-40 mx-auto flex w-full max-w-150 justify-center px-4">
-          <Button type="button" size="md" className="w-auto" onClick={handleOpenPartyStartSheet}>
-            파티 입장하기
-          </Button>
-        </div>
-      )}
-
       {isPartyStartSheetOpen && (
         <div className="fixed inset-0 z-60 flex items-end justify-center">
           <div
@@ -323,13 +329,6 @@ export default function LivePartyPage() {
               onClose={handleClosePartyStartSheet}
               onStart={handleStartParty}
             />
-          </div>
-        </div>
-      )}
-      {showEntryReadyUI && !isHost && (
-        <div className="fixed right-0 bottom-[var(--live-party-chat-min-height)] left-0 z-40 mx-auto flex w-full max-w-150 justify-center">
-          <div className="flex w-full flex-col items-center justify-center bg-white/10 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] py-9 backdrop-blur-xs">
-            <B1 className="text-center font-semibold text-white/50">파티 시작 준비중이에요...</B1>
           </div>
         </div>
       )}
@@ -355,6 +354,9 @@ export default function LivePartyPage() {
           messages={messages}
           onSend={addMessage}
           isBlurred={isPinataOverlayActive}
+          isEntryWaiting={showEntryReadyUI}
+          participantCount={entryParticipantsData?.totalCount}
+          maxParticipantCount={entryParticipantsData?.maxCount}
         />
       )}
       <PartyExitDialog
