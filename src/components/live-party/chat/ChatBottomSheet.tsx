@@ -48,9 +48,10 @@ export function ChatBottomSheet({
         />
       )}
       {showParticipantCount && (
-        <div className="absolute top-12 right-5 z-10 flex items-center gap-1 text-sm font-bold text-blue-400">
+        <div className="absolute top-12 right-5 z-10 flex items-center gap-1 text-sm font-bold text-white">
           <svg
             aria-hidden
+            className="text-blue-400"
             width="14"
             height="14"
             viewBox="0 0 14 14"

@@ -33,7 +33,7 @@ export function PartyEntryReadyOverlay({ isHost, onStartClick }: PartyEntryReady
         ) : (
           <>
             <Lottie animationData={loadingBarAnimation} className="mb-7 h-9 w-9" loop />
-            <B1 className="font-semibold whitespace-pre-line text-white/60">
+            <B1 className="text-[18px] leading-[26px] font-semibold whitespace-pre-line text-white/60">
               주인공이 파티를 시작하기를{'\n'}기다리고 있어요
             </B1>
           </>
