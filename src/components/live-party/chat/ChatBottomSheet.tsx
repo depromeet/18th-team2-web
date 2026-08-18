@@ -1,6 +1,5 @@
 import { ChatFooter } from '@/components/live-party/chat/ChatFooter';
 import { ChipList } from '@/components/live-party/chat/ChipList';
-import { ChatHeader } from '@/components/live-party/chat/ChatHeader';
 import { ChatList } from '@/components/live-party/chat/ChatList';
 import { useViewportBottomOffset } from '@/hooks/useViewportBottomOffset';
 import { useChatBottomSheet, type ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
@@ -22,10 +21,9 @@ export function ChatBottomSheet({
   participantCount,
   maxParticipantCount,
 }: ChatBottomSheetProps) {
-  const { height, isExpanded, handlePointerDown } = useChatBottomSheet();
+  const { height, isExpanded } = useChatBottomSheet();
   const bottomOffset = useViewportBottomOffset();
   const showParticipantCount =
-    isEntryWaiting &&
     typeof participantCount === 'number' &&
     typeof maxParticipantCount === 'number' &&
     maxParticipantCount > 0;
@@ -35,20 +33,18 @@ export function ChatBottomSheet({
       className={`fixed right-0 bottom-0 left-0 z-50 mx-auto w-full max-w-[600px] px-4 transition-[filter] duration-300 ${
         isEntryWaiting
           ? 'border-t-0 bg-[#050640]/85'
-          : 'rounded-t-2xl border-t border-white/10 bg-[#26295D]'
+          : 'border-t-0 bg-[#000341]/92'
       } ${isExpanded ? 'bg-transparent backdrop-blur-2xl' : ''} ${
         isBlurred ? 'pointer-events-none blur-[6px] brightness-[0.55]' : ''
       }`}
       style={{ height, bottom: bottomOffset }}
     >
-      {isEntryWaiting && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-20 h-20 bg-linear-to-b from-transparent via-[#050640]/30 to-[#050640]/85"
-        />
-      )}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-20 h-20 bg-linear-to-b from-transparent via-[#000341]/30 to-[#000341]/90"
+      />
       {showParticipantCount && (
-        <div className="absolute top-12 right-5 z-10 flex items-center gap-1 text-sm font-bold text-white">
+        <div className="absolute top-3 right-4 z-10 flex items-center gap-1 rounded-[20px] bg-[#000341]/90 px-2 py-1.5 text-[11px] leading-4 font-bold text-white backdrop-blur-[10px]">
           <svg
             aria-hidden
             className="text-blue-400"
@@ -73,7 +69,6 @@ export function ChatBottomSheet({
         </div>
       )}
       <div className="flex h-full flex-col">
-        <ChatHeader onPointerDown={handlePointerDown} />
         <ChatList messages={messages} />
         <ChipList onChipClick={onSend} />
         <ChatFooter onSend={onSend} />

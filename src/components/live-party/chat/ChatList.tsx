@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 
 import { ChatItem } from '@/components/live-party/chat/ChatItem';
 import { EntryExitNoticeText } from '@/components/live-party/chat/EntryExitNoticeText';
@@ -11,6 +11,10 @@ interface ChatListProps {
 
 export function ChatList({ messages }: ChatListProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const listMaskStyle = {
+    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, black 42px, black 100%)',
+    maskImage: 'linear-gradient(to bottom, transparent 0, black 42px, black 100%)',
+  } as CSSProperties;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
@@ -19,7 +23,10 @@ export function ChatList({ messages }: ChatListProps) {
   }, [messages]);
 
   return (
-    <div className="share-scroll-hide relative mb-5 flex-1 space-y-4 overflow-y-auto pt-4">
+    <div
+      className="share-scroll-hide relative mb-5 flex-1 space-y-4 overflow-y-auto pt-4"
+      style={listMaskStyle}
+    >
       {messages.map((item) => {
         if (item.type === 'entry' || item.type === 'exit') {
           return <EntryExitNoticeText key={item.id} userName={item.userName} type={item.type} />;

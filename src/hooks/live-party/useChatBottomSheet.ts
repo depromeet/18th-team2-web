@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-const DEFAULT_MIN_HEIGHT = 320;
-const COMPACT_MIN_HEIGHT = 280;
+const DEFAULT_MIN_HEIGHT = 283;
+const COMPACT_MIN_HEIGHT = 260;
 const MAX_HEIGHT_TOP_OFFSET = 160;
 
 function getViewportHeight() {

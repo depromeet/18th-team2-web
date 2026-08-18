@@ -1,5 +1,9 @@
 import { B1, Caption } from '@/components/ui/Typography';
-import { getMusicLyrics, MUSIC_LYRICS_TIMINGS } from '@/constants/live-party';
+import {
+  getMusicLyrics,
+  MUSIC_LYRICS_START_SECONDS,
+  MUSIC_LYRICS_TIMINGS,
+} from '@/constants/live-party';
 import { usePartyStore } from '@/stores/usePartyStore';
 import { useEffect, useRef, useState } from 'react';
 
@@ -10,7 +14,15 @@ interface MusicLyricsProps {
 export function MusicLyrics({ onComplete }: MusicLyricsProps) {
   const hostName = usePartyStore((s) => s.hostName);
   const musicLyrics = getMusicLyrics(hostName);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() =>
+    Math.max(
+      MUSIC_LYRICS_TIMINGS.findIndex(
+        ({ start, end }) =>
+          MUSIC_LYRICS_START_SECONDS >= start && MUSIC_LYRICS_START_SECONDS <= end,
+      ),
+      0,
+    ),
+  );
   const startTimeRef = useRef(Date.now());
   const completedRef = useRef(false);
 
@@ -18,7 +30,7 @@ export function MusicLyrics({ onComplete }: MusicLyricsProps) {
     const lastTiming = MUSIC_LYRICS_TIMINGS[MUSIC_LYRICS_TIMINGS.length - 1];
 
     const interval = setInterval(() => {
-      const elapsed = (Date.now() - startTimeRef.current) / 1000;
+      const elapsed = (Date.now() - startTimeRef.current) / 1000 + MUSIC_LYRICS_START_SECONDS;
 
       if (elapsed > lastTiming.end && !completedRef.current) {
         completedRef.current = true;
@@ -43,19 +55,27 @@ export function MusicLyrics({ onComplete }: MusicLyricsProps) {
 
   const lyricDuration =
     (MUSIC_LYRICS_TIMINGS[currentIndex].end - MUSIC_LYRICS_TIMINGS[currentIndex].start) * 1000;
+  const nextLyric = musicLyrics[currentIndex + 1];
 
   return (
-    <div className="flex h-21 flex-col items-center justify-center gap-2 bg-white/1 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] backdrop-blur-xs">
+    <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2">
       <B1
         key={currentIndex}
         as="p"
-        className="music-text font-semibold text-white"
+        className="text-[16px] leading-6 font-semibold text-white"
         style={{ animationDuration: `${lyricDuration}ms` }}
       >
         {musicLyrics[currentIndex]}
       </B1>
 
-      <Caption className="text-white/50">Song : danmoo - birthday</Caption>
+      {nextLyric && (
+        <B1 as="p" className="text-[16px] leading-6 font-semibold text-white/50">
+          {nextLyric}
+        </B1>
+      )}
+      <Caption as="p" className="text-[10px] leading-[14px] text-white/50">
+        Song : danmoo - birthday
+      </Caption>
     </div>
   );
 }

@@ -59,11 +59,14 @@ export const CHAT_CHIPS = ['🎉', '👏', '❤️', '🥳', '생일축하해'];
 export const MUSIC_GUIDE_TEXT = [
   '지금부터 생일축하 노래가 나올 예정이에요',
   '무음모드라면 해제해야 노래를 들을 수 있어요',
+  '노래가 끝난 후에는\n촛불끄기, 박 터뜨리기 게임도 준비되어 있어요',
 ];
 
 export const MUSIC_GUIDE_TEXT_DURATION = 4500;
 
-export const MUSIC_GUIDE_DURATION = MUSIC_GUIDE_TEXT.length * MUSIC_GUIDE_TEXT_DURATION;
+export const MUSIC_LYRICS_START_SECONDS = 17;
+
+export const MUSIC_GUIDE_DURATION = MUSIC_LYRICS_START_SECONDS * 1000;
 
 export function getMusicLyrics(hostName: string): string[] {
   return ['~♬~', '생일축하합니다', '생일축하합니다', `사랑하는 ${hostName}님의`, '생일축하합니다'];
@@ -142,7 +145,7 @@ export const STEP_DELAY_DURATION = 1000;
 
 export const CONFETTI_COLORS = ['#33E3BD', '#909BFF', '#E3BD33', '#FF73F8'];
 
-export const CHAT_SHEET_MIN_HEIGHT = 320;
+export const CHAT_SHEET_MIN_HEIGHT = 283;
 export const MUSIC_TEXT_HEIGHT = 84;
 
 export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
