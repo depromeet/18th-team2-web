@@ -59,6 +59,8 @@ export function useLivePartySSE() {
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
   const [partyEndingState, setPartyEndingState] = useState<RealtimePartyEndingState | null>(null);
   const [currentPhase, setCurrentPhase] = useState<PartyApiPhase | null>(null);
+  const [currentPhaseStartedAt, setCurrentPhaseStartedAt] = useState<string | null>(null);
+  const [currentPhaseServerNow, setCurrentPhaseServerNow] = useState<string | null>(null);
   const [hasParticipantToken, setHasParticipantToken] = useState(false);
   const [sseError, setSseError] = useState(false);
   const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
@@ -245,6 +247,8 @@ export function useLivePartySSE() {
             // 실시간 파티 상태 변경
             case SSE_EVENT.PARTY_PHASE_CHANGED: {
               setCurrentPhase(parsed.phase as PartyApiPhase);
+              setCurrentPhaseStartedAt((parsed.phaseStartedAt as string | undefined) ?? null);
+              setCurrentPhaseServerNow((parsed.serverNow as string | undefined) ?? null);
 
               return;
             }
@@ -325,6 +329,8 @@ export function useLivePartySSE() {
     burstGameState,
     partyEndingState,
     currentPhase,
+    currentPhaseStartedAt,
+    currentPhaseServerNow,
     hasParticipantToken,
     sseError,
     nicknameDuplicate,

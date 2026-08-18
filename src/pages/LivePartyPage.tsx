@@ -56,6 +56,8 @@ export default function LivePartyPage() {
     burstGameState,
     partyEndingState,
     currentPhase,
+    currentPhaseStartedAt,
+    currentPhaseServerNow,
     hasParticipantToken,
     sseError,
     nicknameDuplicate,
@@ -106,9 +108,13 @@ export default function LivePartyPage() {
     isInitialized,
     isPhaseError,
     goToEndStep,
+    liveStartedAt,
+    liveStartedServerNow,
   } = useLivePartyStep({
     partyId,
     ssePhase: currentPhase,
+    ssePhaseStartedAt: currentPhaseStartedAt,
+    sseServerNow: currentPhaseServerNow,
     isPartyEnded,
     enabled: canFetch,
   });
@@ -288,6 +294,9 @@ export default function LivePartyPage() {
           handleToggleMute={handleToggleMute}
           step={step}
           forceShowMusicButton={showEntryReadyUI}
+          isPartyEnding={isPartyEnding}
+          liveStartAt={liveStartedAt}
+          serverNow={liveStartedServerNow}
         />
       )}
       {showPartyMain && !showEntryReadyUI && (

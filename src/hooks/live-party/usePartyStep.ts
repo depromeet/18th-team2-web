@@ -46,6 +46,8 @@ function stepToApiPhase(step: PartyStep): PartyApiPhase {
 interface UseLivePartyStepOptions {
   partyId: string;
   ssePhase?: PartyApiPhase | null;
+  ssePhaseStartedAt?: string | null;
+  sseServerNow?: string | null;
   isPartyEnded?: boolean;
   enabled?: boolean;
 }
@@ -53,6 +55,8 @@ interface UseLivePartyStepOptions {
 export function useLivePartyStep({
   partyId,
   ssePhase,
+  ssePhaseStartedAt,
+  sseServerNow,
   isPartyEnded,
   enabled = true,
 }: UseLivePartyStepOptions) {
@@ -60,10 +64,37 @@ export function useLivePartyStep({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isEntryReady, setIsEntryReady] = useState(false);
+  const [liveStartedAt, setLiveStartedAt] = useState<string | null>(() =>
+    partyId ? sessionStorage.getItem(`live-party-started-at:${partyId}`) : null,
+  );
+  const [liveStartedServerNow, setLiveStartedServerNow] = useState<string | null>(null);
   const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
   const { data: phaseData, isError: isPhaseError } = useGetPhase(partyId, enabled);
   const { mutate: advancePhase } = useAdvancePhase();
+
+  const rememberLiveStart = useCallback(
+    (startedAt?: string | null, serverNow?: string | null) => {
+      if (!startedAt) return;
+
+      setLiveStartedAt(startedAt);
+      setLiveStartedServerNow(serverNow ?? null);
+
+      if (partyId) {
+        sessionStorage.setItem(`live-party-started-at:${partyId}`, startedAt);
+      }
+    },
+    [partyId],
+  );
+
+  const clearRememberedLiveStart = useCallback(() => {
+    setLiveStartedAt(null);
+    setLiveStartedServerNow(null);
+
+    if (partyId) {
+      sessionStorage.removeItem(`live-party-started-at:${partyId}`);
+    }
+  }, [partyId]);
 
   const applyStepTransition = useCallback((nextStep: PartyStep) => {
     if (nextStep === stepRef.current) return;
@@ -90,6 +121,14 @@ export function useLivePartyStep({
 
     if (!phase || isInitialized) return;
 
+    if (phase === 'ENTRY') {
+      clearRememberedLiveStart();
+    }
+
+    if (phase === 'MUSIC') {
+      rememberLiveStart(phaseData?.data?.phaseStartedAt, phaseData?.data?.serverNow);
+    }
+
     const initialStep = apiPhaseToStep(phase);
 
     if (stepRef.current === LIVE_PARTY_STEP.ENTRY) {
@@ -98,14 +137,30 @@ export function useLivePartyStep({
     }
 
     setIsInitialized(true);
-  }, [phaseData, isInitialized]);
+  }, [phaseData, isInitialized, rememberLiveStart, clearRememberedLiveStart]);
 
   // SSE party-phase-changed 반영
   useEffect(() => {
     if (!ssePhase) return;
+
+    if (ssePhase === 'ENTRY') {
+      clearRememberedLiveStart();
+    }
+
+    if (ssePhase === 'MUSIC') {
+      rememberLiveStart(ssePhaseStartedAt, sseServerNow);
+    }
+
     applyStepTransition(apiPhaseToStep(ssePhase));
     setIsInitialized(true);
-  }, [ssePhase, applyStepTransition]);
+  }, [
+    ssePhase,
+    ssePhaseStartedAt,
+    sseServerNow,
+    applyStepTransition,
+    rememberLiveStart,
+    clearRememberedLiveStart,
+  ]);
 
   // 파티 중간 입장: entry 완료 후 현재 phase로 step 전환
   useEffect(() => {
@@ -140,7 +195,16 @@ export function useLivePartyStep({
 
   const handleNextStep = () => {
     if (!partyId) return;
-    advancePhase({ partyId, currentPhase: stepToApiPhase(stepRef.current) });
+    advancePhase(
+      { partyId, currentPhase: stepToApiPhase(stepRef.current) },
+      {
+        onSuccess: (res) => {
+          if (res.data?.phase === 'MUSIC') {
+            rememberLiveStart(res.data.phaseStartedAt, res.data.serverNow);
+          }
+        },
+      },
+    );
   };
 
   const goToEndStep = useCallback(() => {
@@ -167,5 +231,7 @@ export function useLivePartyStep({
     handleEntryComplete,
     isEntryReady,
     goToEndStep,
+    liveStartedAt,
+    liveStartedServerNow,
   };
 }

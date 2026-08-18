@@ -20,15 +20,15 @@ interface Firework {
 
 const FIREWORK_DURATION = 1400;
 const PARTICIPANT_POSITIONS = [
-  { left: '6%', top: '217px', shortTop: '132px' },
-  { left: '10%', top: '147px', shortTop: '76px' },
-  { left: '24%', top: '182px', shortTop: '104px' },
-  { left: '76%', top: '147px', shortTop: '76px' },
-  { left: '83%', top: '217px', shortTop: '132px' },
-  { left: '81%', top: '344px', shortTop: '244px' },
-  { left: '12%', top: '344px', shortTop: '244px' },
-  { left: '23%', top: '402px', shortTop: '286px' },
-  { left: '71%', top: '402px', shortTop: '286px' },
+  { left: '6%', top: '217px', shortTop: '172px' },
+  { left: '10%', top: '147px', shortTop: '116px' },
+  { left: '24%', top: '182px', shortTop: '144px' },
+  { left: '76%', top: '147px', shortTop: '116px' },
+  { left: '83%', top: '217px', shortTop: '172px' },
+  { left: '81%', top: '344px', shortTop: '266px' },
+  { left: '12%', top: '344px', shortTop: '266px' },
+  { left: '23%', top: '402px', shortTop: '318px' },
+  { left: '71%', top: '402px', shortTop: '318px' },
 ];
 
 export function usePartyMainBackground() {

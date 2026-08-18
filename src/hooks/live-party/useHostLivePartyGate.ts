@@ -111,5 +111,6 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
     celebrant,
     participants,
     guestCount,
+    state,
   };
 }
