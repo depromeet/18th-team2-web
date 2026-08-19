@@ -336,7 +336,7 @@ function EmptyRollingPaperHostView({
         />
 
         <div className="absolute top-[18px] left-1/2 flex w-fit max-w-[calc(100%-28px)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl bg-[#000341] px-3 py-2">
-          <p className="text-label-1 text-center whitespace-nowrap text-white [@media_(max-width:380px)]:text-[13px] [@media_(max-width:350px)]:text-[12px]">
+          <p className="text-label-1 text-center whitespace-nowrap text-white [@media_(max-width:350px)]:text-[12px] [@media_(max-width:380px)]:text-[13px]">
             공유하고 더 많은 친구들에게 편지를 받아보세요
           </p>
           <span

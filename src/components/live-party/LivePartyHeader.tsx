@@ -122,11 +122,7 @@ export function LivePartyHeader({
             className="flex size-9 shrink-0 items-center justify-center"
           >
             {musicIsMuted ? (
-              <img
-                src={musicMutedIcon}
-                alt=""
-                className="h-9 w-9 transform-[translateZ(0)]"
-              />
+              <img src={musicMutedIcon} alt="" className="h-9 w-9 transform-[translateZ(0)]" />
             ) : (
               <img src={musicPlayIcon} alt="" className="h-9 w-9 transform-[translateZ(0)]" />
             )}
