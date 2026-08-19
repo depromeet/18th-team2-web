@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
@@ -12,9 +12,9 @@ export function usePartyExitDialog() {
   const { partyId } = useParams<{ partyId: string }>();
   const { mutate: leaveParty } = useLeaveParty();
 
-  const handleOpenExitDialog = () => {
+  const handleOpenExitDialog = useCallback(() => {
     setIsExitDialogOpen(true);
-  };
+  }, []);
 
   const handleCancelExit = () => {
     setIsExitDialogOpen(false);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
@@ -147,9 +147,9 @@ export default function LivePartyPage() {
     navigate(ROUTES.home, { replace: true });
   };
 
-  const handleReturnToPartyRoom = () => {
+  const handleReturnToPartyRoom = useCallback(() => {
     setIsPinataOverlayDismissed(true);
-  };
+  }, []);
 
   const handleOpenPartyStartSheet = () => {
     setIsPartyStartSheetOpen(true);
@@ -278,7 +278,7 @@ export default function LivePartyPage() {
           onExitClick={handleOpenExitDialog}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
-          step={step}
+          showMuteButton={step !== LIVE_PARTY_STEP.ENTRY}
         />
       )}
       {showPartyMain && <PartyMainBackground isBlurred={isPinataOverlayActive} />}
@@ -327,7 +327,7 @@ export default function LivePartyPage() {
         </div>
       )}
       {showEntryReadyUI && !isHost && (
-        <div className="fixed right-0 bottom-[var(--live-party-chat-min-height)] left-0 z-40 mx-auto flex w-full max-w-150 justify-center">
+        <div className="fixed right-0 bottom-(--live-party-chat-min-height) left-0 z-40 mx-auto flex w-full max-w-150 justify-center">
           <div className="flex w-full flex-col items-center justify-center bg-white/10 mask-[linear-gradient(to_bottom,transparent_0%,black_35%)] py-9 backdrop-blur-xs">
             <B1 className="text-center font-semibold text-white/50">파티 시작 준비중이에요...</B1>
           </div>
