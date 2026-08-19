@@ -22,6 +22,7 @@ interface StepRendererProps {
   endHostName?: string;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   burstGameState: BurstGameState | null;
+  musicTextBottomOffset?: number;
 }
 
 export function StepRenderer({
@@ -36,6 +37,7 @@ export function StepRenderer({
   endHostName,
   candleBlowState,
   burstGameState,
+  musicTextBottomOffset,
 }: StepRendererProps) {
   const handleMusicComplete = useCallback(() => {
     onProcessComplete?.(LIVE_PARTY_STEP.MUSIC);
@@ -49,7 +51,9 @@ export function StepRenderer({
     case 'ENTRY':
       return <PartyEntryStep onComplete={onStepComplete} isHost={isHost} />;
     case 'MUSIC':
-      return <PartyMusicText onComplete={handleMusicComplete} />;
+      return (
+        <PartyMusicText onComplete={handleMusicComplete} bottomOffset={musicTextBottomOffset} />
+      );
     case 'CANDLE':
       return (
         <PartyCandleStep

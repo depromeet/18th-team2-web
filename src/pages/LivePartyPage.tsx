@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
+import {
+  ChatBottomSheet,
+  type ChatBottomSheetMetrics,
+} from '@/components/live-party/chat/ChatBottomSheet';
 import { AutoEndedBottomSheet } from '@/components/live-party/host-waiting/AutoEndedBottomSheet';
 import { HostWaitingView } from '@/components/live-party/host-waiting/HostWaitingView';
 import { Button } from '@/components/ui/Button';
@@ -162,6 +165,11 @@ export default function LivePartyPage() {
   const [isPartyStartSheetVisible, setIsPartyStartSheetVisible] = useState(false);
   const [processCompletedStep, setProcessCompletedStep] = useState<PartyStep | null>(null);
   const [processProgressNowMs, setProcessProgressNowMs] = useState(() => Date.now());
+  const [chatSheetMetrics, setChatSheetMetrics] = useState<ChatBottomSheetMetrics>({
+    height: 0,
+    bottomOffset: 0,
+    isExpanded: false,
+  });
   const liveServerClockOffsetMs = useMemo(
     () => getServerClockOffset(liveStartedServerNow),
     [liveStartedServerNow],
@@ -367,6 +375,11 @@ export default function LivePartyPage() {
   const showPartyMain =
     isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showEntryReadyUI = isEntryReady && isEntryStep && !isPartyEndingFlow;
+  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || isPartyEnding;
+  const musicTextBottomOffset =
+    step === LIVE_PARTY_STEP.MUSIC && chatSheetMetrics.isExpanded
+      ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
+      : undefined;
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
     enabled: canFetch && showPartyMain,
     refetchInterval: showEntryReadyUI ? 3000 : undefined,
@@ -455,6 +468,7 @@ export default function LivePartyPage() {
           endHostName={hostName}
           candleBlowState={candleBlowState}
           burstGameState={burstGameState}
+          musicTextBottomOffset={musicTextBottomOffset}
         />
       )}
       {isPartyStartSheetOpen && (
@@ -502,6 +516,8 @@ export default function LivePartyPage() {
           onSend={addMessage}
           isBlurred={isPinataOverlayActive}
           isEntryWaiting={showEntryReadyUI}
+          hasTopOverlayContent={hasChatTopOverlayContent}
+          onMetricsChange={setChatSheetMetrics}
           participantCount={entryParticipantsData?.totalCount}
           maxParticipantCount={entryParticipantsData?.maxCount}
         />

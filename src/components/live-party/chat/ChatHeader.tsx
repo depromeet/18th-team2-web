@@ -7,11 +7,13 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ onPointerDown }: ChatHeaderProps) {
   return (
-    <div
+    <button
+      type="button"
       onPointerDown={onPointerDown}
-      className="flex cursor-grab touch-none justify-center py-2 active:cursor-grabbing"
+      aria-label="채팅창 크기 변경"
+      className="flex w-full cursor-grab touch-none justify-center pt-3 pb-2 active:cursor-grabbing"
     >
-      <img src={BottomSheetHeader} alt="drag" className="h-[3px]" draggable={false} />
-    </div>
+      <img src={BottomSheetHeader} alt="" className="h-[3px]" draggable={false} />
+    </button>
   );
 }

@@ -7,9 +7,10 @@ import { type ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
 
 interface ChatListProps {
   messages: ChatListItem[];
+  onClick?: () => void;
 }
 
-export function ChatList({ messages }: ChatListProps) {
+export function ChatList({ messages, onClick }: ChatListProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const listMaskStyle = {
     WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, black 42px, black 100%)',
@@ -24,7 +25,10 @@ export function ChatList({ messages }: ChatListProps) {
 
   return (
     <div
-      className="share-scroll-hide relative mb-5 flex-1 space-y-4 overflow-y-auto pt-4"
+      onClick={onClick}
+      className={`share-scroll-hide relative mb-5 flex-1 space-y-4 overflow-y-auto pt-4 ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
       style={listMaskStyle}
     >
       {messages.map((item) => {
