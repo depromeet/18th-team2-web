@@ -7,21 +7,56 @@ type ProcessStatus = 'active' | 'completed' | 'pending';
 interface ProcessItem {
   label: (typeof PROCESS_STEPS)[number];
   status: ProcessStatus;
-  stepIndex: number;
 }
 
 interface LivePartyProcessSectionProps {
   step: PartyStep;
   isPartyEnding?: boolean;
-  progressRatio?: number;
+  completedStep?: PartyStep | null;
+  activeProgressRatio?: number;
 }
 
-function getProcessItems(step: PartyStep, isPartyEnding = false): ProcessItem[] {
+function getProcessIndex(step: PartyStep) {
+  const activeIndexByStep: Partial<Record<PartyStep, number>> = {
+    MUSIC: 0,
+    CANDLE: 1,
+    PINATA: 2,
+    CLOSEABLE: 3,
+  };
+
+  return activeIndexByStep[step] ?? null;
+}
+
+function getCompletedProcessItems(completedStep: PartyStep): ProcessItem[] | null {
+  const completedIndex = getProcessIndex(completedStep);
+
+  if (completedIndex == null || completedIndex >= PROCESS_STEPS.length - 1) {
+    return null;
+  }
+
+  return PROCESS_STEPS.slice(completedIndex).map((label, index) => ({
+    label,
+    status: index === 0 ? 'completed' : 'pending',
+  }));
+}
+
+function getProcessItems(
+  step: PartyStep,
+  isPartyEnding = false,
+  completedStep?: PartyStep | null,
+): ProcessItem[] {
+  if (completedStep) {
+    const completedItems = getCompletedProcessItems(completedStep);
+
+    if (completedItems) {
+      return completedItems;
+    }
+  }
+
   if (isPartyEnding) {
     return PROCESS_STEPS.slice(3).map((label) => ({
       label,
       status: 'active',
-      stepIndex: 3,
     }));
   }
 
@@ -29,21 +64,14 @@ function getProcessItems(step: PartyStep, isPartyEnding = false): ProcessItem[] 
     return PROCESS_STEPS.slice(3).map((label) => ({
       label,
       status: 'active',
-      stepIndex: 3,
     }));
   }
 
-  const activeIndexByStep: Partial<Record<PartyStep, number>> = {
-    MUSIC: 0,
-    CANDLE: 1,
-    PINATA: 2,
-  };
-  const activeIndex = activeIndexByStep[step] ?? 0;
+  const activeIndex = getProcessIndex(step) ?? 0;
 
   return PROCESS_STEPS.slice(activeIndex).map((label, index) => ({
     label,
     status: index === 0 ? 'active' : 'pending',
-    stepIndex: index + activeIndex,
   }));
 }
 
@@ -63,22 +91,14 @@ function ProcessIcon({ status }: { status: ProcessStatus }) {
   );
 }
 
-function getActiveBarProgress(progressRatio: number, stepIndex: number) {
-  const initialProgress = 17 / 72;
-  const segmentProgress = progressRatio * PROCESS_STEPS.length - stepIndex;
-
-  return Math.min(1, initialProgress + Math.max(0, segmentProgress) * (1 - initialProgress));
-}
-
 function ProcessStepItem({
   label,
   status,
-  stepIndex,
-  progressRatio,
-}: ProcessItem & { progressRatio: number }) {
+  activeProgressRatio,
+}: ProcessItem & { activeProgressRatio: number }) {
   const isCompleted = status === 'completed';
   const isActive = status === 'active';
-  const activeBarProgress = getActiveBarProgress(progressRatio, stepIndex);
+  const activeProgressWidth = 17 + (72 - 17) * activeProgressRatio;
 
   return (
     <div className="w-[76px] shrink-0 p-0.5">
@@ -88,7 +108,7 @@ function ProcessStepItem({
             className={`h-full rounded-full bg-[#5892ff] transition-[width] duration-500 ease-linear ${
               isCompleted ? 'w-full opacity-50' : ''
             }`}
-            style={isActive ? { width: `${activeBarProgress * 100}%` } : undefined}
+            style={isActive ? { width: `${activeProgressWidth}px` } : undefined}
           />
         )}
       </div>
@@ -109,10 +129,12 @@ function ProcessStepItem({
 export function LivePartyProcessSection({
   step,
   isPartyEnding = false,
-  progressRatio = 0,
+  completedStep = null,
+  activeProgressRatio = 0,
 }: LivePartyProcessSectionProps) {
-  const items = getProcessItems(step, isPartyEnding);
+  const items = getProcessItems(step, isPartyEnding, completedStep);
   const shouldFadeTrailingSteps = items.length > 2;
+  const normalizedActiveProgressRatio = Math.min(1, Math.max(0, activeProgressRatio));
 
   return (
     <div
@@ -133,7 +155,7 @@ export function LivePartyProcessSection({
           <ProcessStepItem
             key={`${item.label}-${item.status}`}
             {...item}
-            progressRatio={progressRatio}
+            activeProgressRatio={normalizedActiveProgressRatio}
           />
         ))}
       </div>

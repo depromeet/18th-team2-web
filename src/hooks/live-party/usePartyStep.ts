@@ -193,7 +193,7 @@ export function useLivePartyStep({
     }, OVERLAY_FADE_DURATION);
   }, []);
 
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     if (!partyId) return;
     advancePhase(
       { partyId, currentPhase: stepToApiPhase(stepRef.current) },
@@ -205,7 +205,7 @@ export function useLivePartyStep({
         },
       },
     );
-  };
+  }, [advancePhase, partyId, rememberLiveStart]);
 
   const goToEndStep = useCallback(() => {
     setIsTransitioning(false);

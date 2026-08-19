@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ChatBottomSheet } from '@/components/live-party/chat/ChatBottomSheet';
@@ -16,7 +16,14 @@ import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
 import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
-import { LIVE_PARTY_STEP, PARTICIPANT_TOKEN_KEY, PARTY_USER } from '@/constants/live-party';
+import {
+  CANDLES,
+  LIVE_PARTY_STEP,
+  MUSIC_LYRICS_TIMINGS,
+  PARTICIPANT_TOKEN_KEY,
+  PARTY_USER,
+  type PartyStep,
+} from '@/constants/live-party';
 import { ROUTES } from '@/constants/routes';
 import { TransitionEffect } from '@/components/live-party/TransitionEffect';
 import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecrackerEffect';
@@ -30,6 +37,31 @@ import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
+import { PINATA_DURATION_SECONDS } from '@/hooks/live-party/usePinataStep';
+import { parseKstDateTime } from '@/utils/date';
+
+const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
+const MUSIC_PROCESS_DURATION_SECONDS = MUSIC_LYRICS_TIMINGS[MUSIC_LYRICS_TIMINGS.length - 1].end;
+const PARTY_ENDING_FALLBACK_SECONDS = 60;
+
+function clampProgress(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function getTimestamp(value?: string | null) {
+  if (!value) return null;
+
+  const dateTime = parseKstDateTime(value);
+  if (!dateTime.isValid()) return null;
+
+  return dateTime.valueOf();
+}
+
+function getServerClockOffset(serverNow?: string | null) {
+  const serverNowMs = getTimestamp(serverNow);
+
+  return serverNowMs == null ? 0 : Date.now() - serverNowMs;
+}
 
 export default function LivePartyPage() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -128,6 +160,16 @@ export default function LivePartyPage() {
 
   const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
   const [isPartyStartSheetVisible, setIsPartyStartSheetVisible] = useState(false);
+  const [processCompletedStep, setProcessCompletedStep] = useState<PartyStep | null>(null);
+  const [processProgressNowMs, setProcessProgressNowMs] = useState(() => Date.now());
+  const liveServerClockOffsetMs = useMemo(
+    () => getServerClockOffset(liveStartedServerNow),
+    [liveStartedServerNow],
+  );
+  const burstServerClockOffsetMs = useMemo(
+    () => getServerClockOffset(burstGameState?.serverTime),
+    [burstGameState?.serverTime],
+  );
 
   const handleInvite = () => {
     if (!inviteToken) return;
@@ -161,6 +203,10 @@ export default function LivePartyPage() {
     setIsPinataOverlayDismissed(true);
   };
 
+  const handleProcessComplete = useCallback((completedStep: PartyStep) => {
+    setProcessCompletedStep(completedStep);
+  }, []);
+
   const handleOpenPartyStartSheet = () => {
     setIsPartyStartSheetOpen(true);
 
@@ -193,6 +239,14 @@ export default function LivePartyPage() {
     }
   }, [goToEndStep, partyEndingState?.ended]);
 
+  useEffect(() => {
+    const timerId = window.setInterval(() => {
+      setProcessProgressNowMs(Date.now());
+    }, PROCESS_PROGRESS_SYNC_INTERVAL_MS);
+
+    return () => window.clearInterval(timerId);
+  }, []);
+
   const endUserRole = useMemo(() => {
     if (!nextAction) {
       return userRole;
@@ -213,6 +267,21 @@ export default function LivePartyPage() {
     }
   }, [step]);
 
+  useEffect(() => {
+    if (!processCompletedStep) return;
+
+    if (processCompletedStep === LIVE_PARTY_STEP.PINATA) {
+      if (isPartyEnding || partyEnd) {
+        setProcessCompletedStep(null);
+      }
+      return;
+    }
+
+    if (step !== processCompletedStep) {
+      setProcessCompletedStep(null);
+    }
+  }, [isPartyEnding, partyEnd, processCompletedStep, step]);
+
   const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
   const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
@@ -223,6 +292,72 @@ export default function LivePartyPage() {
     ((isPinataStep && isPinataOverlayDismissed) || isCloseableStep) &&
     !isPartyEndingFlow &&
     !partyEnd;
+  const visibleProcessCompletedStep =
+    !isPartyEnding && processCompletedStep === step ? processCompletedStep : null;
+
+  const activeProcessProgressRatio = useMemo(() => {
+    if (visibleProcessCompletedStep) {
+      return 1;
+    }
+
+    if (isPartyEnding) {
+      const endingStartedAt = getTimestamp(partyEndingState?.endingStartedAt);
+      const endedAt =
+        getTimestamp(partyEndingState?.endedAt) ??
+        (endingStartedAt == null ? null : endingStartedAt + PARTY_ENDING_FALLBACK_SECONDS * 1000);
+
+      if (endingStartedAt == null || endedAt == null || endedAt <= endingStartedAt) return 0;
+
+      return clampProgress((processProgressNowMs - endingStartedAt) / (endedAt - endingStartedAt));
+    }
+
+    if (step === LIVE_PARTY_STEP.MUSIC) {
+      const musicStartedAt = getTimestamp(liveStartedAt);
+      if (musicStartedAt == null) return 0;
+
+      const serverNowMs = processProgressNowMs - liveServerClockOffsetMs;
+      const elapsedSeconds = (serverNowMs - musicStartedAt) / 1000;
+
+      return clampProgress(elapsedSeconds / MUSIC_PROCESS_DURATION_SECONDS);
+    }
+
+    if (step === LIVE_PARTY_STEP.CANDLE) {
+      const serverCandles = candleBlowState?.candles ?? [];
+      const extinguishedCount = serverCandles.filter((candle) => candle.extinguished).length;
+
+      return clampProgress(extinguishedCount / CANDLES.length);
+    }
+
+    if (step === LIVE_PARTY_STEP.PINATA) {
+      const startedAt = getTimestamp(burstGameState?.startedAt);
+      const endsAt = getTimestamp(burstGameState?.endsAt);
+
+      if (startedAt != null && endsAt != null && endsAt > startedAt) {
+        const serverNowMs = processProgressNowMs - burstServerClockOffsetMs;
+        return clampProgress((serverNowMs - startedAt) / (endsAt - startedAt));
+      }
+
+      if (burstGameState?.remainingSeconds != null) {
+        return clampProgress(1 - burstGameState.remainingSeconds / PINATA_DURATION_SECONDS);
+      }
+    }
+
+    return 0;
+  }, [
+    burstGameState?.endsAt,
+    burstGameState?.remainingSeconds,
+    burstGameState?.startedAt,
+    candleBlowState?.candles,
+    burstServerClockOffsetMs,
+    liveStartedAt,
+    liveServerClockOffsetMs,
+    isPartyEnding,
+    partyEndingState?.endedAt,
+    partyEndingState?.endingStartedAt,
+    visibleProcessCompletedStep,
+    processProgressNowMs,
+    step,
+  ]);
 
   const shouldShowByStep =
     step !== LIVE_PARTY_STEP.ENTRY &&
@@ -295,6 +430,8 @@ export default function LivePartyPage() {
           step={step}
           forceShowMusicButton={showEntryReadyUI}
           isPartyEnding={isPartyEnding}
+          completedStep={visibleProcessCompletedStep}
+          activeProgressRatio={activeProcessProgressRatio}
           liveStartAt={liveStartedAt}
           serverNow={liveStartedServerNow}
         />
@@ -309,6 +446,7 @@ export default function LivePartyPage() {
         <StepRenderer
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
+          onProcessComplete={handleProcessComplete}
           showPinataOverlay={showPinataOverlay}
           onReturnToPartyRoom={handleReturnToPartyRoom}
           isHost={isHost}

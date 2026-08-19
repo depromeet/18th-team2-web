@@ -17,6 +17,8 @@ interface LivePartyHeaderProps {
   musicIsMuted: boolean;
   forceShowMusicButton?: boolean;
   isPartyEnding?: boolean;
+  completedStep?: PartyStep | null;
+  activeProgressRatio?: number;
   liveStartAt?: string | null;
   liveDeadlineAt?: string | null;
   serverNow?: string | null;
@@ -58,21 +60,6 @@ function getRemainingSeconds(
   );
 }
 
-function getProgressRatio(
-  remainingSeconds: number,
-  liveStartAt?: string | null,
-  liveDeadlineAt?: string | null,
-  serverClockOffsetMs = 0,
-) {
-  const { startAt, deadlineAt } = getLiveTiming(liveStartAt, liveDeadlineAt);
-
-  if (startAt == null || deadlineAt == null || deadlineAt <= startAt) {
-    return 1 - remainingSeconds / LIVE_PARTY_DURATION_SECONDS;
-  }
-
-  return (getCurrentTime(serverClockOffsetMs) - startAt) / (deadlineAt - startAt);
-}
-
 function formatRemainingTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -86,6 +73,8 @@ export function LivePartyHeader({
   musicIsMuted,
   forceShowMusicButton = false,
   isPartyEnding = false,
+  completedStep = null,
+  activeProgressRatio = 0,
   liveStartAt,
   liveDeadlineAt,
   serverNow,
@@ -104,17 +93,6 @@ export function LivePartyHeader({
   const remainingTimeLabel = useMemo(
     () => formatRemainingTime(remainingSeconds),
     [remainingSeconds],
-  );
-  const progressRatio = useMemo(
-    () =>
-      Math.min(
-        1,
-        Math.max(
-          0,
-          getProgressRatio(remainingSeconds, liveStartAt, liveDeadlineAt, serverClockOffsetMs),
-        ),
-      ),
-    [liveDeadlineAt, liveStartAt, remainingSeconds, serverClockOffsetMs],
   );
 
   useEffect(() => {
@@ -160,7 +138,8 @@ export function LivePartyHeader({
               <LivePartyProcessSection
                 step={step}
                 isPartyEnding={isPartyEnding}
-                progressRatio={progressRatio}
+                completedStep={completedStep}
+                activeProgressRatio={activeProgressRatio}
               />
             </div>
             <div className="ml-2 flex min-w-12 shrink-0 items-center justify-center rounded-[20px] bg-white/15 px-2 py-2 text-[12px] leading-4 font-semibold text-white/70 sm:ml-3 sm:px-2.5">

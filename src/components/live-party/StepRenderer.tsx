@@ -1,5 +1,7 @@
+import { useCallback } from 'react';
+
 import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
-import { type PartyStep, type PartyUserRole } from '@/constants/live-party';
+import { LIVE_PARTY_STEP, type PartyStep, type PartyUserRole } from '@/constants/live-party';
 import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep';
 import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
 import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
@@ -11,6 +13,7 @@ import type { components } from '@/types/api';
 interface StepRendererProps {
   step: PartyStep;
   onStepComplete?: () => void;
+  onProcessComplete?: (step: PartyStep) => void;
   showPinataOverlay?: boolean;
   onReturnToPartyRoom?: () => void;
   isHost: boolean;
@@ -24,6 +27,7 @@ interface StepRendererProps {
 export function StepRenderer({
   step,
   onStepComplete,
+  onProcessComplete,
   showPinataOverlay = true,
   onReturnToPartyRoom,
   isHost,
@@ -33,16 +37,25 @@ export function StepRenderer({
   candleBlowState,
   burstGameState,
 }: StepRendererProps) {
+  const handleMusicComplete = useCallback(() => {
+    onProcessComplete?.(LIVE_PARTY_STEP.MUSIC);
+
+    window.setTimeout(() => {
+      onStepComplete?.();
+    }, 1200);
+  }, [onProcessComplete, onStepComplete]);
+
   switch (step) {
     case 'ENTRY':
       return <PartyEntryStep onComplete={onStepComplete} isHost={isHost} />;
     case 'MUSIC':
-      return <PartyMusicText onComplete={onStepComplete} />;
+      return <PartyMusicText onComplete={handleMusicComplete} />;
     case 'CANDLE':
       return (
         <PartyCandleStep
           isHost={isHost}
           onComplete={onStepComplete}
+          onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.CANDLE)}
           candleBlowState={candleBlowState}
         />
       );
@@ -50,6 +63,7 @@ export function StepRenderer({
       return showPinataOverlay ? (
         <PartyPinataStep
           onReturnToPartyRoom={onReturnToPartyRoom}
+          onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.PINATA)}
           burstGameState={burstGameState}
         />
       ) : null;
