@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import cake from '@/assets/images/live-party/cake.svg';
 import partyLight from '@/assets/images/live-party/party-light.png';
 
@@ -8,7 +10,9 @@ interface PartyMainBackgroundProps {
   isBlurred?: boolean;
 }
 
-export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundProps) {
+export const PartyMainBackground = memo(function PartyMainBackground({
+  isBlurred = false,
+}: PartyMainBackgroundProps) {
   const {
     fireworks,
     jumpingParticipantId,
@@ -76,10 +80,10 @@ export function PartyMainBackground({ isBlurred = false }: PartyMainBackgroundPr
       </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 bottom-[var(--live-party-chat-min-height)] z-1 flex items-center justify-center"
+        className="pointer-events-none absolute inset-x-0 top-0 bottom-(--live-party-chat-min-height) z-1 flex items-center justify-center"
       >
         <img src={cake} alt="" className="h-33.25 w-50" />
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
@@ -13,6 +13,7 @@ const LIVE_PARTY_DURATION_SECONDS = PARTY_DURATION_MINUTES * 60;
 interface LivePartyHeaderProps {
   onExitClick: () => void;
   step: PartyStep;
+  showMuteButton?: boolean;
   handleToggleMute: () => void;
   musicIsMuted: boolean;
   forceShowMusicButton?: boolean;
@@ -66,9 +67,10 @@ function formatRemainingTime(totalSeconds: number) {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-export function LivePartyHeader({
+export const LivePartyHeader = memo(function LivePartyHeader({
   onExitClick,
   step,
+  showMuteButton,
   handleToggleMute,
   musicIsMuted,
   forceShowMusicButton = false,
@@ -79,7 +81,8 @@ export function LivePartyHeader({
   liveDeadlineAt,
   serverNow,
 }: LivePartyHeaderProps) {
-  const showMusicButton = forceShowMusicButton || step !== LIVE_PARTY_STEP.ENTRY;
+  const showMusicButton =
+    forceShowMusicButton || (showMuteButton ?? step !== LIVE_PARTY_STEP.ENTRY);
   const showProcessSection = step !== LIVE_PARTY_STEP.ENTRY;
   const shouldShadeHeader =
     step === LIVE_PARTY_STEP.MUSIC || step === LIVE_PARTY_STEP.CLOSEABLE || isPartyEnding;
@@ -154,4 +157,4 @@ export function LivePartyHeader({
       </div>
     </header>
   );
-}
+});

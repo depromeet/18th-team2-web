@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 
 import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
 import { LIVE_PARTY_STEP, type PartyStep, type PartyUserRole } from '@/constants/live-party';
@@ -25,7 +25,7 @@ interface StepRendererProps {
   musicTextBottomOffset?: number;
 }
 
-export function StepRenderer({
+export const StepRenderer = memo(function StepRenderer({
   step,
   onStepComplete,
   onProcessComplete,
@@ -78,4 +78,4 @@ export function StepRenderer({
     default:
       return null;
   }
-}
+});

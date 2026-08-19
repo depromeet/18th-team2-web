@@ -207,9 +207,9 @@ export default function LivePartyPage() {
     navigate(ROUTES.home, { replace: true });
   };
 
-  const handleReturnToPartyRoom = () => {
+  const handleReturnToPartyRoom = useCallback(() => {
     setIsPinataOverlayDismissed(true);
-  };
+  }, []);
 
   const handleProcessComplete = useCallback((completedStep: PartyStep) => {
     setProcessCompletedStep(completedStep);
@@ -441,6 +441,7 @@ export default function LivePartyPage() {
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
           step={step}
+          showMuteButton={step !== LIVE_PARTY_STEP.ENTRY}
           forceShowMusicButton={showEntryReadyUI}
           isPartyEnding={isPartyEnding}
           completedStep={visibleProcessCompletedStep}

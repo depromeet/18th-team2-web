@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import happyBirthdayMusic from '@/assets/music/happy-birthday.mp3';
 
@@ -13,9 +13,9 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
 
   const [musicIsMuted, setMusicIsMuted] = useState(false);
 
-  const handleToggleMute = () => {
+  const handleToggleMute = useCallback(() => {
     setMusicIsMuted((prev) => !prev);
-  };
+  }, []);
 
   useEffect(() => {
     return () => {
