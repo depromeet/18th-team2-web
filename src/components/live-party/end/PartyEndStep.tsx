@@ -14,7 +14,7 @@ export function PartyEndStep({ role, action, hostName }: PartyEndStepProps) {
   return (
     <div className="party-intro-screen relative flex h-svh w-full flex-col items-center overflow-hidden pt-[20vh] [@media_(max-height:700px)]:pt-[13vh]">
       <PartyEndText role={role} />
-      <div className="relative z-10 mx-auto mt-[4vh] w-full max-w-[560px] flex-none [@media_(max-height:700px)]:mt-[2vh] [@media_(max-height:700px)]:max-w-[480px]">
+      <div className="relative z-10 mx-auto mt-[4vh] w-full max-w-[686px] flex-none [@media_(max-height:700px)]:mt-[2vh] [@media_(max-height:700px)]:max-w-[560px]">
         <img
           src={hapalinPartyCard}
           alt="파티 케이크"
