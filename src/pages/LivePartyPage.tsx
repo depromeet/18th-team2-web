@@ -494,11 +494,11 @@ export default function LivePartyPage() {
         </div>
       )}
       {showHostEndingButton && (
-        <div className="absolute right-0 bottom-[calc(var(--live-party-chat-min-height)+16px)] left-0 z-40 mx-auto flex w-full max-w-150 justify-center px-4">
+        <div className="absolute right-0 bottom-[calc(var(--live-party-chat-min-height)+32px)] left-0 z-40 mx-auto flex w-full max-w-150 justify-center px-4 [@media_(max-height:700px)]:bottom-[calc(var(--live-party-chat-min-height)+24px)]">
           <Button
             type="button"
             size="md"
-            className="w-auto"
+            className="h-[46px] w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-[22px] shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
             onClick={handleStartPartyEnding}
             disabled={isStartingPartyEnding}
           >
