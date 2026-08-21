@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { generatePath, Navigate, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { generatePath, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -8,6 +8,7 @@ import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
+import { RollingPaperArchiveNoticeSheet } from '@/components/rolling-paper/RollingPaperArchiveNoticeSheet';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { ROUTES } from '@/constants/routes';
 import { useArchiveList } from '@/services/archive';
@@ -19,12 +20,25 @@ import { canShareParty } from '@/utils/party';
 import type { UpcomingParty } from '@/types/home';
 import { ONBOARDING_SEEN_KEY } from '@/constants/onboarding';
 
+interface HomeLocationState {
+  rollingPaperArchiveNotice?: {
+    partyId: string;
+    partyName: string;
+    date?: string;
+  };
+}
+
 function HomePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as HomeLocationState | null;
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: archiveData } = useArchiveList();
   const { data: upcomingParties } = useUpcomingParties();
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [archiveNotice, setArchiveNotice] = useState(
+    locationState?.rollingPaperArchiveNotice ?? null,
+  );
 
   const archiveCount = isAuthenticated ? (archiveData?.totalCount ?? 0) : 0;
   const archivePreview = isAuthenticated ? archiveData?.items[0] : undefined;
@@ -38,6 +52,13 @@ function HomePage() {
     setShareToken(party.inviteToken);
   }, []);
 
+  useEffect(() => {
+    if (!locationState?.rollingPaperArchiveNotice) return;
+
+    setArchiveNotice(locationState.rollingPaperArchiveNotice);
+    navigate(ROUTES.home, { replace: true, state: null });
+  }, [locationState?.rollingPaperArchiveNotice, navigate]);
+
   if (!isAuthenticated && !sessionStorage.getItem(ONBOARDING_SEEN_KEY)) {
     return <Navigate to={ROUTES.onboarding} replace />;
   }
@@ -49,7 +70,7 @@ function HomePage() {
   };
 
   return (
-    <div className="bg-gradient-bg flex min-h-dvh flex-col">
+    <div className="bg-gradient-bg flex min-h-dvh flex-col overflow-x-hidden">
       <HomeHeader />
       <div className="flex flex-col gap-2">
         {parties.length > 0 && (
@@ -112,6 +133,16 @@ function HomePage() {
         shareText="파티 초대장이 도착했어요"
         onClose={() => setShareToken(null)}
       />
+
+      {archiveNotice && (
+        <RollingPaperArchiveNoticeSheet
+          isOpen
+          partyId={archiveNotice.partyId}
+          partyName={archiveNotice.partyName}
+          date={archiveNotice.date}
+          onClose={() => setArchiveNotice(null)}
+        />
+      )}
     </div>
   );
 }

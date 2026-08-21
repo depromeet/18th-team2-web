@@ -29,6 +29,19 @@ interface RollingPaperLocationState {
   inviteToken?: string;
 }
 
+function formatArchiveNoticeDate(writableUntil?: string) {
+  if (!writableUntil) return undefined;
+
+  const date = new Date(writableUntil);
+  if (Number.isNaN(date.getTime())) return undefined;
+
+  date.setDate(date.getDate() - 7);
+  const year = String(date.getFullYear()).slice(2);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}.${month}.${day}`;
+}
+
 export default function RollingPaperPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -96,6 +109,23 @@ export default function RollingPaperPage() {
     }
 
     navigate(ROUTES.home, { replace: true });
+  }
+
+  function handleHomeClick() {
+    if (!inviteToken && !isWriteCompleteMode && messageCount > 0 && data) {
+      navigate(ROUTES.home, {
+        state: {
+          rollingPaperArchiveNotice: {
+            partyId: data.partyId,
+            partyName: `${data.hostName ?? '내'}의 파티`,
+            date: formatArchiveNoticeDate(data.writableUntil),
+          },
+        },
+      });
+      return;
+    }
+
+    navigate(ROUTES.home);
   }
 
   // 작성 완료 화면에선 본인 외 메시지 열람 차단 — 토핑 클릭 무반응
@@ -181,7 +211,7 @@ export default function RollingPaperPage() {
             <button
               type="button"
               aria-label="메인으로"
-              onClick={() => navigate(ROUTES.home)}
+              onClick={handleHomeClick}
               className="flex h-12 w-12 items-center justify-center"
             >
               <HomeIcon />
