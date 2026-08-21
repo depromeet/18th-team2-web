@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import happyBirthdayMusic from '@/assets/music/happy-birthday.mp3';
 
-import { LIVE_PARTY_STEP, MUSIC_GUIDE_DURATION, type PartyStep } from '@/constants/live-party';
+import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
 
 interface UsePartyMusicParams {
   step: PartyStep;
@@ -13,9 +13,9 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
 
   const [musicIsMuted, setMusicIsMuted] = useState(false);
 
-  const handleToggleMute = () => {
+  const handleToggleMute = useCallback(() => {
     setMusicIsMuted((prev) => !prev);
-  };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -41,13 +41,7 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
       return;
     }
 
-    const timer = window.setTimeout(() => {
-      void audioRef.current?.play();
-    }, MUSIC_GUIDE_DURATION);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    void audioRef.current.play();
   }, [step]);
 
   useEffect(() => {

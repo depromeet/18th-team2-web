@@ -1,17 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 
-const DEFAULT_MIN_HEIGHT = 320;
-const COMPACT_MIN_HEIGHT = 280;
-const MAX_HEIGHT_TOP_OFFSET = 160;
+const DEFAULT_MIN_HEIGHT = 283;
+const COMPACT_MIN_HEIGHT = 260;
+const EXPANDED_TOP_OFFSET_WITH_OVERLAY = 236;
+const EXPANDED_TOP_OFFSET_DEFAULT = 123;
+const MIN_USABLE_HEIGHT = 180;
+const MIN_TOP_OFFSET = 96;
 
 function getViewportHeight() {
   return window.visualViewport?.height ?? window.innerHeight;
 }
 
-function getSheetBounds() {
+function getSheetBounds(hasTopOverlayContent: boolean) {
   const viewportHeight = getViewportHeight();
-  const minHeight = viewportHeight < 700 ? COMPACT_MIN_HEIGHT : DEFAULT_MIN_HEIGHT;
-  const maxHeight = Math.max(minHeight, viewportHeight - MAX_HEIGHT_TOP_OFFSET);
+  const baseMinHeight = viewportHeight < 700 ? COMPACT_MIN_HEIGHT : DEFAULT_MIN_HEIGHT;
+  const minHeight = Math.min(
+    baseMinHeight,
+    Math.max(MIN_USABLE_HEIGHT, viewportHeight - MIN_TOP_OFFSET),
+  );
+  const expandedTopOffset = hasTopOverlayContent
+    ? EXPANDED_TOP_OFFSET_WITH_OVERLAY
+    : EXPANDED_TOP_OFFSET_DEFAULT;
+  const maxHeight = Math.max(minHeight, viewportHeight - expandedTopOffset);
 
   return { minHeight, maxHeight };
 }
@@ -48,8 +58,14 @@ export type ChatListItem =
       userName: string;
     };
 
-export function useChatBottomSheet() {
-  const [bounds, setBounds] = useState(getSheetBounds);
+interface UseChatBottomSheetOptions {
+  hasTopOverlayContent?: boolean;
+}
+
+export function useChatBottomSheet({
+  hasTopOverlayContent = false,
+}: UseChatBottomSheetOptions = {}) {
+  const [bounds, setBounds] = useState(() => getSheetBounds(hasTopOverlayContent));
   const [height, setHeight] = useState(bounds.minHeight);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -59,6 +75,19 @@ export function useChatBottomSheet() {
   const draggingRef = useRef(false);
   const startYRef = useRef(0);
   const startHeightRef = useRef(0);
+
+  const expand = () => {
+    setHeight(bounds.maxHeight);
+  };
+
+  const collapse = () => {
+    setHeight(bounds.minHeight);
+  };
+
+  const toggle = () => {
+    if (isExpanded) collapse();
+    else expand();
+  };
 
   const handlePointerDown = (e: React.PointerEvent) => {
     draggingRef.current = true;
@@ -89,13 +118,13 @@ export function useChatBottomSheet() {
     const viewport = window.visualViewport;
 
     function syncBounds() {
-      const nextBounds = getSheetBounds();
+      const nextBounds = getSheetBounds(hasTopOverlayContent);
       setBounds(nextBounds);
       setHeight((currentHeight) => {
         const isCollapsed = currentHeight <= bounds.minHeight + 1;
         if (isCollapsed) return nextBounds.minHeight;
 
-        return Math.max(nextBounds.minHeight, Math.min(nextBounds.maxHeight, currentHeight));
+        return nextBounds.maxHeight;
       });
     }
 
@@ -109,7 +138,7 @@ export function useChatBottomSheet() {
       viewport?.removeEventListener('resize', syncBounds);
       viewport?.removeEventListener('scroll', syncBounds);
     };
-  }, [bounds.minHeight]);
+  }, [bounds.minHeight, hasTopOverlayContent]);
 
   useEffect(() => {
     window.addEventListener('pointermove', handlePointerMove);
@@ -126,5 +155,8 @@ export function useChatBottomSheet() {
     isExpanded,
     isDragging,
     handlePointerDown,
+    expand,
+    collapse,
+    toggle,
   };
 }

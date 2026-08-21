@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import ReactCanvasConfetti from 'react-canvas-confetti';
 
 import { CandleList } from '@/components/live-party/candle/CandleList';
@@ -13,11 +13,18 @@ import { WaitingHostActionOverlay } from './WaitingHostActionOverlay';
 
 interface PartyCandleStepProps {
   onComplete?: () => void;
+  onProcessComplete?: () => void;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   isHost: boolean;
 }
 
-export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCandleStepProps) {
+export function PartyCandleStep({
+  onComplete,
+  onProcessComplete,
+  candleBlowState,
+  isHost,
+}: PartyCandleStepProps) {
+  const hasNotifiedCompleteRef = useRef(false);
   const { handleInitConfetti, fireConfetti } = useFallConfetti();
 
   const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
@@ -32,6 +39,18 @@ export function PartyCandleStep({ onComplete, candleBlowState, isHost }: PartyCa
       fireConfetti();
     }
   }, [allCandleOff, fireConfetti]);
+
+  useEffect(() => {
+    if (!allCandleOff) {
+      hasNotifiedCompleteRef.current = false;
+      return;
+    }
+
+    if (hasNotifiedCompleteRef.current) return;
+
+    hasNotifiedCompleteRef.current = true;
+    onProcessComplete?.();
+  }, [allCandleOff, onProcessComplete]);
 
   return (
     <div className="bg-blue-1000 relative flex h-svh w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14 [@media_(max-height:700px)]:gap-8 [@media_(max-height:700px)]:pt-10">

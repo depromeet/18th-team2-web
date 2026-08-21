@@ -37,6 +37,7 @@ const RESULT_LIST_ANIMATION_DURATION_MS = 600;
 
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
+  onProcessComplete?: () => void;
   burstGameState: BurstGameState | null;
 }
 
@@ -61,10 +62,15 @@ function PinataResultRankingRow({ ranking, className = '' }: PinataResultRanking
   );
 }
 
-export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPinataStepProps) {
+export function PartyPinataStep({
+  onReturnToPartyRoom,
+  onProcessComplete,
+  burstGameState,
+}: PartyPinataStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
   const resultScrollRef = useRef<HTMLDivElement | null>(null);
   const myRankingRowRef = useRef<HTMLDivElement | null>(null);
+  const hasNotifiedCompleteRef = useRef(false);
   const pinataSvgId = useId().replace(/:/g, '');
   const pinataClipId = `pinata-clip-${pinataSvgId}`;
   const pinataGradientId = `pinata-gradient-${pinataSvgId}`;
@@ -122,6 +128,18 @@ export function PartyPinataStep({ onReturnToPartyRoom, burstGameState }: PartyPi
 
     return fireResultFireworks();
   }, [fireResultFireworks, isConfettiReady, isPinataFailed, isResultVisible]);
+
+  useEffect(() => {
+    if (!isResultVisible) {
+      hasNotifiedCompleteRef.current = false;
+      return;
+    }
+
+    if (hasNotifiedCompleteRef.current) return;
+
+    hasNotifiedCompleteRef.current = true;
+    onProcessComplete?.();
+  }, [isResultVisible, onProcessComplete]);
 
   useEffect(() => {
     if (!isResultVisible) {

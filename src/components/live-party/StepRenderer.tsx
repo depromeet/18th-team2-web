@@ -1,5 +1,7 @@
+import { memo, useCallback } from 'react';
+
 import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
-import { type PartyStep, type PartyUserRole } from '@/constants/live-party';
+import { LIVE_PARTY_STEP, type PartyStep, type PartyUserRole } from '@/constants/live-party';
 import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep';
 import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
 import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
@@ -11,6 +13,7 @@ import type { components } from '@/types/api';
 interface StepRendererProps {
   step: PartyStep;
   onStepComplete?: () => void;
+  onProcessComplete?: (step: PartyStep) => void;
   showPinataOverlay?: boolean;
   onReturnToPartyRoom?: () => void;
   isHost: boolean;
@@ -19,11 +22,13 @@ interface StepRendererProps {
   endHostName?: string;
   candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   burstGameState: BurstGameState | null;
+  musicTextBottomOffset?: number;
 }
 
-export function StepRenderer({
+export const StepRenderer = memo(function StepRenderer({
   step,
   onStepComplete,
+  onProcessComplete,
   showPinataOverlay = true,
   onReturnToPartyRoom,
   isHost,
@@ -32,17 +37,29 @@ export function StepRenderer({
   endHostName,
   candleBlowState,
   burstGameState,
+  musicTextBottomOffset,
 }: StepRendererProps) {
+  const handleMusicComplete = useCallback(() => {
+    onProcessComplete?.(LIVE_PARTY_STEP.MUSIC);
+
+    window.setTimeout(() => {
+      onStepComplete?.();
+    }, 1200);
+  }, [onProcessComplete, onStepComplete]);
+
   switch (step) {
     case 'ENTRY':
       return <PartyEntryStep onComplete={onStepComplete} isHost={isHost} />;
     case 'MUSIC':
-      return <PartyMusicText onComplete={onStepComplete} />;
+      return (
+        <PartyMusicText onComplete={handleMusicComplete} bottomOffset={musicTextBottomOffset} />
+      );
     case 'CANDLE':
       return (
         <PartyCandleStep
           isHost={isHost}
           onComplete={onStepComplete}
+          onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.CANDLE)}
           candleBlowState={candleBlowState}
         />
       );
@@ -50,6 +67,7 @@ export function StepRenderer({
       return showPinataOverlay ? (
         <PartyPinataStep
           onReturnToPartyRoom={onReturnToPartyRoom}
+          onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.PINATA)}
           burstGameState={burstGameState}
         />
       ) : null;
@@ -60,4 +78,4 @@ export function StepRenderer({
     default:
       return null;
   }
-}
+});

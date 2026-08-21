@@ -47,7 +47,7 @@ export function FloatingCharacter({
           : 'character-jump'
       : '';
   const positionClass = initStyle.top
-    ? 'top-[var(--floating-top)] [@media_(max-height:580px)]:top-[var(--floating-short-top)]'
+    ? 'top-[var(--floating-top)] [@media_(max-height:699px)]:top-[var(--floating-short-top)]'
     : '';
   const positionStyle = {
     left: initStyle.left,

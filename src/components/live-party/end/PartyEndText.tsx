@@ -18,9 +18,9 @@ const PARTY_END_TEXT: Record<PartyUserRole, React.ReactNode> = {
   ),
   HOST: (
     <>
-      파티는 끝났지만 선물이 남았어요
+      마지막으로 친구들이 남긴
       <br />
-      친구들이 소중한 마음을 적고 있어요!
+      롤링페이퍼를 보러 갈까요?
     </>
   ),
 };

@@ -39,7 +39,7 @@ export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) 
         {role === PARTY_USER.HOST && (
           <>
             <Button variant="white" onClick={handleRollingPaperCheck}>
-              롤링페이퍼 확인하러 가기
+              롤링페이퍼 보러가기
             </Button>
             <Button variant="link-white" onClick={handleHome}>
               홈으로
