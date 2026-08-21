@@ -4,6 +4,8 @@ import { B2 } from '@/components/ui/Typography';
 
 interface CountdownTimerProps {
   targetDate: string;
+  className?: string;
+  timeClassName?: string;
 }
 
 function formatParts(ms: number) {
@@ -17,7 +19,11 @@ function formatParts(ms: number) {
   };
 }
 
-export function CountdownTimer({ targetDate }: CountdownTimerProps) {
+export function CountdownTimer({
+  targetDate,
+  className = 'text-grey-500 text-center font-medium',
+  timeClassName = 'font-semibold text-red-500',
+}: CountdownTimerProps) {
   const [remaining, setRemaining] = useState(() => new Date(targetDate).getTime() - Date.now());
 
   useEffect(() => {
@@ -40,8 +46,8 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   const timeText = `${days}일 ${hours}시간 ${String(minutes).padStart(2, '0')}분 ${String(seconds).padStart(2, '0')}초`;
 
   return (
-    <B2 as="p" className="text-grey-500 text-center font-medium">
-      작성 가능한 시간 <span className="font-semibold text-red-500">{timeText}</span>
+    <B2 as="p" className={className}>
+      작성 가능한 시간 <span className={timeClassName}>{timeText}</span>
     </B2>
   );
 }

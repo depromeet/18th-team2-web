@@ -19,7 +19,17 @@ interface Firework {
 }
 
 const FIREWORK_DURATION = 1400;
-const SHORT_SCREEN_PARTICIPANT_TOPS = ['76px', '118px', '160px', '202px', '244px', '286px'];
+const PARTICIPANT_POSITIONS = [
+  { left: '6%', top: '217px', shortTop: '172px' },
+  { left: '10%', top: '147px', shortTop: '116px' },
+  { left: '24%', top: '182px', shortTop: '144px' },
+  { left: '76%', top: '147px', shortTop: '116px' },
+  { left: '83%', top: '217px', shortTop: '172px' },
+  { left: '81%', top: '344px', shortTop: '266px' },
+  { left: '12%', top: '344px', shortTop: '266px' },
+  { left: '23%', top: '402px', shortTop: '318px' },
+  { left: '71%', top: '402px', shortTop: '318px' },
+];
 
 export function usePartyMainBackground() {
   const { partyId } = useParams<{ partyId: string }>();
@@ -90,12 +100,10 @@ export function usePartyMainBackground() {
     [rawParticipants],
   );
 
-  const featuredParticipant = useMemo(() => {
-    if (isHost) {
-      return allParticipants[Math.floor(Math.random() * allParticipants.length)];
-    }
-    return allParticipants.find((p) => p.isCurrentUser) ?? allParticipants[0];
-  }, [isHost, allParticipants]);
+  const featuredParticipant = useMemo(
+    () => (isHost ? allParticipants[0] : allParticipants.find((p) => p.isCurrentUser)),
+    [isHost, allParticipants],
+  );
 
   const remainingParticipants = useMemo(
     () => allParticipants.filter((p) => p.id !== featuredParticipant?.id),
@@ -105,7 +113,8 @@ export function usePartyMainBackground() {
   const hostInitStyle = useMemo(
     () => ({
       left: 'calc(50% - 63px)',
-      top: 'calc((100svh - var(--live-party-chat-min-height, 320px)) / 2 + 20px)',
+      top: 'calc((100svh - var(--live-party-chat-min-height, 283px)) / 2 + 20px)',
+      shortTop: '174px',
       animationDuration: '3s',
       animationDelay: '0s',
     }),
@@ -115,7 +124,7 @@ export function usePartyMainBackground() {
   const featuredInitStyle = useMemo(
     () => ({
       left: 'calc(50% - 49px)',
-      bottom: 'calc((100svh + var(--live-party-chat-min-height, 320px)) / 2 + 70px)',
+      bottom: 'calc((100svh + var(--live-party-chat-min-height, 283px)) / 2 + 96px)',
       animationDuration: '3s',
       animationDelay: '0s',
     }),
@@ -125,14 +134,12 @@ export function usePartyMainBackground() {
   const participantInitStyles = useMemo(
     () =>
       remainingParticipants.map((_, index) => {
-        const isLeftSide = index % 2 === 0;
-        const left = isLeftSide ? `${4 + Math.random() * 24}%` : `${72 + Math.random() * 20}%`;
+        const position = PARTICIPANT_POSITIONS[index % PARTICIPANT_POSITIONS.length];
+
         return {
-          left,
-          top: `calc(80px + ${Math.random().toFixed(3)} * max(0px, (100svh - var(--live-party-chat-min-height, 320px) - 300px)))`,
-          shortTop: SHORT_SCREEN_PARTICIPANT_TOPS[index % SHORT_SCREEN_PARTICIPANT_TOPS.length],
-          animationDuration: `${(2.5 + Math.random()).toFixed(2)}s`,
-          animationDelay: `${(Math.random() * 2).toFixed(2)}s`,
+          ...position,
+          animationDuration: `${2.5 + (index % 3) * 0.25}s`,
+          animationDelay: `${(index % 4) * 0.3}s`,
         };
       }),
     [remainingParticipants],

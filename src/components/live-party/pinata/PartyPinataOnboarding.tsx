@@ -25,14 +25,14 @@ export function PartyPinataOnboarding({ phase, countdownSeconds }: PartyPinataOn
         }`}
         aria-hidden={phase !== 'intro'}
       >
-        <h2 className="absolute top-[169px] left-1/2 h-16 w-[295px] -translate-x-1/2 text-center text-[24px] leading-8 font-bold tracking-[0] whitespace-pre-line">
+        <h2 className="absolute top-[clamp(128px,20.8svh,169px)] left-1/2 h-16 w-[295px] -translate-x-1/2 text-center text-[24px] leading-8 font-bold tracking-[0] whitespace-pre-line">
           이번에는 주인공을 위해{'\n'}다 같이 박을 터뜨려볼까요?
         </h2>
 
         <img
           src={pinataBurstImage}
           alt=""
-          className="absolute top-[267px] left-1/2 h-[260px] w-[260px] -translate-x-1/2 object-contain"
+          className="absolute top-[clamp(232px,32.9svh,267px)] left-1/2 size-[clamp(208px,32svh,260px)] -translate-x-1/2 object-contain"
         />
       </div>
 
@@ -42,14 +42,14 @@ export function PartyPinataOnboarding({ phase, countdownSeconds }: PartyPinataOn
         }`}
         aria-hidden={phase !== 'howToPlay'}
       >
-        <h2 className="absolute top-[169px] left-1/2 h-16 w-[295px] -translate-x-1/2 text-center text-[24px] leading-8 font-bold tracking-[0] whitespace-pre-line">
+        <h2 className="absolute top-[clamp(128px,20.8svh,169px)] left-1/2 h-16 w-[295px] -translate-x-1/2 text-center text-[24px] leading-8 font-bold tracking-[0] whitespace-pre-line">
           많이 누를수록{'\n'}높은 점수를 얻을 수 있어요
         </h2>
 
         <img
           src={pinataCardImage}
           alt=""
-          className="absolute top-[267px] left-1/2 h-[260px] w-[260px] -translate-x-1/2 object-contain"
+          className="absolute top-[clamp(232px,32.9svh,267px)] left-1/2 size-[clamp(208px,32svh,260px)] -translate-x-1/2 object-contain"
         />
       </div>
 

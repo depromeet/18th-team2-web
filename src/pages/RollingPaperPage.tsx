@@ -13,6 +13,7 @@ import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
+import letterImage from '@/assets/images/live-party/letter.png';
 import { ROUTES } from '@/constants/routes';
 import { useActivateInviteLink } from '@/services/party-create';
 import { useRollingPaper } from '@/services/rolling-paper';
@@ -136,6 +137,20 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
+  if (!inviteToken && !isWriteCompleteMode && messageCount === 0 && isWritable) {
+    return (
+      <EmptyRollingPaperHostView
+        writableUntil={data.writableUntil}
+        isShareSheetOpen={isShareSheetOpen}
+        inviteShareLink={inviteShareLink}
+        isActivatingInvite={isActivatingInvite}
+        onShareClick={handleShareClick}
+        onShareSheetClose={() => setIsShareSheetOpen(false)}
+        onHomeClick={() => navigate(ROUTES.home)}
+      />
+    );
+  }
+
   return (
     <>
       <div
@@ -253,5 +268,109 @@ export default function RollingPaperPage() {
           document.body,
         )}
     </>
+  );
+}
+
+interface EmptyRollingPaperHostViewProps {
+  writableUntil?: string;
+  isShareSheetOpen: boolean;
+  inviteShareLink: string | null;
+  isActivatingInvite: boolean;
+  onShareClick: () => void;
+  onShareSheetClose: () => void;
+  onHomeClick: () => void;
+}
+
+function EmptyRollingPaperHostView({
+  writableUntil,
+  isShareSheetOpen,
+  inviteShareLink,
+  isActivatingInvite,
+  onShareClick,
+  onShareSheetClose,
+  onHomeClick,
+}: EmptyRollingPaperHostViewProps) {
+  return (
+    <div
+      className="relative mx-auto h-dvh w-full max-w-150 overflow-hidden"
+      style={{
+        background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
+      }}
+    >
+      <div className="relative z-20 flex justify-end px-4 pt-[calc(12px+env(safe-area-inset-top))]">
+        <button
+          type="button"
+          aria-label="메인으로"
+          onClick={onHomeClick}
+          className="flex h-12 w-12 items-center justify-center text-white"
+        >
+          <HomeIcon className="h-6 w-6" />
+        </button>
+      </div>
+
+      <main className="absolute inset-x-0 top-[calc(clamp(88px,12.7dvh,103px)+env(safe-area-inset-top))] bottom-[180px] z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center [@media_(max-height:700px)]:bottom-[164px] [@media_(max-height:700px)]:pt-8">
+        <img
+          src={letterImage}
+          alt=""
+          className="max-h-[34dvh] w-[min(280px,72vw)] shrink-0 object-contain drop-shadow-[0_18px_28px_rgba(0,32,120,0.18)] [@media_(max-height:700px)]:w-[min(220px,64vw)]"
+        />
+
+        <div className="mt-[clamp(28px,4.9dvh,40px)] flex flex-col items-center gap-4 [@media_(max-height:700px)]:gap-3">
+          <h1 className="text-head-2 font-bold tracking-[-0.01px] text-white">
+            아직 편지를 남긴 친구가 없어요
+          </h1>
+          <p className="text-body-1 leading-6 font-medium whitespace-pre-line text-blue-100">
+            {'친구들에게 링크를 공유해\n롤링페이퍼를 알려보세요!'}
+          </p>
+        </div>
+      </main>
+
+      <section className="absolute right-0 bottom-0 left-0 z-20 bg-white px-4 pt-13 pb-[calc(34px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-11 [@media_(max-height:700px)]:pb-[calc(24px+env(safe-area-inset-bottom))]">
+        <div
+          aria-hidden
+          className="absolute -top-[43px] left-1/2 h-[87px] w-[156%] min-w-[585px] -translate-x-1/2"
+          style={{
+            background:
+              'radial-gradient(circle at 28px 44px, #FFFFFF 0 28px, transparent 29px) 0 0 / 57px 87px repeat-x',
+          }}
+        />
+
+        <div className="absolute top-[18px] left-1/2 flex w-fit max-w-[calc(100%-28px)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl bg-[#000341] px-3 py-2">
+          <p className="text-label-1 text-center whitespace-nowrap text-white [@media_(max-width:350px)]:text-[12px] [@media_(max-width:380px)]:text-[13px]">
+            공유하고 더 많은 친구들에게 편지를 받아보세요
+          </p>
+          <span
+            aria-hidden
+            className="absolute bottom-[-7px] left-4 h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent border-t-[#000341]"
+          />
+        </div>
+
+        <div className="mx-auto flex max-w-[343px] flex-col items-center gap-2">
+          {writableUntil && (
+            <CountdownTimer
+              targetDate={writableUntil}
+              className="text-body-2 text-grey-500 text-center font-medium"
+              timeClassName="font-semibold text-red-500"
+            />
+          )}
+          <Button
+            variant="primary"
+            size="full"
+            disabled={isActivatingInvite}
+            onClick={onShareClick}
+          >
+            롤링페이퍼 공유하기
+          </Button>
+        </div>
+      </section>
+
+      <LinkShareSheet
+        isOpen={isShareSheetOpen}
+        link={inviteShareLink ?? ''}
+        title="롤링페이퍼 링크 공유하기"
+        shareText="롤링페이퍼 작성 초대장이 왔어요"
+        onClose={onShareSheetClose}
+      />
+    </div>
   );
 }
