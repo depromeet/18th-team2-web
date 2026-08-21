@@ -33,9 +33,14 @@ const TOPPING_POSITIONS = [
 interface ToppingGridProps {
   messages: RollingPaperMessage[];
   onToppingClick: (messageIndex: number) => void;
+  hasBottomAction?: boolean;
 }
 
-export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
+export function ToppingGrid({
+  messages,
+  onToppingClick,
+  hasBottomAction = false,
+}: ToppingGridProps) {
   const totalPages = Math.ceil(messages.length / TOPPINGS_PER_PAGE);
   const [currentPage, setCurrentPage] = useState(0);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
@@ -95,7 +100,14 @@ export function ToppingGrid({ messages, onToppingClick }: ToppingGridProps) {
       </div>
 
       {showIndicator && (
-        <div className="pointer-events-auto absolute bottom-[197px] left-1/2 z-20 -translate-x-1/2">
+        <div
+          className="pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2"
+          style={
+            hasBottomAction
+              ? { bottom: 'calc(var(--rolling-paper-action-height, 172px) + 57px)' }
+              : { top: 'calc(var(--rolling-paper-art-offset) + 583px)' }
+          }
+        >
           <PageIndicator
             current={currentPage + 1}
             total={totalPages}
