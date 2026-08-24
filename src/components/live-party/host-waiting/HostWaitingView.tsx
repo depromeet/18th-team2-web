@@ -1,4 +1,4 @@
-import characterBlueHostSrc from '@/assets/images/character/character-blue-host.png';
+import characterBlueHostSrc from '@/assets/images/character/character-blue-full.png';
 import cakeSrc from '@/assets/images/live-party/cake.svg';
 import partyLightSrc from '@/assets/images/live-party/party-light.png';
 import { Button } from '@/components/ui/Button';
