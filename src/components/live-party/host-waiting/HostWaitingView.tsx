@@ -41,14 +41,14 @@ export function HostWaitingView({
       <button
         type="button"
         aria-label="닫기"
-        className="absolute top-[9px] right-4 z-10 flex h-6 w-6 items-center justify-center"
+        className="absolute top-2.25 right-4 z-10 flex h-6 w-6 items-center justify-center"
         onClick={onClose}
       >
         <CloseIcon className="text-white" />
       </button>
 
-      <section className="relative z-1 flex h-full flex-col items-center px-4 pt-[190px] pb-[calc(32px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-[110px] [@media_(max-height:700px)]:pb-[calc(20px+env(safe-area-inset-bottom))]">
-        <div className="relative h-[220px] w-[260px] [@media_(max-height:700px)]:h-[190px] [@media_(max-height:700px)]:w-[240px]">
+      <section className="relative z-1 flex h-full flex-col items-center px-4 pt-47.5 pb-[calc(32px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-27.5 [@media_(max-height:700px)]:pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <div className="relative h-55 w-65 [@media_(max-height:700px)]:h-47.5 [@media_(max-height:700px)]:w-60">
           <img
             src={cakeSrc}
             alt=""
@@ -58,12 +58,12 @@ export function HostWaitingView({
           <img
             src={characterImage}
             alt={celebrant?.nickname ?? '주인공 캐릭터'}
-            className="party-enter-character absolute top-[92px] left-1/2 h-[125px] w-[125px] -translate-x-1/2 object-contain [@media_(max-height:700px)]:top-[82px] [@media_(max-height:700px)]:h-[112px] [@media_(max-height:700px)]:w-[112px]"
+            className="party-enter-character absolute top-23 left-1/2 h-31.25 w-31.25 -translate-x-1/2 object-contain [@media_(max-height:700px)]:top-20.5 [@media_(max-height:700px)]:h-28 [@media_(max-height:700px)]:w-28"
             draggable={false}
           />
         </div>
 
-        <div className="mt-[82px] flex w-full flex-col items-center gap-4 text-center [@media_(max-height:700px)]:mt-10 [@media_(max-height:700px)]:gap-3">
+        <div className="mt-20.5 flex w-full flex-col items-center gap-4 text-center [@media_(max-height:700px)]:mt-10 [@media_(max-height:700px)]:gap-3">
           {isEnding ? (
             <>
               <H2 className="font-bold text-white">
