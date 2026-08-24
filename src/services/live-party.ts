@@ -1,7 +1,9 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
+import { Client, type IMessage } from '@stomp/stompjs';
 
 import { config } from '@/config/env';
 import { api } from '@/services/api';
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 
 import type { components } from '@/types/api';
 import { getParticipantOptions } from '@/utils/headers';
@@ -112,14 +114,17 @@ export function useAdvancePhase() {
   });
 }
 
-// ── SSE ──
+// ── WebSocket ──
 
-export interface SSEEvent {
+const wsBrokerUrl = `${config.apiBaseUrl.replace(/^http/, 'ws')}/ws`;
+
+export interface WebSocketEvent {
   event: string;
   data: string;
 }
 
 export interface ConnectRealtimePartyParams {
+  partyId: string;
   inviteToken: string;
   nickname: string;
   characterId?: number | null;
@@ -128,76 +133,98 @@ export interface ConnectRealtimePartyParams {
 
 export function connectRealtimeParty(
   params: ConnectRealtimePartyParams,
-  onEvent: (event: SSEEvent) => void,
+  onEvent: (event: WebSocketEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
-  const { inviteToken, nickname, characterId, participantToken } = params;
+  const { partyId, inviteToken, nickname, characterId, participantToken } = params;
   const accessToken = useAuthStore.getState().accessToken;
 
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
-
-  return fetch(
-    `${config.apiBaseUrl}/api/v1/party-invites/${inviteToken}/realtime-participants/stream`,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        nickname,
-        ...(characterId != null ? { characterId } : {}),
-        ...(participantToken ? { participantToken } : {}),
-      }),
-      signal,
-    },
-  ).then(async (response) => {
-    if (!response.ok || !response.body) {
-      const err = new Error(response.statusText);
-      (err as Error & { status: number }).status = response.status;
-      throw err;
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      resolve();
+      return;
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+    let settled = false;
+    let broadcastSubscribed = false;
 
-    while (true) {
-      if (signal.aborted) break;
+    const client = new Client({
+      brokerURL: wsBrokerUrl,
+      connectHeaders: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      onConnect: () => {
+        const clientRequestId = crypto.randomUUID();
 
-      const { done, value } = await reader.read();
-      if (done) break;
+        client.subscribe(
+          `/topic/parties/${partyId}/personal/${clientRequestId}`,
+          (message: IMessage) => {
+            const { event, data } = JSON.parse(message.body) as { event: string; data: unknown };
+            onEvent({ event, data: JSON.stringify(data) });
 
-      buffer += decoder.decode(value, { stream: true });
-      const { events, remaining } = parseSSEBuffer(buffer);
-      buffer = remaining;
+            if (event === 'entered') {
+              if (!settled) {
+                settled = true;
+                resolve();
+              }
 
-      for (const sseEvent of events) {
-        if (signal.aborted) break;
-        onEvent(sseEvent);
+              if (!broadcastSubscribed) {
+                broadcastSubscribed = true;
+                client.subscribe(`/topic/parties/${partyId}`, (broadcast: IMessage) => {
+                  const parsed = JSON.parse(broadcast.body) as { event: string; data: unknown };
+                  onEvent({ event: parsed.event, data: JSON.stringify(parsed.data) });
+                });
+              }
+            }
+          },
+        );
+
+        client.subscribe(`/topic/errors/${clientRequestId}`, (message: IMessage) => {
+          const { data } = JSON.parse(message.body) as {
+            data: { code: string; message: string };
+          };
+
+          if (!settled) {
+            settled = true;
+            const err = new Error(data.message);
+            (err as Error & { status?: number }).status =
+              data.code === 'PARTY_NICKNAME_DUPLICATED' ? 409 : undefined;
+            reject(err);
+          }
+        });
+
+        const currentParticipantToken =
+          sessionStorage.getItem(PARTICIPANT_TOKEN_KEY) ?? participantToken;
+
+        client.publish({
+          destination: `/app/party-invites/${inviteToken}/realtime-participants`,
+          body: JSON.stringify({
+            nickname,
+            ...(characterId != null ? { characterId } : {}),
+            ...(currentParticipantToken ? { participantToken: currentParticipantToken } : {}),
+            clientRequestId,
+          }),
+        });
+      },
+      onStompError: (frame) => {
+        if (!settled) {
+          settled = true;
+          reject(new Error(frame.headers?.message ?? 'STOMP 연결 에러'));
+        }
+      },
+    });
+
+    signal.addEventListener('abort', () => {
+      client.deactivate();
+      if (!settled) {
+        settled = true;
+        resolve();
       }
-    }
+    });
+
+    client.activate();
   });
-}
-
-function parseSSEBuffer(buffer: string): { events: SSEEvent[]; remaining: string } {
-  const events: SSEEvent[] = [];
-  const parts = buffer.split(/\r?\n\r?\n/);
-
-  for (let i = 0; i < parts.length - 1; i++) {
-    const block = parts[i].trim();
-    if (!block) continue;
-
-    let event = 'message';
-    let data = '';
-
-    for (const line of block.split(/\r?\n/)) {
-      if (line.startsWith('event:')) event = line.slice(6).trim();
-      else if (line.startsWith('data:')) data += line.slice(5).trim();
-    }
-
-    if (data) events.push({ event, data });
-  }
-
-  return { events, remaining: parts[parts.length - 1] };
 }
 
 // ── 채팅 메시지 전송 ──

@@ -105,6 +105,7 @@ export function useLivePartySSE() {
 
     connectRealtimeParty(
       {
+        partyId: partyId ?? '',
         inviteToken,
         nickname,
         characterId,
