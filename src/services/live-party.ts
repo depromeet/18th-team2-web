@@ -326,13 +326,7 @@ export function useGetBurstGameState(
 
 export function useSubmitBurstGameTaps() {
   return useMutation({
-    mutationFn: async ({
-      partyId,
-      body,
-    }: {
-      partyId: string;
-      body: SubmitBurstGameTapRequest;
-    }) => {
+    mutationFn: async ({ partyId, body }: { partyId: string; body: SubmitBurstGameTapRequest }) => {
       publishPartyAction(`/app/parties/${partyId}/burst-game/taps`, body);
     },
   });
