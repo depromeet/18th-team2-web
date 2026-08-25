@@ -149,6 +149,15 @@ function publishPartyAction(destination: string, body: Record<string, unknown>) 
   });
 }
 
+function parseWebSocketFrame(body: string): { event: string; data: unknown } | null {
+  try {
+    return JSON.parse(body) as { event: string; data: unknown };
+  } catch (err) {
+    console.error('[WS] 프레임 파싱 실패', err);
+    return null;
+  }
+}
+
 export function connectRealtimeParty(
   params: ConnectRealtimePartyParams,
   onEvent: (event: WebSocketEvent) => void,
@@ -178,7 +187,10 @@ export function connectRealtimeParty(
         client.subscribe(
           `/topic/parties/${partyId}/personal/${clientRequestId}`,
           (message: IMessage) => {
-            const { event, data } = JSON.parse(message.body) as { event: string; data: unknown };
+            const parsed = parseWebSocketFrame(message.body);
+            if (!parsed) return;
+
+            const { event, data } = parsed;
             onEvent({ event, data: JSON.stringify(data) });
 
             if (event === 'entered') {
@@ -190,8 +202,13 @@ export function connectRealtimeParty(
               if (!broadcastSubscribed) {
                 broadcastSubscribed = true;
                 client.subscribe(`/topic/parties/${partyId}`, (broadcast: IMessage) => {
-                  const parsed = JSON.parse(broadcast.body) as { event: string; data: unknown };
-                  onEvent({ event: parsed.event, data: JSON.stringify(parsed.data) });
+                  const parsedBroadcast = parseWebSocketFrame(broadcast.body);
+                  if (!parsedBroadcast) return;
+
+                  onEvent({
+                    event: parsedBroadcast.event,
+                    data: JSON.stringify(parsedBroadcast.data),
+                  });
                 });
               }
             }
@@ -199,9 +216,10 @@ export function connectRealtimeParty(
         );
 
         client.subscribe(`/topic/errors/${clientRequestId}`, (message: IMessage) => {
-          const { data } = JSON.parse(message.body) as {
-            data: { code: string; message: string };
-          };
+          const parsed = parseWebSocketFrame(message.body);
+          if (!parsed) return;
+
+          const { data } = parsed as { data: { code: string; message: string } };
 
           if (!settled) {
             settled = true;
