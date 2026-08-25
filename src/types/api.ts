@@ -2293,11 +2293,11 @@ export interface components {
             majorVersion?: number;
             /** Format: int32 */
             minorVersion?: number;
-            /** Format: int32 */
-            sessionTimeout?: number;
             attributeNames?: Record<string, never>;
             contextPath?: string;
             initParameterNames?: Record<string, never>;
+            /** Format: int32 */
+            sessionTimeout?: number;
             sessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
             requestCharacterEncoding?: string;
             responseCharacterEncoding?: string;
@@ -2320,8 +2320,8 @@ export interface components {
             virtualServerName?: string;
         };
         ServletRegistration: {
-            mappings?: string[];
             runAsRole?: string;
+            mappings?: string[];
             name?: string;
             className?: string;
             initParameters?: {
