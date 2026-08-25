@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react';
 
-import { PARTICIPANT_TOKEN_KEY, SSE_ERROR_MESSAGE, SSE_EVENT } from '@/constants/live-party';
+import { PARTICIPANT_TOKEN_KEY, WS_ERROR_MESSAGE, WS_EVENT } from '@/constants/live-party';
 import {
   connectRealtimeParty,
   useSendChatMessage,
@@ -53,7 +53,7 @@ function toChatMessage(raw: Record<string, unknown>): Extract<ChatListItem, { ty
   };
 }
 
-export function useLivePartySSE() {
+export function useLivePartyWebSocket() {
   const [messages, setMessages] = useState<ChatListItem[]>([]);
   const [candleBlowState, setCandleBlowState] = useState<CandleBlowState | null>(null);
   const [burstGameState, setBurstGameState] = useState<BurstGameState | null>(null);
@@ -62,7 +62,7 @@ export function useLivePartySSE() {
   const [currentPhaseStartedAt, setCurrentPhaseStartedAt] = useState<string | null>(null);
   const [currentPhaseServerNow, setCurrentPhaseServerNow] = useState<string | null>(null);
   const [hasParticipantToken, setHasParticipantToken] = useState(false);
-  const [sseError, setSseError] = useState(false);
+  const [wsError, setWsError] = useState(false);
   const [nicknameDuplicate, setNicknameDuplicate] = useState(false);
 
   const { partyId } = useParams<{ partyId: string }>();
@@ -84,7 +84,7 @@ export function useLivePartySSE() {
   });
 
   const hasInitializedRef = useRef(false);
-  const sseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { mutate: sendMessage } = useSendChatMessage();
 
@@ -97,9 +97,9 @@ export function useLivePartySSE() {
 
     const controller = new AbortController();
 
-    sseTimeoutRef.current = window.setTimeout(() => {
+    wsTimeoutRef.current = window.setTimeout(() => {
       if (!hasInitializedRef.current) {
-        setSseError(true);
+        setWsError(true);
       }
     }, 15000);
 
@@ -118,29 +118,29 @@ export function useLivePartySSE() {
           const result = JSON.parse(data) as unknown;
 
           if (typeof result !== 'object' || result === null || Array.isArray(result)) {
-            throw new Error(`Unexpected SSE payload shape for event "${event}"`);
+            throw new Error(`Unexpected WebSocket payload shape for event "${event}"`);
           }
 
           parsed = result as Record<string, unknown>;
         } catch (err) {
-          console.error(SSE_ERROR_MESSAGE.PARSE_FAILED);
-          Sentry.captureException(err, { extra: { message: SSE_ERROR_MESSAGE.PARSE_FAILED } });
+          console.error(WS_ERROR_MESSAGE.PARSE_FAILED);
+          Sentry.captureException(err, { extra: { message: WS_ERROR_MESSAGE.PARSE_FAILED } });
           return;
         }
 
         try {
           switch (event) {
             // 실시간 파티 입장
-            case SSE_EVENT.ENTERED: {
+            case WS_EVENT.ENTERED: {
               if (hasInitializedRef.current) {
                 return;
               }
 
               hasInitializedRef.current = true;
 
-              if (sseTimeoutRef.current) {
-                clearTimeout(sseTimeoutRef.current);
-                sseTimeoutRef.current = null;
+              if (wsTimeoutRef.current) {
+                clearTimeout(wsTimeoutRef.current);
+                wsTimeoutRef.current = null;
               }
 
               const token = parsed.participantToken as string | undefined;
@@ -167,14 +167,14 @@ export function useLivePartySSE() {
             }
 
             // 실시간 파티 메시지 수신
-            case SSE_EVENT.MESSAGE: {
+            case WS_EVENT.MESSAGE: {
               setMessages((prev) => [...prev, toChatMessage(parsed)]);
 
               return;
             }
 
             // 실시간 파티 유저 입장
-            case SSE_EVENT.USER_ENTERED: {
+            case WS_EVENT.USER_ENTERED: {
               const userName = (parsed.nickname ?? parsed.senderNickname ?? '') as string;
 
               setMessages((prev) => [
@@ -187,7 +187,7 @@ export function useLivePartySSE() {
             }
 
             // 실시간 파티 유저 퇴장
-            case SSE_EVENT.USER_LEFT: {
+            case WS_EVENT.USER_LEFT: {
               const userName = (parsed.nickname ?? parsed.senderNickname ?? '') as string;
 
               setMessages((prev) => [...prev, { type: 'exit' as const, id: Date.now(), userName }]);
@@ -197,18 +197,18 @@ export function useLivePartySSE() {
             }
 
             // 촛불 불기
-            case SSE_EVENT.CANDLE_BLOW_STARTED:
-            case SSE_EVENT.CANDLE_BLOW_PROGRESS:
-            case SSE_EVENT.CANDLE_BLOW_ENDED: {
+            case WS_EVENT.CANDLE_BLOW_STARTED:
+            case WS_EVENT.CANDLE_BLOW_PROGRESS:
+            case WS_EVENT.CANDLE_BLOW_ENDED: {
               setCandleBlowState(parsed as CandleBlowState);
 
               return;
             }
 
             // 박 깨기
-            case SSE_EVENT.BURST_GAME_STARTED:
-            case SSE_EVENT.BURST_GAME_PROGRESS:
-            case SSE_EVENT.BURST_GAME_ENDED: {
+            case WS_EVENT.BURST_GAME_STARTED:
+            case WS_EVENT.BURST_GAME_PROGRESS:
+            case WS_EVENT.BURST_GAME_ENDED: {
               setBurstGameState((prev) => {
                 const nextStateVersion = parsed.stateVersion as number | undefined;
 
@@ -229,8 +229,8 @@ export function useLivePartySSE() {
                   remainingSeconds:
                     (parsed.remainingSeconds as number | undefined) ?? prev?.remainingSeconds,
                   rankings: (parsed.rankings as BurstGameState['rankings']) ?? prev?.rankings,
-                  ended: event === SSE_EVENT.BURST_GAME_ENDED ? true : prev?.ended,
-                  status: event === SSE_EVENT.BURST_GAME_ENDED ? 'ENDED' : 'ACTIVE',
+                  ended: event === WS_EVENT.BURST_GAME_ENDED ? true : prev?.ended,
+                  status: event === WS_EVENT.BURST_GAME_ENDED ? 'ENDED' : 'ACTIVE',
                 };
               });
 
@@ -238,7 +238,7 @@ export function useLivePartySSE() {
             }
 
             // 폭죽 터뜨리기
-            case SSE_EVENT.FIREWORKS: {
+            case WS_EVENT.FIREWORKS: {
               const participantId = parsed.participantId as number | undefined;
               fire(participantId);
 
@@ -246,7 +246,7 @@ export function useLivePartySSE() {
             }
 
             // 실시간 파티 상태 변경
-            case SSE_EVENT.PARTY_PHASE_CHANGED: {
+            case WS_EVENT.PARTY_PHASE_CHANGED: {
               setCurrentPhase(parsed.phase as PartyApiPhase);
               setCurrentPhaseStartedAt((parsed.phaseStartedAt as string | undefined) ?? null);
               setCurrentPhaseServerNow((parsed.serverNow as string | undefined) ?? null);
@@ -255,7 +255,7 @@ export function useLivePartySSE() {
             }
 
             // 실시간 파티 종료 시작
-            case SSE_EVENT.PARTY_ENDING: {
+            case WS_EVENT.PARTY_ENDING: {
               setPartyEndingState({
                 partyId: parsed.partyId as number | undefined,
                 endingStartedAt: parsed.endingStartedAt as string | undefined,
@@ -269,7 +269,7 @@ export function useLivePartySSE() {
             }
 
             // 실시간 파티 종료
-            case SSE_EVENT.PARTY_ENDED: {
+            case WS_EVENT.PARTY_ENDED: {
               setPartyEndingState((prev) => ({
                 ...prev,
                 partyId: parsed.partyId as number | undefined,
@@ -287,8 +287,8 @@ export function useLivePartySSE() {
               return;
           }
         } catch (err) {
-          console.error(SSE_ERROR_MESSAGE.HANDLE_FAILED);
-          Sentry.captureException(err, { extra: { message: SSE_ERROR_MESSAGE.HANDLE_FAILED } });
+          console.error(WS_ERROR_MESSAGE.HANDLE_FAILED);
+          Sentry.captureException(err, { extra: { message: WS_ERROR_MESSAGE.HANDLE_FAILED } });
         }
       },
       controller.signal,
@@ -298,15 +298,15 @@ export function useLivePartySSE() {
         return;
       }
 
-      console.error(SSE_ERROR_MESSAGE.CONNECTION_FAILED, err);
-      Sentry.captureException(err, { extra: { message: SSE_ERROR_MESSAGE.CONNECTION_FAILED } });
+      console.error(WS_ERROR_MESSAGE.CONNECTION_FAILED, err);
+      Sentry.captureException(err, { extra: { message: WS_ERROR_MESSAGE.CONNECTION_FAILED } });
     });
 
     return () => {
       controller.abort();
-      if (sseTimeoutRef.current) {
-        clearTimeout(sseTimeoutRef.current);
-        sseTimeoutRef.current = null;
+      if (wsTimeoutRef.current) {
+        clearTimeout(wsTimeoutRef.current);
+        wsTimeoutRef.current = null;
       }
     };
   }, [partyId, queryClient, fire]);
@@ -329,7 +329,7 @@ export function useLivePartySSE() {
     currentPhaseStartedAt,
     currentPhaseServerNow,
     hasParticipantToken,
-    sseError,
+    wsError,
     nicknameDuplicate,
   };
 }

@@ -45,18 +45,18 @@ function stepToApiPhase(step: PartyStep): PartyApiPhase {
 
 interface UseLivePartyStepOptions {
   partyId: string;
-  ssePhase?: PartyApiPhase | null;
-  ssePhaseStartedAt?: string | null;
-  sseServerNow?: string | null;
+  partyPhase?: PartyApiPhase | null;
+  partyPhaseStartedAt?: string | null;
+  serverNow?: string | null;
   isPartyEnded?: boolean;
   enabled?: boolean;
 }
 
 export function useLivePartyStep({
   partyId,
-  ssePhase,
-  ssePhaseStartedAt,
-  sseServerNow,
+  partyPhase,
+  partyPhaseStartedAt,
+  serverNow,
   isPartyEnded,
   enabled = true,
 }: UseLivePartyStepOptions) {
@@ -139,24 +139,24 @@ export function useLivePartyStep({
     setIsInitialized(true);
   }, [phaseData, isInitialized, rememberLiveStart, clearRememberedLiveStart]);
 
-  // SSE party-phase-changed 반영
+  // WebSocket party-phase-changed 반영
   useEffect(() => {
-    if (!ssePhase) return;
+    if (!partyPhase) return;
 
-    if (ssePhase === 'ENTRY') {
+    if (partyPhase === 'ENTRY') {
       clearRememberedLiveStart();
     }
 
-    if (ssePhase === 'MUSIC') {
-      rememberLiveStart(ssePhaseStartedAt, sseServerNow);
+    if (partyPhase === 'MUSIC') {
+      rememberLiveStart(partyPhaseStartedAt, serverNow);
     }
 
-    applyStepTransition(apiPhaseToStep(ssePhase));
+    applyStepTransition(apiPhaseToStep(partyPhase));
     setIsInitialized(true);
   }, [
-    ssePhase,
-    ssePhaseStartedAt,
-    sseServerNow,
+    partyPhase,
+    partyPhaseStartedAt,
+    serverNow,
     applyStepTransition,
     rememberLiveStart,
     clearRememberedLiveStart,
@@ -167,15 +167,15 @@ export function useLivePartyStep({
     if (!isEntryReady) return;
     if (stepRef.current !== LIVE_PARTY_STEP.ENTRY) return;
 
-    const phase = phaseData?.data?.phase ?? ssePhase ?? null;
+    const phase = phaseData?.data?.phase ?? partyPhase ?? null;
     if (!phase || phase === 'ENTRY') return;
 
     const currentStep = apiPhaseToStep(phase);
     stepRef.current = currentStep;
     setStep(currentStep);
-  }, [isEntryReady, phaseData, ssePhase]);
+  }, [isEntryReady, phaseData, partyPhase]);
 
-  // SSE party-ended 반영
+  // WebSocket party-ended 반영
   useEffect(() => {
     if (!isPartyEnded) return;
     stepRef.current = LIVE_PARTY_STEP.END;

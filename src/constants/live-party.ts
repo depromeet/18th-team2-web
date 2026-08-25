@@ -150,8 +150,8 @@ export const MUSIC_TEXT_HEIGHT = 84;
 
 export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 
-/** SSE 이벤트 이름 */
-export const SSE_EVENT = {
+/** WebSocket 이벤트 이름 */
+export const WS_EVENT = {
   ENTERED: 'entered',
   MESSAGE: 'message',
   USER_ENTERED: 'user-entered',
@@ -168,12 +168,12 @@ export const SSE_EVENT = {
   PARTY_ENDED: 'party-ended',
 } as const;
 
-export type SSEEventName = (typeof SSE_EVENT)[keyof typeof SSE_EVENT];
+export type WSEventName = (typeof WS_EVENT)[keyof typeof WS_EVENT];
 
-export const SSE_ERROR_MESSAGE = {
-  PARSE_FAILED: '[SSE] 이벤트 파싱 실패',
-  HANDLE_FAILED: '[SSE] 이벤트 처리 실패',
-  CONNECTION_FAILED: '[SSE] 연결 오류',
+export const WS_ERROR_MESSAGE = {
+  PARSE_FAILED: '[WS] 이벤트 파싱 실패',
+  HANDLE_FAILED: '[WS] 이벤트 처리 실패',
+  CONNECTION_FAILED: '[WS] 연결 오류',
 } as const;
 
 export const characterSizeStyles = {

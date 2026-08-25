@@ -6,7 +6,7 @@ import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep'
 import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
 import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
 import { PartyMusicText } from '@/components/live-party/music/PartyMusicText';
-import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
+import type { BurstGameState } from '@/hooks/live-party/useLivePartyWebSocket';
 import type { RealtimePartyNextActionResult } from '@/services/live-party';
 import type { components } from '@/types/api';
 
