@@ -133,7 +133,7 @@ export interface ConnectRealtimePartyParams {
 let activeClient: Client | null = null;
 
 function publishPartyAction(destination: string, body: Record<string, unknown>) {
-  if (!activeClient) {
+  if (!activeClient?.connected) {
     throw new Error('WebSocket이 연결되어 있지 않습니다.');
   }
 
