@@ -10,8 +10,6 @@ import { getParticipantOptions } from '@/utils/headers';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
-type ApiResponseSubmitBurstGameTapResponse =
-  components['schemas']['ApiResponseSubmitBurstGameTapResponse'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
 type ApiResponseRealtimePartyNextActionResult =
   components['schemas']['ApiResponseRealtimePartyNextActionResult'];
@@ -131,6 +129,26 @@ export interface ConnectRealtimePartyParams {
   participantToken?: string | null;
 }
 
+// 입장 후 다른 액션(채팅 전송/촛불끄기/박터뜨리기/폭죽/퇴장)이 같은 연결로 publish할 수 있도록 공유
+let activeClient: Client | null = null;
+
+function publishPartyAction(destination: string, body: Record<string, unknown>) {
+  if (!activeClient) {
+    throw new Error('WebSocket이 연결되어 있지 않습니다.');
+  }
+
+  const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
+
+  activeClient.publish({
+    destination,
+    body: JSON.stringify({
+      ...body,
+      ...(participantToken ? { participantToken } : {}),
+      clientRequestId: crypto.randomUUID(),
+    }),
+  });
+}
+
 export function connectRealtimeParty(
   params: ConnectRealtimePartyParams,
   onEvent: (event: WebSocketEvent) => void,
@@ -146,7 +164,6 @@ export function connectRealtimeParty(
     }
 
     let settled = false;
-    let broadcastSubscribed = false;
 
     const client = new Client({
       brokerURL: wsBrokerUrl,
@@ -156,6 +173,7 @@ export function connectRealtimeParty(
       heartbeatOutgoing: 10000,
       onConnect: () => {
         const clientRequestId = crypto.randomUUID();
+        let broadcastSubscribed = false;
 
         client.subscribe(
           `/topic/parties/${partyId}/personal/${clientRequestId}`,
@@ -216,6 +234,9 @@ export function connectRealtimeParty(
     });
 
     signal.addEventListener('abort', () => {
+      if (activeClient === client) {
+        activeClient = null;
+      }
       client.deactivate();
       if (!settled) {
         settled = true;
@@ -223,6 +244,7 @@ export function connectRealtimeParty(
       }
     });
 
+    activeClient = client;
     client.activate();
   });
 }
@@ -231,12 +253,9 @@ export function connectRealtimeParty(
 
 export function useSendChatMessage() {
   return useMutation({
-    mutationFn: ({ partyId, content }: { partyId: string; content: string }) =>
-      api.post<components['schemas']['ApiResponseChatMessageResponse']>(
-        `/api/v1/parties/${partyId}/chat-messages`,
-        { content },
-        getParticipantOptions(),
-      ),
+    mutationFn: async ({ partyId, content }: { partyId: string; content: string }) => {
+      publishPartyAction(`/app/parties/${partyId}/chat-messages`, { content });
+    },
   });
 }
 
@@ -282,12 +301,9 @@ export function useGetCandleBlowState(partyId: string | undefined) {
 
 export function useBlowCandle() {
   return useMutation({
-    mutationFn: ({ partyId, candleId }: { partyId: string; candleId: number }) =>
-      api.post<components['schemas']['ApiResponseCandleBlowResponse']>(
-        `/api/v1/parties/${partyId}/candle-blow/candles/${candleId}`,
-        undefined,
-        getParticipantOptions(),
-      ),
+    mutationFn: async ({ partyId, candleId }: { partyId: string; candleId: number }) => {
+      publishPartyAction(`/app/parties/${partyId}/candle-blow/candles/${candleId}`, {});
+    },
   });
 }
 
@@ -310,19 +326,15 @@ export function useGetBurstGameState(
 
 export function useSubmitBurstGameTaps() {
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       partyId,
       body,
     }: {
       partyId: string;
       body: SubmitBurstGameTapRequest;
-      participantToken?: string | null;
-    }) =>
-      api.post<ApiResponseSubmitBurstGameTapResponse>(
-        `/api/v1/parties/${partyId}/burst-game/taps`,
-        body,
-        getParticipantOptions(),
-      ),
+    }) => {
+      publishPartyAction(`/app/parties/${partyId}/burst-game/taps`, body);
+    },
   });
 }
 
@@ -330,8 +342,9 @@ export function useSubmitBurstGameTaps() {
 
 export function useTriggerFireworks() {
   return useMutation({
-    mutationFn: ({ partyId }: { partyId: string }) =>
-      api.post<void>(`/api/v1/parties/${partyId}/fireworks`, undefined, getParticipantOptions()),
+    mutationFn: async ({ partyId }: { partyId: string }) => {
+      publishPartyAction(`/app/parties/${partyId}/fireworks`, {});
+    },
   });
 }
 
@@ -339,7 +352,8 @@ export function useTriggerFireworks() {
 
 export function useLeaveParty() {
   return useMutation({
-    mutationFn: ({ partyId }: { partyId: string }) =>
-      api.delete<void>(`/api/v1/parties/${partyId}/realtime-participants`, getParticipantOptions()),
+    mutationFn: async ({ partyId }: { partyId: string }) => {
+      publishPartyAction(`/app/parties/${partyId}/leave`, {});
+    },
   });
 }
