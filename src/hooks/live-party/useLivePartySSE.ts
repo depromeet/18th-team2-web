@@ -293,10 +293,6 @@ export function useLivePartySSE() {
       },
       controller.signal,
     ).catch((err) => {
-      if (err instanceof Error && err.name === 'AbortError') {
-        return;
-      }
-
       if ((err as Error & { status?: number }).status === 409) {
         setNicknameDuplicate(true);
         return;
