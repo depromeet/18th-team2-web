@@ -191,6 +191,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}/talk-calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 파티 일정을 카카오 톡캘린더에 등록
+         * @description 파티 시작 전까지만 등록할 수 있고, 파티의 호스트 또는 현재 참여자만 호출할 수 있다.
+         *     이미 등록한 파티를 다시 호출하면 기존 일정을 갱신한다.
+         *
+         *     **카카오 액세스 토큰**
+         *     클라이언트가 카카오 SDK 로 톡캘린더 동의를 받은 뒤 얻은 액세스 토큰을 `X-Kakao-Access-Token` 헤더로 전달한다.
+         *     서버는 이 토큰을 저장하지 않는다.
+         */
+        post: operations["registerPartyEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/{partyId}/realtime-end": {
         parameters: {
             query?: never;
@@ -947,6 +972,29 @@ export interface components {
              * @example 1
              */
             participantId: number;
+        };
+        /** @description 공통 성공 응답 */
+        ApiResponseRegisterPartyTalkCalendarEventResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status: number;
+            data?: components["schemas"]["RegisterPartyTalkCalendarEventResult"];
+        };
+        /** @description 톡캘린더 일정 등록 결과 */
+        RegisterPartyTalkCalendarEventResult: {
+            /**
+             * @description 카카오 톡캘린더 일정 ID
+             * @example 63630868d89d8b4150bbb712
+             */
+            eventId: string;
+            /**
+             * @description 기존 일정을 갱신했으면 true, 새로 만들었으면 false
+             * @example false
+             */
+            updated: boolean;
         };
         /** @description 공통 성공 응답 */
         ApiResponseRealtimePartyEndResult: {
@@ -2627,6 +2675,134 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    registerPartyEvent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 카카오 액세스 토큰 */
+                "X-Kakao-Access-Token": string;
+            };
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 등록 또는 갱신 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRegisterPartyTalkCalendarEventResult"];
+                };
+            };
+            /** @description 카카오 액세스 토큰 헤더 누락 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 400,
+                     *       "error": {
+                     *         "code": "KAKAO_ACCESS_TOKEN_REQUIRED",
+                     *         "message": "카카오 액세스 토큰이 필요합니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 권한 없음 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 존재하지 않는 파티 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 404,
+                     *       "error": {
+                     *         "code": "PARTY_NOT_FOUND",
+                     *         "message": "파티를 찾을 수 없습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 등록 불가 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 카카오 톡캘린더 연동 실패 */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 502,
+                     *       "error": {
+                     *         "code": "KAKAO_CALENDAR_UNAVAILABLE",
+                     *         "message": "카카오 톡캘린더 연동에 실패했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
             };
         };
     };
