@@ -205,9 +205,12 @@ export interface paths {
          * @description 파티 시작 전까지만 등록할 수 있고, 파티의 호스트 또는 현재 참여자만 호출할 수 있다.
          *     이미 등록한 파티를 다시 호출하면 기존 일정을 갱신한다.
          *
-         *     **카카오 액세스 토큰**
-         *     클라이언트가 카카오 SDK 로 톡캘린더 동의를 받은 뒤 얻은 액세스 토큰을 `X-Kakao-Access-Token` 헤더로 전달한다.
-         *     서버는 이 토큰을 저장하지 않는다.
+         *     **동의**
+         *     서버가 저장한 카카오 토큰을 사용한다. 액세스 토큰이 만료됐으면 리프레시 토큰으로 자동 갱신하므로 그것만으로는
+         *     동의를 다시 받지 않는다. 저장된 연동이 아예 없거나, 갱신에 실패해 연동이 해제된 경우에만
+         *     403 `KAKAO_CALENDAR_CONSENT_REQUIRED` 를 반환한다. 이때 클라이언트는
+         *     `GET /api/v1/me/talk-calendar-connection/consent-url` 로 동의 URL 을 받아 브라우저를 그리로 보내고,
+         *     동의를 마치고 돌아오면 이 API 를 다시 호출한다.
          */
         post: operations["registerPartyEvent"];
         delete?: never;
@@ -677,6 +680,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/talk-calendar-connection/consent-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 톡캘린더 동의 URL 발급
+         * @description 브라우저를 반환된 `consentUrl` 로 보내면 카카오 동의를 거쳐 `returnPath` 로 돌아온다.
+         *     복귀 시 쿼리 파라미터 `calendarConsent` 에 결과가 담긴다
+         *     (`granted` / `denied` / `account_mismatch` / `expired` / `failed`).
+         *
+         *     일정 등록이 403 `KAKAO_CALENDAR_CONSENT_REQUIRED` 를 반환했을 때 이 엔드포인트를 호출한다.
+         *     마이페이지에서 미리 연동하는 흐름에도 같은 엔드포인트를 쓴다.
+         *
+         *     `returnPath` 는 프론트 **경로**다. 도메인은 서버 설정(`app.web-base-url`)에서 붙이므로 넘기지 않는다.
+         *     사용자가 보고 있던 화면을 그대로 넘기면 동의 후 그 화면으로 돌아온다.
+         */
+        get: operations["issueConsentUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kakao-calendar/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["enter"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kakao-calendar/consent/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["callback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/characters": {
         parameters: {
             query?: never;
@@ -805,6 +868,26 @@ export interface paths {
          *     퇴장하면 현재 SSE 연결이 종료되고, 다른 구독자에게 `user-left` 이벤트가 발송됩니다.
          */
         delete: operations["leaveParty"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/talk-calendar-connection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 톡캘린더 연동 해제
+         * @description 서버에 저장된 카카오 토큰을 지운다. 카카오 계정 전체 연결은 끊지 않는다.
+         */
+        delete: operations["disconnect"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1035,6 +1118,11 @@ export interface components {
              * @example 홍길동
              */
             hostNickname: string;
+            /**
+             * Format: date-time
+             * @description 응답 생성 서버 시각. 클라이언트 시계 오차 보정용
+             */
+            serverNow: string;
         };
         AdvancePartyPhaseRequest: {
             /** @enum {string} */
@@ -1976,6 +2064,289 @@ export interface components {
             liveEndAt: string;
         };
         /** @description 공통 성공 응답 */
+        ApiResponseKakaoCalendarConsentUrlResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status: number;
+            data?: components["schemas"]["KakaoCalendarConsentUrlResult"];
+        };
+        /** @description 톡캘린더 동의 URL */
+        KakaoCalendarConsentUrlResult: {
+            /**
+             * @description 브라우저를 이 주소로 보내면 카카오 동의를 거쳐 복귀 경로로 돌아온다
+             * @example https://api.hapalin.com/api/v1/kakao-calendar/consent?ticket=...&return_path=...
+             */
+            consentUrl: string;
+        };
+        ApplicationContext: {
+            parent?: components["schemas"]["ApplicationContext"];
+            id?: string;
+            displayName?: string;
+            applicationName?: string;
+            /** Format: int64 */
+            startupDate?: number;
+            autowireCapableBeanFactory?: components["schemas"]["AutowireCapableBeanFactory"];
+            environment?: components["schemas"]["Environment"];
+            /** Format: int32 */
+            beanDefinitionCount?: number;
+            beanDefinitionNames?: string[];
+            parentBeanFactory?: components["schemas"]["BeanFactory"];
+            classLoader?: {
+                name?: string;
+                registeredAsParallelCapable?: boolean;
+                parent?: {
+                    name?: string;
+                    registeredAsParallelCapable?: boolean;
+                    unnamedModule?: {
+                        name?: string;
+                        descriptor?: {
+                            open?: boolean;
+                            automatic?: boolean;
+                        };
+                        named?: boolean;
+                        annotations?: Record<string, never>[];
+                        declaredAnnotations?: Record<string, never>[];
+                        packages?: string[];
+                        nativeAccessEnabled?: boolean;
+                        layer?: Record<string, never>;
+                    };
+                    definedPackages?: {
+                        name?: string;
+                        sealed?: boolean;
+                        annotations?: Record<string, never>[];
+                        declaredAnnotations?: Record<string, never>[];
+                        specificationTitle?: string;
+                        specificationVersion?: string;
+                        specificationVendor?: string;
+                        implementationTitle?: string;
+                        implementationVersion?: string;
+                        implementationVendor?: string;
+                    }[];
+                    defaultAssertionStatus?: boolean;
+                };
+                unnamedModule?: {
+                    name?: string;
+                    descriptor?: {
+                        open?: boolean;
+                        automatic?: boolean;
+                    };
+                    named?: boolean;
+                    annotations?: Record<string, never>[];
+                    declaredAnnotations?: Record<string, never>[];
+                    packages?: string[];
+                    nativeAccessEnabled?: boolean;
+                    layer?: Record<string, never>;
+                };
+                definedPackages?: {
+                    name?: string;
+                    sealed?: boolean;
+                    annotations?: Record<string, never>[];
+                    declaredAnnotations?: Record<string, never>[];
+                    specificationTitle?: string;
+                    specificationVersion?: string;
+                    specificationVendor?: string;
+                    implementationTitle?: string;
+                    implementationVersion?: string;
+                    implementationVendor?: string;
+                }[];
+                defaultAssertionStatus?: boolean;
+            };
+        };
+        AutowireCapableBeanFactory: unknown;
+        BeanFactory: unknown;
+        Environment: {
+            activeProfiles?: string[];
+            defaultProfiles?: string[];
+        };
+        FilterRegistration: {
+            servletNameMappings?: string[];
+            urlPatternMappings?: string[];
+            name?: string;
+            className?: string;
+            initParameters?: {
+                [key: string]: string;
+            };
+        };
+        HttpStatusCode: {
+            error?: boolean;
+            is4xxClientError?: boolean;
+            is5xxServerError?: boolean;
+            is1xxInformational?: boolean;
+            is2xxSuccessful?: boolean;
+            is3xxRedirection?: boolean;
+        };
+        JspConfigDescriptor: {
+            taglibs?: components["schemas"]["TaglibDescriptor"][];
+            jspPropertyGroups?: components["schemas"]["JspPropertyGroupDescriptor"][];
+        };
+        JspPropertyGroupDescriptor: {
+            buffer?: string;
+            isXml?: string;
+            elIgnored?: string;
+            errorOnELNotFound?: string;
+            pageEncoding?: string;
+            scriptingInvalid?: string;
+            includePreludes?: string[];
+            includeCodas?: string[];
+            deferredSyntaxAllowedAsLiteral?: string;
+            trimDirectiveWhitespaces?: string;
+            errorOnUndeclaredNamespace?: string;
+            urlPatterns?: string[];
+            defaultContentType?: string;
+        };
+        RedirectView: {
+            applicationContext?: components["schemas"]["ApplicationContext"];
+            servletContext?: components["schemas"]["ServletContext"];
+            contentType?: string;
+            requestContextAttribute?: string;
+            staticAttributes?: {
+                [key: string]: Record<string, never>;
+            };
+            exposePathVariables?: boolean;
+            exposeContextBeansAsAttributes?: boolean;
+            exposedContextBeanNames?: string[];
+            beanName?: string;
+            url?: string;
+            contextRelative?: boolean;
+            http10Compatible?: boolean;
+            exposeModelAttributes?: boolean;
+            encodingScheme?: string;
+            statusCode?: components["schemas"]["HttpStatusCode"];
+            expandUriTemplateVariables?: boolean;
+            propagateQueryParams?: boolean;
+            hosts?: string[];
+            redirectView?: boolean;
+            propagateQueryProperties?: boolean;
+            attributesMap?: {
+                [key: string]: Record<string, never>;
+            };
+            attributesCSV?: string;
+            attributes?: {
+                [key: string]: string;
+            };
+        };
+        ServletContext: {
+            classLoader?: {
+                name?: string;
+                registeredAsParallelCapable?: boolean;
+                parent?: {
+                    name?: string;
+                    registeredAsParallelCapable?: boolean;
+                    unnamedModule?: {
+                        name?: string;
+                        descriptor?: {
+                            open?: boolean;
+                            automatic?: boolean;
+                        };
+                        named?: boolean;
+                        annotations?: Record<string, never>[];
+                        declaredAnnotations?: Record<string, never>[];
+                        packages?: string[];
+                        nativeAccessEnabled?: boolean;
+                        layer?: Record<string, never>;
+                    };
+                    definedPackages?: {
+                        name?: string;
+                        sealed?: boolean;
+                        annotations?: Record<string, never>[];
+                        declaredAnnotations?: Record<string, never>[];
+                        specificationTitle?: string;
+                        specificationVersion?: string;
+                        specificationVendor?: string;
+                        implementationTitle?: string;
+                        implementationVersion?: string;
+                        implementationVendor?: string;
+                    }[];
+                    defaultAssertionStatus?: boolean;
+                };
+                unnamedModule?: {
+                    name?: string;
+                    descriptor?: {
+                        open?: boolean;
+                        automatic?: boolean;
+                    };
+                    named?: boolean;
+                    annotations?: Record<string, never>[];
+                    declaredAnnotations?: Record<string, never>[];
+                    packages?: string[];
+                    nativeAccessEnabled?: boolean;
+                    layer?: Record<string, never>;
+                };
+                definedPackages?: {
+                    name?: string;
+                    sealed?: boolean;
+                    annotations?: Record<string, never>[];
+                    declaredAnnotations?: Record<string, never>[];
+                    specificationTitle?: string;
+                    specificationVersion?: string;
+                    specificationVendor?: string;
+                    implementationTitle?: string;
+                    implementationVersion?: string;
+                    implementationVendor?: string;
+                }[];
+                defaultAssertionStatus?: boolean;
+            };
+            /** Format: int32 */
+            majorVersion?: number;
+            /** Format: int32 */
+            minorVersion?: number;
+            attributeNames?: Record<string, never>;
+            contextPath?: string;
+            initParameterNames?: Record<string, never>;
+            /** Format: int32 */
+            sessionTimeout?: number;
+            sessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
+            requestCharacterEncoding?: string;
+            responseCharacterEncoding?: string;
+            /** Format: int32 */
+            effectiveMajorVersion?: number;
+            /** Format: int32 */
+            effectiveMinorVersion?: number;
+            serverInfo?: string;
+            servletContextName?: string;
+            servletRegistrations?: {
+                [key: string]: components["schemas"]["ServletRegistration"];
+            };
+            filterRegistrations?: {
+                [key: string]: components["schemas"]["FilterRegistration"];
+            };
+            sessionCookieConfig?: components["schemas"]["SessionCookieConfig"];
+            defaultSessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
+            effectiveSessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
+            jspConfigDescriptor?: components["schemas"]["JspConfigDescriptor"];
+            virtualServerName?: string;
+        };
+        ServletRegistration: {
+            runAsRole?: string;
+            mappings?: string[];
+            name?: string;
+            className?: string;
+            initParameters?: {
+                [key: string]: string;
+            };
+        };
+        SessionCookieConfig: {
+            name?: string;
+            path?: string;
+            attributes?: {
+                [key: string]: string;
+            };
+            /** @deprecated */
+            comment?: string;
+            domain?: string;
+            secure?: boolean;
+            /** Format: int32 */
+            maxAge?: number;
+            httpOnly?: boolean;
+        };
+        TaglibDescriptor: {
+            taglibURI?: string;
+            taglibLocation?: string;
+        };
+        /** @description 공통 성공 응답 */
         ApiResponseListCharacterResult: {
             /**
              * Format: int32
@@ -2681,10 +3052,7 @@ export interface operations {
     registerPartyEvent: {
         parameters: {
             query?: never;
-            header: {
-                /** @description 카카오 액세스 토큰 */
-                "X-Kakao-Access-Token": string;
-            };
+            header?: never;
             path: {
                 /**
                  * @description 파티 ID
@@ -2703,24 +3071,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseRegisterPartyTalkCalendarEventResult"];
-                };
-            };
-            /** @description 카카오 액세스 토큰 헤더 누락 */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": 400,
-                     *       "error": {
-                     *         "code": "KAKAO_ACCESS_TOKEN_REQUIRED",
-                     *         "message": "카카오 액세스 토큰이 필요합니다"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description 인증 실패 */
@@ -4223,6 +4573,105 @@ export interface operations {
             };
         };
     };
+    issueConsentUrl: {
+        parameters: {
+            query: {
+                /**
+                 * @description 동의 후 돌아올 프론트 경로. `/` 로 시작해야 한다
+                 * @example /party/366
+                 */
+                returnPath: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 발급 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseKakaoCalendarConsentUrlResult"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    enter: {
+        parameters: {
+            query: {
+                ticket: string;
+                return_path: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RedirectView"];
+                };
+            };
+        };
+    };
+    callback: {
+        parameters: {
+            query?: {
+                code?: string;
+                state?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RedirectView"];
+                };
+            };
+        };
+    };
     getCharacters: {
         parameters: {
             query?: never;
@@ -4565,6 +5014,51 @@ export interface operations {
                      *       }
                      *     }
                      */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    disconnect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 해제 완료. 연동이 없어도 204 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };

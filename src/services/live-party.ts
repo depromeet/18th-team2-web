@@ -1,15 +1,15 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
+import { Client, type IMessage } from '@stomp/stompjs';
 
 import { config } from '@/config/env';
 import { api } from '@/services/api';
+import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 
 import type { components } from '@/types/api';
 import { getParticipantOptions } from '@/utils/headers';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
-type ApiResponseSubmitBurstGameTapResponse =
-  components['schemas']['ApiResponseSubmitBurstGameTapResponse'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
 type ApiResponseRealtimePartyNextActionResult =
   components['schemas']['ApiResponseRealtimePartyNextActionResult'];
@@ -112,104 +112,168 @@ export function useAdvancePhase() {
   });
 }
 
-// ── SSE ──
+// ── WebSocket ──
 
-export interface SSEEvent {
+const wsBrokerUrl = `${config.apiBaseUrl.replace(/^http/, 'ws')}/ws`;
+
+export interface WebSocketEvent {
   event: string;
   data: string;
 }
 
 export interface ConnectRealtimePartyParams {
+  partyId: string;
   inviteToken: string;
   nickname: string;
   characterId?: number | null;
   participantToken?: string | null;
 }
 
-export function connectRealtimeParty(
-  params: ConnectRealtimePartyParams,
-  onEvent: (event: SSEEvent) => void,
-  signal: AbortSignal,
-): Promise<void> {
-  const { inviteToken, nickname, characterId, participantToken } = params;
-  const accessToken = useAuthStore.getState().accessToken;
+// 입장 후 다른 액션(채팅 전송/촛불끄기/박터뜨리기/폭죽/퇴장)이 같은 연결로 publish할 수 있도록 공유
+let activeClient: Client | null = null;
 
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+function publishPartyAction(destination: string, body: Record<string, unknown>) {
+  if (!activeClient?.connected) {
+    throw new Error('WebSocket이 연결되어 있지 않습니다.');
+  }
 
-  return fetch(
-    `${config.apiBaseUrl}/api/v1/party-invites/${inviteToken}/realtime-participants/stream`,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        nickname,
-        ...(characterId != null ? { characterId } : {}),
-        ...(participantToken ? { participantToken } : {}),
-      }),
-      signal,
-    },
-  ).then(async (response) => {
-    if (!response.ok || !response.body) {
-      const err = new Error(response.statusText);
-      (err as Error & { status: number }).status = response.status;
-      throw err;
-    }
+  const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      if (signal.aborted) break;
-
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const { events, remaining } = parseSSEBuffer(buffer);
-      buffer = remaining;
-
-      for (const sseEvent of events) {
-        if (signal.aborted) break;
-        onEvent(sseEvent);
-      }
-    }
+  activeClient.publish({
+    destination,
+    body: JSON.stringify({
+      ...body,
+      ...(participantToken ? { participantToken } : {}),
+      clientRequestId: crypto.randomUUID(),
+    }),
   });
 }
 
-function parseSSEBuffer(buffer: string): { events: SSEEvent[]; remaining: string } {
-  const events: SSEEvent[] = [];
-  const parts = buffer.split(/\r?\n\r?\n/);
+function parseWebSocketFrame(body: string): { event: string; data: unknown } | null {
+  try {
+    return JSON.parse(body) as { event: string; data: unknown };
+  } catch (err) {
+    console.error('[WS] 프레임 파싱 실패', err);
+    return null;
+  }
+}
 
-  for (let i = 0; i < parts.length - 1; i++) {
-    const block = parts[i].trim();
-    if (!block) continue;
+export function connectRealtimeParty(
+  params: ConnectRealtimePartyParams,
+  onEvent: (event: WebSocketEvent) => void,
+  signal: AbortSignal,
+): Promise<void> {
+  const { partyId, inviteToken, nickname, characterId, participantToken } = params;
+  const accessToken = useAuthStore.getState().accessToken;
 
-    let event = 'message';
-    let data = '';
-
-    for (const line of block.split(/\r?\n/)) {
-      if (line.startsWith('event:')) event = line.slice(6).trim();
-      else if (line.startsWith('data:')) data += line.slice(5).trim();
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      resolve();
+      return;
     }
 
-    if (data) events.push({ event, data });
-  }
+    let settled = false;
 
-  return { events, remaining: parts[parts.length - 1] };
+    const client = new Client({
+      brokerURL: wsBrokerUrl,
+      connectHeaders: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      onConnect: () => {
+        const clientRequestId = crypto.randomUUID();
+        let broadcastSubscribed = false;
+
+        client.subscribe(
+          `/topic/parties/${partyId}/personal/${clientRequestId}`,
+          (message: IMessage) => {
+            const parsed = parseWebSocketFrame(message.body);
+            if (!parsed) return;
+
+            const { event, data } = parsed;
+            onEvent({ event, data: JSON.stringify(data) });
+
+            if (event === 'entered') {
+              if (!settled) {
+                settled = true;
+                resolve();
+              }
+
+              if (!broadcastSubscribed) {
+                broadcastSubscribed = true;
+                client.subscribe(`/topic/parties/${partyId}`, (broadcast: IMessage) => {
+                  const parsedBroadcast = parseWebSocketFrame(broadcast.body);
+                  if (!parsedBroadcast) return;
+
+                  onEvent({
+                    event: parsedBroadcast.event,
+                    data: JSON.stringify(parsedBroadcast.data),
+                  });
+                });
+              }
+            }
+          },
+        );
+
+        client.subscribe(`/topic/errors/${clientRequestId}`, (message: IMessage) => {
+          const parsed = parseWebSocketFrame(message.body);
+          if (!parsed) return;
+
+          const { data } = parsed as { data: { code: string; message: string } };
+
+          if (!settled) {
+            settled = true;
+            const err = new Error(data.message);
+            (err as Error & { status?: number }).status =
+              data.code === 'PARTY_NICKNAME_DUPLICATED' ? 409 : undefined;
+            reject(err);
+          }
+        });
+
+        const currentParticipantToken =
+          sessionStorage.getItem(PARTICIPANT_TOKEN_KEY) ?? participantToken;
+
+        client.publish({
+          destination: `/app/party-invites/${inviteToken}/realtime-participants`,
+          body: JSON.stringify({
+            nickname,
+            ...(characterId != null ? { characterId } : {}),
+            ...(currentParticipantToken ? { participantToken: currentParticipantToken } : {}),
+            clientRequestId,
+          }),
+        });
+      },
+      onStompError: (frame) => {
+        if (!settled) {
+          settled = true;
+          reject(new Error(frame.headers?.message ?? 'STOMP 연결 에러'));
+        }
+      },
+    });
+
+    signal.addEventListener('abort', () => {
+      if (activeClient === client) {
+        activeClient = null;
+      }
+      client.deactivate();
+      if (!settled) {
+        settled = true;
+        resolve();
+      }
+    });
+
+    activeClient = client;
+    client.activate();
+  });
 }
 
 // ── 채팅 메시지 전송 ──
 
 export function useSendChatMessage() {
   return useMutation({
-    mutationFn: ({ partyId, content }: { partyId: string; content: string }) =>
-      api.post<components['schemas']['ApiResponseChatMessageResponse']>(
-        `/api/v1/parties/${partyId}/chat-messages`,
-        { content },
-        getParticipantOptions(),
-      ),
+    mutationFn: async ({ partyId, content }: { partyId: string; content: string }) => {
+      publishPartyAction(`/app/parties/${partyId}/chat-messages`, { content });
+    },
   });
 }
 
@@ -255,12 +319,9 @@ export function useGetCandleBlowState(partyId: string | undefined) {
 
 export function useBlowCandle() {
   return useMutation({
-    mutationFn: ({ partyId, candleId }: { partyId: string; candleId: number }) =>
-      api.post<components['schemas']['ApiResponseCandleBlowResponse']>(
-        `/api/v1/parties/${partyId}/candle-blow/candles/${candleId}`,
-        undefined,
-        getParticipantOptions(),
-      ),
+    mutationFn: async ({ partyId, candleId }: { partyId: string; candleId: number }) => {
+      publishPartyAction(`/app/parties/${partyId}/candle-blow/candles/${candleId}`, {});
+    },
   });
 }
 
@@ -283,19 +344,9 @@ export function useGetBurstGameState(
 
 export function useSubmitBurstGameTaps() {
   return useMutation({
-    mutationFn: ({
-      partyId,
-      body,
-    }: {
-      partyId: string;
-      body: SubmitBurstGameTapRequest;
-      participantToken?: string | null;
-    }) =>
-      api.post<ApiResponseSubmitBurstGameTapResponse>(
-        `/api/v1/parties/${partyId}/burst-game/taps`,
-        body,
-        getParticipantOptions(),
-      ),
+    mutationFn: async ({ partyId, body }: { partyId: string; body: SubmitBurstGameTapRequest }) => {
+      publishPartyAction(`/app/parties/${partyId}/burst-game/taps`, body);
+    },
   });
 }
 
@@ -303,8 +354,9 @@ export function useSubmitBurstGameTaps() {
 
 export function useTriggerFireworks() {
   return useMutation({
-    mutationFn: ({ partyId }: { partyId: string }) =>
-      api.post<void>(`/api/v1/parties/${partyId}/fireworks`, undefined, getParticipantOptions()),
+    mutationFn: async ({ partyId }: { partyId: string }) => {
+      publishPartyAction(`/app/parties/${partyId}/fireworks`, {});
+    },
   });
 }
 
@@ -312,7 +364,8 @@ export function useTriggerFireworks() {
 
 export function useLeaveParty() {
   return useMutation({
-    mutationFn: ({ partyId }: { partyId: string }) =>
-      api.delete<void>(`/api/v1/parties/${partyId}/realtime-participants`, getParticipantOptions()),
+    mutationFn: async ({ partyId }: { partyId: string }) => {
+      publishPartyAction(`/app/parties/${partyId}/leave`, {});
+    },
   });
 }

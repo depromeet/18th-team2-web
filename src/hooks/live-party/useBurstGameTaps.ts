@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useSubmitBurstGameTaps } from '@/services/live-party';
 
 const TAP_BATCH_INTERVAL_MS = 250;
@@ -38,7 +37,6 @@ export function useBurstGameTaps() {
         tapCount,
         clientSequence: clientSequenceRef.current,
       },
-      participantToken: sessionStorage.getItem(PARTICIPANT_TOKEN_KEY),
     });
 
     clientSequenceRef.current += 1;

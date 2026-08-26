@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import characterBlueThumb from '@/assets/images/character/character-blue-circle-thumbnail.png';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useBurstGameTaps } from '@/hooks/live-party/useBurstGameTaps';
-import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
+import type { BurstGameState } from '@/hooks/live-party/useLivePartyWebSocket';
 import { useGetBurstGameState } from '@/services/live-party';
 import { resolveImageUrl } from '@/utils/image';
 

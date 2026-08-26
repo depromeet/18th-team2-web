@@ -17,7 +17,7 @@ import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
-import { useLivePartySSE } from '@/hooks/live-party/useLivePartySSE';
+import { useLivePartyWebSocket } from '@/hooks/live-party/useLivePartyWebSocket';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import {
   CANDLES,
@@ -94,9 +94,9 @@ export default function LivePartyPage() {
     currentPhaseStartedAt,
     currentPhaseServerNow,
     hasParticipantToken,
-    sseError,
+    wsError,
     nicknameDuplicate,
-  } = useLivePartySSE();
+  } = useLivePartyWebSocket();
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
@@ -147,9 +147,9 @@ export default function LivePartyPage() {
     liveStartedServerNow,
   } = useLivePartyStep({
     partyId,
-    ssePhase: currentPhase,
-    ssePhaseStartedAt: currentPhaseStartedAt,
-    sseServerNow: currentPhaseServerNow,
+    partyPhase: currentPhase,
+    partyPhaseStartedAt: currentPhaseStartedAt,
+    serverNow: currentPhaseServerNow,
     isPartyEnded,
     enabled: canFetch,
   });
@@ -385,7 +385,7 @@ export default function LivePartyPage() {
     refetchInterval: showEntryReadyUI ? 3000 : undefined,
   });
 
-  if (sseError || isPhaseError) {
+  if (wsError || isPhaseError) {
     return (
       <ErrorView
         variant="retry"
