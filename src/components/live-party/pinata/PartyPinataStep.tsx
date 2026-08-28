@@ -60,10 +60,7 @@ function PinataResultRankingRow({ ranking, className = '' }: PinataResultRanking
   );
 }
 
-export function PartyPinataStep({
-  onReturnToPartyRoom,
-  onProcessComplete,
-}: PartyPinataStepProps) {
+export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: PartyPinataStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
   const resultScrollRef = useRef<HTMLDivElement | null>(null);
   const myRankingRowRef = useRef<HTMLDivElement | null>(null);

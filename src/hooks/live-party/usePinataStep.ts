@@ -5,7 +5,10 @@ import characterBlueThumb from '@/assets/images/character/character-blue-circle-
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useBurstGameTaps } from '@/hooks/live-party/useBurstGameTaps';
 import { useGetBurstGameState } from '@/services/live-party';
-import { type BurstGameState, useLivePartyBurstGameStore } from '@/stores/useLivePartyBurstGameStore';
+import {
+  type BurstGameState,
+  useLivePartyBurstGameStore,
+} from '@/stores/useLivePartyBurstGameStore';
 import { resolveImageUrl } from '@/utils/image';
 
 export const PINATA_DURATION_SECONDS = 20;
