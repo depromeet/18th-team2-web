@@ -67,7 +67,7 @@ export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
       }`}
       onClick={handleClick}
     >
-      <div className="relative mx-auto h-full w-full max-w-[600px]">
+      <div className="relative mx-auto h-full w-full max-w-150">
         <div
           className={`absolute inset-0 z-1 bg-black transition-opacity duration-500 ${
             isLastStep ? 'opacity-0' : 'opacity-50'

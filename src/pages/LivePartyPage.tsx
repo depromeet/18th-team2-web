@@ -499,7 +499,7 @@ export default function LivePartyPage() {
           <Button
             type="button"
             size="md"
-            className="h-[46px] w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-[22px] shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
+            className="h-11.5 w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-5.5 shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
             onClick={handleStartPartyEnding}
             disabled={isStartingPartyEnding}
           >
