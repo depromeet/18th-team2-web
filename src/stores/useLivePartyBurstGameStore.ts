@@ -22,6 +22,7 @@ function shouldUpdateBurstGameState(
 interface LivePartyBurstGameState {
   burstGameState: BurstGameState | null;
   updateBurstGameState: (parsed: Record<string, unknown>, isEnded: boolean) => void;
+  reset: () => void;
 }
 
 export const useLivePartyBurstGameStore = create<LivePartyBurstGameState>()(
@@ -59,6 +60,8 @@ export const useLivePartyBurstGameStore = create<LivePartyBurstGameState>()(
           'updateBurstGameState',
         );
       },
+
+      reset: () => set({ burstGameState: null }, false, 'reset'),
     }),
     { name: 'LivePartyBurstGameStore' },
   ),

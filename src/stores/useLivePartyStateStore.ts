@@ -51,20 +51,27 @@ interface LivePartyState {
   startPartyEnding: (payload: Omit<RealtimePartyEndingState, 'ended'>) => void;
   endParty: (payload: Omit<RealtimePartyEndingState, 'ended' | 'endingStartedAt'>) => void;
   setPartyState: (payload: PartyStatePayload) => void;
+  reset: () => void;
 }
+
+const initialState = {
+  hasParticipantToken: false,
+  wsError: false,
+  nicknameDuplicate: false,
+  currentPhase: null,
+  currentPhaseStartedAt: null,
+  currentPhaseServerNow: null,
+  partyEndingState: null,
+  liveStartAt: null,
+  status: null,
+} as const;
 
 export const useLivePartyStateStore = create<LivePartyState>()(
   devtools(
     (set) => ({
-      hasParticipantToken: false,
-      wsError: false,
-      nicknameDuplicate: false,
-      currentPhase: null,
-      currentPhaseStartedAt: null,
-      currentPhaseServerNow: null,
-      partyEndingState: null,
-      liveStartAt: null,
-      status: null,
+      ...initialState,
+
+      reset: () => set({ ...initialState }, false, 'reset'),
 
       setHasParticipantToken: (value) =>
         set({ hasParticipantToken: value }, false, 'setHasParticipantToken'),

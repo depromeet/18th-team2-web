@@ -25,12 +25,15 @@ interface LivePartyChatState {
   appendChatMessage: (raw: Record<string, unknown>) => void;
   appendEntryMessage: (userName: string) => void;
   appendExitMessage: (userName: string) => void;
+  reset: () => void;
 }
 
 export const useLivePartyChatStore = create<LivePartyChatState>()(
   devtools(
     (set) => ({
       messages: [],
+
+      reset: () => set({ messages: [] }, false, 'reset'),
 
       setInitialMessages: (rawMessages) =>
         set(

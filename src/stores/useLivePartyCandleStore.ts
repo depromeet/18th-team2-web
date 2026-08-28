@@ -9,6 +9,7 @@ export type CandleBlowState = components['schemas']['CandleBlowResponse'];
 interface LivePartyCandleState {
   candleBlowState: CandleBlowState | null;
   setCandleBlowState: (state: CandleBlowState) => void;
+  reset: () => void;
 }
 
 export const useLivePartyCandleStore = create<LivePartyCandleState>()(
@@ -17,6 +18,8 @@ export const useLivePartyCandleStore = create<LivePartyCandleState>()(
       candleBlowState: null,
 
       setCandleBlowState: (state) => set({ candleBlowState: state }, false, 'setCandleBlowState'),
+
+      reset: () => set({ candleBlowState: null }, false, 'reset'),
     }),
     { name: 'LivePartyCandleStore' },
   ),

@@ -7,8 +7,11 @@ import { PARTICIPANT_TOKEN_KEY, WS_ERROR_MESSAGE, WS_EVENT } from '@/constants/l
 import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 import { applyChatWsEvent, useLivePartyChatStore } from '@/stores/useLivePartyChatStore';
-import { applyCandleWsEvent } from '@/stores/useLivePartyCandleStore';
-import { applyBurstGameWsEvent } from '@/stores/useLivePartyBurstGameStore';
+import { applyCandleWsEvent, useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
+import {
+  applyBurstGameWsEvent,
+  useLivePartyBurstGameStore,
+} from '@/stores/useLivePartyBurstGameStore';
 import { applyPartyStateWsEvent, useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 
 export function useLivePartyConnection() {
@@ -41,6 +44,13 @@ export function useLivePartyConnection() {
     if (!inviteToken || !nickname) {
       return;
     }
+
+    // 파티 전환 시 이전 파티의 잔여 상태(종료 플래그, participantToken 등)가
+    // 새 파티로 새어 들어가지 않도록 연결 시작 시점에 전부 초기화한다.
+    useLivePartyChatStore.getState().reset();
+    useLivePartyCandleStore.getState().reset();
+    useLivePartyBurstGameStore.getState().reset();
+    useLivePartyStateStore.getState().reset();
 
     const controller = new AbortController();
 
