@@ -17,26 +17,12 @@ type ApiResponseRealtimePartyNextActionResult =
 
 export type PartyApiPhase = components['schemas']['PartyPhaseResult']['phase'];
 
-export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
 export type RealtimePartyNextActionResult = components['schemas']['RealtimePartyNextActionResult'];
 export type PartyParticipantsResult = components['schemas']['PartyParticipantsResponse'];
 export type PartyParticipantResult = components['schemas']['PartyParticipantResponse'];
 
 export const realtimePartyQueries = {
-  state: (partyId: string) =>
-    queryOptions({
-      queryKey: ['realtime-party-state', partyId],
-      queryFn: async () => {
-        const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
-          `/api/v1/parties/${partyId}/realtime-state`,
-          getParticipantOptions(),
-        );
-        return res.data ?? null;
-      },
-      enabled: Boolean(partyId),
-      refetchInterval: 3000,
-    }),
   nextAction: (partyId: string, participantToken?: string | null, enabled = true) =>
     queryOptions({
       queryKey: ['realtime-party-next-action', partyId, participantToken],
@@ -50,10 +36,6 @@ export const realtimePartyQueries = {
       enabled: Boolean(partyId) && enabled,
     }),
 };
-
-export function useRealtimePartyState(partyId: string, enabled = true) {
-  return useQuery({ ...realtimePartyQueries.state(partyId), enabled: Boolean(partyId) && enabled });
-}
 
 export function useRealtimePartyNextAction(
   partyId: string,

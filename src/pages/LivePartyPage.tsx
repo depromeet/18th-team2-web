@@ -129,7 +129,7 @@ export default function LivePartyPage() {
   );
   const isHost = profile?.isHost ?? false;
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
-  const hostGate = useHostLivePartyGate(partyId, isHost, canFetch);
+  const hostGate = useHostLivePartyGate(partyId, isHost);
 
   const isPartyEnded = Boolean(partyEndingState?.ended);
 
@@ -240,7 +240,7 @@ export default function LivePartyPage() {
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
-  const endingReason = partyEndingState?.endingReason ?? hostGate.state?.endingReason;
+  const endingReason = partyEndingState?.endingReason;
   const shouldShowAutoEndedSheet =
     hostGate.isEnded && Boolean(endingReason) && endingReason !== 'HOST_REQUEST';
 

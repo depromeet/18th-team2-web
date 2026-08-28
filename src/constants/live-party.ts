@@ -153,6 +153,7 @@ export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 /** WebSocket 이벤트 이름 */
 export const WS_EVENT = {
   ENTERED: 'entered',
+  PARTY_STATE: 'party-state',
   MESSAGE: 'message',
   USER_ENTERED: 'user-entered',
   USER_LEFT: 'user-left',
