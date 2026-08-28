@@ -3,3 +3,7 @@
 
 declare module 'swiper/css';
 declare module 'swiper/css/pagination';
+
+interface ImportMetaEnv {
+  readonly VITE_GA_MEASUREMENT_ID?: string;
+}
