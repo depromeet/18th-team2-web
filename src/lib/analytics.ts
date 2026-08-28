@@ -12,8 +12,9 @@ declare global {
   }
 }
 
-const canUseClarity = () => import.meta.env.PROD && Boolean(config.clarityProjectId);
-const canUseGA = () => import.meta.env.PROD && Boolean(config.gaMeasurementId);
+const isProductionAnalyticsEnabled = () => import.meta.env.PROD && config.appEnv === 'production';
+const canUseClarity = () => isProductionAnalyticsEnabled() && Boolean(config.clarityProjectId);
+const canUseGA = () => isProductionAnalyticsEnabled() && Boolean(config.gaMeasurementId);
 
 export const initClarity = () => {
   if (!canUseClarity() || window.clarity) return;
@@ -47,12 +48,12 @@ export const initGA = () => {
   window.gtag('config', config.gaMeasurementId, { send_page_view: false });
 };
 
-export const trackPageView = (pagePath: string) => {
+export const trackPageView = (pagePath: string, pageLocation: string) => {
   if (!canUseGA() || !window.gtag) return;
 
   window.gtag('event', 'page_view', {
     page_path: pagePath,
-    page_location: window.location.href,
+    page_location: pageLocation,
     page_title: document.title,
   });
 };

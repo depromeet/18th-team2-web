@@ -52,14 +52,23 @@ initClarity();
 initGA();
 
 let lastTrackedPath = '';
+const getAnalyticsLocation = () => {
+  const { origin } = window.location;
+  const { pathname } = router.state.location;
+
+  return {
+    pagePath: pathname,
+    pageLocation: `${origin}${pathname}`,
+  };
+};
+
 const trackCurrentPage = () => {
-  const { pathname, search } = router.state.location;
-  const pagePath = `${pathname}${search}`;
+  const { pagePath, pageLocation } = getAnalyticsLocation();
 
   if (pagePath === lastTrackedPath) return;
 
   lastTrackedPath = pagePath;
-  trackPageView(pagePath);
+  trackPageView(pagePath, pageLocation);
 };
 
 trackCurrentPage();
