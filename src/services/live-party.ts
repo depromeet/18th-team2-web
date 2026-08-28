@@ -36,20 +36,6 @@ export const realtimePartyQueries = {
       enabled: Boolean(partyId),
       refetchInterval: 3000,
     }),
-
-  participants: (partyId: string, enabled = true) =>
-    queryOptions({
-      queryKey: ['party-participants', partyId],
-      queryFn: async () => {
-        const res = await api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
-          `/api/v1/parties/${partyId}/participants`,
-          getParticipantOptions(),
-        );
-        return res.data ?? null;
-      },
-      enabled: Boolean(partyId) && enabled,
-      refetchInterval: 3000,
-    }),
   nextAction: (partyId: string, participantToken?: string | null, enabled = true) =>
     queryOptions({
       queryKey: ['realtime-party-next-action', partyId, participantToken],
