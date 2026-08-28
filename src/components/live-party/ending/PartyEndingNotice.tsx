@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Lottie from 'lottie-react';
 
 import { B1 } from '@/components/ui/Typography';
@@ -23,12 +23,26 @@ function getTitleMessage({ endingReason, hostNickname }: RealtimePartyEndingStat
   return '파티가 모두 끝났어요!';
 }
 
-function getRemainingSeconds({ endedAt, endingStartedAt }: RealtimePartyEndingState) {
+function getServerClockOffset(serverNow?: string | null) {
+  if (!serverNow) return null;
+
+  const serverNowTime = parseKstDateTime(serverNow);
+  if (!serverNowTime.isValid()) return null;
+
+  return Date.now() - serverNowTime.valueOf();
+}
+
+function getRemainingSeconds(
+  { endedAt, endingStartedAt }: RealtimePartyEndingState,
+  serverClockOffsetMs = 0,
+) {
+  const nowOnServer = Date.now() - serverClockOffsetMs;
+
   if (endedAt) {
     const endTime = parseKstDateTime(endedAt);
 
     if (endTime.isValid()) {
-      return Math.max(0, Math.ceil((endTime.valueOf() - Date.now()) / 1000));
+      return Math.max(0, Math.ceil((endTime.valueOf() - nowOnServer) / 1000));
     }
   }
 
@@ -36,7 +50,7 @@ function getRemainingSeconds({ endedAt, endingStartedAt }: RealtimePartyEndingSt
     const startTime = parseKstDateTime(endingStartedAt);
 
     if (startTime.isValid()) {
-      const elapsedSeconds = Math.floor((Date.now() - startTime.valueOf()) / 1000);
+      const elapsedSeconds = Math.floor((nowOnServer - startTime.valueOf()) / 1000);
       return Math.max(0, FALLBACK_REMAINING_SECONDS - elapsedSeconds);
     }
   }
@@ -46,22 +60,29 @@ function getRemainingSeconds({ endedAt, endingStartedAt }: RealtimePartyEndingSt
 
 export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) {
   const isHostLeft = partyEndingState.endingReason === 'HOST_LEFT';
+  const serverClockOffsetMs = useMemo(
+    () => getServerClockOffset(partyEndingState.serverNow) ?? 0,
+    [partyEndingState.serverNow],
+  );
+  const serverClockOffsetRef = useRef(serverClockOffsetMs);
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
-    getRemainingSeconds(partyEndingState),
+    getRemainingSeconds(partyEndingState, serverClockOffsetMs),
   );
   const [noticeStep, setNoticeStep] = useState<NoticeStep>(() =>
-    getRemainingSeconds(partyEndingState) <= 55 ? 'countdown' : 'title',
+    getRemainingSeconds(partyEndingState, serverClockOffsetMs) <= 55 ? 'countdown' : 'title',
   );
 
   useEffect(() => {
-    setRemainingSeconds(getRemainingSeconds(partyEndingState));
+    serverClockOffsetRef.current = serverClockOffsetMs;
+
+    setRemainingSeconds(getRemainingSeconds(partyEndingState, serverClockOffsetMs));
 
     const intervalId = window.setInterval(() => {
-      setRemainingSeconds(getRemainingSeconds(partyEndingState));
+      setRemainingSeconds(getRemainingSeconds(partyEndingState, serverClockOffsetRef.current));
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [partyEndingState]);
+  }, [partyEndingState, serverClockOffsetMs]);
 
   useEffect(() => {
     if (noticeStep === 'countdown') {

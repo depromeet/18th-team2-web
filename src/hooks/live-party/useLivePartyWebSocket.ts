@@ -26,6 +26,7 @@ export interface RealtimePartyEndingState {
   endedAt?: string;
   endingReason?: PartyEndingReason;
   hostNickname?: string;
+  serverNow?: string;
   ended: boolean;
 }
 
@@ -262,6 +263,7 @@ export function useLivePartyWebSocket() {
                 endedAt: parsed.endedAt as string | undefined,
                 endingReason: parsed.endingReason as PartyEndingReason | undefined,
                 hostNickname: parsed.hostNickname as string | undefined,
+                serverNow: parsed.serverNow as string | undefined,
                 ended: false,
               });
 
@@ -277,6 +279,7 @@ export function useLivePartyWebSocket() {
                 endingReason:
                   (parsed.endingReason as PartyEndingReason | undefined) ?? prev?.endingReason,
                 hostNickname: (parsed.hostNickname as string | undefined) ?? prev?.hostNickname,
+                serverNow: (parsed.serverNow as string | undefined) ?? prev?.serverNow,
                 ended: true,
               }));
 

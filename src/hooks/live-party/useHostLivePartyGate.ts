@@ -9,28 +9,38 @@ import { parseKstDateTime } from '@/utils/date';
 
 const AUTO_END_SECONDS = 60;
 
-function getRemainingEndSeconds(endingStartedAt?: string | null) {
+function getServerClockOffset(serverNow?: string | null) {
+  if (!serverNow) return null;
+
+  const serverNowTime = parseKstDateTime(serverNow);
+  if (!serverNowTime.isValid()) return null;
+
+  return Date.now() - serverNowTime.valueOf();
+}
+
+function getRemainingEndSeconds(endingStartedAt?: string | null, serverClockOffsetMs = 0) {
   if (!endingStartedAt) return AUTO_END_SECONDS;
 
   const startedAt = parseKstDateTime(endingStartedAt);
   if (!startedAt.isValid()) return AUTO_END_SECONDS;
 
-  const elapsedSeconds = Math.floor((Date.now() - startedAt.valueOf()) / 1000);
+  const nowOnServer = Date.now() - serverClockOffsetMs;
+  const elapsedSeconds = Math.floor((nowOnServer - startedAt.valueOf()) / 1000);
   return Math.max(0, AUTO_END_SECONDS - elapsedSeconds);
 }
 
-function hasLiveStarted(liveStartAt?: string | null) {
+function hasLiveStarted(liveStartAt?: string | null, serverClockOffsetMs = 0) {
   if (!liveStartAt) return false;
   const startAt = parseKstDateTime(liveStartAt);
-  return startAt.isValid() && startAt.valueOf() <= Date.now();
+  return startAt.isValid() && startAt.valueOf() <= Date.now() - serverClockOffsetMs;
 }
 
-function hasLiveEnded(status?: string | null, endedAt?: string | null) {
+function hasLiveEnded(status?: string | null, endedAt?: string | null, serverClockOffsetMs = 0) {
   if (status === 'LIVE_CLOSED') return true;
   if (!endedAt) return false;
 
   const endAt = parseKstDateTime(endedAt);
-  return endAt.isValid() && endAt.valueOf() <= Date.now();
+  return endAt.isValid() && endAt.valueOf() <= Date.now() - serverClockOffsetMs;
 }
 
 export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch = true) {
@@ -48,31 +58,36 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
   const celebrant = participants.find((participant) => participant.isCelebrant);
   const guestCount = participants.filter((participant) => !participant.isCelebrant).length;
   const hasGuest = guestCount > 0;
-  const started = hasLiveStarted(state?.liveStartAt);
   const endingStartedAt = state?.endingStartedAt ?? startedEnd?.endingStartedAt ?? null;
-  const hasEnded = hasLiveEnded(state?.status, state?.endedAt);
+  const serverNow = state?.serverNow ?? startedEnd?.serverNow ?? null;
+  const serverClockOffsetMs = useMemo(() => getServerClockOffset(serverNow) ?? 0, [serverNow]);
 
   // 게스트가 한 번이라도 입장했는지 추적 — 입장 전 LIVE_ENDING 전환 방지
   const hadGuestsRef = useRef(false);
+  const serverClockOffsetRef = useRef(serverClockOffsetMs);
 
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
-    getRemainingEndSeconds(endingStartedAt),
+    getRemainingEndSeconds(endingStartedAt, serverClockOffsetMs),
   );
+  const started = hasLiveStarted(state?.liveStartAt, serverClockOffsetMs);
+  const hasEnded = hasLiveEnded(state?.status, state?.endedAt, serverClockOffsetMs);
 
   useEffect(() => {
     if (hasGuest) hadGuestsRef.current = true;
   }, [hasGuest]);
 
   useEffect(() => {
-    setRemainingSeconds(getRemainingEndSeconds(endingStartedAt));
+    serverClockOffsetRef.current = serverClockOffsetMs;
+
+    setRemainingSeconds(getRemainingEndSeconds(endingStartedAt, serverClockOffsetMs));
     if (!endingStartedAt) return;
 
     const id = window.setInterval(() => {
-      setRemainingSeconds(getRemainingEndSeconds(endingStartedAt));
+      setRemainingSeconds(getRemainingEndSeconds(endingStartedAt, serverClockOffsetRef.current));
     }, 1000);
 
     return () => window.clearInterval(id);
-  }, [endingStartedAt]);
+  }, [endingStartedAt, serverClockOffsetMs]);
 
   useEffect(() => {
     if (
