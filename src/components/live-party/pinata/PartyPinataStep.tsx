@@ -15,7 +15,7 @@ import {
   RANK_ROW_GAP,
   usePinataStep,
 } from '@/hooks/live-party/usePinataStep';
-import type { BurstGameState } from '@/hooks/live-party/useLivePartySSE';
+import type { BurstGameState } from '@/hooks/live-party/useLivePartyWebSocket';
 
 const PODIUM_STYLES = {
   1: { color: '#FFDA85', crown: crownGoldIcon },

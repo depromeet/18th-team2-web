@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 
 import { ApiError } from '@/services/api';
+import { initClarity, initGA, trackPageView } from '@/lib/analytics';
+import { router } from '@/router';
 import App from './App';
 import './index.css';
 
@@ -45,6 +47,32 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+initClarity();
+initGA();
+
+let lastTrackedPath = '';
+const getAnalyticsLocation = () => {
+  const { origin } = window.location;
+  const { pathname } = router.state.location;
+
+  return {
+    pagePath: pathname,
+    pageLocation: `${origin}${pathname}`,
+  };
+};
+
+const trackCurrentPage = () => {
+  const { pagePath, pageLocation } = getAnalyticsLocation();
+
+  if (pagePath === lastTrackedPath) return;
+
+  lastTrackedPath = pagePath;
+  trackPageView(pagePath, pageLocation);
+};
+
+trackCurrentPage();
+router.subscribe(trackCurrentPage);
 
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
