@@ -47,7 +47,7 @@ export const useLivePartyBurstGameStore = create<LivePartyBurstGameState>()(
               endsAt: (parsed.endsAt as string | undefined) ?? prev?.endsAt,
               totalTapCount: (parsed.totalTapCount as number | undefined) ?? prev?.totalTapCount,
               myTapCount: (parsed.myTapCount as number | undefined) ?? prev?.myTapCount,
-              stateVersion: nextStateVersion,
+              stateVersion: nextStateVersion ?? prev?.stateVersion,
               serverTime: (parsed.serverTime as string | undefined) ?? prev?.serverTime,
               remainingSeconds:
                 (parsed.remainingSeconds as number | undefined) ?? prev?.remainingSeconds,
