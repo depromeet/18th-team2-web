@@ -17,7 +17,10 @@ import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
-import { useLivePartyWebSocket } from '@/hooks/live-party/useLivePartyWebSocket';
+import { useLivePartyConnection } from '@/hooks/live-party/useLivePartyConnection';
+import { useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
+import { useLivePartyBurstGameStore } from '@/stores/useLivePartyBurstGameStore';
+import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import {
   CANDLES,
@@ -84,19 +87,16 @@ export default function LivePartyPage() {
     };
   }, []);
 
-  const {
-    messages,
-    addMessage,
-    candleBlowState,
-    burstGameState,
-    partyEndingState,
-    currentPhase,
-    currentPhaseStartedAt,
-    currentPhaseServerNow,
-    hasParticipantToken,
-    wsError,
-    nicknameDuplicate,
-  } = useLivePartyWebSocket();
+  const { addMessage } = useLivePartyConnection();
+  const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
+  const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
+  const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
+  const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
+  const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
+  const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
+  const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
+  const wsError = useLivePartyStateStore((s) => s.wsError);
+  const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
@@ -470,8 +470,6 @@ export default function LivePartyPage() {
           userRole={partyEnd ? endUserRole : userRole}
           endAction={nextAction}
           endHostName={hostName}
-          candleBlowState={candleBlowState}
-          burstGameState={burstGameState}
           musicTextBottomOffset={musicTextBottomOffset}
         />
       )}
@@ -516,7 +514,6 @@ export default function LivePartyPage() {
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
         <ChatBottomSheet
-          messages={messages}
           onSend={addMessage}
           isBlurred={isPinataOverlayActive}
           isEntryWaiting={showEntryReadyUI}

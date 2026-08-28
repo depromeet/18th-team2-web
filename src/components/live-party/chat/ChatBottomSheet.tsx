@@ -5,7 +5,8 @@ import { ChatHeader } from '@/components/live-party/chat/ChatHeader';
 import { ChipList } from '@/components/live-party/chat/ChipList';
 import { ChatList } from '@/components/live-party/chat/ChatList';
 import { useViewportBottomOffset } from '@/hooks/useViewportBottomOffset';
-import { useChatBottomSheet, type ChatListItem } from '@/hooks/live-party/useChatBottomSheet';
+import { useChatBottomSheet } from '@/hooks/live-party/useChatBottomSheet';
+import { useLivePartyChatStore } from '@/stores/useLivePartyChatStore';
 
 export interface ChatBottomSheetMetrics {
   height: number;
@@ -14,7 +15,6 @@ export interface ChatBottomSheetMetrics {
 }
 
 interface ChatBottomSheetProps {
-  messages: ChatListItem[];
   onSend: (text: string) => void;
   isBlurred?: boolean;
   isEntryWaiting?: boolean;
@@ -25,7 +25,6 @@ interface ChatBottomSheetProps {
 }
 
 export function ChatBottomSheet({
-  messages,
   onSend,
   isBlurred = false,
   isEntryWaiting = false,
@@ -34,6 +33,7 @@ export function ChatBottomSheet({
   participantCount,
   maxParticipantCount,
 }: ChatBottomSheetProps) {
+  const messages = useLivePartyChatStore((s) => s.messages);
   const { height, isExpanded, handlePointerDown, toggle } = useChatBottomSheet({
     hasTopOverlayContent,
   });
