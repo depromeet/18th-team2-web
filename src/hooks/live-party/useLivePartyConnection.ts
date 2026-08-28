@@ -147,6 +147,7 @@ export function useLivePartyConnection() {
 
     return () => {
       controller.abort();
+      hasInitializedRef.current = false;
       if (wsTimeoutRef.current) {
         clearTimeout(wsTimeoutRef.current);
         wsTimeoutRef.current = null;
