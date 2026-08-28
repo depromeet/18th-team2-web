@@ -60,29 +60,26 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
   const hasGuest = guestCount > 0;
   const endingStartedAt = state?.endingStartedAt ?? startedEnd?.endingStartedAt ?? null;
   const serverNow = state?.serverNow ?? startedEnd?.serverNow ?? null;
+  const serverClockOffsetMs = useMemo(() => getServerClockOffset(serverNow) ?? 0, [serverNow]);
 
   // 게스트가 한 번이라도 입장했는지 추적 — 입장 전 LIVE_ENDING 전환 방지
   const hadGuestsRef = useRef(false);
-  const serverClockOffsetRef = useRef(0);
+  const serverClockOffsetRef = useRef(serverClockOffsetMs);
 
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
-    getRemainingEndSeconds(endingStartedAt),
+    getRemainingEndSeconds(endingStartedAt, serverClockOffsetMs),
   );
-  const started = hasLiveStarted(state?.liveStartAt, serverClockOffsetRef.current);
-  const hasEnded = hasLiveEnded(state?.status, state?.endedAt, serverClockOffsetRef.current);
+  const started = hasLiveStarted(state?.liveStartAt, serverClockOffsetMs);
+  const hasEnded = hasLiveEnded(state?.status, state?.endedAt, serverClockOffsetMs);
 
   useEffect(() => {
     if (hasGuest) hadGuestsRef.current = true;
   }, [hasGuest]);
 
   useEffect(() => {
-    const serverClockOffset = getServerClockOffset(serverNow);
+    serverClockOffsetRef.current = serverClockOffsetMs;
 
-    if (serverClockOffset != null) {
-      serverClockOffsetRef.current = serverClockOffset;
-    }
-
-    setRemainingSeconds(getRemainingEndSeconds(endingStartedAt, serverClockOffsetRef.current));
+    setRemainingSeconds(getRemainingEndSeconds(endingStartedAt, serverClockOffsetMs));
     if (!endingStartedAt) return;
 
     const id = window.setInterval(() => {
@@ -90,7 +87,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
     }, 1000);
 
     return () => window.clearInterval(id);
-  }, [endingStartedAt, serverNow]);
+  }, [endingStartedAt, serverClockOffsetMs]);
 
   useEffect(() => {
     if (

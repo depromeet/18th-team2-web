@@ -241,7 +241,8 @@ export default function LivePartyPage() {
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
   const endingReason = partyEndingState?.endingReason ?? hostGate.state?.endingReason;
-  const shouldShowAutoEndedSheet = hostGate.isEnded && endingReason !== 'HOST_REQUEST';
+  const shouldShowAutoEndedSheet =
+    hostGate.isEnded && Boolean(endingReason) && endingReason !== 'HOST_REQUEST';
 
   useEffect(() => {
     if (partyEndingState?.ended) {

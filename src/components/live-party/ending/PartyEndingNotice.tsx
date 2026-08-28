@@ -60,29 +60,29 @@ function getRemainingSeconds(
 
 export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) {
   const isHostLeft = partyEndingState.endingReason === 'HOST_LEFT';
-  const serverClockOffsetRef = useRef(0);
+  const serverClockOffsetMs = useMemo(
+    () => getServerClockOffset(partyEndingState.serverNow) ?? 0,
+    [partyEndingState.serverNow],
+  );
+  const serverClockOffsetRef = useRef(serverClockOffsetMs);
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
-    getRemainingSeconds(partyEndingState),
+    getRemainingSeconds(partyEndingState, serverClockOffsetMs),
   );
   const [noticeStep, setNoticeStep] = useState<NoticeStep>(() =>
-    getRemainingSeconds(partyEndingState) <= 55 ? 'countdown' : 'title',
+    getRemainingSeconds(partyEndingState, serverClockOffsetMs) <= 55 ? 'countdown' : 'title',
   );
 
   useEffect(() => {
-    const serverClockOffset = getServerClockOffset(partyEndingState.serverNow);
+    serverClockOffsetRef.current = serverClockOffsetMs;
 
-    if (serverClockOffset != null) {
-      serverClockOffsetRef.current = serverClockOffset;
-    }
-
-    setRemainingSeconds(getRemainingSeconds(partyEndingState, serverClockOffsetRef.current));
+    setRemainingSeconds(getRemainingSeconds(partyEndingState, serverClockOffsetMs));
 
     const intervalId = window.setInterval(() => {
       setRemainingSeconds(getRemainingSeconds(partyEndingState, serverClockOffsetRef.current));
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [partyEndingState]);
+  }, [partyEndingState, serverClockOffsetMs]);
 
   useEffect(() => {
     if (noticeStep === 'countdown') {
