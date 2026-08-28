@@ -42,7 +42,7 @@ export default function PartyEnterPage() {
               onChange={handleChangeNickname}
             />
           </article>
-          <section className="flex h-[236px] w-full flex-col items-center justify-center gap-5">
+          <section className="flex h-59 w-full flex-col items-center justify-center gap-5">
             <CharacterSelect value={selectedCharacterId} onSelect={handleSelectCharacter} />
           </section>
           <footer className="flex w-full flex-col items-center gap-2">
