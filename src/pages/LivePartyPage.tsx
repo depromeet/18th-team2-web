@@ -240,6 +240,8 @@ export default function LivePartyPage() {
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
+  const endingReason = partyEndingState?.endingReason ?? hostGate.state?.endingReason;
+  const shouldShowAutoEndedSheet = hostGate.isEnded && endingReason !== 'HOST_REQUEST';
 
   useEffect(() => {
     if (partyEndingState?.ended) {
@@ -399,7 +401,7 @@ export default function LivePartyPage() {
     return <div className="bg-blue-1000 h-svh w-full" />;
   }
 
-  if (hostGate.isEnded) {
+  if (shouldShowAutoEndedSheet) {
     return (
       <AutoEndedBottomSheet
         onCreateParty={handleCreateParty}
