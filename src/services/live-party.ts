@@ -8,6 +8,7 @@ import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import type { components } from '@/types/api';
 import { getParticipantOptions } from '@/utils/headers';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
@@ -272,6 +273,9 @@ export function useGetPartyParticipants(
     refetchInterval?: number;
   },
 ) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
+
   return useQuery({
     queryKey: ['party-participants', partyId],
     queryFn: async () => {
@@ -282,7 +286,9 @@ export function useGetPartyParticipants(
 
       return res.data ?? null;
     },
-    enabled: Boolean(partyId) && (options?.enabled ?? true),
+    // 비회원은 WS 입장(entered)으로 participantToken을 받기 전엔 /participants가 401을 반환한다.
+    enabled:
+      Boolean(partyId) && (isAuthenticated || hasParticipantToken) && (options?.enabled ?? true),
     refetchInterval: options?.refetchInterval,
   });
 }

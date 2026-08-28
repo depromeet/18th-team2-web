@@ -48,7 +48,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
   const { data: participantsData, isPending: isParticipantsPending } = useGetPartyParticipants(
     partyId,
     {
-      enabled: isHost && canFetch,
+      enabled: isHost,
     },
   );
   const { mutate: startRealtimeEnd, data: startedEnd } = useStartRealtimeEnd();

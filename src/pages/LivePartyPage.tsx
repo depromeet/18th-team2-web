@@ -384,7 +384,7 @@ export default function LivePartyPage() {
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
       : undefined;
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
-    enabled: canFetch && showPartyMain,
+    enabled: showPartyMain,
   });
 
   if (wsError || isPhaseError) {
