@@ -12,6 +12,7 @@ const getEnvVar = (key: string, required = true): string => {
 export const config = {
   apiBaseUrl: getEnvVar('VITE_API_BASE_URL'),
   appEnv: getEnvVar('VITE_APP_ENV', false) || 'development',
+  clarityProjectId: getEnvVar('VITE_CLARITY_PROJECT_ID', false),
   gaMeasurementId: getEnvVar('VITE_GA_MEASUREMENT_ID', false),
   kakaoJavascriptKey: getEnvVar('VITE_KAKAO_JAVASCRIPT_KEY', false),
 } as const;

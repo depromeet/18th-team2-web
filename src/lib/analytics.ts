@@ -1,13 +1,34 @@
 import { config } from '@/config/env';
 
+type ClarityFunction = ((...args: unknown[]) => void) & {
+  q?: unknown[][];
+};
+
 declare global {
   interface Window {
+    clarity?: ClarityFunction;
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
   }
 }
 
+const canUseClarity = () => import.meta.env.PROD && Boolean(config.clarityProjectId);
 const canUseGA = () => import.meta.env.PROD && Boolean(config.gaMeasurementId);
+
+export const initClarity = () => {
+  if (!canUseClarity() || window.clarity) return;
+
+  const clarity: ClarityFunction = (...args: unknown[]) => {
+    clarity.q = clarity.q ?? [];
+    clarity.q.push(args);
+  };
+  window.clarity = clarity;
+
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.clarity.ms/tag/${config.clarityProjectId}`;
+  document.head.appendChild(script);
+};
 
 export const initGA = () => {
   if (!canUseGA() || window.gtag) return;

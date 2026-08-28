@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 
 import { ApiError } from '@/services/api';
-import { initGA, trackPageView } from '@/lib/analytics';
+import { initClarity, initGA, trackPageView } from '@/lib/analytics';
 import { router } from '@/router';
 import App from './App';
 import './index.css';
@@ -48,6 +48,7 @@ const queryClient = new QueryClient({
   },
 });
 
+initClarity();
 initGA();
 
 let lastTrackedPath = '';
