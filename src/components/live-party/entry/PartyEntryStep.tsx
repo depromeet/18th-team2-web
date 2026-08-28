@@ -21,9 +21,7 @@ type PartyParticipant = components['schemas']['PartyParticipantResponse'];
 export function PartyEntryStep({ onComplete, isHost }: PartyEntryStepProps) {
   const { partyId = '' } = useParams();
 
-  const { data } = useGetPartyParticipants(partyId, {
-    refetchInterval: 3000,
-  });
+  const { data } = useGetPartyParticipants(partyId);
 
   const participants: PartyParticipant[] = data?.participants ?? [];
 

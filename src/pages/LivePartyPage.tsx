@@ -385,7 +385,6 @@ export default function LivePartyPage() {
       : undefined;
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
     enabled: canFetch && showPartyMain,
-    refetchInterval: showEntryReadyUI ? 3000 : undefined,
   });
 
   if (wsError || isPhaseError) {

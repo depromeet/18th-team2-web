@@ -48,7 +48,6 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean, canFetch 
   const { data: participantsData, isPending: isParticipantsPending } = useGetPartyParticipants(
     partyId,
     {
-      refetchInterval: 3000,
       enabled: isHost && canFetch,
     },
   );

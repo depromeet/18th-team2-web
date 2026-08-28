@@ -181,3 +181,8 @@ export const characterSizeStyles = {
   sm: 'w-9 h-9',
   xl: 'w-30 h-30',
 } as const;
+
+export const GET_PARTICIPANT_INTERVAL = {
+  SHORT: 3000,
+  LONG: 15000,
+} as const;
