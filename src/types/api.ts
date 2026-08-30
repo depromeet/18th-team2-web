@@ -2299,6 +2299,14 @@ export interface components {
             contextPath?: string;
             initParameterNames?: Record<string, never>;
             sessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
+            filterRegistrations?: {
+                [key: string]: components["schemas"]["FilterRegistration"];
+            };
+            sessionCookieConfig?: components["schemas"]["SessionCookieConfig"];
+            defaultSessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
+            effectiveSessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
+            jspConfigDescriptor?: components["schemas"]["JspConfigDescriptor"];
+            virtualServerName?: string;
             requestCharacterEncoding?: string;
             responseCharacterEncoding?: string;
             /** Format: int32 */
@@ -2310,14 +2318,6 @@ export interface components {
             servletRegistrations?: {
                 [key: string]: components["schemas"]["ServletRegistration"];
             };
-            filterRegistrations?: {
-                [key: string]: components["schemas"]["FilterRegistration"];
-            };
-            sessionCookieConfig?: components["schemas"]["SessionCookieConfig"];
-            defaultSessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
-            effectiveSessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
-            jspConfigDescriptor?: components["schemas"]["JspConfigDescriptor"];
-            virtualServerName?: string;
         };
         ServletRegistration: {
             mappings?: string[];
