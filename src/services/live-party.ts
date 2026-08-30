@@ -272,6 +272,7 @@ export function useGetPartyParticipants(
     enabled:
       Boolean(partyId) && (isAuthenticated || hasParticipantToken) && (options?.enabled ?? true),
     refetchInterval: options?.refetchInterval,
+    refetchOnMount: 'always',
   });
 }
 
