@@ -156,6 +156,8 @@ export function connectRealtimeParty(
         client.subscribe(
           `/topic/parties/${partyId}/personal/${clientRequestId}`,
           (message: IMessage) => {
+            if (signal.aborted) return;
+
             const parsed = parseWebSocketFrame(message.body);
             if (!parsed) return;
 
@@ -171,6 +173,8 @@ export function connectRealtimeParty(
               if (!broadcastSubscribed) {
                 broadcastSubscribed = true;
                 client.subscribe(`/topic/parties/${partyId}`, (broadcast: IMessage) => {
+                  if (signal.aborted) return;
+
                   const parsedBroadcast = parseWebSocketFrame(broadcast.body);
                   if (!parsedBroadcast) return;
 
