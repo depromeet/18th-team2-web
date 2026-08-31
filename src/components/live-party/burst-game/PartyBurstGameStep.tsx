@@ -5,16 +5,16 @@ import crownBrownIcon from '@/assets/images/icons/crown-brown.png';
 import crownGoldIcon from '@/assets/images/icons/crown-gold.png';
 import crownSilverIcon from '@/assets/images/icons/crown-silver.png';
 import clickIcon from '@/assets/images/live-party/click.png';
-import pinataFailImage from '@/assets/images/live-party/pinata-fail.png';
-import { PartyPinataOnboarding } from '@/components/live-party/pinata/PartyPinataOnboarding';
+import burstGameFailImage from '@/assets/images/live-party/burst-game-fail.png';
+import { PartyBurstGameOnboarding } from '@/components/live-party/burst-game/PartyBurstGameOnboarding';
 import { Button } from '@/components/ui/Button';
 import { CONFETTI_COLORS } from '@/constants/live-party';
 import {
   formatRank,
-  type PinataRanking,
+  type BurstGameRanking,
   RANK_ROW_GAP,
-  usePinataStep,
-} from '@/hooks/live-party/usePinataStep';
+  useBurstGameStep,
+} from '@/hooks/live-party/useBurstGameStep';
 
 const PODIUM_STYLES = {
   1: { color: '#FFDA85', crown: crownGoldIcon },
@@ -26,25 +26,25 @@ function getPodiumStyle(rank: number) {
   return PODIUM_STYLES[rank as keyof typeof PODIUM_STYLES] ?? PODIUM_STYLES[3];
 }
 
-type PinataStyleProperties = CSSProperties & {
+type BurstGameStyleProperties = CSSProperties & {
   '--rank-offset'?: string;
   '--time-progress'?: string;
 };
 
-const PINATA_SVG_SIZE = 255;
+const BURST_GAME_SVG_SIZE = 255;
 const RESULT_LIST_ANIMATION_DURATION_MS = 600;
 
-interface PartyPinataStepProps {
+interface PartyBurstGameStepProps {
   onReturnToPartyRoom?: () => void;
   onProcessComplete?: () => void;
 }
 
-interface PinataResultRankingRowProps {
-  ranking: PinataRanking;
+interface BurstGameResultRankingRowProps {
+  ranking: BurstGameRanking;
   className?: string;
 }
 
-function PinataResultRankingRow({ ranking, className = '' }: PinataResultRankingRowProps) {
+function BurstGameResultRankingRow({ ranking, className = '' }: BurstGameResultRankingRowProps) {
   return (
     <div className={`flex h-9 w-full shrink-0 items-center gap-3 text-white ${className}`}>
       <span className="text-body-1 w-5 shrink-0 font-bold">{ranking.rank}</span>
@@ -60,14 +60,14 @@ function PinataResultRankingRow({ ranking, className = '' }: PinataResultRanking
   );
 }
 
-export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: PartyPinataStepProps) {
+export function PartyBurstGameStep({ onReturnToPartyRoom, onProcessComplete }: PartyBurstGameStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
   const resultScrollRef = useRef<HTMLDivElement | null>(null);
   const myRankingRowRef = useRef<HTMLDivElement | null>(null);
   const hasNotifiedCompleteRef = useRef(false);
-  const pinataSvgId = useId().replace(/:/g, '');
-  const pinataClipId = `pinata-clip-${pinataSvgId}`;
-  const pinataGradientId = `pinata-gradient-${pinataSvgId}`;
+  const burstGameSvgId = useId().replace(/:/g, '');
+  const burstGameClipId = `burst-game-clip-${burstGameSvgId}`;
+  const burstGameGradientId = `burst-game-gradient-${burstGameSvgId}`;
   const {
     displayTapCount,
     displayRemainingSeconds,
@@ -83,14 +83,14 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
     isResultVisible,
     isResultAnimated,
     progressPercent,
-    handleTapPinata,
-  } = usePinataStep();
+    handleTapBurstGame,
+  } = useBurstGameStep();
   const [isConfettiReady, setIsConfettiReady] = useState(false);
   const [isMyRankingPreviewVisible, setIsMyRankingPreviewVisible] = useState(false);
-  const isPinataFailed = isResultVisible && totalTapCount === 0;
-  const pinataFillPercent = Math.min(displayTapCount, 100);
-  const pinataFillHeight = (PINATA_SVG_SIZE * pinataFillPercent) / 100;
-  const pinataFillY = PINATA_SVG_SIZE - pinataFillHeight;
+  const isBurstGameFailed = isResultVisible && totalTapCount === 0;
+  const burstGameFillPercent = Math.min(displayTapCount, 100);
+  const burstGameFillHeight = (BURST_GAME_SVG_SIZE * burstGameFillPercent) / 100;
+  const burstGameFillY = BURST_GAME_SVG_SIZE - burstGameFillHeight;
 
   const fireResultFireworks = useCallback(() => {
     const firework = () => {
@@ -118,10 +118,10 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
   }, []);
 
   useEffect(() => {
-    if (!isResultVisible || !isConfettiReady || isPinataFailed) return;
+    if (!isResultVisible || !isConfettiReady || isBurstGameFailed) return;
 
     return fireResultFireworks();
-  }, [fireResultFireworks, isConfettiReady, isPinataFailed, isResultVisible]);
+  }, [fireResultFireworks, isConfettiReady, isBurstGameFailed, isResultVisible]);
 
   useEffect(() => {
     if (!isResultVisible) {
@@ -170,12 +170,12 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
 
   if (shouldShowOnboarding) {
     return (
-      <PartyPinataOnboarding phase={onboardingPhase} countdownSeconds={startCountdownSeconds} />
+      <PartyBurstGameOnboarding phase={onboardingPhase} countdownSeconds={startCountdownSeconds} />
     );
   }
 
   if (isResultVisible) {
-    if (isPinataFailed) {
+    if (isBurstGameFailed) {
       return (
         <section className="pointer-events-auto absolute inset-0 z-[60] flex flex-col items-center overflow-hidden px-4 pt-[32.6svh] text-white [@media_(max-height:700px)]:pt-[24svh]">
           <div
@@ -186,7 +186,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
             <h2 className="text-head-1 text-center font-bold">박이 터지지 않았어요</h2>
 
             <img
-              src={pinataFailImage}
+              src={burstGameFailImage}
               alt=""
               aria-hidden="true"
               className="mt-7 h-[180px] w-[250px] object-contain"
@@ -210,7 +210,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
     const myRestRankingIndex = displayRestRankings.findIndex((ranking) => ranking.isMe);
     const myRestRanking = myRestRankingIndex >= 0 ? displayRestRankings[myRestRankingIndex] : null;
     const shouldShowMyRankingPreview = Boolean(myRestRanking) && isMyRankingPreviewVisible;
-    const podiumSlots: { ranking?: PinataRanking; className: string }[] = [
+    const podiumSlots: { ranking?: BurstGameRanking; className: string }[] = [
       { ranking: displayTopRankings[1], className: 'translate-y-5' },
       { ranking: displayTopRankings[0], className: '-translate-y-3' },
       { ranking: displayTopRankings[2], className: 'translate-y-5' },
@@ -309,7 +309,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
                   key={`${ranking.nickname}-${ranking.isMe ? 'me' : 'participant'}`}
                   ref={ranking.isMe ? myRankingRowRef : undefined}
                 >
-                  <PinataResultRankingRow ranking={ranking} className="px-4" />
+                  <BurstGameResultRankingRow ranking={ranking} className="px-4" />
                 </div>
               );
             })}
@@ -322,7 +322,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
               isResultAnimated ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <PinataResultRankingRow ranking={myRestRanking} />
+            <BurstGameResultRankingRow ranking={myRestRanking} />
           </div>
         )}
 
@@ -358,7 +358,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
                 key={rank}
                 className="absolute left-0 grid h-7 w-full translate-y-[var(--rank-offset)] grid-cols-[32px_1fr] items-center gap-5"
                 style={
-                  { '--rank-offset': `${(rank - 1) * RANK_ROW_GAP}px` } as PinataStyleProperties
+                  { '--rank-offset': `${(rank - 1) * RANK_ROW_GAP}px` } as BurstGameStyleProperties
                 }
               >
                 <span className="text-grey-200 text-center font-bold whitespace-nowrap">
@@ -371,7 +371,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
               <div
                 key={`${ranking.nickname}-${ranking.isMe ? 'me' : 'participant'}`}
                 className="absolute left-0 grid h-7 w-full translate-y-[var(--rank-offset)] grid-cols-[32px_1fr_42px] items-center gap-2 transition-transform duration-300 ease-out"
-                style={{ '--rank-offset': `${index * RANK_ROW_GAP}px` } as PinataStyleProperties}
+                style={{ '--rank-offset': `${index * RANK_ROW_GAP}px` } as BurstGameStyleProperties}
               >
                 <span className={ranking.rank === 1 ? 'text-blue-300' : 'text-grey-300'}>
                   {formatRank(ranking.rank)}
@@ -397,31 +397,31 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
         className={`pointer-events-auto relative mt-10 flex h-[min(68vw,255px)] w-[min(68vw,255px)] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-[600px] border text-[34px] leading-none font-bold text-white transition-transform duration-200 ease-out active:scale-[0.97] [@media_(max-height:700px)]:mt-6 [@media_(max-height:700px)]:h-[min(62vw,232px)] [@media_(max-height:700px)]:w-[min(62vw,232px)] ${
           displayTapCount === 0 ? 'border-dashed border-white/70' : 'border-transparent'
         }`}
-        onClick={handleTapPinata}
+        onClick={handleTapBurstGame}
       >
         <svg
           className="absolute inset-0 h-full w-full"
-          viewBox={`0 0 ${PINATA_SVG_SIZE} ${PINATA_SVG_SIZE}`}
+          viewBox={`0 0 ${BURST_GAME_SVG_SIZE} ${BURST_GAME_SVG_SIZE}`}
           aria-hidden="true"
         >
           <defs>
-            <clipPath id={pinataClipId}>
-              <circle cx={PINATA_SVG_SIZE / 2} cy={PINATA_SVG_SIZE / 2} r={PINATA_SVG_SIZE / 2} />
+            <clipPath id={burstGameClipId}>
+              <circle cx={BURST_GAME_SVG_SIZE / 2} cy={BURST_GAME_SVG_SIZE / 2} r={BURST_GAME_SVG_SIZE / 2} />
             </clipPath>
-            <linearGradient id={pinataGradientId} x1="0" y1="1" x2="0" y2="0">
+            <linearGradient id={burstGameGradientId} x1="0" y1="1" x2="0" y2="0">
               <stop offset="0%" stopColor="var(--color-red-500)" />
               <stop offset="100%" stopColor="var(--color-yellow-500)" />
             </linearGradient>
           </defs>
 
-          <g clipPath={`url(#${pinataClipId})`}>
-            <rect width={PINATA_SVG_SIZE} height={PINATA_SVG_SIZE} fill="var(--color-yellow-500)" />
+          <g clipPath={`url(#${burstGameClipId})`}>
+            <rect width={BURST_GAME_SVG_SIZE} height={BURST_GAME_SVG_SIZE} fill="var(--color-yellow-500)" />
             <rect
               x="0"
-              y={pinataFillY}
-              width={PINATA_SVG_SIZE}
-              height={pinataFillHeight}
-              fill={`url(#${pinataGradientId})`}
+              y={burstGameFillY}
+              width={BURST_GAME_SVG_SIZE}
+              height={burstGameFillHeight}
+              fill={`url(#${burstGameGradientId})`}
             />
           </g>
         </svg>
@@ -445,7 +445,7 @@ export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: Part
         <div className="bg-grey-500 h-1 overflow-hidden rounded-full">
           <div
             className="h-full w-[var(--time-progress)] rounded-full bg-red-600 transition-[width] duration-300"
-            style={{ '--time-progress': `${progressPercent}%` } as PinataStyleProperties}
+            style={{ '--time-progress': `${progressPercent}%` } as BurstGameStyleProperties}
           />
         </div>
         <p className="mt-4 text-center">
