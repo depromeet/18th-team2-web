@@ -1,6 +1,9 @@
 import { Button } from '@/components/ui/Button';
 
-import { PartyEntranceHint, PartyHintText } from './PartyHintText';
+import { PartyEntranceHint } from './PartyHintText';
+
+const activeInvitationButtonClassName =
+  'bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]';
 
 interface ParticipantActionsProps {
   isWithin5Minutes: boolean;
@@ -23,6 +26,7 @@ export function ParticipantActions({
     return (
       <div className="flex w-full flex-col gap-2">
         <Button
+          className={!hasWrittenRollingPaper ? activeInvitationButtonClassName : undefined}
           variant={hasWrittenRollingPaper ? 'secondary' : 'primary'}
           size="full"
           disabled={hasWrittenRollingPaper}
@@ -35,14 +39,15 @@ export function ParticipantActions({
   }
 
   if (isWithin5Minutes && canEnterParty) {
-    const hint = hasWrittenRollingPaper
-      ? '롤링페이퍼를 이미 작성했어요'
-      : '롤링페이퍼는 파티가 끝나면 작성할 수 있어요';
-
     return (
       <div className="flex w-full flex-col gap-2">
-        <PartyHintText>{hint}</PartyHintText>
-        <Button variant="primary" size="full" disabled={isJoining} onClick={onEnterParty}>
+        <Button
+          className={activeInvitationButtonClassName}
+          variant="primary"
+          size="full"
+          disabled={isJoining}
+          onClick={onEnterParty}
+        >
           {isJoining ? '참가 중...' : '생일파티 참가하기'}
         </Button>
       </div>
@@ -63,8 +68,8 @@ export function ParticipantActions({
   return (
     <div className="flex w-full flex-col gap-2">
       <PartyEntranceHint />
-      <Button variant="white-blue" size="full" onClick={onWriteRollingPaper}>
-        롤링페이퍼 미리 남기기
+      <Button variant="secondary" size="full" disabled onClick={onWriteRollingPaper}>
+        생일파티 참가하기
       </Button>
     </div>
   );

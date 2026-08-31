@@ -1,21 +1,26 @@
 import { useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 
+import defaultInvitationCharacter from '@/assets/images/character/character-blue-full.png';
+import shareIcon from '@/assets/icons/icon-share.svg';
+import trashIcon from '@/assets/icons/icon-fill-trash.svg';
 import { HostActions } from '@/components/party-invitation/HostActions';
-import { HostTitle, ParticipantTitle } from '@/components/party-invitation/InvitationTitle';
 import { InvitationCard } from '@/components/party-invitation/InvitationCard';
+import { HostTitle, ParticipantTitle } from '@/components/party-invitation/InvitationTitle';
 import { ParticipantActions } from '@/components/party-invitation/ParticipantActions';
 import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
-import { BottomActionBar } from '@/components/ui/BottomActionBar';
 import { Button } from '@/components/ui/Button';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { ROUTES } from '@/constants/routes';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
+
+const activeInvitationButtonClassName =
+  'bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]';
 
 interface PartyInvitationViewProps {
   partyId: string;
@@ -34,7 +39,6 @@ export function PartyInvitationView({
   inviteToken,
   hostName,
   startsAt,
-  endsAt,
 
   isHost,
   rollingPaperWritten,
@@ -50,6 +54,7 @@ export function PartyInvitationView({
   const { mutate: joinPartyInvite, isPending: isJoining } = useJoinPartyInvite();
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const inviteLink = `${window.location.origin}${window.location.pathname}`;
+  const canDelete = isHost && startsAt.getTime() > Date.now();
 
   function handleEnterParty() {
     const partyEnterPath = generatePath(ROUTES.partyEnter, { partyId });
@@ -94,58 +99,101 @@ export function PartyInvitationView({
     });
   }
 
+  const invitationActions =
+    isHost && partyOption === 'PAPER_ONLY' ? (
+      <div className="flex w-full flex-col gap-2">
+        <Button
+          className={activeInvitationButtonClassName}
+          variant="primary"
+          size="full"
+          onClick={handleViewRollingPaper}
+        >
+          롤링페이퍼 확인하기
+        </Button>
+        <button
+          type="button"
+          className="text-label-1 flex h-9 w-full cursor-pointer items-center justify-center font-semibold text-blue-600 underline underline-offset-2"
+          onClick={() => setIsShareSheetOpen(true)}
+        >
+          초대 링크 공유하기
+        </button>
+      </div>
+    ) : isHost ? (
+      <HostActions
+        isWithin5Minutes={isWithin5Minutes}
+        onEnterParty={handleEnterParty}
+        onShareInvite={() => setIsShareSheetOpen(true)}
+      />
+    ) : (
+      <ParticipantActions
+        isWithin5Minutes={isWithin5Minutes}
+        hasWrittenRollingPaper={hasWrittenRollingPaper}
+        canEnterParty={partyOption === 'REALTIME'}
+        isJoining={isJoining}
+        onEnterParty={handleEnterParty}
+        onWriteRollingPaper={handleWriteRollingPaper}
+      />
+    );
+
   return (
     <>
-      <main className="bg-gradient-bg flex min-h-dvh flex-col">
-        {isHost && <PageHeader />}
+      <main className="bg-gradient-bg flex min-h-dvh flex-col overflow-x-hidden">
+        <header className="mx-auto flex h-18 w-full max-w-150 items-center justify-between px-4 pt-[env(safe-area-inset-top)]">
+          <button
+            type="button"
+            aria-label="뒤로가기"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            onClick={() => navigate(-1)}
+          >
+            <ChevronLeftIcon className="h-6 w-6 text-grey-900" />
+          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 text-label-1 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+              onClick={() => setIsShareSheetOpen(true)}
+            >
+              <img src={shareIcon} alt="" aria-hidden="true" className="h-5 w-5" />
+              공유하기
+            </button>
+            {canDelete && (
+              <button
+                type="button"
+                aria-label="파티 삭제하기"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+                onClick={() => setIsDeleteDialogOpen(true)}
+              >
+                <img src={trashIcon} alt="" className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+        </header>
+
         <section
-          className={`flex flex-1 flex-col items-center gap-7 px-4 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-8 [@media_(max-height:700px)]:gap-5 ${isHost ? 'pt-4' : 'pt-[clamp(40px,10svh,64px)]'}`}
+          className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:gap-3 [@media_(max-height:740px)]:pt-2"
         >
           {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
+          <img
+            src={defaultInvitationCharacter}
+            alt=""
+            aria-hidden="true"
+            className="h-[120px] w-[120px] object-contain [@media_(max-height:740px)]:h-[96px] [@media_(max-height:740px)]:w-[96px]"
+          />
           <InvitationCard
             hostName={hostName}
             startsAt={startsAt}
-            endsAt={endsAt}
-            isHost={isHost}
             partyOption={partyOption}
-            onDeleteClick={() => setIsDeleteDialogOpen(true)}
+            isHost={isHost}
+            isWithin5Minutes={isWithin5Minutes}
+            hasWrittenRollingPaper={hasWrittenRollingPaper}
+            onWriteRollingPaper={handleWriteRollingPaper}
+            onViewRollingPaper={handleViewRollingPaper}
           />
+          <div className="mt-4 flex w-full max-w-[375px] flex-col items-center justify-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] pt-2 pb-[env(safe-area-inset-bottom)]">
+            <div className="w-full max-w-[343px]">{invitationActions}</div>
+          </div>
         </section>
-
-        <BottomActionBar
-          className="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:static [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:z-auto [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:min-h-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:bg-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:px-4 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pt-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10"
-          contentClassName="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px]"
-        >
-          {isHost && partyOption === 'PAPER_ONLY' ? (
-            <div className="flex w-full flex-col gap-2">
-              <Button variant="primary" size="full" onClick={handleViewRollingPaper}>
-                롤링페이퍼 확인하기
-              </Button>
-              <button
-                type="button"
-                className="text-label-1 flex h-9 w-full cursor-pointer items-center justify-center font-semibold text-blue-600 underline underline-offset-2"
-                onClick={() => setIsShareSheetOpen(true)}
-              >
-                초대 링크 공유하기
-              </button>
-            </div>
-          ) : isHost ? (
-            <HostActions
-              isWithin5Minutes={isWithin5Minutes}
-              onEnterParty={handleEnterParty}
-              onShareInvite={() => setIsShareSheetOpen(true)}
-            />
-          ) : (
-            <ParticipantActions
-              isWithin5Minutes={isWithin5Minutes}
-              hasWrittenRollingPaper={hasWrittenRollingPaper}
-              canEnterParty={partyOption === 'REALTIME'}
-              isJoining={isJoining}
-              onEnterParty={handleEnterParty}
-              onWriteRollingPaper={handleWriteRollingPaper}
-            />
-          )}
-        </BottomActionBar>
 
         <LinkShareSheet
           isOpen={isShareSheetOpen}
