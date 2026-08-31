@@ -103,7 +103,7 @@ export function InvitationCard({
           </p>
         </div>
 
-        {!isHost && !isRollingPaper && !isWithin5Minutes && (
+        {!isRollingPaper && !isWithin5Minutes && (
           <button
             type="button"
             className="inline-flex h-[46px] items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 text-body-2 font-semibold text-black focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none [@media_(max-height:740px)]:h-10 [@media_(max-height:740px)]:px-5"

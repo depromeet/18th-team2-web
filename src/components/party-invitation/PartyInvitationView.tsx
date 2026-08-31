@@ -119,11 +119,7 @@ export function PartyInvitationView({
         </button>
       </div>
     ) : isHost ? (
-      <HostActions
-        isWithin5Minutes={isWithin5Minutes}
-        onEnterParty={handleEnterParty}
-        onShareInvite={() => setIsShareSheetOpen(true)}
-      />
+      <HostActions isWithin5Minutes={isWithin5Minutes} onEnterParty={handleEnterParty} />
     ) : (
       <ParticipantActions
         isWithin5Minutes={isWithin5Minutes}
@@ -173,7 +169,7 @@ export function PartyInvitationView({
         <section
           className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:gap-3 [@media_(max-height:740px)]:pt-2"
         >
-          {isHost ? <HostTitle /> : <ParticipantTitle hostName={hostName} />}
+          {isHost ? <HostTitle hostName={hostName} /> : <ParticipantTitle hostName={hostName} />}
           <img
             src={defaultInvitationCharacter}
             alt=""
