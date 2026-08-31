@@ -1,12 +1,17 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { RollingPaperInvitationCard } from '@/components/party-ended/RollingPaperInvitationCard';
-import { BottomActionBar } from '@/components/ui/BottomActionBar';
+import shareIcon from '@/assets/icons/icon-share.svg';
+import defaultInvitationCharacter from '@/assets/images/character/character-blue-full.png';
+import letterImage from '@/assets/images/live-party/letter.png';
 import { Button } from '@/components/ui/Button';
-import { H1, H3 } from '@/components/ui/Typography';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { ROUTES } from '@/constants/routes';
-import { isFuture } from '@/utils/date';
+import { formatDateParts, isFuture } from '@/utils/date';
 import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
+
+const WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'] as const;
 
 interface PartyEndedViewProps {
   partyId: string;
@@ -16,15 +21,43 @@ interface PartyEndedViewProps {
   writableUntil: Date;
 }
 
+function formatInvitationDate(date: Date) {
+  const { year, month, day } = formatDateParts(date);
+  return `${year} · ${month} · ${day}`;
+}
+
+function formatDday(date: Date) {
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const targetStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const diff = Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24));
+
+  if (diff === 0) return 'D-Day';
+  return diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`;
+}
+
+function formatRemainingTime(targetDate: Date, now: number) {
+  const remainingMs = Math.max(0, targetDate.getTime() - now);
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${days}일 ${hours}시간 ${String(minutes).padStart(2, '0')}분 ${String(seconds).padStart(2, '0')}초`;
+}
+
 export function PartyEndedView({
   partyId,
   inviteToken,
   hostName,
-  writableFrom,
   writableUntil,
 }: PartyEndedViewProps) {
   const navigate = useNavigate();
+  const [now, setNow] = useState(() => Date.now());
+  const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const isExpired = !isFuture(writableUntil);
+  const inviteLink = `${window.location.origin}${window.location.pathname}`;
 
   function handlePrimaryClick() {
     if (isExpired) {
@@ -41,42 +74,127 @@ export function PartyEndedView({
     }
   }
 
+  useEffect(() => {
+    if (isExpired) return;
+
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isExpired]);
+
   return (
-    <main className="bg-gradient-bg flex min-h-dvh flex-col">
-      <section className="flex flex-1 flex-col items-center gap-7 px-4 pt-16 pb-[calc(164px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-8">
-        {isExpired ? (
-          <H1 as="h1" className="w-full text-center tracking-[-0.0044px] text-black">
-            아쉽지만 작성이 <span className="text-red-500">마감</span>됐어요.
-            <br />
-            다음에는 꼭 함께 마음을 남겨보세요.
-          </H1>
-        ) : (
-          <div className="flex w-full flex-col items-center gap-1">
-            <H3 as="p" className="text-center font-medium text-black">
-              {hostName}님의 파티가 <span className="text-red-500">종료</span>되었어요
-            </H3>
-            <H1 as="h1" className="text-center tracking-[-0.0002em] text-black">
-              롤링페이퍼로 축하를 남겨보세요!
-            </H1>
+    <>
+      <main className="bg-gradient-bg flex min-h-dvh flex-col overflow-x-hidden">
+        <header className="mx-auto flex h-18 w-full max-w-150 items-center justify-between px-4 pt-[env(safe-area-inset-top)]">
+          <button
+            type="button"
+            aria-label="뒤로가기"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            onClick={() => navigate(-1)}
+          >
+            <ChevronLeftIcon className="h-6 w-6 text-grey-900" />
+          </button>
+
+          <button
+            type="button"
+            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 text-label-1 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            onClick={() => setIsShareSheetOpen(true)}
+          >
+            <img src={shareIcon} alt="" aria-hidden="true" className="h-5 w-5" />
+            공유하기
+          </button>
+        </header>
+
+        <section className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:pt-2">
+          <div className="flex w-full flex-col items-center gap-5 [@media_(max-height:740px)]:gap-3">
+            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-caption-1 font-bold text-blue-600">
+              온라인 생일파티 종료
+            </span>
+
+            {isExpired ? (
+              <h1 className="text-head-1 max-w-full px-4 text-center font-semibold break-words text-grey-900">
+                아쉽지만 작성이 마감됐어요
+                <br />
+                다음에는 꼭 함께 마음을 남겨보세요
+              </h1>
+            ) : (
+              <h1 className="text-head-1 max-w-full px-4 text-center font-semibold break-words text-grey-900">
+                축하는 아직 늦지 않았어요
+                <br />
+                롤링페이퍼를 남겨보세요!
+              </h1>
+            )}
+
+            <img
+              src={defaultInvitationCharacter}
+              alt=""
+              aria-hidden="true"
+              className="h-[120px] w-[120px] object-contain [@media_(max-height:740px)]:h-[96px] [@media_(max-height:740px)]:w-[96px]"
+            />
           </div>
-        )}
 
-        <RollingPaperInvitationCard
-          hostName={hostName}
-          writableFrom={writableFrom}
-          writableUntil={writableUntil}
-          isExpired={isExpired}
-        />
-      </section>
+          <article
+            className="mt-8 flex w-full max-w-[343px] flex-col items-center rounded-[12px] bg-white px-5 pt-5 pb-5 [@media_(max-height:740px)]:mt-5 [@media_(max-height:740px)]:pt-4 [@media_(max-height:740px)]:pb-4"
+            style={{ boxShadow: '0px 0px 4px rgba(88, 146, 255, 0.3)' }}
+          >
+            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-caption-1 font-bold text-blue-600">
+              {formatDday(writableUntil)}
+            </span>
 
-      <BottomActionBar
-        className="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:static [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:z-auto [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:min-h-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:bg-none [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:px-4 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pt-0 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10"
-        contentClassName="[@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:max-w-[343px]"
-      >
-        <Button variant="primary" size="full" onClick={handlePrimaryClick}>
-          {isExpired ? '홈으로' : '롤링페이퍼 작성하기'}
-        </Button>
-      </BottomActionBar>
-    </main>
+            <div className="mt-5 text-center">
+              <p className="text-head-3 font-medium whitespace-nowrap text-grey-700">
+                {formatInvitationDate(writableUntil)}{' '}
+                <span className="font-bold text-blue-500">
+                  {WEEKDAYS[writableUntil.getDay()]}까지
+                </span>
+              </p>
+              {!isExpired && (
+                <p className="mt-2 text-body-1 font-medium text-grey-500">
+                  <span className="font-semibold text-red-500">
+                    {formatRemainingTime(writableUntil, now)}
+                  </span>{' '}
+                  남았어요
+                </p>
+              )}
+            </div>
+
+            <img
+              src={letterImage}
+              alt=""
+              aria-hidden="true"
+              className="mt-7 h-[220px] w-full max-w-[240px] object-contain [@media_(max-height:740px)]:mt-5 [@media_(max-height:740px)]:h-[170px]"
+            />
+          </article>
+
+          <div className="mt-8 flex w-full max-w-[343px] flex-col items-center gap-4 [@media_(max-height:740px)]:mt-5">
+            {!isExpired && (
+              <p className="text-label-1 text-center font-medium text-grey-500">
+                작성한 내용은 <span className="font-semibold text-blue-600">생일 주인공</span>만
+                볼 수 있어요
+              </p>
+            )}
+
+            <Button
+              className="bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]"
+              variant="primary"
+              size="full"
+              onClick={handlePrimaryClick}
+            >
+              {isExpired ? '홈으로' : '롤링페이퍼 남기기'}
+            </Button>
+          </div>
+        </section>
+      </main>
+
+      <LinkShareSheet
+        isOpen={isShareSheetOpen}
+        link={inviteLink}
+        title="초대장 링크 공유하기"
+        shareText="초대장이 도착했어요"
+        onClose={() => setIsShareSheetOpen(false)}
+      />
+    </>
   );
 }
