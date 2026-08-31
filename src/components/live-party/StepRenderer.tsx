@@ -3,7 +3,7 @@ import { memo, useCallback } from 'react';
 import { PartyEntryStep } from '@/components/live-party/entry/PartyEntryStep';
 import { LIVE_PARTY_STEP, type PartyStep, type PartyUserRole } from '@/constants/live-party';
 import { PartyCandleStep } from '@/components/live-party/candle/PartyCandleStep';
-import { PartyPinataStep } from '@/components/live-party/pinata/PartyPinataStep';
+import { PartyBurstGameStep } from '@/components/live-party/burst-game/PartyBurstGameStep';
 import { PartyEndStep } from '@/components/live-party/end/PartyEndStep';
 import { PartyMusicText } from '@/components/live-party/music/PartyMusicText';
 import type { RealtimePartyNextActionResult } from '@/services/live-party';
@@ -12,7 +12,7 @@ interface StepRendererProps {
   step: PartyStep;
   onStepComplete?: () => void;
   onProcessComplete?: (step: PartyStep) => void;
-  showPinataOverlay?: boolean;
+  showBurstGameOverlay?: boolean;
   onReturnToPartyRoom?: () => void;
   isHost: boolean;
   userRole: PartyUserRole;
@@ -25,7 +25,7 @@ export const StepRenderer = memo(function StepRenderer({
   step,
   onStepComplete,
   onProcessComplete,
-  showPinataOverlay = true,
+  showBurstGameOverlay = true,
   onReturnToPartyRoom,
   isHost,
   userRole,
@@ -56,11 +56,11 @@ export const StepRenderer = memo(function StepRenderer({
           onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.CANDLE)}
         />
       );
-    case 'PINATA':
-      return showPinataOverlay ? (
-        <PartyPinataStep
+    case 'BURST_GAME':
+      return showBurstGameOverlay ? (
+        <PartyBurstGameStep
           onReturnToPartyRoom={onReturnToPartyRoom}
-          onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.PINATA)}
+          onProcessComplete={() => onProcessComplete?.(LIVE_PARTY_STEP.BURST_GAME)}
         />
       ) : null;
     case 'CLOSEABLE':

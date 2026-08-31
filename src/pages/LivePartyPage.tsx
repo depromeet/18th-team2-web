@@ -43,7 +43,7 @@ import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
-import { PINATA_DURATION_SECONDS } from '@/hooks/live-party/usePinataStep';
+import { BURST_GAME_DURATION_SECONDS } from '@/hooks/live-party/useBurstGameStep';
 import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
@@ -208,7 +208,7 @@ export default function LivePartyPage() {
   };
 
   const handleReturnToPartyRoom = useCallback(() => {
-    setIsPinataOverlayDismissed(true);
+    setIsBurstGameOverlayDismissed(true);
   }, []);
 
   const handleProcessComplete = useCallback((completedStep: PartyStep) => {
@@ -239,7 +239,7 @@ export default function LivePartyPage() {
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
-  const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
+  const [isBurstGameOverlayDismissed, setIsBurstGameOverlayDismissed] = useState(false);
   const endingReason = partyEndingState?.endingReason;
   const shouldShowAutoEndedSheet =
     hostGate.isEnded && Boolean(endingReason) && endingReason !== 'HOST_REQUEST';
@@ -273,15 +273,15 @@ export default function LivePartyPage() {
   }, [nextAction, userRole]);
 
   useEffect(() => {
-    if (!step || step !== LIVE_PARTY_STEP.PINATA) {
-      setIsPinataOverlayDismissed(false);
+    if (!step || step !== LIVE_PARTY_STEP.BURST_GAME) {
+      setIsBurstGameOverlayDismissed(false);
     }
   }, [step]);
 
   useEffect(() => {
     if (!processCompletedStep) return;
 
-    if (processCompletedStep === LIVE_PARTY_STEP.PINATA) {
+    if (processCompletedStep === LIVE_PARTY_STEP.BURST_GAME) {
       if (isPartyEnding || partyEnd) {
         setProcessCompletedStep(null);
       }
@@ -293,14 +293,14 @@ export default function LivePartyPage() {
     }
   }, [isPartyEnding, partyEnd, processCompletedStep, step]);
 
-  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const isBurstGameStep = step === LIVE_PARTY_STEP.BURST_GAME;
   const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
-  const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
-  const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
+  const showBurstGameOverlay = isBurstGameStep && !isBurstGameOverlayDismissed;
+  const isBurstGameOverlayActive = showBurstGameOverlay && !isPartyEnding;
   const showHostEndingButton =
     isHost &&
-    ((isPinataStep && isPinataOverlayDismissed) || isCloseableStep) &&
+    ((isBurstGameStep && isBurstGameOverlayDismissed) || isCloseableStep) &&
     !isPartyEndingFlow &&
     !partyEnd;
   const visibleProcessCompletedStep =
@@ -339,7 +339,7 @@ export default function LivePartyPage() {
       return clampProgress(extinguishedCount / CANDLES.length);
     }
 
-    if (step === LIVE_PARTY_STEP.PINATA) {
+    if (step === LIVE_PARTY_STEP.BURST_GAME) {
       const startedAt = getTimestamp(burstGameState?.startedAt);
       const endsAt = getTimestamp(burstGameState?.endsAt);
 
@@ -349,7 +349,7 @@ export default function LivePartyPage() {
       }
 
       if (burstGameState?.remainingSeconds != null) {
-        return clampProgress(1 - burstGameState.remainingSeconds / PINATA_DURATION_SECONDS);
+        return clampProgress(1 - burstGameState.remainingSeconds / BURST_GAME_DURATION_SECONDS);
       }
     }
 
@@ -453,7 +453,7 @@ export default function LivePartyPage() {
         />
       )}
       {showPartyMain && !showEntryReadyUI && (
-        <PartyMainBackground isBlurred={isPinataOverlayActive} />
+        <PartyMainBackground isBlurred={isBurstGameOverlayActive} />
       )}
       {showEntryReadyUI && (
         <PartyEntryReadyOverlay isHost={isHost} onStartClick={handleOpenPartyStartSheet} />
@@ -463,7 +463,7 @@ export default function LivePartyPage() {
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
           onProcessComplete={handleProcessComplete}
-          showPinataOverlay={showPinataOverlay}
+          showBurstGameOverlay={showBurstGameOverlay}
           onReturnToPartyRoom={handleReturnToPartyRoom}
           isHost={isHost}
           userRole={partyEnd ? endUserRole : userRole}
@@ -514,7 +514,7 @@ export default function LivePartyPage() {
       {showPartyMain && (
         <ChatBottomSheet
           onSend={addMessage}
-          isBlurred={isPinataOverlayActive}
+          isBlurred={isBurstGameOverlayActive}
           isEntryWaiting={showEntryReadyUI}
           hasTopOverlayContent={hasChatTopOverlayContent}
           onMetricsChange={setChatSheetMetrics}

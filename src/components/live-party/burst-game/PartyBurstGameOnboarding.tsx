@@ -1,13 +1,16 @@
-import pinataBurstImage from '@/assets/images/live-party/pinata-burst.png';
-import pinataCardImage from '@/assets/images/live-party/pinata-card.png';
-import type { PinataOnboardingPhase } from '@/hooks/live-party/usePinataStep';
+import burstGameBurstImage from '@/assets/images/live-party/burst-game-burst.png';
+import burstGameCardImage from '@/assets/images/live-party/burst-game-card.png';
+import type { BurstGameOnboardingPhase } from '@/hooks/live-party/useBurstGameStep';
 
-interface PartyPinataOnboardingProps {
-  phase: PinataOnboardingPhase;
+interface PartyBurstGameOnboardingProps {
+  phase: BurstGameOnboardingPhase;
   countdownSeconds: number;
 }
 
-export function PartyPinataOnboarding({ phase, countdownSeconds }: PartyPinataOnboardingProps) {
+export function PartyBurstGameOnboarding({
+  phase,
+  countdownSeconds,
+}: PartyBurstGameOnboardingProps) {
   if (phase === 'start') {
     return (
       <section className="pointer-events-auto absolute inset-0 z-[60] flex items-center justify-center text-white">
@@ -30,7 +33,7 @@ export function PartyPinataOnboarding({ phase, countdownSeconds }: PartyPinataOn
         </h2>
 
         <img
-          src={pinataBurstImage}
+          src={burstGameBurstImage}
           alt=""
           className="absolute top-[clamp(232px,32.9svh,267px)] left-1/2 size-[clamp(208px,32svh,260px)] -translate-x-1/2 object-contain"
         />
@@ -47,7 +50,7 @@ export function PartyPinataOnboarding({ phase, countdownSeconds }: PartyPinataOn
         </h2>
 
         <img
-          src={pinataCardImage}
+          src={burstGameCardImage}
           alt=""
           className="absolute top-[clamp(232px,32.9svh,267px)] left-1/2 size-[clamp(208px,32svh,260px)] -translate-x-1/2 object-contain"
         />
