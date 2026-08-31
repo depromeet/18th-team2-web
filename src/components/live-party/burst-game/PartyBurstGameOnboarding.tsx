@@ -7,7 +7,10 @@ interface PartyBurstGameOnboardingProps {
   countdownSeconds: number;
 }
 
-export function PartyBurstGameOnboarding({ phase, countdownSeconds }: PartyBurstGameOnboardingProps) {
+export function PartyBurstGameOnboarding({
+  phase,
+  countdownSeconds,
+}: PartyBurstGameOnboardingProps) {
   if (phase === 'start') {
     return (
       <section className="pointer-events-auto absolute inset-0 z-[60] flex items-center justify-center text-white">

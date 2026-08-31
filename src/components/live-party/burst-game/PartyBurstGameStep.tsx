@@ -60,7 +60,10 @@ function BurstGameResultRankingRow({ ranking, className = '' }: BurstGameResultR
   );
 }
 
-export function PartyBurstGameStep({ onReturnToPartyRoom, onProcessComplete }: PartyBurstGameStepProps) {
+export function PartyBurstGameStep({
+  onReturnToPartyRoom,
+  onProcessComplete,
+}: PartyBurstGameStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
   const resultScrollRef = useRef<HTMLDivElement | null>(null);
   const myRankingRowRef = useRef<HTMLDivElement | null>(null);
@@ -406,7 +409,11 @@ export function PartyBurstGameStep({ onReturnToPartyRoom, onProcessComplete }: P
         >
           <defs>
             <clipPath id={burstGameClipId}>
-              <circle cx={BURST_GAME_SVG_SIZE / 2} cy={BURST_GAME_SVG_SIZE / 2} r={BURST_GAME_SVG_SIZE / 2} />
+              <circle
+                cx={BURST_GAME_SVG_SIZE / 2}
+                cy={BURST_GAME_SVG_SIZE / 2}
+                r={BURST_GAME_SVG_SIZE / 2}
+              />
             </clipPath>
             <linearGradient id={burstGameGradientId} x1="0" y1="1" x2="0" y2="0">
               <stop offset="0%" stopColor="var(--color-red-500)" />
@@ -415,7 +422,11 @@ export function PartyBurstGameStep({ onReturnToPartyRoom, onProcessComplete }: P
           </defs>
 
           <g clipPath={`url(#${burstGameClipId})`}>
-            <rect width={BURST_GAME_SVG_SIZE} height={BURST_GAME_SVG_SIZE} fill="var(--color-yellow-500)" />
+            <rect
+              width={BURST_GAME_SVG_SIZE}
+              height={BURST_GAME_SVG_SIZE}
+              fill="var(--color-yellow-500)"
+            />
             <rect
               x="0"
               y={burstGameFillY}
