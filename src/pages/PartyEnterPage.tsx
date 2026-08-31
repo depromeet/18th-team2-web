@@ -64,10 +64,7 @@ export default function PartyEnterPage() {
                 <B2 className="font-medium text-red-500">참가자가 모두 차서 입장이 불가능해요</B2>
               </div>
             )}
-            <Button
-              type="submit"
-              disabled={isPending || isInputError || isPartyFull || !!countdown}
-            >
+            <Button type="submit" disabled={isPending || isPartyFull || !!countdown}>
               파티 입장하러 가기
             </Button>
           </footer>
