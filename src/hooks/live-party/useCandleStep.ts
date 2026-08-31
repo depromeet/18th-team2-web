@@ -3,14 +3,11 @@ import { useParams } from 'react-router-dom';
 
 import { CANDLES } from '@/constants/live-party';
 import { useBlowCandle, useGetCandleBlowState } from '@/services/live-party';
-import type { components } from '@/types/api';
+import { useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
 
-interface useCandleStepParams {
-  candleBlowState: components['schemas']['CandleBlowResponse'] | null;
-}
-
-export function useCandleStep({ candleBlowState }: useCandleStepParams) {
+export function useCandleStep() {
   const { partyId } = useParams<{ partyId: string }>();
+  const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
 
   const [optimisticOffIds, setOptimisticOffIds] = useState<Set<number>>(new Set());
 

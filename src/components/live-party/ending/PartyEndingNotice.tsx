@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Lottie from 'lottie-react';
 
 import { B1 } from '@/components/ui/Typography';
-import type { RealtimePartyEndingState } from '@/hooks/live-party/useLivePartyWebSocket';
+import type { RealtimePartyEndingState } from '@/stores/useLivePartyStateStore';
 import { parseKstDateTime } from '@/utils/date';
 import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 

@@ -15,7 +15,6 @@ import {
   RANK_ROW_GAP,
   usePinataStep,
 } from '@/hooks/live-party/usePinataStep';
-import type { BurstGameState } from '@/hooks/live-party/useLivePartyWebSocket';
 
 const PODIUM_STYLES = {
   1: { color: '#FFDA85', crown: crownGoldIcon },
@@ -38,7 +37,6 @@ const RESULT_LIST_ANIMATION_DURATION_MS = 600;
 interface PartyPinataStepProps {
   onReturnToPartyRoom?: () => void;
   onProcessComplete?: () => void;
-  burstGameState: BurstGameState | null;
 }
 
 interface PinataResultRankingRowProps {
@@ -62,11 +60,7 @@ function PinataResultRankingRow({ ranking, className = '' }: PinataResultRanking
   );
 }
 
-export function PartyPinataStep({
-  onReturnToPartyRoom,
-  onProcessComplete,
-  burstGameState,
-}: PartyPinataStepProps) {
+export function PartyPinataStep({ onReturnToPartyRoom, onProcessComplete }: PartyPinataStepProps) {
   const confettiRef = useRef<((options: Record<string, unknown>) => void) | null>(null);
   const resultScrollRef = useRef<HTMLDivElement | null>(null);
   const myRankingRowRef = useRef<HTMLDivElement | null>(null);
@@ -90,7 +84,7 @@ export function PartyPinataStep({
     isResultAnimated,
     progressPercent,
     handleTapPinata,
-  } = usePinataStep({ burstGameState });
+  } = usePinataStep();
   const [isConfettiReady, setIsConfettiReady] = useState(false);
   const [isMyRankingPreviewVisible, setIsMyRankingPreviewVisible] = useState(false);
   const isPinataFailed = isResultVisible && totalTapCount === 0;

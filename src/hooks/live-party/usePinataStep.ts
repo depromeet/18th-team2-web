@@ -4,8 +4,11 @@ import { useParams } from 'react-router-dom';
 import characterBlueThumb from '@/assets/images/character/character-blue-circle-thumbnail.png';
 import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import { useBurstGameTaps } from '@/hooks/live-party/useBurstGameTaps';
-import type { BurstGameState } from '@/hooks/live-party/useLivePartyWebSocket';
 import { useGetBurstGameState } from '@/services/live-party';
+import {
+  type BurstGameState,
+  useLivePartyBurstGameStore,
+} from '@/stores/useLivePartyBurstGameStore';
 import { resolveImageUrl } from '@/utils/image';
 
 export const PINATA_DURATION_SECONDS = 20;
@@ -71,12 +74,9 @@ function parseDateTime(dateTime: string | undefined) {
   return Number.isNaN(time) ? null : time;
 }
 
-interface UsePinataStepParams {
-  burstGameState: BurstGameState | null;
-}
-
-export function usePinataStep({ burstGameState }: UsePinataStepParams) {
+export function usePinataStep() {
   const { partyId } = useParams<{ partyId: string }>();
+  const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const { queueTap, flushTaps } = useBurstGameTaps();
   const { data: recoveredBurstGameData } = useGetBurstGameState(partyId, participantToken);

@@ -17,7 +17,10 @@ import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
-import { useLivePartyWebSocket } from '@/hooks/live-party/useLivePartyWebSocket';
+import { useLivePartyConnection } from '@/hooks/live-party/useLivePartyConnection';
+import { useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
+import { useLivePartyBurstGameStore } from '@/stores/useLivePartyBurstGameStore';
+import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import {
   CANDLES,
@@ -84,19 +87,16 @@ export default function LivePartyPage() {
     };
   }, []);
 
-  const {
-    messages,
-    addMessage,
-    candleBlowState,
-    burstGameState,
-    partyEndingState,
-    currentPhase,
-    currentPhaseStartedAt,
-    currentPhaseServerNow,
-    hasParticipantToken,
-    wsError,
-    nicknameDuplicate,
-  } = useLivePartyWebSocket();
+  const { addMessage } = useLivePartyConnection();
+  const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
+  const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
+  const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
+  const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
+  const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
+  const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
+  const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
+  const wsError = useLivePartyStateStore((s) => s.wsError);
+  const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
@@ -129,7 +129,7 @@ export default function LivePartyPage() {
   );
   const isHost = profile?.isHost ?? false;
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
-  const hostGate = useHostLivePartyGate(partyId, isHost, canFetch);
+  const hostGate = useHostLivePartyGate(partyId, isHost);
 
   const isPartyEnded = Boolean(partyEndingState?.ended);
 
@@ -240,7 +240,7 @@ export default function LivePartyPage() {
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
   const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
-  const endingReason = partyEndingState?.endingReason ?? hostGate.state?.endingReason;
+  const endingReason = partyEndingState?.endingReason;
   const shouldShowAutoEndedSheet =
     hostGate.isEnded && Boolean(endingReason) && endingReason !== 'HOST_REQUEST';
 
@@ -384,8 +384,7 @@ export default function LivePartyPage() {
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
       : undefined;
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
-    enabled: canFetch && showPartyMain,
-    refetchInterval: showEntryReadyUI ? 3000 : undefined,
+    enabled: showPartyMain,
   });
 
   if (wsError || isPhaseError) {
@@ -470,8 +469,6 @@ export default function LivePartyPage() {
           userRole={partyEnd ? endUserRole : userRole}
           endAction={nextAction}
           endHostName={hostName}
-          candleBlowState={candleBlowState}
-          burstGameState={burstGameState}
           musicTextBottomOffset={musicTextBottomOffset}
         />
       )}
@@ -502,7 +499,7 @@ export default function LivePartyPage() {
           <Button
             type="button"
             size="md"
-            className="h-[46px] w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-[22px] shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
+            className="h-11.5 w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-5.5 shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
             onClick={handleStartPartyEnding}
             disabled={isStartingPartyEnding}
           >
@@ -516,7 +513,6 @@ export default function LivePartyPage() {
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
         <ChatBottomSheet
-          messages={messages}
           onSend={addMessage}
           isBlurred={isPinataOverlayActive}
           isEntryWaiting={showEntryReadyUI}
