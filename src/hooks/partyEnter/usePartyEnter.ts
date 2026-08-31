@@ -126,6 +126,12 @@ export function usePartyEnter() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!partyId || !inviteToken) return;
+
+    if (!nickname.trim()) {
+      setErrorMessage(VALIDATION_MESSAGES.nickname.emptyOnEnter);
+      return;
+    }
+
     if (selectedCharacterId == null) return;
 
     if (isRealtimeLiveEnded || isRealtimeClosed) {
