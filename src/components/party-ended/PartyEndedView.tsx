@@ -51,6 +51,7 @@ export function PartyEndedView({
   partyId,
   inviteToken,
   hostName,
+  writableFrom,
   writableUntil,
 }: PartyEndedViewProps) {
   const navigate = useNavigate();
@@ -94,69 +95,112 @@ export function PartyEndedView({
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             onClick={() => navigate(-1)}
           >
-            <ChevronLeftIcon className="h-6 w-6 text-grey-900" />
+            <ChevronLeftIcon className="text-grey-900 h-6 w-6" />
           </button>
 
-          <button
-            type="button"
-            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 text-label-1 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
-            onClick={() => setIsShareSheetOpen(true)}
-          >
-            <img src={shareIcon} alt="" aria-hidden="true" className="h-5 w-5" />
-            공유하기
-          </button>
+          {!isExpired && (
+            <button
+              type="button"
+              className="text-label-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+              onClick={() => setIsShareSheetOpen(true)}
+            >
+              <img src={shareIcon} alt="" aria-hidden="true" className="h-5 w-5" />
+              공유하기
+            </button>
+          )}
         </header>
 
-        <section className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:pt-2">
-          <div className="flex w-full flex-col items-center gap-5 [@media_(max-height:740px)]:gap-3">
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-caption-1 font-bold text-blue-600">
-              온라인 생일파티 종료
-            </span>
+        <section
+          className={`mx-auto flex w-full max-w-150 flex-1 flex-col items-center px-4 pb-[calc(24px+env(safe-area-inset-bottom))] ${
+            isExpired
+              ? 'pt-[clamp(16px,4svh,32px)]'
+              : 'pt-[clamp(18px,4svh,42px)] [@media_(max-height:740px)]:pt-2'
+          }`}
+        >
+          <div
+            className={`flex w-full flex-col items-center ${
+              isExpired ? 'gap-0' : 'gap-5 [@media_(max-height:740px)]:gap-3'
+            }`}
+          >
+            {!isExpired && (
+              <span className="text-caption-1 rounded-full bg-blue-50 px-2.5 py-1 font-bold text-blue-600">
+                온라인 생일파티 종료
+              </span>
+            )}
 
             {isExpired ? (
-              <h1 className="text-head-1 max-w-full px-4 text-center font-semibold break-words text-grey-900">
-                아쉽지만 작성이 마감됐어요
+              <h1 className="text-head-1 text-grey-900 max-w-full px-4 text-center font-semibold break-words">
+                아쉽지만 작성이 <span className="text-red-500">마감</span>되었어요
                 <br />
-                다음에는 꼭 함께 마음을 남겨보세요
+                다음에는 꼭 함께 마음을 남겨보세요!
               </h1>
             ) : (
-              <h1 className="text-head-1 max-w-full px-4 text-center font-semibold break-words text-grey-900">
+              <h1 className="text-head-1 text-grey-900 max-w-full px-4 text-center font-semibold break-words">
                 축하는 아직 늦지 않았어요
                 <br />
                 롤링페이퍼를 남겨보세요!
               </h1>
             )}
 
-            <img
-              src={defaultInvitationCharacter}
-              alt=""
-              aria-hidden="true"
-              className="h-[120px] w-[120px] object-contain [@media_(max-height:740px)]:h-[96px] [@media_(max-height:740px)]:w-[96px]"
-            />
+            {!isExpired && (
+              <img
+                src={defaultInvitationCharacter}
+                alt=""
+                aria-hidden="true"
+                className="h-[120px] w-[120px] object-contain [@media_(max-height:740px)]:h-[96px] [@media_(max-height:740px)]:w-[96px]"
+              />
+            )}
           </div>
 
           <article
-            className="mt-8 flex w-full max-w-[343px] flex-col items-center rounded-[12px] bg-white px-5 pt-5 pb-5 [@media_(max-height:740px)]:mt-5 [@media_(max-height:740px)]:pt-4 [@media_(max-height:740px)]:pb-4"
+            className={`flex w-full max-w-[343px] flex-col items-center rounded-[12px] bg-white px-5 ${
+              isExpired
+                ? 'mt-[clamp(28px,6svh,44px)] justify-center pt-5 pb-6'
+                : 'mt-8 pt-5 pb-5 [@media_(max-height:740px)]:mt-5 [@media_(max-height:740px)]:pt-4 [@media_(max-height:740px)]:pb-4'
+            }`}
             style={{ boxShadow: '0px 0px 4px rgba(88, 146, 255, 0.3)' }}
           >
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-caption-1 font-bold text-blue-600">
-              {formatDday(writableUntil)}
+            <span
+              className={`text-caption-1 rounded-full px-2.5 py-1 font-bold ${
+                isExpired ? 'bg-red-30 text-red-500' : 'bg-blue-50 text-blue-600'
+              }`}
+            >
+              {isExpired ? '마감' : formatDday(writableUntil)}
             </span>
 
             <div className="mt-5 text-center">
-              <p className="text-head-3 font-medium whitespace-nowrap text-grey-700">
-                {formatInvitationDate(writableUntil)}{' '}
-                <span className="font-bold text-blue-500">
-                  {WEEKDAYS[writableUntil.getDay()]}까지
-                </span>
-              </p>
-              {!isExpired && (
-                <p className="mt-2 text-body-1 font-medium text-grey-500">
-                  <span className="font-semibold text-red-500">
-                    {formatRemainingTime(writableUntil, now)}
-                  </span>{' '}
-                  남았어요
-                </p>
+              {isExpired ? (
+                <div className="flex flex-col gap-1 opacity-50">
+                  <p className="text-body-1 text-grey-700 font-medium whitespace-nowrap">
+                    {formatInvitationDate(writableFrom)}{' '}
+                    <span className="text-head-3 font-bold text-blue-500">
+                      {WEEKDAYS[writableFrom.getDay()]}
+                    </span>{' '}
+                    <span className="text-label-1 text-grey-500">부터</span>
+                  </p>
+                  <p className="text-body-1 text-grey-700 font-medium whitespace-nowrap">
+                    {formatInvitationDate(writableUntil)}{' '}
+                    <span className="text-head-3 font-bold text-blue-500">
+                      {WEEKDAYS[writableUntil.getDay()]}
+                    </span>{' '}
+                    <span className="text-label-1 text-grey-500">까지</span>
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-head-3 text-grey-700 font-medium whitespace-nowrap">
+                    {formatInvitationDate(writableUntil)}{' '}
+                    <span className="font-bold text-blue-500">
+                      {WEEKDAYS[writableUntil.getDay()]}까지
+                    </span>
+                  </p>
+                  <p className="text-body-1 text-grey-500 mt-2 font-medium">
+                    <span className="font-semibold text-red-500">
+                      {formatRemainingTime(writableUntil, now)}
+                    </span>{' '}
+                    남았어요
+                  </p>
+                </>
               )}
             </div>
 
@@ -164,21 +208,33 @@ export function PartyEndedView({
               src={letterImage}
               alt=""
               aria-hidden="true"
-              className="mt-7 h-[220px] w-full max-w-[240px] object-contain [@media_(max-height:740px)]:mt-5 [@media_(max-height:740px)]:h-[170px]"
+              className={`w-full max-w-[240px] object-contain ${
+                isExpired
+                  ? 'mt-6 h-[220px] opacity-50'
+                  : 'mt-7 h-[220px] [@media_(max-height:740px)]:mt-5 [@media_(max-height:740px)]:h-[170px]'
+              }`}
             />
           </article>
 
-          <div className="mt-8 flex w-full max-w-[343px] flex-col items-center gap-4 [@media_(max-height:740px)]:mt-5">
+          <div
+            className={`flex w-full max-w-[343px] flex-col items-center gap-4 ${
+              isExpired ? 'mt-auto pt-8' : 'mt-8 [@media_(max-height:740px)]:mt-5'
+            }`}
+          >
             {!isExpired && (
-              <p className="text-label-1 text-center font-medium text-grey-500">
-                작성한 내용은 <span className="font-semibold text-blue-600">생일 주인공</span>만
-                볼 수 있어요
+              <p className="text-label-1 text-grey-500 text-center font-medium">
+                작성한 내용은 <span className="font-semibold text-blue-600">생일 주인공</span>만 볼
+                수 있어요
               </p>
             )}
 
             <Button
-              className="bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]"
-              variant="primary"
+              className={
+                isExpired
+                  ? ''
+                  : 'bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]'
+              }
+              variant={isExpired ? 'white-blue' : 'primary'}
               size="full"
               onClick={handlePrimaryClick}
             >
