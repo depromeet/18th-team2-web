@@ -98,7 +98,7 @@ export default function PartyInviteEntryPage() {
       startsAt={new Date(startsAtSource)}
       endsAt={data.partyEndDate ? new Date(data.partyEndDate) : undefined}
       isHost={data.isHost}
-      rollingPaperWritten={locationState?.rollingPaperWritten === true}
+      rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten}
       partyOption={data.partyOption ?? 'REALTIME'}
     />
   );
