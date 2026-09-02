@@ -203,7 +203,6 @@ export function LinkShareSheet({
             isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+32px)]'
           }`}
         >
-          <div className="bg-grey-100 mx-auto h-1 w-10 rounded-full" />
           <div className="mt-4 flex items-center justify-between">
             <H2 id="link-share-title" className="text-grey-900">
               {title}

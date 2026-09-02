@@ -8,28 +8,19 @@ import { Button } from '@/components/ui/Button';
 import { CANDLES } from '@/constants/live-party';
 import { useCandleStep } from '@/hooks/live-party/useCandleStep';
 import { useFallConfetti } from '@/hooks/live-party/useFallConfetti';
-import type { components } from '@/types/api';
 import { WaitingHostActionOverlay } from './WaitingHostActionOverlay';
 
 interface PartyCandleStepProps {
   onComplete?: () => void;
   onProcessComplete?: () => void;
-  candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   isHost: boolean;
 }
 
-export function PartyCandleStep({
-  onComplete,
-  onProcessComplete,
-  candleBlowState,
-  isHost,
-}: PartyCandleStepProps) {
+export function PartyCandleStep({ onComplete, onProcessComplete, isHost }: PartyCandleStepProps) {
   const hasNotifiedCompleteRef = useRef(false);
   const { handleInitConfetti, fireConfetti } = useFallConfetti();
 
-  const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
-    candleBlowState,
-  });
+  const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep();
 
   const showHostNextButton = allCandleOff && isHost;
   const showWaitingOverlay = allCandleOff && !isHost;

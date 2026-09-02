@@ -17,7 +17,10 @@ import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
 import { usePartyMusic } from '@/hooks/live-party/usePartyMusic';
-import { useLivePartyWebSocket } from '@/hooks/live-party/useLivePartyWebSocket';
+import { useLivePartyConnection } from '@/hooks/live-party/useLivePartyConnection';
+import { useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
+import { useLivePartyBurstGameStore } from '@/stores/useLivePartyBurstGameStore';
+import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import {
   CANDLES,
@@ -40,7 +43,7 @@ import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
-import { PINATA_DURATION_SECONDS } from '@/hooks/live-party/usePinataStep';
+import { BURST_GAME_DURATION_SECONDS } from '@/hooks/live-party/useBurstGameStep';
 import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
@@ -84,19 +87,16 @@ export default function LivePartyPage() {
     };
   }, []);
 
-  const {
-    messages,
-    addMessage,
-    candleBlowState,
-    burstGameState,
-    partyEndingState,
-    currentPhase,
-    currentPhaseStartedAt,
-    currentPhaseServerNow,
-    hasParticipantToken,
-    wsError,
-    nicknameDuplicate,
-  } = useLivePartyWebSocket();
+  const { addMessage } = useLivePartyConnection();
+  const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
+  const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
+  const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
+  const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
+  const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
+  const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
+  const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
+  const wsError = useLivePartyStateStore((s) => s.wsError);
+  const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
@@ -129,7 +129,7 @@ export default function LivePartyPage() {
   );
   const isHost = profile?.isHost ?? false;
   const { mutate: startRealtimeEnd, isPending: isStartingPartyEnding } = useStartRealtimeEnd();
-  const hostGate = useHostLivePartyGate(partyId, isHost, canFetch);
+  const hostGate = useHostLivePartyGate(partyId, isHost);
 
   const isPartyEnded = Boolean(partyEndingState?.ended);
 
@@ -208,7 +208,7 @@ export default function LivePartyPage() {
   };
 
   const handleReturnToPartyRoom = useCallback(() => {
-    setIsPinataOverlayDismissed(true);
+    setIsBurstGameOverlayDismissed(true);
   }, []);
 
   const handleProcessComplete = useCallback((completedStep: PartyStep) => {
@@ -239,8 +239,8 @@ export default function LivePartyPage() {
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
-  const [isPinataOverlayDismissed, setIsPinataOverlayDismissed] = useState(false);
-  const endingReason = partyEndingState?.endingReason ?? hostGate.state?.endingReason;
+  const [isBurstGameOverlayDismissed, setIsBurstGameOverlayDismissed] = useState(false);
+  const endingReason = partyEndingState?.endingReason;
   const shouldShowAutoEndedSheet =
     hostGate.isEnded && Boolean(endingReason) && endingReason !== 'HOST_REQUEST';
 
@@ -273,15 +273,15 @@ export default function LivePartyPage() {
   }, [nextAction, userRole]);
 
   useEffect(() => {
-    if (!step || step !== LIVE_PARTY_STEP.PINATA) {
-      setIsPinataOverlayDismissed(false);
+    if (!step || step !== LIVE_PARTY_STEP.BURST_GAME) {
+      setIsBurstGameOverlayDismissed(false);
     }
   }, [step]);
 
   useEffect(() => {
     if (!processCompletedStep) return;
 
-    if (processCompletedStep === LIVE_PARTY_STEP.PINATA) {
+    if (processCompletedStep === LIVE_PARTY_STEP.BURST_GAME) {
       if (isPartyEnding || partyEnd) {
         setProcessCompletedStep(null);
       }
@@ -293,14 +293,14 @@ export default function LivePartyPage() {
     }
   }, [isPartyEnding, partyEnd, processCompletedStep, step]);
 
-  const isPinataStep = step === LIVE_PARTY_STEP.PINATA;
+  const isBurstGameStep = step === LIVE_PARTY_STEP.BURST_GAME;
   const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
-  const showPinataOverlay = isPinataStep && !isPinataOverlayDismissed;
-  const isPinataOverlayActive = showPinataOverlay && !isPartyEnding;
+  const showBurstGameOverlay = isBurstGameStep && !isBurstGameOverlayDismissed;
+  const isBurstGameOverlayActive = showBurstGameOverlay && !isPartyEnding;
   const showHostEndingButton =
     isHost &&
-    ((isPinataStep && isPinataOverlayDismissed) || isCloseableStep) &&
+    ((isBurstGameStep && isBurstGameOverlayDismissed) || isCloseableStep) &&
     !isPartyEndingFlow &&
     !partyEnd;
   const visibleProcessCompletedStep =
@@ -339,7 +339,7 @@ export default function LivePartyPage() {
       return clampProgress(extinguishedCount / CANDLES.length);
     }
 
-    if (step === LIVE_PARTY_STEP.PINATA) {
+    if (step === LIVE_PARTY_STEP.BURST_GAME) {
       const startedAt = getTimestamp(burstGameState?.startedAt);
       const endsAt = getTimestamp(burstGameState?.endsAt);
 
@@ -349,7 +349,7 @@ export default function LivePartyPage() {
       }
 
       if (burstGameState?.remainingSeconds != null) {
-        return clampProgress(1 - burstGameState.remainingSeconds / PINATA_DURATION_SECONDS);
+        return clampProgress(1 - burstGameState.remainingSeconds / BURST_GAME_DURATION_SECONDS);
       }
     }
 
@@ -384,8 +384,7 @@ export default function LivePartyPage() {
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
       : undefined;
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
-    enabled: canFetch && showPartyMain,
-    refetchInterval: showEntryReadyUI ? 3000 : undefined,
+    enabled: showPartyMain,
   });
 
   if (wsError || isPhaseError) {
@@ -454,7 +453,7 @@ export default function LivePartyPage() {
         />
       )}
       {showPartyMain && !showEntryReadyUI && (
-        <PartyMainBackground isBlurred={isPinataOverlayActive} />
+        <PartyMainBackground isBlurred={isBurstGameOverlayActive} />
       )}
       {showEntryReadyUI && (
         <PartyEntryReadyOverlay isHost={isHost} onStartClick={handleOpenPartyStartSheet} />
@@ -464,14 +463,12 @@ export default function LivePartyPage() {
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
           onProcessComplete={handleProcessComplete}
-          showPinataOverlay={showPinataOverlay}
+          showBurstGameOverlay={showBurstGameOverlay}
           onReturnToPartyRoom={handleReturnToPartyRoom}
           isHost={isHost}
           userRole={partyEnd ? endUserRole : userRole}
           endAction={nextAction}
           endHostName={hostName}
-          candleBlowState={candleBlowState}
-          burstGameState={burstGameState}
           musicTextBottomOffset={musicTextBottomOffset}
         />
       )}
@@ -502,7 +499,7 @@ export default function LivePartyPage() {
           <Button
             type="button"
             size="md"
-            className="h-[46px] w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-[22px] shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
+            className="h-11.5 w-auto rounded-[12px] bg-blue-500/90 px-7 py-3 text-[15px] leading-5.5 shadow-[0_12px_28px_rgba(0,3,65,0.24)]"
             onClick={handleStartPartyEnding}
             disabled={isStartingPartyEnding}
           >
@@ -516,9 +513,8 @@ export default function LivePartyPage() {
       <TransitionEffect isTransitioning={isTransitioning} />
       {showPartyMain && (
         <ChatBottomSheet
-          messages={messages}
           onSend={addMessage}
-          isBlurred={isPinataOverlayActive}
+          isBlurred={isBurstGameOverlayActive}
           isEntryWaiting={showEntryReadyUI}
           hasTopOverlayContent={hasChatTopOverlayContent}
           onMetricsChange={setChatSheetMetrics}
