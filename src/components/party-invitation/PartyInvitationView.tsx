@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 
-import defaultInvitationCharacter from '@/assets/images/character/character-blue-full.png';
+import defaultInvitationCharacter from '@/assets/images/character/character-blue-party-hat.png';
 import shareIcon from '@/assets/icons/icon-share.svg';
 import trashIcon from '@/assets/icons/icon-fill-trash.svg';
 import { HostActions } from '@/components/party-invitation/HostActions';
