@@ -141,13 +141,13 @@ export function PartyInvitationView({
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             onClick={() => navigate(-1)}
           >
-            <ChevronLeftIcon className="h-6 w-6 text-grey-900" />
+            <ChevronLeftIcon className="text-grey-900 h-6 w-6" />
           </button>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 text-label-1 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+              className="text-label-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               onClick={() => setIsShareSheetOpen(true)}
             >
               <img src={shareIcon} alt="" aria-hidden="true" className="h-5 w-5" />
@@ -166,9 +166,7 @@ export function PartyInvitationView({
           </div>
         </header>
 
-        <section
-          className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:gap-3 [@media_(max-height:740px)]:pt-2"
-        >
+        <section className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:gap-3 [@media_(max-height:740px)]:pt-2">
           {isHost ? <HostTitle hostName={hostName} /> : <ParticipantTitle hostName={hostName} />}
           <img
             src={defaultInvitationCharacter}

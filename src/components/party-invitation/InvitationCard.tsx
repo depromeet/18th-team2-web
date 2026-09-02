@@ -58,7 +58,7 @@ function InvitationCallout({
   children: string;
 }) {
   return (
-    <div className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[12px] bg-blue-30 px-4 py-2 text-blue-700">
+    <div className="bg-blue-30 flex min-h-12 w-full items-center justify-center gap-2 rounded-[12px] px-4 py-2 text-blue-700">
       <span className="flex h-6 w-6 shrink-0 items-center justify-center">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[12px] leading-none font-bold text-white">
           {type === 'check' ? '✓' : 'i'}
@@ -87,18 +87,18 @@ export function InvitationCard({
       style={{ boxShadow: '0px 0px 4px rgba(88, 146, 255, 0.3)' }}
     >
       <div className="flex flex-col items-center gap-5">
-        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-caption-1 font-bold text-blue-600">
+        <span className="text-caption-1 rounded-full bg-blue-50 px-2.5 py-1 font-bold text-blue-600">
           {formatDday(startsAt)}
         </span>
 
         <div className="text-center">
-          <p className="text-head-3 font-medium whitespace-nowrap text-grey-700">
+          <p className="text-head-3 text-grey-700 font-medium whitespace-nowrap">
             {formatInvitationDate(startsAt)}{' '}
             <span className="font-bold text-blue-500">
               {WEEKDAYS[startsAt.getDay()]} {formatKoreanTime(startsAt)}
             </span>
           </p>
-          <p className="mt-1 text-body-1 font-medium text-grey-500">
+          <p className="text-body-1 text-grey-500 mt-1 font-medium">
             {isRollingPaper ? '롤링페이퍼를 함께 남겨주세요' : '약 10분 정도 진행되는 파티에요'}
           </p>
         </div>
@@ -106,7 +106,7 @@ export function InvitationCard({
         {!isRollingPaper && !isWithin5Minutes && (
           <button
             type="button"
-            className="inline-flex h-[46px] items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 text-body-2 font-semibold text-black focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none [@media_(max-height:740px)]:h-10 [@media_(max-height:740px)]:px-5"
+            className="text-body-2 inline-flex h-[46px] items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none [@media_(max-height:740px)]:h-10 [@media_(max-height:740px)]:px-5"
           >
             <img src={iconChat} alt="" className="h-5 w-5" />
             5분 전 카톡으로 알림받기
@@ -127,10 +127,10 @@ export function InvitationCard({
             />
 
             <div className="mt-5 text-center [@media_(max-height:740px)]:mt-3">
-              <h2 className="text-head-2 font-semibold whitespace-pre-line text-grey-900">
+              <h2 className="text-head-2 text-grey-900 font-semibold whitespace-pre-line">
                 초대장을 공유하고{'\n'}롤링페이퍼를 받아보세요!
               </h2>
-              <p className="mt-4 text-body-1 font-medium text-grey-500 [@media_(max-height:740px)]:mt-3">
+              <p className="text-body-1 text-grey-500 mt-4 font-medium [@media_(max-height:740px)]:mt-3">
                 롤링페이퍼는 파티가 끝난 후 볼 수 있어요
               </p>
             </div>
@@ -145,8 +145,8 @@ export function InvitationCard({
             />
 
             <div className="mt-5 text-center [@media_(max-height:740px)]:mt-3">
-              <h2 className="text-head-2 font-semibold text-grey-900">생일 축하 한마디 남기기</h2>
-              <p className="mt-4 text-body-1 font-medium whitespace-pre-line text-grey-500 [@media_(max-height:740px)]:mt-3">
+              <h2 className="text-head-2 text-grey-900 font-semibold">생일 축하 한마디 남기기</h2>
+              <p className="text-body-1 text-grey-500 mt-4 font-medium whitespace-pre-line [@media_(max-height:740px)]:mt-3">
                 롤링페이퍼를 미리 작성해두면{'\n'}파티 종료 후 생일 주인공에게 전달돼요 💌
               </p>
             </div>
