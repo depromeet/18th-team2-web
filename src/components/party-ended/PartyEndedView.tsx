@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { ROUTES } from '@/constants/routes';
-import { formatDateParts, isFuture } from '@/utils/date';
+import { formatDateParts, getKoreanWeekdayIndex, getKstDayStartMs, isFuture } from '@/utils/date';
 import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
 const WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'] as const;
@@ -27,9 +27,8 @@ function formatInvitationDate(date: Date) {
 }
 
 function formatDday(date: Date) {
-  const today = new Date();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-  const targetStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const todayStart = getKstDayStartMs(new Date());
+  const targetStart = getKstDayStartMs(date);
   const diff = Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24));
 
   if (diff === 0) return 'D-Day';
@@ -174,14 +173,14 @@ export function PartyEndedView({
                   <p className="text-body-1 text-grey-700 font-medium whitespace-nowrap">
                     {formatInvitationDate(writableFrom)}{' '}
                     <span className="text-head-3 font-bold text-blue-500">
-                      {WEEKDAYS[writableFrom.getDay()]}
+                      {WEEKDAYS[getKoreanWeekdayIndex(writableFrom)]}
                     </span>{' '}
                     <span className="text-label-1 text-grey-500">부터</span>
                   </p>
                   <p className="text-body-1 text-grey-700 font-medium whitespace-nowrap">
                     {formatInvitationDate(writableUntil)}{' '}
                     <span className="text-head-3 font-bold text-blue-500">
-                      {WEEKDAYS[writableUntil.getDay()]}
+                      {WEEKDAYS[getKoreanWeekdayIndex(writableUntil)]}
                     </span>{' '}
                     <span className="text-label-1 text-grey-500">까지</span>
                   </p>
@@ -191,7 +190,7 @@ export function PartyEndedView({
                   <p className="text-head-3 text-grey-700 font-medium whitespace-nowrap">
                     {formatInvitationDate(writableUntil)}{' '}
                     <span className="font-bold text-blue-500">
-                      {WEEKDAYS[writableUntil.getDay()]}까지
+                      {WEEKDAYS[getKoreanWeekdayIndex(writableUntil)]}까지
                     </span>
                   </p>
                   <p className="text-body-1 text-grey-500 mt-2 font-medium">

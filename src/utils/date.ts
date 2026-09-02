@@ -32,6 +32,14 @@ export function formatDateParts(startsAt: Date): { year: number; month: number; 
   return { year: d.year(), month: d.month() + 1, day: d.date() };
 }
 
+export function getKstDayStartMs(d: Date): number {
+  return dayjs(d).tz(KST).startOf('day').valueOf();
+}
+
+export function getKoreanWeekdayIndex(d: Date): number {
+  return dayjs(d).tz(KST).day();
+}
+
 export function formatIsoDate(d: Date): string {
   const { year, month, day } = formatDateParts(d);
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;

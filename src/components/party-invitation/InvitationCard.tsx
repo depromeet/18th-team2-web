@@ -2,7 +2,12 @@ import iconChat from '@/assets/icons/icon-chat.svg';
 import letterImage from '@/assets/images/live-party/letter.png';
 import { Button } from '@/components/ui/Button';
 import { Caption } from '@/components/ui/Typography';
-import { formatDateParts, formatKoreanTime } from '@/utils/date';
+import {
+  formatDateParts,
+  formatKoreanTime,
+  getKoreanWeekdayIndex,
+  getKstDayStartMs,
+} from '@/utils/date';
 
 const WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'] as const;
 
@@ -23,9 +28,8 @@ function formatInvitationDate(date: Date) {
 }
 
 function formatDday(date: Date) {
-  const today = new Date();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-  const targetStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const todayStart = getKstDayStartMs(new Date());
+  const targetStart = getKstDayStartMs(date);
   const diff = Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24));
 
   if (diff === 0) return 'D-Day';
@@ -95,7 +99,7 @@ export function InvitationCard({
           <p className="text-head-3 text-grey-700 font-medium whitespace-nowrap">
             {formatInvitationDate(startsAt)}{' '}
             <span className="font-bold text-blue-500">
-              {WEEKDAYS[startsAt.getDay()]} {formatKoreanTime(startsAt)}
+              {WEEKDAYS[getKoreanWeekdayIndex(startsAt)]} {formatKoreanTime(startsAt)}
             </span>
           </p>
           <p className="text-body-1 text-grey-500 mt-1 font-medium">
