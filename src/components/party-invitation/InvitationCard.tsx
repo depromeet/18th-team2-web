@@ -157,7 +157,7 @@ export function InvitationCard({
 
             {showRollingPaperDisabledNotice ? (
               <div className="mt-5 flex w-full flex-col gap-3 [@media_(max-height:740px)]:mt-4">
-                <InvitationCallout>파티가 끝나고 다시 작성할 수 있어요</InvitationCallout>
+                <InvitationCallout>파티가 끝나고도 작성할 수 있어요</InvitationCallout>
                 <Button variant="secondary" size="full" disabled>
                   롤링페이퍼 남기기
                 </Button>
