@@ -18,8 +18,10 @@ interface InvitationCardProps {
   isHost: boolean;
   isWithin5Minutes: boolean;
   hasWrittenRollingPaper: boolean;
+  isRegisteringTalkCalendar?: boolean;
   onWriteRollingPaper: () => void;
   onViewRollingPaper: () => void;
+  onRegisterTalkCalendar: () => void;
 }
 
 function formatInvitationDate(date: Date) {
@@ -79,8 +81,10 @@ export function InvitationCard({
   isHost,
   isWithin5Minutes,
   hasWrittenRollingPaper,
+  isRegisteringTalkCalendar = false,
   onWriteRollingPaper,
   onViewRollingPaper,
+  onRegisterTalkCalendar,
 }: InvitationCardProps) {
   const isRollingPaper = partyOption === 'PAPER_ONLY';
   const showRollingPaperDisabledNotice = !isHost && !hasWrittenRollingPaper && isWithin5Minutes;
@@ -110,7 +114,10 @@ export function InvitationCard({
         {!isRollingPaper && !isWithin5Minutes && (
           <button
             type="button"
-            className="text-body-2 inline-flex h-[46px] items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none [@media_(max-height:740px)]:h-10 [@media_(max-height:740px)]:px-5"
+            className="text-body-2 inline-flex h-[46px] cursor-pointer items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black transition-[filter,transform] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:translate-y-px active:brightness-[0.98] disabled:cursor-default disabled:bg-[#FEE500] disabled:text-black disabled:opacity-100 [@media_(max-height:740px)]:h-10 [@media_(max-height:740px)]:px-5"
+            disabled={isRegisteringTalkCalendar}
+            aria-busy={isRegisteringTalkCalendar}
+            onClick={onRegisterTalkCalendar}
           >
             <img src={iconChat} alt="" className="h-5 w-5" />
             5분 전 카톡으로 알림받기
