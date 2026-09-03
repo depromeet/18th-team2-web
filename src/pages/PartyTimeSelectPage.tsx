@@ -37,10 +37,14 @@ interface TimePickerValue {
   minute: string;
 }
 
+const TIME_PICKER_MINUTE_STEP = 5;
+
 const TIME_PICKER_OPTIONS = {
   period: ['오전', '오후'],
   hour: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-  minute: Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, '0')),
+  minute: Array.from({ length: 60 / TIME_PICKER_MINUTE_STEP }, (_, index) =>
+    String(index * TIME_PICKER_MINUTE_STEP).padStart(2, '0'),
+  ),
 } as const;
 
 function formatStartTime(value: TimePickerValue): string {
@@ -58,19 +62,25 @@ function getHour24(period: string, hour: string): number {
 
 function getNearestTimePickerValue(): TimePickerValue {
   const now = new Date();
-  const nextMinute = new Date(now);
+  const nextTime = new Date(now);
+  nextTime.setSeconds(0, 0);
 
-  nextMinute.setSeconds(0, 0);
-  if (nextMinute.getTime() < now.getTime()) {
-    nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+  const minute = nextTime.getMinutes();
+  const remainder = minute % TIME_PICKER_MINUTE_STEP;
+  const hasPassedCurrentMinute = nextTime.getTime() < now.getTime();
+
+  if (remainder !== 0) {
+    nextTime.setMinutes(minute + (TIME_PICKER_MINUTE_STEP - remainder));
+  } else if (hasPassedCurrentMinute) {
+    nextTime.setMinutes(minute + TIME_PICKER_MINUTE_STEP);
   }
 
-  const hour24 = nextMinute.getHours();
+  const hour24 = nextTime.getHours();
 
   return {
     period: hour24 < 12 ? '오전' : '오후',
     hour: String(hour24 % 12 === 0 ? 12 : hour24 % 12),
-    minute: String(nextMinute.getMinutes()).padStart(2, '0'),
+    minute: String(nextTime.getMinutes()).padStart(2, '0'),
   };
 }
 
