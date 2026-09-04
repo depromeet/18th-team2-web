@@ -1,3 +1,27 @@
+import type { Location } from 'react-router-dom';
+
+export const CALENDAR_CONSENT_QUERY_KEY = 'calendarConsent';
+export const CALENDAR_REMINDER_QUERY_KEY = 'talkCalendarReminder';
+export const CALENDAR_CONSENT_REQUIRED_CODE = 'KAKAO_CALENDAR_CONSENT_REQUIRED';
+
+type TalkCalendarLocation = Pick<Location, 'pathname' | 'search'>;
+
+export function buildTalkCalendarReturnPath(
+  location: TalkCalendarLocation,
+  includeReminder = false,
+) {
+  const params = new URLSearchParams(location.search);
+  params.delete(CALENDAR_CONSENT_QUERY_KEY);
+  params.delete(CALENDAR_REMINDER_QUERY_KEY);
+
+  if (includeReminder) {
+    params.set(CALENDAR_REMINDER_QUERY_KEY, '1');
+  }
+
+  const search = params.toString();
+  return `${location.pathname}${search ? `?${search}` : ''}`;
+}
+
 export function getCalendarConsentMessage(calendarConsent: string) {
   switch (calendarConsent) {
     case 'denied':

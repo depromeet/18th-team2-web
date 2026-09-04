@@ -9,10 +9,11 @@ import { ROUTES } from '@/constants/routes';
 import { getRollingPaperWritableUntil, usePartyInvite } from '@/services/party-invite';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { parseKstDateTime } from '@/utils/date';
-import { getCalendarConsentMessage } from '@/utils/talkCalendar';
-
-const CALENDAR_CONSENT_QUERY_KEY = 'calendarConsent';
-const CALENDAR_REMINDER_QUERY_KEY = 'talkCalendarReminder';
+import {
+  CALENDAR_CONSENT_QUERY_KEY,
+  CALENDAR_REMINDER_QUERY_KEY,
+  getCalendarConsentMessage,
+} from '@/utils/talkCalendar';
 
 function buildCleanInvitePath(pathname: string, search: string) {
   const params = new URLSearchParams(search);

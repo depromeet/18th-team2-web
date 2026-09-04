@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Location } from 'react-router-dom';
-import { generatePath, useLocation, useNavigate } from 'react-router-dom';
+import { useCallback, useState } from 'react';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import defaultInvitationCharacter from '@/assets/images/character/character-blue-party-hat.png';
 import shareIcon from '@/assets/icons/icon-share.svg';
@@ -16,35 +15,15 @@ import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { Toast, type ToastState } from '@/components/ui/Toast';
 import { ROUTES } from '@/constants/routes';
+import { useTalkCalendarReminder } from '@/hooks/party-invitation/useTalkCalendarReminder';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
-import { ApiError } from '@/services/api';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
-import {
-  useIssueTalkCalendarConsentUrl,
-  useRegisterPartyTalkCalendar,
-} from '@/services/talk-calendar';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
-import { getCalendarConsentMessage } from '@/utils/talkCalendar';
 
 const activeInvitationButtonClassName =
   'bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]';
-const CALENDAR_CONSENT_REQUIRED_CODE = 'KAKAO_CALENDAR_CONSENT_REQUIRED';
-const CALENDAR_REMINDER_QUERY_KEY = 'talkCalendarReminder';
-
-function buildTalkCalendarReturnPath(location: Location, includeReminder = false) {
-  const params = new URLSearchParams(location.search);
-  params.delete('calendarConsent');
-  params.delete(CALENDAR_REMINDER_QUERY_KEY);
-
-  if (includeReminder) {
-    params.set(CALENDAR_REMINDER_QUERY_KEY, '1');
-  }
-
-  const search = params.toString();
-  return `${location.pathname}${search ? `?${search}` : ''}`;
-}
 
 interface PartyInvitationViewProps {
   partyId: string;
@@ -69,7 +48,6 @@ export function PartyInvitationView({
   partyOption,
 }: PartyInvitationViewProps) {
   const navigate = useNavigate();
-  const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { isWithin5Minutes } = usePartyCountdown(startsAt);
 
@@ -77,113 +55,21 @@ export function PartyInvitationView({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: joinPartyInvite, isPending: isJoining } = useJoinPartyInvite();
-  const { mutate: registerTalkCalendar, isPending: isRegisteringTalkCalendar } =
-    useRegisterPartyTalkCalendar();
-  const { mutate: issueTalkCalendarConsentUrl, isPending: isIssuingTalkCalendarConsentUrl } =
-    useIssueTalkCalendarConsentUrl();
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
-  const [hasRegisteredTalkCalendar, setHasRegisteredTalkCalendar] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
-  const handledTalkCalendarReturnRef = useRef(false);
   const inviteLink = `${window.location.origin}${window.location.pathname}`;
   const canDelete = isHost && startsAt.getTime() > Date.now();
-  const isTalkCalendarPending = isRegisteringTalkCalendar || isIssuingTalkCalendarConsentUrl;
   const showToast = useCallback((type: ToastState['type'], message: string) => {
     setToast({ id: Date.now(), type, message });
   }, []);
-
-  const handleTalkCalendarError = useCallback(
-    (error: unknown) => {
-      if (error instanceof ApiError && error.code === CALENDAR_CONSENT_REQUIRED_CODE) {
-        issueTalkCalendarConsentUrl(buildTalkCalendarReturnPath(location, true), {
-          onSuccess: (res) => {
-            const consentUrl = res.data?.consentUrl;
-
-            if (!consentUrl) {
-              showToast(
-                'error',
-                '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.',
-              );
-              return;
-            }
-
-            window.location.href = consentUrl;
-          },
-          onError: () => {
-            showToast('error', '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.');
-          },
-        });
-        return;
-      }
-
-      if (error instanceof ApiError && error.message) {
-        showToast('error', error.message);
-        return;
-      }
-
-      showToast('error', '카카오 톡캘린더 알림을 등록할 수 없어요. 다시 시도해주세요.');
-    },
-    [issueTalkCalendarConsentUrl, location, showToast],
-  );
-
-  const requestTalkCalendarRegistration = useCallback(() => {
-    if (hasRegisteredTalkCalendar) {
-      showToast('success', '이미 알림을 설정했어요.');
-      return;
-    }
-
-    registerTalkCalendar(partyId, {
-      onSuccess: (res) => {
-        setHasRegisteredTalkCalendar(true);
-        showToast(
-          'success',
-          res.data?.updated ? '이미 알림을 설정했어요.' : '카카오 톡캘린더 알림이 등록됐어요.',
-        );
-      },
-      onError: handleTalkCalendarError,
-    });
-  }, [
-    handleTalkCalendarError,
-    hasRegisteredTalkCalendar,
+  const openLoginPrompt = useCallback(() => setIsLoginPromptOpen(true), []);
+  const { isTalkCalendarPending, handleRegisterTalkCalendar } = useTalkCalendarReminder({
     partyId,
-    registerTalkCalendar,
+    isAuthenticated,
     showToast,
-  ]);
-
-  function handleRegisterTalkCalendar() {
-    if (!isAuthenticated) {
-      useAuthStore.getState().setRedirectUrl(buildTalkCalendarReturnPath(location, true));
-      setIsLoginPromptOpen(true);
-      return;
-    }
-
-    requestTalkCalendarRegistration();
-  }
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const calendarConsent = params.get('calendarConsent');
-    const shouldRegisterAfterLogin = params.get(CALENDAR_REMINDER_QUERY_KEY) === '1';
-
-    if (!calendarConsent && !shouldRegisterAfterLogin) return;
-    if (handledTalkCalendarReturnRef.current) return;
-
-    handledTalkCalendarReturnRef.current = true;
-    navigate(buildTalkCalendarReturnPath(location), { replace: true });
-
-    if (calendarConsent && calendarConsent !== 'granted') {
-      showToast('error', getCalendarConsentMessage(calendarConsent));
-      return;
-    }
-
-    if (isAuthenticated) {
-      requestTalkCalendarRegistration();
-      return;
-    }
-
-    setIsLoginPromptOpen(true);
-  }, [isAuthenticated, location, navigate, requestTalkCalendarRegistration, showToast]);
+    openLoginPrompt,
+  });
 
   function handleEnterParty() {
     const partyEnterPath = generatePath(ROUTES.partyEnter, { partyId });
