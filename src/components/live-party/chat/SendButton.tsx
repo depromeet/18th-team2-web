@@ -9,7 +9,7 @@ export function SendButton({ onClick }: SendButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="bg-blue-600 flex h-11 w-12.5 shrink-0 items-center justify-center rounded-full"
+      className="flex h-11 w-12.5 shrink-0 items-center justify-center rounded-full bg-blue-600"
     >
       <ArrowUpIconSvg className="h-6 w-6" />
     </button>
