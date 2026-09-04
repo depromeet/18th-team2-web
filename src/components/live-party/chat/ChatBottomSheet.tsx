@@ -59,7 +59,7 @@ export function ChatBottomSheet({
 
   return (
     <div
-      className={`fixed right-0 bottom-0 left-0 z-50 mx-auto w-full max-w-[600px] px-4 transition-[height,filter,background-color,backdrop-filter] duration-300 ${
+      className={`fixed right-0 bottom-0 left-0 z-50 mx-auto w-full max-w-150 px-4 transition-[height,filter,background-color,backdrop-filter] duration-300 ${
         sheetBackgroundClass
       } border-t-0 ${
         displayExpanded
@@ -70,12 +70,12 @@ export function ChatBottomSheet({
     >
       <div
         aria-hidden
-        className={`pointer-events-none absolute inset-x-0 -top-20 h-20 bg-linear-to-b from-transparent via-[#000341]/30 to-[#000341]/90 transition-opacity duration-300 ${
+        className={`via-blue-1000/30 to-blue-1000/90 pointer-events-none absolute inset-x-0 -top-20 h-20 bg-linear-to-b from-transparent transition-opacity duration-300 ${
           displayExpanded ? 'opacity-0' : 'opacity-100'
         }`}
       />
       {showParticipantCount && (
-        <div className="absolute top-3 right-4 z-10 flex items-center gap-1 rounded-[20px] bg-[#000341]/90 px-2 py-1.5 text-[11px] leading-4 font-bold text-white backdrop-blur-[10px]">
+        <div className="bg-blue-1000/90 absolute top-3 right-4 z-10 flex items-center gap-1 rounded-[20px] px-2 py-1.5 text-[11px] leading-4 font-bold text-white backdrop-blur-[10px]">
           <svg
             aria-hidden
             className="text-blue-400"
