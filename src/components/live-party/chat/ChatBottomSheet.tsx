@@ -8,6 +8,8 @@ import { useViewportBottomOffset } from '@/hooks/useViewportBottomOffset';
 import { useChatBottomSheet } from '@/hooks/live-party/useChatBottomSheet';
 import { useLivePartyChatStore } from '@/stores/useLivePartyChatStore';
 
+const KEYBOARD_OPEN_HEIGHT = 250;
+
 export interface ChatBottomSheetMetrics {
   height: number;
   bottomOffset: number;
@@ -38,33 +40,38 @@ export function ChatBottomSheet({
     hasTopOverlayContent,
   });
   const bottomOffset = useViewportBottomOffset();
+  const isKeyboardOpen = bottomOffset > 0;
+  const displayHeight = isKeyboardOpen ? KEYBOARD_OPEN_HEIGHT : height;
+  const displayExpanded = isExpanded || isKeyboardOpen;
   const showParticipantCount =
     typeof participantCount === 'number' &&
     typeof maxParticipantCount === 'number' &&
     maxParticipantCount > 0;
-  const sheetBackgroundClass = isExpanded
+  const sheetBackgroundClass = displayExpanded
     ? 'bg-white/15'
     : isEntryWaiting
       ? 'bg-[#050640]/85'
       : 'bg-[#000341]/92';
 
   useEffect(() => {
-    onMetricsChange?.({ height, bottomOffset, isExpanded });
-  }, [bottomOffset, height, isExpanded, onMetricsChange]);
+    onMetricsChange?.({ height: displayHeight, bottomOffset, isExpanded: displayExpanded });
+  }, [bottomOffset, displayExpanded, displayHeight, onMetricsChange]);
 
   return (
     <div
       className={`fixed right-0 bottom-0 left-0 z-50 mx-auto w-full max-w-[600px] px-4 transition-[height,filter,background-color,backdrop-filter] duration-300 ${
         sheetBackgroundClass
       } border-t-0 ${
-        isExpanded ? 'overflow-hidden rounded-t-[20px] backdrop-blur-[50px]' : 'overflow-visible'
+        displayExpanded
+          ? 'overflow-hidden rounded-t-[20px] backdrop-blur-[50px]'
+          : 'overflow-visible'
       } ${isBlurred ? 'pointer-events-none blur-[6px] brightness-[0.55]' : ''}`}
-      style={{ height, bottom: bottomOffset }}
+      style={{ height: displayHeight, bottom: bottomOffset }}
     >
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-x-0 -top-20 h-20 bg-linear-to-b from-transparent via-[#000341]/30 to-[#000341]/90 transition-opacity duration-300 ${
-          isExpanded ? 'opacity-0' : 'opacity-100'
+          displayExpanded ? 'opacity-0' : 'opacity-100'
         }`}
       />
       {showParticipantCount && (
@@ -93,7 +100,7 @@ export function ChatBottomSheet({
         </div>
       )}
       <div className="flex h-full flex-col">
-        {isExpanded && <ChatHeader onPointerDown={handlePointerDown} />}
+        {displayExpanded && <ChatHeader onPointerDown={handlePointerDown} />}
         <ChatList messages={messages} onClick={toggle} />
         <ChipList onChipClick={onSend} />
         <ChatFooter onSend={onSend} />
