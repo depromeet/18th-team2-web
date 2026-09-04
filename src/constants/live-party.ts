@@ -146,6 +146,7 @@ export const STEP_DELAY_DURATION = 1000;
 export const CONFETTI_COLORS = ['#33E3BD', '#909BFF', '#E3BD33', '#FF73F8'];
 
 export const CHAT_SHEET_MIN_HEIGHT = 283;
+export const CHAT_SHEET_KEYBOARD_OPEN_HEIGHT = 250;
 export const MUSIC_TEXT_HEIGHT = 84;
 
 export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';

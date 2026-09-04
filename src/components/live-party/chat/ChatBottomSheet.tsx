@@ -7,8 +7,7 @@ import { ChatList } from '@/components/live-party/chat/ChatList';
 import { useViewportBottomOffset } from '@/hooks/useViewportBottomOffset';
 import { useChatBottomSheet } from '@/hooks/live-party/useChatBottomSheet';
 import { useLivePartyChatStore } from '@/stores/useLivePartyChatStore';
-
-const KEYBOARD_OPEN_HEIGHT = 250;
+import { CHAT_SHEET_KEYBOARD_OPEN_HEIGHT } from '@/constants/live-party';
 
 export interface ChatBottomSheetMetrics {
   height: number;
@@ -41,7 +40,7 @@ export function ChatBottomSheet({
   });
   const bottomOffset = useViewportBottomOffset();
   const isKeyboardOpen = bottomOffset > 0;
-  const displayHeight = isKeyboardOpen ? KEYBOARD_OPEN_HEIGHT : height;
+  const displayHeight = isKeyboardOpen ? CHAT_SHEET_KEYBOARD_OPEN_HEIGHT : height;
   const displayExpanded = isExpanded || isKeyboardOpen;
   const showParticipantCount =
     typeof participantCount === 'number' &&
