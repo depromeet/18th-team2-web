@@ -48,10 +48,8 @@ export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetPr
   }, [orderedParticipants]);
 
   return (
-    <div className="mb-4 flex h-[456px] max-h-[calc(100svh_-_32px_-_env(safe-area-inset-bottom))] w-[calc(100vw_-_20px)] max-w-[355px] flex-col overflow-y-auto rounded-[16px] bg-white px-5 pt-3 pb-5 shadow-lg">
-      <div className="bg-grey-100 mx-auto h-1 w-12 rounded-full" />
-
-      <div className="mt-7 flex items-start justify-between">
+    <div className="mb-4 flex h-114 max-h-[calc(100svh-32px-env(safe-area-inset-bottom))] w-[calc(100vw-20px)] max-w-88.75 flex-col overflow-y-auto rounded-2xl bg-white px-5 pt-3 pb-5 shadow-lg">
+      <div className="mt-5 flex items-start justify-between">
         <div className="flex flex-col gap-1">
           <H2 className="font-semibold">정말로 파티를 시작할까요?</H2>
           <B1 className="text-grey-400 whitespace-pre-line">

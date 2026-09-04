@@ -42,7 +42,7 @@ export default function PartyEnterPage() {
               onChange={handleChangeNickname}
             />
           </article>
-          <section className="flex h-[236px] w-full flex-col items-center justify-center gap-5">
+          <section className="flex h-59 w-full flex-col items-center justify-center gap-5">
             <CharacterSelect value={selectedCharacterId} onSelect={handleSelectCharacter} />
           </section>
           <footer className="flex w-full flex-col items-center gap-2">
@@ -64,10 +64,7 @@ export default function PartyEnterPage() {
                 <B2 className="font-medium text-red-500">참가자가 모두 차서 입장이 불가능해요</B2>
               </div>
             )}
-            <Button
-              type="submit"
-              disabled={!inputValue || isPending || isInputError || isPartyFull || !!countdown}
-            >
+            <Button type="submit" disabled={isPending || isPartyFull || !!countdown}>
               파티 입장하러 가기
             </Button>
           </footer>

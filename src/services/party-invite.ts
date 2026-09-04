@@ -57,8 +57,11 @@ export const partyInviteQueries = {
 
 // ── Query hooks ──
 
-export function usePartyInvite(inviteToken: string) {
-  return useQuery(partyInviteQueries.detail(inviteToken));
+export function usePartyInvite(inviteToken: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    ...partyInviteQueries.detail(inviteToken),
+    enabled: Boolean(inviteToken) && (options?.enabled ?? true),
+  });
 }
 
 // ── Mutation hooks ──

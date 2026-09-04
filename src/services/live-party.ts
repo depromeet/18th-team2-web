@@ -8,6 +8,7 @@ import { PARTICIPANT_TOKEN_KEY } from '@/constants/live-party';
 import type { components } from '@/types/api';
 import { getParticipantOptions } from '@/utils/headers';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 
 type SubmitBurstGameTapRequest = components['schemas']['SubmitBurstGameTapRequest'];
 type ApiResponseBurstGameStateResponse = components['schemas']['ApiResponseBurstGameStateResponse'];
@@ -16,40 +17,12 @@ type ApiResponseRealtimePartyNextActionResult =
 
 export type PartyApiPhase = components['schemas']['PartyPhaseResult']['phase'];
 
-export type RealtimePartyState = components['schemas']['RealtimePartyStateResult'];
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
 export type RealtimePartyNextActionResult = components['schemas']['RealtimePartyNextActionResult'];
 export type PartyParticipantsResult = components['schemas']['PartyParticipantsResponse'];
 export type PartyParticipantResult = components['schemas']['PartyParticipantResponse'];
 
 export const realtimePartyQueries = {
-  state: (partyId: string) =>
-    queryOptions({
-      queryKey: ['realtime-party-state', partyId],
-      queryFn: async () => {
-        const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
-          `/api/v1/parties/${partyId}/realtime-state`,
-          getParticipantOptions(),
-        );
-        return res.data ?? null;
-      },
-      enabled: Boolean(partyId),
-      refetchInterval: 3000,
-    }),
-
-  participants: (partyId: string, enabled = true) =>
-    queryOptions({
-      queryKey: ['party-participants', partyId],
-      queryFn: async () => {
-        const res = await api.get<components['schemas']['ApiResponsePartyParticipantsResponse']>(
-          `/api/v1/parties/${partyId}/participants`,
-          getParticipantOptions(),
-        );
-        return res.data ?? null;
-      },
-      enabled: Boolean(partyId) && enabled,
-      refetchInterval: 3000,
-    }),
   nextAction: (partyId: string, participantToken?: string | null, enabled = true) =>
     queryOptions({
       queryKey: ['realtime-party-next-action', partyId, participantToken],
@@ -63,10 +36,6 @@ export const realtimePartyQueries = {
       enabled: Boolean(partyId) && enabled,
     }),
 };
-
-export function useRealtimePartyState(partyId: string, enabled = true) {
-  return useQuery({ ...realtimePartyQueries.state(partyId), enabled: Boolean(partyId) && enabled });
-}
 
 export function useRealtimePartyNextAction(
   partyId: string,
@@ -187,6 +156,8 @@ export function connectRealtimeParty(
         client.subscribe(
           `/topic/parties/${partyId}/personal/${clientRequestId}`,
           (message: IMessage) => {
+            if (signal.aborted) return;
+
             const parsed = parseWebSocketFrame(message.body);
             if (!parsed) return;
 
@@ -202,6 +173,8 @@ export function connectRealtimeParty(
               if (!broadcastSubscribed) {
                 broadcastSubscribed = true;
                 client.subscribe(`/topic/parties/${partyId}`, (broadcast: IMessage) => {
+                  if (signal.aborted) return;
+
                   const parsedBroadcast = parseWebSocketFrame(broadcast.body);
                   if (!parsedBroadcast) return;
 
@@ -286,6 +259,9 @@ export function useGetPartyParticipants(
     refetchInterval?: number;
   },
 ) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
+
   return useQuery({
     queryKey: ['party-participants', partyId],
     queryFn: async () => {
@@ -296,8 +272,11 @@ export function useGetPartyParticipants(
 
       return res.data ?? null;
     },
-    enabled: Boolean(partyId) && (options?.enabled ?? true),
+    // 비회원은 WS 입장(entered)으로 participantToken을 받기 전엔 /participants가 401을 반환한다.
+    enabled:
+      Boolean(partyId) && (isAuthenticated || hasParticipantToken) && (options?.enabled ?? true),
     refetchInterval: options?.refetchInterval,
+    refetchOnMount: 'always',
   });
 }
 

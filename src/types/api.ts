@@ -2343,8 +2343,8 @@ export interface components {
             httpOnly?: boolean;
         };
         TaglibDescriptor: {
-            taglibURI?: string;
             taglibLocation?: string;
+            taglibURI?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseListCharacterResult: {

@@ -37,7 +37,7 @@ export const LIVE_PARTY_STEP = {
   ENTRY: 'ENTRY', // 주인공 등장
   MUSIC: 'MUSIC', // 노래
   CANDLE: 'CANDLE', // 촛불 불기
-  PINATA: 'PINATA', // 박 깨기
+  BURST_GAME: 'BURST_GAME', // 박 깨기
   CLOSEABLE: 'CLOSEABLE', // 파티 종료 가능 상태
   END: 'END', // 파티 종료
 } as const;
@@ -48,7 +48,7 @@ export const LIVE_PARTY_STEP_ARRAY: PartyStep[] = [
   LIVE_PARTY_STEP.ENTRY,
   LIVE_PARTY_STEP.MUSIC,
   LIVE_PARTY_STEP.CANDLE,
-  LIVE_PARTY_STEP.PINATA,
+  LIVE_PARTY_STEP.BURST_GAME,
   LIVE_PARTY_STEP.CLOSEABLE,
   LIVE_PARTY_STEP.END,
 ];
@@ -153,6 +153,7 @@ export const PARTICIPANT_TOKEN_KEY = 'rt-participant-token';
 /** WebSocket 이벤트 이름 */
 export const WS_EVENT = {
   ENTERED: 'entered',
+  PARTY_STATE: 'party-state',
   MESSAGE: 'message',
   USER_ENTERED: 'user-entered',
   USER_LEFT: 'user-left',
@@ -180,4 +181,9 @@ export const characterSizeStyles = {
   lg: 'w-20 h-20',
   sm: 'w-9 h-9',
   xl: 'w-30 h-30',
+} as const;
+
+export const GET_PARTICIPANT_INTERVAL = {
+  SHORT: 3000,
+  LONG: 15000,
 } as const;

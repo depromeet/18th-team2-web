@@ -54,10 +54,6 @@ export function RollingPaperArchiveNoticeSheet({
           aria-labelledby="rolling-paper-archive-notice-title"
           className="rolling-paper-archive-sheet flex w-full flex-col rounded-2xl bg-white"
         >
-          <div className="flex h-4 items-end justify-center">
-            <div className="bg-grey-100 h-1 w-12 rounded-full" />
-          </div>
-
           <div className="px-5 pt-5 pb-2.5">
             <H2
               id="rolling-paper-archive-notice-title"

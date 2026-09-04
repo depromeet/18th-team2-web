@@ -20,7 +20,7 @@ function getProcessIndex(step: PartyStep) {
   const activeIndexByStep: Partial<Record<PartyStep, number>> = {
     MUSIC: 0,
     CANDLE: 1,
-    PINATA: 2,
+    BURST_GAME: 2,
     CLOSEABLE: 3,
   };
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactCanvasConfetti from 'react-canvas-confetti';
 
 import { CandleList } from '@/components/live-party/candle/CandleList';
@@ -8,37 +8,40 @@ import { Button } from '@/components/ui/Button';
 import { CANDLES } from '@/constants/live-party';
 import { useCandleStep } from '@/hooks/live-party/useCandleStep';
 import { useFallConfetti } from '@/hooks/live-party/useFallConfetti';
-import type { components } from '@/types/api';
 import { WaitingHostActionOverlay } from './WaitingHostActionOverlay';
 
 interface PartyCandleStepProps {
   onComplete?: () => void;
   onProcessComplete?: () => void;
-  candleBlowState: components['schemas']['CandleBlowResponse'] | null;
   isHost: boolean;
 }
 
-export function PartyCandleStep({
-  onComplete,
-  onProcessComplete,
-  candleBlowState,
-  isHost,
-}: PartyCandleStepProps) {
+export function PartyCandleStep({ onComplete, onProcessComplete, isHost }: PartyCandleStepProps) {
   const hasNotifiedCompleteRef = useRef(false);
   const { handleInitConfetti, fireConfetti } = useFallConfetti();
 
-  const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep({
-    candleBlowState,
-  });
+  const { isCandleOffList, allCandleOff, glowOpacity, handleClickCandle } = useCandleStep();
 
   const showHostNextButton = allCandleOff && isHost;
-  const showWaitingOverlay = allCandleOff && !isHost;
+
+  const [readyForWaitingOverlay, setReadyForWaitingOverlay] = useState(false);
+  const showWaitingOverlay = allCandleOff && !isHost && readyForWaitingOverlay;
 
   useEffect(() => {
     if (allCandleOff) {
       fireConfetti();
     }
   }, [allCandleOff, fireConfetti]);
+
+  useEffect(() => {
+    if (!allCandleOff) {
+      setReadyForWaitingOverlay(false);
+      return;
+    }
+
+    const timer = setTimeout(() => setReadyForWaitingOverlay(true), 2500);
+    return () => clearTimeout(timer);
+  }, [allCandleOff]);
 
   useEffect(() => {
     if (!allCandleOff) {
@@ -53,7 +56,7 @@ export function PartyCandleStep({
   }, [allCandleOff, onProcessComplete]);
 
   return (
-    <div className="bg-blue-1000 relative flex h-svh w-full max-w-[600px] flex-col items-center justify-center gap-12 overflow-hidden pt-14 [@media_(max-height:700px)]:gap-8 [@media_(max-height:700px)]:pt-10">
+    <div className="bg-blue-1000 relative flex h-svh w-full max-w-150 flex-col items-center justify-center gap-12 overflow-hidden pt-14 [@media_(max-height:700px)]:gap-8 [@media_(max-height:700px)]:pt-10">
       <ReactCanvasConfetti
         onInit={handleInitConfetti}
         className="pointer-events-none absolute inset-0 z-30 h-full w-full"
