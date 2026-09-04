@@ -8,6 +8,7 @@ export function SendButton({ onClick }: SendButtonProps) {
   return (
     <button
       type="button"
+      aria-label="메시지 전송"
       onClick={onClick}
       className="flex h-11 w-12.5 shrink-0 items-center justify-center rounded-full bg-blue-600"
     >
