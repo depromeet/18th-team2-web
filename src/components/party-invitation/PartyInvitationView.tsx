@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 
 import defaultInvitationCharacter from '@/assets/images/character/character-blue-party-hat.png';
@@ -11,8 +11,11 @@ import { ParticipantActions } from '@/components/party-invitation/ParticipantAct
 import { PartyDeleteDialog } from '@/components/party-invitation/PartyDeleteDialog';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
+import { Toast, type ToastState } from '@/components/ui/Toast';
 import { ROUTES } from '@/constants/routes';
+import { useTalkCalendarReminder } from '@/hooks/party-invitation/useTalkCalendarReminder';
 import { usePartyCountdown } from '@/hooks/usePartyCountdown';
 import { useDeleteParty } from '@/services/party';
 import { useJoinPartyInvite } from '@/services/party-invite';
@@ -53,8 +56,20 @@ export function PartyInvitationView({
   const { mutate: deleteParty, isPending: isDeletingParty } = useDeleteParty();
   const { mutate: joinPartyInvite, isPending: isJoining } = useJoinPartyInvite();
   const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const inviteLink = `${window.location.origin}${window.location.pathname}`;
   const canDelete = isHost && startsAt.getTime() > Date.now();
+  const showToast = useCallback((type: ToastState['type'], message: string) => {
+    setToast({ id: Date.now(), type, message });
+  }, []);
+  const openLoginPrompt = useCallback(() => setIsLoginPromptOpen(true), []);
+  const { isTalkCalendarPending, handleRegisterTalkCalendar } = useTalkCalendarReminder({
+    partyId,
+    isAuthenticated,
+    showToast,
+    openLoginPrompt,
+  });
 
   function handleEnterParty() {
     const partyEnterPath = generatePath(ROUTES.partyEnter, { partyId });
@@ -166,13 +181,13 @@ export function PartyInvitationView({
           </div>
         </header>
 
-        <section className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:gap-3 [@media_(max-height:740px)]:pt-2">
+        <section className="party-invitation-short-section mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))]">
           {isHost ? <HostTitle hostName={hostName} /> : <ParticipantTitle hostName={hostName} />}
           <img
             src={defaultInvitationCharacter}
             alt=""
             aria-hidden="true"
-            className="h-[120px] w-[120px] object-contain [@media_(max-height:740px)]:h-[96px] [@media_(max-height:740px)]:w-[96px]"
+            className="party-invitation-short-character h-[120px] w-[120px] object-contain"
           />
           <InvitationCard
             hostName={hostName}
@@ -181,8 +196,10 @@ export function PartyInvitationView({
             isHost={isHost}
             isWithin5Minutes={isWithin5Minutes}
             hasWrittenRollingPaper={hasWrittenRollingPaper}
+            isRegisteringTalkCalendar={isTalkCalendarPending}
             onWriteRollingPaper={handleWriteRollingPaper}
             onViewRollingPaper={handleViewRollingPaper}
+            onRegisterTalkCalendar={handleRegisterTalkCalendar}
           />
           <div className="mt-4 flex w-full max-w-[375px] flex-col items-center justify-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] pt-2 pb-[env(safe-area-inset-bottom)]">
             <div className="w-full max-w-[343px]">{invitationActions}</div>
@@ -204,6 +221,12 @@ export function PartyInvitationView({
         onCancel={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleDeleteParty}
       />
+      <LoginPromptSheet
+        isOpen={isLoginPromptOpen}
+        titlePrefix="카카오톡 알림을 받기 위해서는"
+        onClose={() => setIsLoginPromptOpen(false)}
+      />
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </>
   );
 }

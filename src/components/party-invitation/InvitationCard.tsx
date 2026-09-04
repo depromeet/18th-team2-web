@@ -18,8 +18,10 @@ interface InvitationCardProps {
   isHost: boolean;
   isWithin5Minutes: boolean;
   hasWrittenRollingPaper: boolean;
+  isRegisteringTalkCalendar?: boolean;
   onWriteRollingPaper: () => void;
   onViewRollingPaper: () => void;
+  onRegisterTalkCalendar: () => void;
 }
 
 function formatInvitationDate(date: Date) {
@@ -38,7 +40,7 @@ function formatDday(date: Date) {
 
 function InvitationDivider({ label }: { label: string }) {
   return (
-    <div className="my-7 flex items-center justify-center gap-2 [@media_(max-height:740px)]:my-5">
+    <div className="party-invitation-short-divider my-7 flex items-center justify-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span className="h-px min-w-0 flex-1 bg-blue-50" />
         <span className="h-1 w-1 shrink-0 rounded-full bg-blue-50" />
@@ -79,15 +81,17 @@ export function InvitationCard({
   isHost,
   isWithin5Minutes,
   hasWrittenRollingPaper,
+  isRegisteringTalkCalendar = false,
   onWriteRollingPaper,
   onViewRollingPaper,
+  onRegisterTalkCalendar,
 }: InvitationCardProps) {
   const isRollingPaper = partyOption === 'PAPER_ONLY';
   const showRollingPaperDisabledNotice = !isHost && !hasWrittenRollingPaper && isWithin5Minutes;
 
   return (
     <article
-      className="flex w-full max-w-[343px] flex-col rounded-[12px] bg-white px-5 pt-5 pb-5 [@media_(max-height:740px)]:pt-4 [@media_(max-height:740px)]:pb-4"
+      className="party-invitation-short-card flex w-full max-w-[343px] flex-col rounded-[12px] bg-white px-5 pt-5 pb-5"
       style={{ boxShadow: '0px 0px 4px rgba(88, 146, 255, 0.3)' }}
     >
       <div className="flex flex-col items-center gap-5">
@@ -110,10 +114,13 @@ export function InvitationCard({
         {!isRollingPaper && !isWithin5Minutes && (
           <button
             type="button"
-            className="text-body-2 inline-flex h-[46px] items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none [@media_(max-height:740px)]:h-10 [@media_(max-height:740px)]:px-5"
+            className="party-invitation-short-calendar-button text-body-2 inline-flex h-[46px] cursor-pointer items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black transition-[filter,transform] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:translate-y-px active:brightness-[0.98] disabled:cursor-default disabled:bg-[#FEE500] disabled:text-black disabled:opacity-100"
+            disabled={isRegisteringTalkCalendar}
+            aria-busy={isRegisteringTalkCalendar}
+            onClick={onRegisterTalkCalendar}
           >
             <img src={iconChat} alt="" className="h-5 w-5" />
-            5분 전 카톡으로 알림받기
+            5분 전 카카오톡으로 알림받기
           </button>
         )}
       </div>
@@ -127,14 +134,14 @@ export function InvitationCard({
               src={letterImage}
               alt=""
               aria-hidden="true"
-              className="h-[220px] w-full max-w-[240px] object-contain [@media_(max-height:740px)]:h-[160px]"
+              className="party-invitation-short-image h-[220px] w-full max-w-[240px] object-contain"
             />
 
-            <div className="mt-5 text-center [@media_(max-height:740px)]:mt-3">
+            <div className="party-invitation-short-mt-3 mt-5 text-center">
               <h2 className="text-head-2 text-grey-900 font-semibold whitespace-pre-line">
                 초대장을 공유하고{'\n'}롤링페이퍼를 받아보세요!
               </h2>
-              <p className="text-body-1 text-grey-500 mt-4 font-medium [@media_(max-height:740px)]:mt-3">
+              <p className="party-invitation-short-mt-3 text-body-1 text-grey-500 mt-4 font-medium">
                 롤링페이퍼는 파티가 끝난 후 볼 수 있어요
               </p>
             </div>
@@ -145,25 +152,25 @@ export function InvitationCard({
               src={letterImage}
               alt=""
               aria-hidden="true"
-              className="h-[220px] w-full max-w-[240px] object-contain [@media_(max-height:740px)]:h-[160px]"
+              className="party-invitation-short-image h-[220px] w-full max-w-[240px] object-contain"
             />
 
-            <div className="mt-5 text-center [@media_(max-height:740px)]:mt-3">
+            <div className="party-invitation-short-mt-3 mt-5 text-center">
               <h2 className="text-head-2 text-grey-900 font-semibold">생일 축하 한마디 남기기</h2>
-              <p className="text-body-1 text-grey-500 mt-4 font-medium whitespace-pre-line [@media_(max-height:740px)]:mt-3">
+              <p className="party-invitation-short-mt-3 text-body-1 text-grey-500 mt-4 font-medium whitespace-pre-line">
                 롤링페이퍼를 미리 작성해두면{'\n'}파티 종료 후 생일 주인공에게 전달돼요 💌
               </p>
             </div>
 
             {showRollingPaperDisabledNotice ? (
-              <div className="mt-5 flex w-full flex-col gap-3 [@media_(max-height:740px)]:mt-4">
+              <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
                 <InvitationCallout>파티가 끝나고도 작성할 수 있어요</InvitationCallout>
                 <Button variant="secondary" size="full" disabled>
                   롤링페이퍼 남기기
                 </Button>
               </div>
             ) : hasWrittenRollingPaper ? (
-              <div className="mt-5 flex w-full flex-col gap-3 [@media_(max-height:740px)]:mt-4">
+              <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
                 <InvitationCallout type="check">롤링페이퍼를 이미 작성했어요</InvitationCallout>
                 <Button variant="white-blue" size="full" onClick={onViewRollingPaper}>
                   롤링페이퍼 확인하기
@@ -171,7 +178,7 @@ export function InvitationCard({
               </div>
             ) : (
               <>
-                <Caption className="mt-5 font-semibold text-blue-500 [@media_(max-height:740px)]:mt-4">
+                <Caption className="party-invitation-short-mt-4 mt-5 font-semibold text-blue-500">
                   작성한 롤링페이퍼는 주인공만 볼 수 있어요
                 </Caption>
 
