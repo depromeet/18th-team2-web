@@ -115,7 +115,10 @@ export function PartyInvitationView({
             const consentUrl = res.data?.consentUrl;
 
             if (!consentUrl) {
-              showToast('error', '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.');
+              showToast(
+                'error',
+                '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.',
+              );
               return;
             }
 

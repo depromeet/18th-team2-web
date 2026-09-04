@@ -35,7 +35,7 @@ export function Toast({ toast, duration = 2500, onClose }: ToastProps) {
         role={toast.type === 'error' ? 'alert' : 'status'}
       >
         <Icon className="h-[22px] w-[22px] shrink-0" aria-hidden="true" />
-        <p className="text-body-2 break-keep text-center font-semibold">{toast.message}</p>
+        <p className="text-body-2 text-center font-semibold break-keep">{toast.message}</p>
       </div>
     </div>,
     document.body,
