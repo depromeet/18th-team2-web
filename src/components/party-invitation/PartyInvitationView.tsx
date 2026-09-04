@@ -351,7 +351,7 @@ export function PartyInvitationView({
       />
       <LoginPromptSheet
         isOpen={isLoginPromptOpen}
-        titlePrefix="카톡 알림을 받기 위해서는"
+        titlePrefix="카카오톡 알림을 받기 위해서는"
         onClose={() => setIsLoginPromptOpen(false)}
       />
       <Toast toast={toast} onClose={() => setToast(null)} />

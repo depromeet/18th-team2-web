@@ -120,7 +120,7 @@ export function InvitationCard({
             onClick={onRegisterTalkCalendar}
           >
             <img src={iconChat} alt="" className="h-5 w-5" />
-            5분 전 카톡으로 알림받기
+            5분 전 카카오톡으로 알림받기
           </button>
         )}
       </div>
