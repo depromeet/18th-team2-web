@@ -72,16 +72,7 @@ export default function PartyInviteEntryPage() {
     );
   }
 
-  if (hasFailedCalendarConsent) {
-    return (
-      <>
-        <LoadingLayout />
-        {toastNode}
-      </>
-    );
-  }
-
-  if (isLoading) {
+  if (hasFailedCalendarConsent || isLoading) {
     return (
       <>
         <LoadingLayout />
