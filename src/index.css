@@ -50,6 +50,53 @@ body {
   font-family: var(--font-sans);
 }
 
+@media (max-height: 740px) {
+  .party-invitation-short-divider {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .party-invitation-short-card {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .party-invitation-short-calendar-button {
+    height: 2.5rem;
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+  }
+
+  .party-invitation-short-image {
+    height: 160px;
+  }
+
+  .party-invitation-short-mt-3 {
+    margin-top: 0.75rem;
+  }
+
+  .party-invitation-short-mt-4 {
+    margin-top: 1rem;
+  }
+
+  .party-invitation-short-section {
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+  }
+
+  .party-invitation-short-character {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 768px) and (min-height: 900px) {
+  .party-time-touch-tablet-action {
+    margin-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
 /* 예정된 파티 캐러셀 인디케이터 */
 .upcoming-party-pagination .swiper-pagination-bullet {
   width: 6px;

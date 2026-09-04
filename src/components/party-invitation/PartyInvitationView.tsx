@@ -309,13 +309,13 @@ export function PartyInvitationView({
           </div>
         </header>
 
-        <section className="mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:740px)]:gap-3 [@media_(max-height:740px)]:pt-2">
+        <section className="party-invitation-short-section mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))]">
           {isHost ? <HostTitle hostName={hostName} /> : <ParticipantTitle hostName={hostName} />}
           <img
             src={defaultInvitationCharacter}
             alt=""
             aria-hidden="true"
-            className="h-[120px] w-[120px] object-contain [@media_(max-height:740px)]:h-[96px] [@media_(max-height:740px)]:w-[96px]"
+            className="party-invitation-short-character h-[120px] w-[120px] object-contain"
           />
           <InvitationCard
             hostName={hostName}

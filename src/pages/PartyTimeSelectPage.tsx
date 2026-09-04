@@ -398,7 +398,7 @@ export default function PartyTimeSelectPage() {
         </AnchoredPopover>
       )}
 
-      <div className="relative z-30 mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
+      <div className="party-time-touch-tablet-action relative z-30 mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
         <Button
           variant={isReady ? 'primary' : 'secondary'}
           size="full"
