@@ -18,6 +18,7 @@ import { ROUTES } from '@/constants/routes';
 import { useActivateInviteLink } from '@/services/party-create';
 import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
+import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { isFuture } from '@/utils/date';
@@ -68,7 +69,8 @@ export default function RollingPaperPage() {
   // BE 응답에 partyStartedAt이 없어 "파티 시작 전" 판정이 사실상 불가 → 기본 'home'.
   // 초대장으로 돌아가야 할 케이스는 호출부가 locationState.completeCta로 명시 지정.
   const completeCta = locationState?.completeCta ?? 'home';
-  const showHostShareAction = !inviteToken && !isWriteCompleteMode && isWritable;
+  const isHost = !inviteToken;
+  const showHostShareAction = isHost && !isWriteCompleteMode && isWritable;
 
   // 공유 버튼은 "롤링페이퍼 작성 권유"용이므로 조회 라우트가 아닌 초대 링크를 공유해야 한다.
   // 초대 토큰은 주최자만 발급 가능하며, 작성 가능 기간(isWritable)에만 버튼이 노출된다.
@@ -208,14 +210,27 @@ export default function RollingPaperPage() {
               <ChevronLeftIcon className="text-white" />
             </button>
 
-            <button
-              type="button"
-              aria-label="메인으로"
-              onClick={handleHomeClick}
-              className="flex h-12 w-12 items-center justify-center"
-            >
-              <HomeIcon />
-            </button>
+            <div className="flex items-center">
+              {isHost && (
+                <button
+                  type="button"
+                  aria-label="새로고침"
+                  onClick={() => window.location.reload()}
+                  className="flex h-12 w-12 items-center justify-center"
+                >
+                  <RefreshIcon />
+                </button>
+              )}
+
+              <button
+                type="button"
+                aria-label="메인으로"
+                onClick={handleHomeClick}
+                className="flex h-12 w-12 items-center justify-center"
+              >
+                <HomeIcon />
+              </button>
+            </div>
           </div>
 
           <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
@@ -324,7 +339,16 @@ function EmptyRollingPaperHostView({
         background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
       }}
     >
-      <div className="relative z-20 flex justify-end px-4 pt-[calc(12px+env(safe-area-inset-top))]">
+      <div className="relative z-20 flex items-center justify-end px-4 pt-[calc(12px+env(safe-area-inset-top))]">
+        <button
+          type="button"
+          aria-label="새로고침"
+          onClick={() => window.location.reload()}
+          className="flex h-12 w-12 items-center justify-center text-white"
+        >
+          <RefreshIcon className="h-6 w-6" />
+        </button>
+
         <button
           type="button"
           aria-label="메인으로"
@@ -335,7 +359,7 @@ function EmptyRollingPaperHostView({
         </button>
       </div>
 
-      <main className="absolute inset-x-0 top-[calc(clamp(88px,12.7dvh,103px)+env(safe-area-inset-top))] bottom-[180px] z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center [@media_(max-height:700px)]:bottom-[164px] [@media_(max-height:700px)]:pt-8">
+      <main className="absolute inset-x-0 top-[calc(clamp(88px,12.7dvh,103px)+env(safe-area-inset-top))] bottom-45 z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center [@media_(max-height:700px)]:bottom-41 [@media_(max-height:700px)]:pt-8">
         <img
           src={letterImage}
           alt=""
@@ -406,7 +430,7 @@ function RollingPaperShareActionArea({
       {variant === 'solid' && (
         <div
           aria-hidden
-          className="absolute -top-[43px] left-1/2 h-[87px] w-[156%] min-w-[585px] -translate-x-1/2"
+          className="absolute -top-10.75 left-1/2 h-21.75 w-[156%] min-w-146.25 -translate-x-1/2"
           style={{
             background:
               'radial-gradient(circle at 28px 44px, #FFFFFF 0 28px, transparent 29px) 0 0 / 57px 87px repeat-x',
@@ -414,19 +438,19 @@ function RollingPaperShareActionArea({
         />
       )}
 
-      <div className="absolute top-[18px] left-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute top-4.5 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
         <div className={tooltipBubbleClassName}>
           <p className="text-label-1 text-center whitespace-nowrap text-white [@media_(max-width:350px)]:text-[12px] [@media_(max-width:380px)]:text-[13px]">
             공유하고 더 많은 친구들에게 편지를 받아보세요
           </p>
           <span
             aria-hidden
-            className="absolute bottom-[-7px] left-4 h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent border-t-[#000341]"
+            className="border-t-blue-1000 absolute -bottom-1.75 left-4 h-0 w-0 border-x-[6px] border-t-8 border-x-transparent"
           />
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-[343px] flex-col items-center gap-2">
+      <div className="mx-auto flex max-w-85.75 flex-col items-center gap-2">
         {writableUntil && (
           <CountdownTimer
             targetDate={writableUntil}
