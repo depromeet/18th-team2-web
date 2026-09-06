@@ -2295,10 +2295,10 @@ export interface components {
             minorVersion?: number;
             /** Format: int32 */
             sessionTimeout?: number;
+            sessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
             attributeNames?: Record<string, never>;
             contextPath?: string;
             initParameterNames?: Record<string, never>;
-            sessionTrackingModes?: ("COOKIE" | "URL" | "SSL")[];
             requestCharacterEncoding?: string;
             responseCharacterEncoding?: string;
             /** Format: int32 */
@@ -2320,8 +2320,8 @@ export interface components {
             virtualServerName?: string;
         };
         ServletRegistration: {
-            mappings?: string[];
             runAsRole?: string;
+            mappings?: string[];
             name?: string;
             className?: string;
             initParameters?: {
@@ -2343,8 +2343,8 @@ export interface components {
             httpOnly?: boolean;
         };
         TaglibDescriptor: {
-            taglibLocation?: string;
             taglibURI?: string;
+            taglibLocation?: string;
         };
         /** @description 공통 성공 응답 */
         ApiResponseListCharacterResult: {
