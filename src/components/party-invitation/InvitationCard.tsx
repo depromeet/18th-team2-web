@@ -21,7 +21,6 @@ interface InvitationCardProps {
   hasWrittenRollingPaper: boolean;
   isRegisteringTalkCalendar?: boolean;
   onWriteRollingPaper: () => void;
-  onViewRollingPaper: () => void;
   onRegisterTalkCalendar: () => void;
 }
 
@@ -65,7 +64,6 @@ export function InvitationCard({
   hasWrittenRollingPaper,
   isRegisteringTalkCalendar = false,
   onWriteRollingPaper,
-  onViewRollingPaper,
   onRegisterTalkCalendar,
 }: InvitationCardProps) {
   const isRollingPaper = partyOption === 'PAPER_ONLY';
@@ -152,11 +150,8 @@ export function InvitationCard({
                 </Button>
               </div>
             ) : hasWrittenRollingPaper ? (
-              <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
+              <div className="party-invitation-short-mt-4 mt-5 w-full">
                 <CalloutMessage variant="check">롤링페이퍼를 이미 작성했어요</CalloutMessage>
-                <Button variant="white-blue" size="full" onClick={onViewRollingPaper}>
-                  롤링페이퍼 확인하기
-                </Button>
               </div>
             ) : (
               <>

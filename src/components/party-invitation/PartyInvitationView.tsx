@@ -198,7 +198,6 @@ export function PartyInvitationView({
             hasWrittenRollingPaper={hasWrittenRollingPaper}
             isRegisteringTalkCalendar={isTalkCalendarPending}
             onWriteRollingPaper={handleWriteRollingPaper}
-            onViewRollingPaper={handleViewRollingPaper}
             onRegisterTalkCalendar={handleRegisterTalkCalendar}
           />
           <div className="mt-4 flex w-full max-w-[375px] flex-col items-center justify-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] pt-2 pb-[env(safe-area-inset-bottom)]">
