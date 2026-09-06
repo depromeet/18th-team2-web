@@ -1,6 +1,7 @@
 import iconChat from '@/assets/icons/icon-chat.svg';
 import letterImage from '@/assets/images/live-party/letter.png';
 import { Button } from '@/components/ui/Button';
+import { CalloutMessage } from '@/components/ui/CalloutMessage';
 import { Caption } from '@/components/ui/Typography';
 import {
   formatDateParts,
@@ -52,35 +53,6 @@ function InvitationDivider({ label }: { label: string }) {
         <span className="h-1 w-1 shrink-0 rounded-full bg-blue-50" />
         <span className="h-px min-w-0 flex-1 bg-blue-50" />
       </div>
-    </div>
-  );
-}
-
-function InvitationCallout({
-  type = 'info',
-  children,
-}: {
-  type?: 'info' | 'check';
-  children: string;
-}) {
-  const isCheck = type === 'check';
-
-  return (
-    <div
-      className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-[12px] px-4 py-2 ${
-        isCheck ? 'bg-blue-30 text-blue-700' : 'bg-red-30 text-red-500'
-      }`}
-    >
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-        <span
-          className={`flex h-5 w-5 items-center justify-center rounded-full text-[12px] leading-none font-bold text-white ${
-            isCheck ? 'bg-blue-500' : 'bg-red-500'
-          }`}
-        >
-          {isCheck ? '✓' : '!'}
-        </span>
-      </span>
-      <span className="text-label-1 font-medium">{children}</span>
     </div>
   );
 }
@@ -174,14 +146,14 @@ export function InvitationCard({
 
             {showRollingPaperDisabledNotice ? (
               <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
-                <InvitationCallout>지금은 파티가 끝나고 작성할 수 있어요</InvitationCallout>
+                <CalloutMessage>지금은 파티가 끝나고 작성할 수 있어요</CalloutMessage>
                 <Button variant="secondary" size="full" disabled>
                   롤링페이퍼 남기기
                 </Button>
               </div>
             ) : hasWrittenRollingPaper ? (
               <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
-                <InvitationCallout type="check">롤링페이퍼를 이미 작성했어요</InvitationCallout>
+                <CalloutMessage variant="check">롤링페이퍼를 이미 작성했어요</CalloutMessage>
                 <Button variant="white-blue" size="full" onClick={onViewRollingPaper}>
                   롤링페이퍼 확인하기
                 </Button>

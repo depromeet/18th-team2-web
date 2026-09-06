@@ -3,8 +3,9 @@ import cherryImg from '@/assets/images/rolling-paper/topping-cherry.png';
 import strawberryImg from '@/assets/images/rolling-paper/topping-strawberry.png';
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
 import { Button } from '@/components/ui/Button';
+import { CalloutMessage } from '@/components/ui/CalloutMessage';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { B1, B2 } from '@/components/ui/Typography';
+import { B1 } from '@/components/ui/Typography';
 import type { ToppingType } from '@/services/rolling-paper';
 
 const TOPPING_IMAGES: Record<ToppingType, string> = {
@@ -70,10 +71,8 @@ export function RollingPaperWriteComplete({
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pt-8 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-6 [@media_(max-height:700px)]:pb-[calc(16px+env(safe-area-inset-bottom))]">
-        <B2 as="p" className="text-grey-500 font-medium">
-          완료를 누르면 수정이 불가합니다.
-        </B2>
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-3 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pt-8 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-6 [@media_(max-height:700px)]:pb-[calc(16px+env(safe-area-inset-bottom))]">
+        <CalloutMessage>작성 완료 후에는 수정이 어려워요</CalloutMessage>
         <Button variant="primary" size="full" onClick={onComplete}>
           작성 완료
         </Button>
