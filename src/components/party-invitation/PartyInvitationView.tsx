@@ -22,8 +22,7 @@ import { useJoinPartyInvite } from '@/services/party-invite';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { buildRollingPaperWritePath } from '@/utils/rollingPaperWrite';
 
-const activeInvitationButtonClassName =
-  'bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]';
+const activeInvitationButtonClassName = 'bg-invitation-primary shadow-invitation-primary';
 
 interface PartyInvitationViewProps {
   partyId: string;
@@ -149,7 +148,7 @@ export function PartyInvitationView({
   return (
     <>
       <main className="bg-gradient-bg flex min-h-dvh flex-col overflow-x-hidden">
-        <header className="mx-auto flex h-18 w-full max-w-150 items-center justify-between px-4 pt-[env(safe-area-inset-top)]">
+        <header className="pt-safe-top mx-auto flex h-18 w-full max-w-150 items-center justify-between px-4">
           <button
             type="button"
             aria-label="뒤로가기"
@@ -162,7 +161,7 @@ export function PartyInvitationView({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="text-label-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[rgba(0,0,0,0.7)] py-2 pr-3 pl-2.5 font-medium text-white backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+              className="text-label-1 flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-black/70 py-2 pr-3 pl-2.5 font-medium text-white backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               onClick={() => setIsShareSheetOpen(true)}
             >
               <img src={shareIcon} alt="" aria-hidden="true" className="h-5 w-5" />
@@ -181,7 +180,7 @@ export function PartyInvitationView({
           </div>
         </header>
 
-        <section className="party-invitation-short-section mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4 pt-[clamp(18px,4svh,42px)] pb-[calc(24px+env(safe-area-inset-bottom))]">
+        <section className="party-invitation-short-section pt-party-invitation-section-top pb-safe-bottom-6 mx-auto flex w-full max-w-150 flex-1 flex-col items-center gap-4 px-4">
           {isHost ? <HostTitle hostName={hostName} /> : <ParticipantTitle hostName={hostName} />}
           <img
             src={defaultInvitationCharacter}
@@ -200,7 +199,7 @@ export function PartyInvitationView({
             onWriteRollingPaper={handleWriteRollingPaper}
             onRegisterTalkCalendar={handleRegisterTalkCalendar}
           />
-          <div className="mt-4 flex w-full max-w-[375px] flex-col items-center justify-end bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)] pt-2 pb-[env(safe-area-inset-bottom)]">
+          <div className="bg-white-footer-fade pb-safe-bottom mt-4 flex w-full max-w-[375px] flex-col items-center justify-end pt-2">
             <div className="w-full max-w-[343px]">{invitationActions}</div>
           </div>
         </section>

@@ -45,7 +45,7 @@ function InvitationDivider({ label }: { label: string }) {
         <span className="h-px min-w-0 flex-1 bg-blue-50" />
         <span className="h-1 w-1 shrink-0 rounded-full bg-blue-50" />
       </div>
-      <span className="text-body-1 shrink-0 bg-gradient-to-b from-[#3444f3] to-[#5b8afc] bg-clip-text font-medium text-transparent opacity-60">
+      <span className="text-body-1 bg-invitation-highlight shrink-0 bg-clip-text font-medium text-transparent opacity-60">
         {label}
       </span>
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -94,7 +94,7 @@ export function InvitationCard({
         {!isRollingPaper && !isWithin5Minutes && (
           <button
             type="button"
-            className="party-invitation-short-calendar-button text-body-2 inline-flex h-[46px] cursor-pointer items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black transition-[filter,transform] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:translate-y-px active:brightness-[0.98] disabled:cursor-default disabled:bg-[#FEE500] disabled:text-black disabled:opacity-100"
+            className="party-invitation-short-calendar-button text-body-2 bg-kakao-yellow disabled:bg-kakao-yellow inline-flex h-[46px] cursor-pointer items-center justify-center gap-1 rounded-[12px] px-7 font-semibold text-black transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:translate-y-px active:brightness-[0.98] disabled:cursor-default disabled:text-black disabled:opacity-100"
             disabled={isRegisteringTalkCalendar}
             aria-busy={isRegisteringTalkCalendar}
             onClick={onRegisterTalkCalendar}

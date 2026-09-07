@@ -218,7 +218,7 @@ export default function RollingPaperPage() {
             </button>
           </div>
 
-          <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
+          <H1 className="mt-5 font-semibold tracking-normal text-white">
             {isWriteCompleteMode
               ? '롤링페이퍼 작성이 완료되었어요'
               : `${data.hostName ?? ''}님의 롤링페이퍼`}
@@ -254,12 +254,7 @@ export default function RollingPaperPage() {
 
         {/* 하단 Action Area */}
         {isWriteCompleteMode ? (
-          <div
-            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-[calc(48px+env(safe-area-inset-bottom))]"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
-            }}
-          >
+          <div className="bg-white-footer-fade pb-safe-bottom-12 absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4">
             <Button variant="primary" size="full" onClick={handleCompleteAction}>
               {completeCta === 'invite' ? '초대장으로 돌아가기' : '홈으로'}
             </Button>
@@ -325,7 +320,7 @@ function EmptyRollingPaperHostView({
         background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
       }}
     >
-      <div className="relative z-20 flex justify-end px-4 pt-[calc(12px+env(safe-area-inset-top))]">
+      <div className="pt-safe-top-3 relative z-20 flex justify-end px-4">
         <button
           type="button"
           aria-label="메인으로"
@@ -336,15 +331,15 @@ function EmptyRollingPaperHostView({
         </button>
       </div>
 
-      <main className="absolute inset-x-0 top-[calc(clamp(88px,12.7dvh,103px)+env(safe-area-inset-top))] bottom-[180px] z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center [@media_(max-height:700px)]:bottom-[164px] [@media_(max-height:700px)]:pt-8">
+      <main className="top-rolling-paper-empty-top short-height:bottom-41 short-height:pt-8 absolute inset-x-0 bottom-45 z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center">
         <img
           src={letterImage}
           alt=""
-          className="max-h-[34dvh] w-[min(280px,72vw)] shrink-0 object-contain drop-shadow-[0_18px_28px_rgba(0,32,120,0.18)] [@media_(max-height:700px)]:w-[min(220px,64vw)]"
+          className="drop-shadow-rolling-paper-empty w-rolling-paper-empty-image short-height:w-rolling-paper-empty-image-sm max-h-[34dvh] shrink-0 object-contain"
         />
 
-        <div className="mt-[clamp(28px,4.9dvh,40px)] flex flex-col items-center gap-4 [@media_(max-height:700px)]:gap-3">
-          <h1 className="text-head-2 font-bold tracking-[-0.01px] text-white">
+        <div className="mt-rolling-paper-empty-copy-top short-height:gap-3 flex flex-col items-center gap-4">
+          <h1 className="text-head-2 font-bold tracking-normal text-white">
             아직 편지를 남긴 친구가 없어요
           </h1>
           <p className="text-body-1 leading-6 font-medium whitespace-pre-line text-blue-100">

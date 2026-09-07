@@ -21,16 +21,14 @@ export function RollingPaperShareActionArea({
   showTooltip = true,
 }: RollingPaperShareActionAreaProps) {
   const tooltipBubbleClassName = [
-    'relative flex w-fit max-w-[calc(100vw-28px)] items-center justify-center rounded-xl bg-[#000341] px-3 py-2',
+    'relative flex w-fit max-w-[calc(100vw-28px)] items-center justify-center rounded-xl bg-blue-1000 px-3 py-2',
     animate ? 'rolling-paper-share-tooltip' : '',
   ]
     .filter(Boolean)
     .join(' ');
   const actionPanelClassName = [
-    'absolute right-0 bottom-0 left-0 z-20 px-4 pt-13 pb-[calc(34px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-11 [@media_(max-height:700px)]:pb-[calc(24px+env(safe-area-inset-bottom))]',
-    variant === 'solid'
-      ? 'bg-white'
-      : 'bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)]',
+    'absolute right-0 bottom-0 left-0 z-20 px-4 pt-13 pb-safe-bottom-8-5 short-height:pt-11 short-height:pb-safe-bottom-6',
+    variant === 'solid' ? 'bg-white' : 'bg-white-footer-fade',
     animate ? 'rolling-paper-action-panel' : '',
   ]
     .filter(Boolean)
@@ -52,12 +50,12 @@ export function RollingPaperShareActionArea({
       {showTooltip && (
         <div className="absolute top-[18px] left-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
           <div className={tooltipBubbleClassName}>
-            <p className="text-label-1 text-center whitespace-nowrap text-white [@media_(max-width:350px)]:text-[12px] [@media_(max-width:380px)]:text-[13px]">
+            <p className="text-label-1 max-sm:text-caption-1 text-center whitespace-nowrap text-white">
               공유하고 더 많은 친구들에게 편지를 받아보세요
             </p>
             <span
               aria-hidden
-              className="absolute bottom-[-7px] left-4 h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent border-t-[#000341]"
+              className="border-t-blue-1000 absolute -bottom-1.75 left-4 h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent"
             />
           </div>
         </div>

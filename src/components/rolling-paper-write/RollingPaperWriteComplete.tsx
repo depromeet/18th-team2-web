@@ -41,7 +41,7 @@ export function RollingPaperWriteComplete({
     <main className="bg-gradient-bg flex h-dvh flex-col overflow-hidden">
       <PageHeader onBack={onBack} />
 
-      <section className="share-scroll-hide flex flex-1 flex-col overflow-y-auto px-4 pb-[calc(144px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pb-[calc(128px+env(safe-area-inset-bottom))]">
+      <section className="share-scroll-hide pb-rolling-paper-write-complete-bottom short-height:pb-rolling-paper-write-complete-bottom-sm flex flex-1 flex-col overflow-y-auto px-4">
         <RollingPaperFormHeading
           title={
             <>
@@ -54,13 +54,13 @@ export function RollingPaperWriteComplete({
           className="py-5"
         />
 
-        <div className="flex flex-col items-center gap-2 py-2 [@media_(max-height:700px)]:pb-4">
+        <div className="short-height:pb-4 flex flex-col items-center gap-2 py-2">
           <img
             src={TOPPING_IMAGES[toppingType]}
             alt={TOPPING_LABELS[toppingType]}
             className="h-10 w-10 object-contain"
           />
-          <div className="flex min-h-[252px] w-full flex-col gap-3 rounded-[20px] bg-white px-6 py-6 [@media_(max-height:700px)]:min-h-[220px]">
+          <div className="short-height:min-h-55 flex min-h-63 w-full flex-col gap-3 rounded-[20px] bg-white px-6 py-6">
             <p className="flex-1 text-[20px] leading-[1.4] font-semibold tracking-tight wrap-break-word whitespace-pre-wrap text-blue-600">
               {message}
             </p>
@@ -71,7 +71,7 @@ export function RollingPaperWriteComplete({
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-3 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_30%)] px-4 pt-8 pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-6 [@media_(max-height:700px)]:pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <div className="bg-white-footer-fade-soft pb-safe-bottom-6 short-height:pt-6 short-height:pb-safe-bottom-4 fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-3 px-4 pt-8">
         <CalloutMessage>작성 완료 후에는 수정이 어려워요</CalloutMessage>
         <Button variant="primary" size="full" onClick={onComplete}>
           작성 완료

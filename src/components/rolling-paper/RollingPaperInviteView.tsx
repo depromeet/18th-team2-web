@@ -101,7 +101,7 @@ export function RollingPaperInviteView({
           </button>
         </div>
 
-        <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
+        <H1 className="mt-5 font-semibold tracking-normal text-white">
           {displayName}님의 롤링페이퍼
         </H1>
         <B1 className="mt-2 text-blue-100">
