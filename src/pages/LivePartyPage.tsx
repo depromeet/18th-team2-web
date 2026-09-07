@@ -36,6 +36,7 @@ import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecr
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import {
   useGetPartyParticipants,
+  useLeaveParty,
   useRealtimePartyNextAction,
   useStartRealtimeEnd,
 } from '@/services/live-party';
@@ -100,6 +101,7 @@ export default function LivePartyPage() {
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
+  const { mutate: leaveParty } = useLeaveParty();
 
   useEffect(() => {
     if (!nicknameDuplicate) return;
@@ -262,15 +264,26 @@ export default function LivePartyPage() {
     }
   }, [isPartyEnding]);
 
+  useEffect(() => {
+    if (!isHost || !isPartyEnding || hostGate.guestCount > 0) return;
+
+    setIsPartyEndingNoticeDismissed(true);
+    goToEndStep();
+  }, [goToEndStep, hostGate.guestCount, isHost, isPartyEnding]);
+
   const handleExitClick = useCallback(() => {
     if (isPartyEnding) {
+      if (partyId) {
+        leaveParty({ partyId });
+      }
+
       setIsPartyEndingNoticeDismissed(true);
       goToEndStep();
       return;
     }
 
     handleOpenExitDialog();
-  }, [goToEndStep, handleOpenExitDialog, isPartyEnding]);
+  }, [goToEndStep, handleOpenExitDialog, isPartyEnding, leaveParty, partyId]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -433,7 +446,7 @@ export default function LivePartyPage() {
     );
   }
 
-  if (hostGate.shouldGateHost) {
+  if (hostGate.shouldGateHost && !isPartyEndingFlow) {
     return (
       <>
         <HostWaitingView
