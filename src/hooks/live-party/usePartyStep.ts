@@ -54,17 +54,7 @@ function stepToApiPhase(step: PartyStep): PartyApiPhase {
   }
 }
 
-function subtractDateTime(value: string | null | undefined, offsetMs: number) {
-  if (!value) return null;
-
-  const timestamp = new Date(value).getTime();
-
-  if (Number.isNaN(timestamp)) return null;
-
-  return new Date(timestamp - offsetMs).toISOString();
-}
-
-function addDateTime(value: string | null | undefined, offsetMs: number) {
+function shiftDateTime(value: string | null | undefined, offsetMs: number) {
   if (!value) return null;
 
   const timestamp = new Date(value).getTime();
@@ -79,19 +69,17 @@ function getRecoveredLiveStartAt(
   phaseStartedAt: string | null | undefined,
   fallbackLiveStartAt: string | null | undefined,
 ) {
-  if (phase === 'MUSIC') {
-    return phaseStartedAt ?? fallbackLiveStartAt;
+  switch (phase) {
+    case 'MUSIC':
+      return phaseStartedAt ?? fallbackLiveStartAt;
+    case 'CANDLE':
+      return shiftDateTime(phaseStartedAt, -MUSIC_PHASE_DURATION_MS) ?? fallbackLiveStartAt;
+    case 'BURST':
+    case 'CLOSEABLE':
+      return shiftDateTime(fallbackLiveStartAt, MUSIC_PHASE_DURATION_MS) ?? fallbackLiveStartAt;
+    default:
+      return fallbackLiveStartAt;
   }
-
-  if (phase === 'CANDLE') {
-    return subtractDateTime(phaseStartedAt, MUSIC_PHASE_DURATION_MS) ?? fallbackLiveStartAt;
-  }
-
-  if (phase === 'BURST' || phase === 'CLOSEABLE') {
-    return addDateTime(fallbackLiveStartAt, MUSIC_PHASE_DURATION_MS) ?? fallbackLiveStartAt;
-  }
-
-  return fallbackLiveStartAt;
 }
 
 interface UseLivePartyStepOptions {
