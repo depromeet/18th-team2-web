@@ -1,8 +1,8 @@
 import Lottie from 'lottie-react';
 
 import characterLoadingAnimation from '@/assets/images/common/loading-character.json';
-import { ThreeDotsIcon } from './icons/ThreeDotsIcon';
-import { B1 } from './Typography';
+import { ThreeDotsIcon } from '@/components/ui/icons/ThreeDotsIcon';
+import { B1 } from '@/components/ui/Typography';
 
 interface LoadingProps {
   variant?: 'overlay' | 'white' | 'black';
