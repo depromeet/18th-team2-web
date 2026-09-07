@@ -238,7 +238,13 @@ export default function LivePartyPage() {
 
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
-  const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
+  const [isPartyEndingNoticeDismissed, setIsPartyEndingNoticeDismissed] = useState(false);
+  const isPartyEndingNoticeOpen = isPartyEnding && !isPartyEndingNoticeDismissed;
+  const { data: nextAction } = useRealtimePartyNextAction(
+    partyId,
+    participantToken,
+    isPartyEndingFlow || isPartyEnded || partyEnd,
+  );
   const [isBurstGameOverlayDismissed, setIsBurstGameOverlayDismissed] = useState(false);
   const endingReason = partyEndingState?.endingReason;
   const shouldShowAutoEndedSheet =
@@ -249,6 +255,22 @@ export default function LivePartyPage() {
       goToEndStep();
     }
   }, [goToEndStep, partyEndingState?.ended]);
+
+  useEffect(() => {
+    if (!isPartyEnding) {
+      setIsPartyEndingNoticeDismissed(false);
+    }
+  }, [isPartyEnding]);
+
+  const handleExitClick = useCallback(() => {
+    if (isPartyEnding) {
+      setIsPartyEndingNoticeDismissed(true);
+      goToEndStep();
+      return;
+    }
+
+    handleOpenExitDialog();
+  }, [goToEndStep, handleOpenExitDialog, isPartyEnding]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -376,9 +398,9 @@ export default function LivePartyPage() {
     step !== LIVE_PARTY_STEP.CANDLE;
 
   const showPartyMain =
-    isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
+    isPartyEndingNoticeOpen || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showEntryReadyUI = isEntryReady && isEntryStep && !isPartyEndingFlow;
-  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || isPartyEnding;
+  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || isPartyEndingNoticeOpen;
   const musicTextBottomOffset =
     step === LIVE_PARTY_STEP.MUSIC && chatSheetMetrics.isExpanded
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
@@ -439,13 +461,13 @@ export default function LivePartyPage() {
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
-          onExitClick={handleOpenExitDialog}
+          onExitClick={handleExitClick}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
           step={step}
           showMuteButton={step !== LIVE_PARTY_STEP.ENTRY}
           forceShowMusicButton={showEntryReadyUI}
-          isPartyEnding={isPartyEnding}
+          isPartyEnding={isPartyEndingNoticeOpen}
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
           liveStartAt={liveStartedAt}
@@ -458,7 +480,7 @@ export default function LivePartyPage() {
       {showEntryReadyUI && (
         <PartyEntryReadyOverlay isHost={isHost} onStartClick={handleOpenPartyStartSheet} />
       )}
-      {!isPartyEnding && !(isEntryStep && isEntryReady) && (
+      {!isPartyEndingNoticeOpen && !(isEntryStep && isEntryReady) && (
         <StepRenderer
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
@@ -469,6 +491,7 @@ export default function LivePartyPage() {
           userRole={partyEnd ? endUserRole : userRole}
           endAction={nextAction}
           endHostName={hostName}
+          endFallbackInviteToken={inviteToken}
           musicTextBottomOffset={musicTextBottomOffset}
         />
       )}
@@ -507,7 +530,7 @@ export default function LivePartyPage() {
           </Button>
         </div>
       )}
-      {isPartyEnding && partyEndingState && (
+      {isPartyEndingNoticeOpen && partyEndingState && (
         <PartyEndingNotice partyEndingState={partyEndingState} />
       )}
       <TransitionEffect isTransitioning={isTransitioning} />

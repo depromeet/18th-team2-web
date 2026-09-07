@@ -18,6 +18,7 @@ interface StepRendererProps {
   userRole: PartyUserRole;
   endAction?: RealtimePartyNextActionResult | null;
   endHostName?: string;
+  endFallbackInviteToken?: string;
   musicTextBottomOffset?: number;
 }
 
@@ -31,6 +32,7 @@ export const StepRenderer = memo(function StepRenderer({
   userRole,
   endAction,
   endHostName,
+  endFallbackInviteToken,
   musicTextBottomOffset,
 }: StepRendererProps) {
   const handleMusicComplete = useCallback(() => {
@@ -66,7 +68,14 @@ export const StepRenderer = memo(function StepRenderer({
     case 'CLOSEABLE':
       return null;
     case 'END':
-      return <PartyEndStep role={userRole} action={endAction} hostName={endHostName} />;
+      return (
+        <PartyEndStep
+          role={userRole}
+          action={endAction}
+          hostName={endHostName}
+          fallbackInviteToken={endFallbackInviteToken}
+        />
+      );
     default:
       return null;
   }
