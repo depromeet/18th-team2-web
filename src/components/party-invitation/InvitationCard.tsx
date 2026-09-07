@@ -1,6 +1,7 @@
 import iconChat from '@/assets/icons/icon-chat.svg';
 import letterImage from '@/assets/images/live-party/letter.png';
 import { Button } from '@/components/ui/Button';
+import { CalloutMessage } from '@/components/ui/CalloutMessage';
 import { Caption } from '@/components/ui/Typography';
 import {
   formatDateParts,
@@ -20,7 +21,6 @@ interface InvitationCardProps {
   hasWrittenRollingPaper: boolean;
   isRegisteringTalkCalendar?: boolean;
   onWriteRollingPaper: () => void;
-  onViewRollingPaper: () => void;
   onRegisterTalkCalendar: () => void;
 }
 
@@ -45,32 +45,13 @@ function InvitationDivider({ label }: { label: string }) {
         <span className="h-px min-w-0 flex-1 bg-blue-50" />
         <span className="h-1 w-1 shrink-0 rounded-full bg-blue-50" />
       </div>
-      <span className="text-body-1 shrink-0 bg-gradient-to-b from-[#3444f3] to-[#5b8afc] bg-clip-text font-medium text-transparent opacity-60">
+      <span className="text-body-1 bg-invitation-highlight shrink-0 bg-clip-text font-medium text-transparent opacity-60">
         {label}
       </span>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span className="h-1 w-1 shrink-0 rounded-full bg-blue-50" />
         <span className="h-px min-w-0 flex-1 bg-blue-50" />
       </div>
-    </div>
-  );
-}
-
-function InvitationCallout({
-  type = 'info',
-  children,
-}: {
-  type?: 'info' | 'check';
-  children: string;
-}) {
-  return (
-    <div className="bg-blue-30 flex min-h-12 w-full items-center justify-center gap-2 rounded-[12px] px-4 py-2 text-blue-700">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[12px] leading-none font-bold text-white">
-          {type === 'check' ? '✓' : 'i'}
-        </span>
-      </span>
-      <span className="text-label-1 font-medium">{children}</span>
     </div>
   );
 }
@@ -83,7 +64,6 @@ export function InvitationCard({
   hasWrittenRollingPaper,
   isRegisteringTalkCalendar = false,
   onWriteRollingPaper,
-  onViewRollingPaper,
   onRegisterTalkCalendar,
 }: InvitationCardProps) {
   const isRollingPaper = partyOption === 'PAPER_ONLY';
@@ -114,7 +94,7 @@ export function InvitationCard({
         {!isRollingPaper && !isWithin5Minutes && (
           <button
             type="button"
-            className="party-invitation-short-calendar-button text-body-2 inline-flex h-[46px] cursor-pointer items-center justify-center gap-1 rounded-[12px] bg-[#FEE500] px-7 font-semibold text-black transition-[filter,transform] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:translate-y-px active:brightness-[0.98] disabled:cursor-default disabled:bg-[#FEE500] disabled:text-black disabled:opacity-100"
+            className="party-invitation-short-calendar-button text-body-2 bg-kakao-yellow disabled:bg-kakao-yellow inline-flex h-[46px] cursor-pointer items-center justify-center gap-1 rounded-[12px] px-7 font-semibold text-black transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none active:translate-y-px active:brightness-[0.98] disabled:cursor-default disabled:text-black disabled:opacity-100"
             disabled={isRegisteringTalkCalendar}
             aria-busy={isRegisteringTalkCalendar}
             onClick={onRegisterTalkCalendar}
@@ -164,17 +144,14 @@ export function InvitationCard({
 
             {showRollingPaperDisabledNotice ? (
               <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
-                <InvitationCallout>파티가 끝나고도 작성할 수 있어요</InvitationCallout>
+                <CalloutMessage>지금은 파티가 끝나고 작성할 수 있어요</CalloutMessage>
                 <Button variant="secondary" size="full" disabled>
                   롤링페이퍼 남기기
                 </Button>
               </div>
             ) : hasWrittenRollingPaper ? (
-              <div className="party-invitation-short-mt-4 mt-5 flex w-full flex-col gap-3">
-                <InvitationCallout type="check">롤링페이퍼를 이미 작성했어요</InvitationCallout>
-                <Button variant="white-blue" size="full" onClick={onViewRollingPaper}>
-                  롤링페이퍼 확인하기
-                </Button>
+              <div className="party-invitation-short-mt-4 mt-5 w-full">
+                <CalloutMessage variant="check">롤링페이퍼를 이미 작성했어요</CalloutMessage>
               </div>
             ) : (
               <>
