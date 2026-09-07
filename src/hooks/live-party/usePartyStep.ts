@@ -64,6 +64,16 @@ function subtractDateTime(value: string | null | undefined, offsetMs: number) {
   return new Date(timestamp - offsetMs).toISOString();
 }
 
+function addDateTime(value: string | null | undefined, offsetMs: number) {
+  if (!value) return null;
+
+  const timestamp = new Date(value).getTime();
+
+  if (Number.isNaN(timestamp)) return null;
+
+  return new Date(timestamp + offsetMs).toISOString();
+}
+
 function getRecoveredLiveStartAt(
   phase: PartyApiPhase,
   phaseStartedAt: string | null | undefined,
@@ -75,6 +85,10 @@ function getRecoveredLiveStartAt(
 
   if (phase === 'CANDLE') {
     return subtractDateTime(phaseStartedAt, MUSIC_PHASE_DURATION_MS) ?? fallbackLiveStartAt;
+  }
+
+  if (phase === 'BURST' || phase === 'CLOSEABLE') {
+    return addDateTime(fallbackLiveStartAt, MUSIC_PHASE_DURATION_MS) ?? fallbackLiveStartAt;
   }
 
   return fallbackLiveStartAt;
