@@ -114,6 +114,7 @@
   --background-image-gradient-blue: linear-gradient(90deg, #eef4ff 0%, #ffffff 100%);
   --background-image-invitation-primary: linear-gradient(111deg, #5892fc 20.81%, #3444f3 70.81%);
   --background-image-invitation-highlight: linear-gradient(180deg, #3444f3 0%, #5b8afc 100%);
+  --background-image-rolling-paper-main: linear-gradient(179.96deg, #3342f3 0.03%, #5c8bfd 46.18%);
   --background-image-white-footer-fade: linear-gradient(
     180deg,
     rgb(255 255 255 / 0%) 0%,
@@ -144,3 +145,8 @@
 }
 
 @custom-variant short-height (@media (max-height: 700px));
+
+@utility rolling-paper-scene-vars {
+  --rolling-paper-art-offset: clamp(-81px, calc(100dvh - 812px), 0px);
+  --rolling-paper-action-height: calc(172px + env(safe-area-inset-bottom));
+}

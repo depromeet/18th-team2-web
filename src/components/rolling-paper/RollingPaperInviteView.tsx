@@ -70,14 +70,7 @@ export function RollingPaperInviteView({
   }
 
   return (
-    <div
-      className="relative mx-auto h-dvh w-full max-w-150 overflow-hidden"
-      style={{
-        background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
-        ['--rolling-paper-art-offset' as string]: 'clamp(-81px, calc(100dvh - 812px), 0px)',
-        ['--rolling-paper-action-height' as string]: 'calc(172px + env(safe-area-inset-bottom))',
-      }}
-    >
+    <div className="rolling-paper-scene-vars bg-rolling-paper-main relative mx-auto h-dvh w-full max-w-150 overflow-hidden">
       <CakeBackground hideBottomDecoration />
 
       <div className="relative z-20 px-4 pt-3">
