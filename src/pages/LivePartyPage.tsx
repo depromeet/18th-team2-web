@@ -241,7 +241,7 @@ export default function LivePartyPage() {
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const [isPartyEndingNoticeDismissed, setIsPartyEndingNoticeDismissed] = useState(false);
-  const isPartyEndingNoticeOpen = isPartyEnding && !isPartyEndingNoticeDismissed;
+  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed;
   const { data: nextAction } = useRealtimePartyNextAction(
     partyId,
     participantToken,
@@ -264,12 +264,16 @@ export default function LivePartyPage() {
     }
   }, [isPartyEnding]);
 
+  const showPartyEndStep = useCallback(() => {
+    setIsPartyEndingNoticeDismissed(true);
+    goToEndStep();
+  }, [goToEndStep]);
+
   useEffect(() => {
     if (!isHost || !isPartyEnding || hostGate.guestCount > 0) return;
 
-    setIsPartyEndingNoticeDismissed(true);
-    goToEndStep();
-  }, [goToEndStep, hostGate.guestCount, isHost, isPartyEnding]);
+    showPartyEndStep();
+  }, [hostGate.guestCount, isHost, isPartyEnding, showPartyEndStep]);
 
   const handleExitClick = useCallback(() => {
     if (isPartyEnding) {
@@ -277,13 +281,12 @@ export default function LivePartyPage() {
         leaveParty({ partyId });
       }
 
-      setIsPartyEndingNoticeDismissed(true);
-      goToEndStep();
+      showPartyEndStep();
       return;
     }
 
     handleOpenExitDialog();
-  }, [goToEndStep, handleOpenExitDialog, isPartyEnding, leaveParty, partyId]);
+  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -411,9 +414,9 @@ export default function LivePartyPage() {
     step !== LIVE_PARTY_STEP.CANDLE;
 
   const showPartyMain =
-    isPartyEndingNoticeOpen || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
+    showPartyEndingNotice || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showEntryReadyUI = isEntryReady && isEntryStep && !isPartyEndingFlow;
-  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || isPartyEndingNoticeOpen;
+  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || showPartyEndingNotice;
   const musicTextBottomOffset =
     step === LIVE_PARTY_STEP.MUSIC && chatSheetMetrics.isExpanded
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
@@ -480,7 +483,7 @@ export default function LivePartyPage() {
           step={step}
           showMuteButton={step !== LIVE_PARTY_STEP.ENTRY}
           forceShowMusicButton={showEntryReadyUI}
-          isPartyEnding={isPartyEndingNoticeOpen}
+          isPartyEnding={showPartyEndingNotice}
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
           liveStartAt={liveStartedAt}
@@ -493,7 +496,7 @@ export default function LivePartyPage() {
       {showEntryReadyUI && (
         <PartyEntryReadyOverlay isHost={isHost} onStartClick={handleOpenPartyStartSheet} />
       )}
-      {!isPartyEndingNoticeOpen && !(isEntryStep && isEntryReady) && (
+      {!showPartyEndingNotice && !(isEntryStep && isEntryReady) && (
         <StepRenderer
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
@@ -543,7 +546,7 @@ export default function LivePartyPage() {
           </Button>
         </div>
       )}
-      {isPartyEndingNoticeOpen && partyEndingState && (
+      {showPartyEndingNotice && partyEndingState && (
         <PartyEndingNotice partyEndingState={partyEndingState} />
       )}
       <TransitionEffect isTransitioning={isTransitioning} />
