@@ -19,6 +19,7 @@ export type PartyApiPhase = components['schemas']['PartyPhaseResult']['phase'];
 
 export type RealtimePartyEndResult = components['schemas']['RealtimePartyEndResult'];
 export type RealtimePartyNextActionResult = components['schemas']['RealtimePartyNextActionResult'];
+export type RealtimePartyStateResult = components['schemas']['RealtimePartyStateResult'];
 export type PartyParticipantsResult = components['schemas']['PartyParticipantsResponse'];
 export type PartyParticipantResult = components['schemas']['PartyParticipantResponse'];
 
@@ -43,6 +44,20 @@ export function useRealtimePartyNextAction(
   enabled = true,
 ) {
   return useQuery(realtimePartyQueries.nextAction(partyId, participantToken, enabled));
+}
+
+export function useRealtimePartyState(partyId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['realtime-party-state', partyId],
+    queryFn: async () => {
+      const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
+        `/api/v1/parties/${partyId}/realtime-state`,
+        getParticipantOptions(),
+      );
+      return res.data ?? null;
+    },
+    enabled: Boolean(partyId) && enabled,
+  });
 }
 
 export function useStartRealtimeEnd() {

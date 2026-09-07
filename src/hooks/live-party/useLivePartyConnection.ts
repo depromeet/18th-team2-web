@@ -118,6 +118,10 @@ export function useLivePartyConnection() {
               .getState()
               .setInitialMessages((parsed.messages as unknown[]) ?? []);
 
+            if (parsed.liveStartAt || parsed.status || parsed.endingStartedAt) {
+              applyPartyStateWsEvent(WS_EVENT.PARTY_STATE, parsed);
+            }
+
             return;
           }
 
