@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
-import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
+import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { RollingPaperLockedView } from '@/components/rolling-paper/RollingPaperLockedView';
 import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
@@ -132,7 +132,7 @@ export default function RollingPaperPage() {
 
   // 작성 완료 화면에선 본인 외 메시지 열람 차단 — 토핑 클릭 무반응
   function handleToppingClick(index: number) {
-    if (isWriteCompleteMode) return;
+    if (isWriteCompleteMode || inviteToken) return;
     setSelectedMessageIndex(index);
   }
 
@@ -233,7 +233,7 @@ export default function RollingPaperPage() {
             </div>
           </div>
 
-          <H1 className="mt-5 font-semibold tracking-[-0.0002em] text-white">
+          <H1 className="mt-5 font-semibold tracking-normal text-white">
             {isWriteCompleteMode
               ? '롤링페이퍼 작성이 완료되었어요'
               : `${data.hostName ?? ''}님의 롤링페이퍼`}
@@ -263,17 +263,13 @@ export default function RollingPaperPage() {
             messages={messages}
             onToppingClick={handleToppingClick}
             hasBottomAction={showHostShareAction}
+            isInteractive={!inviteToken && !isWriteCompleteMode}
           />
         )}
 
         {/* 하단 Action Area */}
         {isWriteCompleteMode ? (
-          <div
-            className="absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4 pb-[calc(48px+env(safe-area-inset-bottom))]"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 40.91%)',
-            }}
-          >
+          <div className="bg-white-footer-fade pb-safe-bottom-12 absolute right-0 bottom-0 left-0 z-20 flex flex-col items-center gap-2 px-4 pt-4">
             <Button variant="primary" size="full" onClick={handleCompleteAction}>
               {completeCta === 'invite' ? '초대장으로 돌아가기' : '홈으로'}
             </Button>
@@ -339,7 +335,7 @@ function EmptyRollingPaperHostView({
         background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
       }}
     >
-      <div className="relative z-20 flex items-center justify-end px-4 pt-[calc(12px+env(safe-area-inset-top))]">
+      <div className="pt-safe-top-3 relative z-20 flex items-center justify-end px-4">
         <button
           type="button"
           aria-label="새로고침"
@@ -359,15 +355,15 @@ function EmptyRollingPaperHostView({
         </button>
       </div>
 
-      <main className="absolute inset-x-0 top-[calc(clamp(88px,12.7dvh,103px)+env(safe-area-inset-top))] bottom-45 z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center [@media_(max-height:700px)]:bottom-41 [@media_(max-height:700px)]:pt-8">
+      <main className="top-rolling-paper-empty-top short-height:bottom-41 short-height:pt-8 absolute inset-x-0 bottom-45 z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center">
         <img
           src={letterImage}
           alt=""
-          className="max-h-[34dvh] w-[min(280px,72vw)] shrink-0 object-contain drop-shadow-[0_18px_28px_rgba(0,32,120,0.18)] [@media_(max-height:700px)]:w-[min(220px,64vw)]"
+          className="drop-shadow-rolling-paper-empty w-rolling-paper-empty-image short-height:w-rolling-paper-empty-image-sm max-h-[34dvh] shrink-0 object-contain"
         />
 
-        <div className="mt-[clamp(28px,4.9dvh,40px)] flex flex-col items-center gap-4 [@media_(max-height:700px)]:gap-3">
-          <h1 className="text-head-2 font-bold tracking-[-0.01px] text-white">
+        <div className="mt-rolling-paper-empty-copy-top short-height:gap-3 flex flex-col items-center gap-4">
+          <h1 className="text-head-2 font-bold tracking-normal text-white">
             아직 편지를 남긴 친구가 없어요
           </h1>
           <p className="text-body-1 leading-6 font-medium whitespace-pre-line text-blue-100">
@@ -391,77 +387,5 @@ function EmptyRollingPaperHostView({
         onClose={onShareSheetClose}
       />
     </div>
-  );
-}
-
-interface RollingPaperShareActionAreaProps {
-  writableUntil?: string;
-  isActivatingInvite: boolean;
-  onShareClick: () => void;
-  variant?: 'gradient' | 'solid';
-  animate?: boolean;
-}
-
-function RollingPaperShareActionArea({
-  writableUntil,
-  isActivatingInvite,
-  onShareClick,
-  variant = 'gradient',
-  animate = false,
-}: RollingPaperShareActionAreaProps) {
-  const tooltipBubbleClassName = [
-    'relative flex w-fit max-w-[calc(100vw-28px)] items-center justify-center rounded-xl bg-[#000341] px-3 py-2',
-    animate ? 'rolling-paper-share-tooltip' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-  const actionPanelClassName = [
-    'absolute right-0 bottom-0 left-0 z-20 px-4 pt-13 pb-[calc(34px+env(safe-area-inset-bottom))] [@media_(max-height:700px)]:pt-11 [@media_(max-height:700px)]:pb-[calc(24px+env(safe-area-inset-bottom))]',
-    variant === 'solid'
-      ? 'bg-white'
-      : 'bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,#FFFFFF_40.91%)]',
-    animate ? 'rolling-paper-action-panel' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  return (
-    <section className={actionPanelClassName}>
-      {variant === 'solid' && (
-        <div
-          aria-hidden
-          className="absolute -top-10.75 left-1/2 h-21.75 w-[156%] min-w-146.25 -translate-x-1/2"
-          style={{
-            background:
-              'radial-gradient(circle at 28px 44px, #FFFFFF 0 28px, transparent 29px) 0 0 / 57px 87px repeat-x',
-          }}
-        />
-      )}
-
-      <div className="absolute top-4.5 left-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
-        <div className={tooltipBubbleClassName}>
-          <p className="text-label-1 text-center whitespace-nowrap text-white [@media_(max-width:350px)]:text-[12px] [@media_(max-width:380px)]:text-[13px]">
-            공유하고 더 많은 친구들에게 편지를 받아보세요
-          </p>
-          <span
-            aria-hidden
-            className="border-t-blue-1000 absolute -bottom-1.75 left-4 h-0 w-0 border-x-[6px] border-t-8 border-x-transparent"
-          />
-        </div>
-      </div>
-
-      <div className="mx-auto flex max-w-85.75 flex-col items-center gap-2">
-        {writableUntil && (
-          <CountdownTimer
-            targetDate={writableUntil}
-            className="text-body-2 text-grey-500 text-center font-medium"
-            timeClassName="font-semibold text-red-500"
-          />
-        )}
-        <Button variant="primary" size="full" disabled={isActivatingInvite} onClick={onShareClick}>
-          롤링페이퍼 공유하기
-        </Button>
-      </div>
-    </section>
   );
 }
