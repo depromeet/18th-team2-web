@@ -18,6 +18,7 @@ import { ROUTES } from '@/constants/routes';
 import { useActivateInviteLink } from '@/services/party-create';
 import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
+import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { isFuture } from '@/utils/date';
@@ -68,7 +69,8 @@ export default function RollingPaperPage() {
   // BE 응답에 partyStartedAt이 없어 "파티 시작 전" 판정이 사실상 불가 → 기본 'home'.
   // 초대장으로 돌아가야 할 케이스는 호출부가 locationState.completeCta로 명시 지정.
   const completeCta = locationState?.completeCta ?? 'home';
-  const showHostShareAction = !inviteToken && !isWriteCompleteMode && isWritable;
+  const isHost = !inviteToken;
+  const showHostShareAction = isHost && !isWriteCompleteMode && isWritable;
 
   // 공유 버튼은 "롤링페이퍼 작성 권유"용이므로 조회 라우트가 아닌 초대 링크를 공유해야 한다.
   // 초대 토큰은 주최자만 발급 가능하며, 작성 가능 기간(isWritable)에만 버튼이 노출된다.
@@ -208,14 +210,27 @@ export default function RollingPaperPage() {
               <ChevronLeftIcon className="text-white" />
             </button>
 
-            <button
-              type="button"
-              aria-label="메인으로"
-              onClick={handleHomeClick}
-              className="flex h-12 w-12 items-center justify-center"
-            >
-              <HomeIcon />
-            </button>
+            <div className="flex items-center">
+              {isHost && (
+                <button
+                  type="button"
+                  aria-label="새로고침"
+                  onClick={() => window.location.reload()}
+                  className="flex h-12 w-12 items-center justify-center"
+                >
+                  <RefreshIcon />
+                </button>
+              )}
+
+              <button
+                type="button"
+                aria-label="메인으로"
+                onClick={handleHomeClick}
+                className="flex h-12 w-12 items-center justify-center"
+              >
+                <HomeIcon />
+              </button>
+            </div>
           </div>
 
           <H1 className="mt-5 font-semibold tracking-normal text-white">
@@ -320,7 +335,16 @@ function EmptyRollingPaperHostView({
         background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
       }}
     >
-      <div className="pt-safe-top-3 relative z-20 flex justify-end px-4">
+      <div className="pt-safe-top-3 relative z-20 flex items-center justify-end px-4">
+        <button
+          type="button"
+          aria-label="새로고침"
+          onClick={() => window.location.reload()}
+          className="flex h-12 w-12 items-center justify-center text-white"
+        >
+          <RefreshIcon className="h-6 w-6" />
+        </button>
+
         <button
           type="button"
           aria-label="메인으로"
