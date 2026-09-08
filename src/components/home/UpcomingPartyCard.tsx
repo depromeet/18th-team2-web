@@ -1,4 +1,5 @@
 import { B1, H2 } from '@/components/ui/Typography';
+import { ErrorCircleFilledIcon } from '@/components/ui/icons/ErrorCircleFilledIcon';
 import type { PartyRole } from '@/constants/party';
 import type { PartyOption, UpcomingParty } from '@/types/home';
 import { canShareParty } from '@/utils/party';
@@ -77,63 +78,82 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
   // 링크 복사 노출 규칙은 canShareParty 단일 소스 사용 (HomePage 공유 핸들러와 동일 기준)
   const showShareButton = canShareParty(party);
   const canShare = Boolean(inviteToken);
+  const showEnterNotice = partyOption === 'REALTIME' && isOpen && !isEnded;
+  const shareButtonText = showEnterNotice ? '초대링크 복사하기' : '초대장 공유하기';
+  const actionButtonText = showEnterNotice ? '파티 입장하기' : view.actionText;
 
   return (
-    <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
-      <div className="flex flex-col gap-0.5">
-        <div className="flex items-center justify-between gap-2">
-          <H2>{partyName}</H2>
-          <span
-            className={`text-label-2 shrink-0 rounded-md px-2 py-1 font-semibold ${view.badgeClassName}`}
-          >
-            {view.badgeText}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <B1 className="font-medium">{date}</B1>
-          {isRollingPaper && endDate ? (
-            <>
-              <span className="text-grey-200 text-body-1 font-medium">~</span>
-              <B1 className="font-medium">{endDate}</B1>
-            </>
-          ) : (
-            time && (
+    <div
+      className={`rounded-btn-lg flex flex-col overflow-hidden ${
+        showEnterNotice ? 'bg-red-30' : 'bg-white'
+      }`}
+    >
+      <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center justify-between gap-2">
+            <H2>{partyName}</H2>
+            <span
+              className={`text-label-2 shrink-0 rounded-md px-2 py-1 font-semibold ${view.badgeClassName}`}
+            >
+              {view.badgeText}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <B1 className="font-medium">{date}</B1>
+            {isRollingPaper && endDate ? (
               <>
-                <span className="border-grey-200 h-3 border-l" />
-                <B1 className="font-medium">{time}</B1>
+                <span className="text-grey-200 text-body-1 font-medium">~</span>
+                <B1 className="font-medium">{endDate}</B1>
               </>
-            )
-          )}
+            ) : (
+              time && (
+                <>
+                  <span className="border-grey-200 h-3 border-l" />
+                  <B1 className="font-medium">{time}</B1>
+                </>
+              )
+            )}
+          </div>
         </div>
-      </div>
-      {showShareButton ? (
-        <div className="flex gap-2">
+
+        {showShareButton ? (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="rounded-btn-sm text-label-1 disabled:bg-grey-50 disabled:text-grey-300 flex-1 border border-blue-200 bg-white py-2 font-semibold text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+              onClick={canShare ? onShare : undefined}
+              disabled={!canShare}
+            >
+              {shareButtonText}
+            </button>
+            <button
+              type="button"
+              className={`rounded-btn-sm text-label-1 flex-1 py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
+              onClick={isActionEnabled ? onAction : undefined}
+              disabled={!isActionEnabled}
+            >
+              {actionButtonText}
+            </button>
+          </div>
+        ) : (
           <button
             type="button"
-            className="rounded-btn-sm text-label-1 disabled:bg-grey-50 disabled:text-grey-300 flex-1 border border-blue-200 bg-white py-2 font-semibold text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
-            onClick={canShare ? onShare : undefined}
-            disabled={!canShare}
-          >
-            링크 복사
-          </button>
-          <button
-            type="button"
-            className={`rounded-btn-sm text-label-1 flex-1 py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
+            className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
             onClick={isActionEnabled ? onAction : undefined}
             disabled={!isActionEnabled}
           >
-            {view.actionText}
+            {actionButtonText}
           </button>
+        )}
+      </div>
+
+      {showEnterNotice && (
+        <div className="flex min-h-9 items-center justify-center gap-1 px-3 py-2">
+          <ErrorCircleFilledIcon className="h-5 w-5 shrink-0" aria-hidden />
+          <p className="text-label-1 min-w-0 truncate font-semibold text-red-600">
+            파티 시작이 5분 남았어요! 지금 바로 입장해주세요!
+          </p>
         </div>
-      ) : (
-        <button
-          type="button"
-          className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
-          onClick={isActionEnabled ? onAction : undefined}
-          disabled={!isActionEnabled}
-        >
-          {view.actionText}
-        </button>
       )}
     </div>
   );
