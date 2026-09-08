@@ -20,6 +20,8 @@ export interface RealtimePartyEndingState {
 
 interface PartyStatePayload {
   liveStartAt?: string;
+  liveTimerStartedAt?: string;
+  liveDeadlineAt?: string;
   status?: PartyStatus;
   endingStartedAt?: string;
   endedAt?: string;
@@ -38,6 +40,8 @@ interface LivePartyState {
   partyEndingState: RealtimePartyEndingState | null;
   // 입장 시 한 번 오는 party-state 스냅샷 — liveStartAt/status는 WS 브로드캐스트로 갱신되지 않는다.
   liveStartAt: string | null;
+  liveTimerStartedAt: string | null;
+  liveDeadlineAt: string | null;
   status: PartyStatus | null;
 
   setHasParticipantToken: (value: boolean) => void;
@@ -63,6 +67,8 @@ const initialState = {
   currentPhaseServerNow: null,
   partyEndingState: null,
   liveStartAt: null,
+  liveTimerStartedAt: null,
+  liveDeadlineAt: null,
   status: null,
 } as const;
 
@@ -112,6 +118,8 @@ export const useLivePartyStateStore = create<LivePartyState>()(
         set(
           (state) => ({
             liveStartAt: payload.liveStartAt ?? state.liveStartAt,
+            liveTimerStartedAt: payload.liveTimerStartedAt ?? state.liveTimerStartedAt,
+            liveDeadlineAt: payload.liveDeadlineAt ?? state.liveDeadlineAt,
             status: payload.status ?? state.status,
             // 스냅샷 시점에 이미 종료 카운트다운이 진행 중이었다면 그대로 반영 (재연결 시 따라잡기용)
             partyEndingState: payload.endingStartedAt
@@ -141,6 +149,8 @@ export function applyPartyStateWsEvent(event: string, parsed: Record<string, unk
     case WS_EVENT.PARTY_STATE:
       store.setPartyState({
         liveStartAt: parsed.liveStartAt as string | undefined,
+        liveTimerStartedAt: parsed.liveTimerStartedAt as string | undefined,
+        liveDeadlineAt: parsed.liveDeadlineAt as string | undefined,
         status: parsed.status as PartyStatus | undefined,
         endingStartedAt: parsed.endingStartedAt as string | undefined,
         endedAt: parsed.endedAt as string | undefined,
