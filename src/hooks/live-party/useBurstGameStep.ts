@@ -77,6 +77,7 @@ function parseDateTime(dateTime: string | undefined) {
 export function useBurstGameStep() {
   const { partyId } = useParams<{ partyId: string }>();
   const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
+  const updateBurstGameState = useLivePartyBurstGameStore((s) => s.updateBurstGameState);
   const participantToken = sessionStorage.getItem(PARTICIPANT_TOKEN_KEY);
   const { queueTap, flushTaps } = useBurstGameTaps();
   const { data: recoveredBurstGameData } = useGetBurstGameState(partyId, participantToken);
@@ -101,6 +102,13 @@ export function useBurstGameStep() {
   }, []);
 
   const recoveredBurstGameState = recoveredBurstGameData?.data ?? null;
+
+  useEffect(() => {
+    if (!recoveredBurstGameState) return;
+
+    updateBurstGameState(recoveredBurstGameState, recoveredBurstGameState.ended);
+  }, [recoveredBurstGameState, updateBurstGameState]);
+
   const effectiveBurstGameState = useMemo<BurstGameState | null>(() => {
     if (!recoveredBurstGameState && !burstGameState) return null;
 
