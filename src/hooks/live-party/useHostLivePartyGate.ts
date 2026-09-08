@@ -51,7 +51,7 @@ function hasLiveEnded(
 }
 
 export function useHostLivePartyGate(partyId: string, isHost: boolean) {
-  const liveStartAt = useLivePartyStateStore((s) => s.liveStartAt);
+  const liveTimerStartedAt = useLivePartyStateStore((s) => s.liveTimerStartedAt);
   const status = useLivePartyStateStore((s) => s.status);
   const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
   const { data: participantsData, isPending: isParticipantsPending } = useGetPartyParticipants(
@@ -75,7 +75,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
   // 게스트가 한 번이라도 입장했는지 추적 — 입장 전 LIVE_ENDING 전환 방지
   const hadGuestsRef = useRef(false);
 
-  // liveStartAt/status는 서버 푸시 없이 고정된 값과 현재 시각을 비교하는 것뿐이라
+  // liveTimerStartedAt/status는 서버 푸시 없이 고정된 값과 현재 시각을 비교하는 것뿐이라
   // REST 폴링 대신 로컬 타이머로 1초마다 재평가한다(호스트가 혼자 대기 중일 때만).
   const [nowMs, setNowMs] = useState(() => Date.now());
 
@@ -87,7 +87,7 @@ export function useHostLivePartyGate(partyId: string, isHost: boolean) {
     return () => window.clearInterval(id);
   }, [isHost, hasGuest]);
 
-  const started = hasLiveStarted(nowMs, liveStartAt, serverClockOffsetMs);
+  const started = hasLiveStarted(nowMs, liveTimerStartedAt, serverClockOffsetMs);
   const hasEnded = hasLiveEnded(nowMs, status, endedAt, serverClockOffsetMs);
   const remainingSeconds = getRemainingEndSeconds(nowMs, endingStartedAt, serverClockOffsetMs);
 
