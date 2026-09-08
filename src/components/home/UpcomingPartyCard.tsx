@@ -1,8 +1,12 @@
+import { useEffect, useMemo, useState } from 'react';
+
 import { B1, H2 } from '@/components/ui/Typography';
 import { ErrorCircleFilledIcon } from '@/components/ui/icons/ErrorCircleFilledIcon';
-import type { PartyRole } from '@/constants/party';
+import { PARTY_ROLE, type PartyRole } from '@/constants/party';
 import type { PartyOption, UpcomingParty } from '@/types/home';
 import { canShareParty } from '@/utils/party';
+import InfoIcon from '@/assets/icons/icon-info.svg?react';
+import { parseKstDateTime } from '@/utils/date';
 
 interface UpcomingPartyCardProps {
   party: UpcomingParty;
@@ -68,24 +72,89 @@ const ACTION_VARIANT_CLASS: Record<ActionVariant, string> = {
   disabled: 'bg-grey-50 text-grey-300',
 };
 
+const ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS = 24 * 60 * 60 * 1000;
+const COUNTDOWN_TICK_MS = 1000;
+
+function getRollingPaperOpenText(openAt: string | undefined, nowMs: number) {
+  if (!openAt) return '당일 밤 10시 공개 예정';
+
+  const openTime = parseKstDateTime(openAt);
+  if (!openTime.isValid()) return '당일 밤 10시 공개 예정';
+
+  const remainingMs = openTime.valueOf() - nowMs;
+  if (remainingMs <= 0) return '롤링페이퍼 확인하기';
+  if (remainingMs > ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS) return '당일 밤 10시 공개 예정';
+
+  const totalSeconds = Math.ceil(remainingMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) return `${hours}시간 ${minutes}분 후 공개`;
+  if (minutes > 0) return `${minutes}분 ${seconds}초 후 공개`;
+  return `${seconds}초 후 공개`;
+}
+
+function hasRollingPaperOpened(openAt: string | undefined, nowMs: number) {
+  if (!openAt) return false;
+
+  const openTime = parseKstDateTime(openAt);
+  return openTime.isValid() && openTime.valueOf() <= nowMs;
+}
+
 export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCardProps) {
   const { partyName, date, time, endDate, role, partyOption, isOpen, isEnded, inviteToken } = party;
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  const isRollingPaper = partyOption === 'PAPER_ONLY';
+  const isHost = role === PARTY_ROLE.HOST;
+  const isHostPaperOnly = isHost && isRollingPaper && !isEnded;
+  const effectiveIsOpen =
+    isOpen || (isHostPaperOnly && hasRollingPaperOpened(party.rollingPaperOpenAt, nowMs));
   const view = isEnded
     ? ENDED_VIEW[role]
-    : UPCOMING_PARTY_CARD_VIEW[role][partyOption][isOpen ? 'open' : 'closed'];
-  const isRollingPaper = partyOption === 'PAPER_ONLY';
+    : UPCOMING_PARTY_CARD_VIEW[role][partyOption][effectiveIsOpen ? 'open' : 'closed'];
+  const isHostPaperOnlyClosed = isHostPaperOnly && !effectiveIsOpen;
   const isActionEnabled = view.actionVariant === 'primary';
   // 링크 복사 노출 규칙은 canShareParty 단일 소스 사용 (HomePage 공유 핸들러와 동일 기준)
   const showShareButton = canShareParty(party);
   const canShare = Boolean(inviteToken);
   const showEnterNotice = partyOption === 'REALTIME' && isOpen && !isEnded;
-  const shareButtonText = showEnterNotice ? '초대링크 복사하기' : '초대장 공유하기';
-  const actionButtonText = showEnterNotice ? '파티 입장하기' : view.actionText;
+  const showEndedNotice = partyOption === 'REALTIME' && isEnded && isHost;
+  const noticeTone = showEnterNotice ? 'enter' : showEndedNotice ? 'ended' : null;
+  const shareButtonText = showEnterNotice
+    ? '초대링크 복사하기'
+    : showEndedNotice
+      ? '공유하기'
+      : isHost && isRollingPaper
+        ? '공유하기'
+        : '초대장 공유하기';
+  const rollingPaperOpenText = useMemo(
+    () => getRollingPaperOpenText(party.rollingPaperOpenAt, nowMs),
+    [party.rollingPaperOpenAt, nowMs],
+  );
+  const actionButtonText = showEnterNotice
+    ? '파티 입장하기'
+    : isHostPaperOnlyClosed
+      ? rollingPaperOpenText
+      : view.actionText;
+
+  useEffect(() => {
+    if (!isHostPaperOnlyClosed || !party.rollingPaperOpenAt) return;
+
+    const openTime = parseKstDateTime(party.rollingPaperOpenAt);
+    if (!openTime.isValid()) return;
+
+    const remainingMs = openTime.valueOf() - Date.now();
+    if (remainingMs <= 0 || remainingMs > ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS) return;
+
+    const timerId = window.setInterval(() => setNowMs(Date.now()), COUNTDOWN_TICK_MS);
+    return () => window.clearInterval(timerId);
+  }, [isHostPaperOnlyClosed, party.rollingPaperOpenAt]);
 
   return (
     <div
       className={`rounded-btn-lg flex flex-col overflow-hidden ${
-        showEnterNotice ? 'bg-red-30' : 'bg-white'
+        noticeTone === 'enter' ? 'bg-red-30' : noticeTone === 'ended' ? 'bg-blue-30' : 'bg-white'
       }`}
     >
       <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
@@ -147,11 +216,21 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
         )}
       </div>
 
-      {showEnterNotice && (
+      {noticeTone && (
         <div className="flex min-h-9 items-center justify-center gap-1 px-3 py-2">
-          <ErrorCircleFilledIcon className="h-5 w-5 shrink-0" aria-hidden />
-          <p className="text-label-1 min-w-0 truncate font-semibold text-red-600">
-            파티 시작이 5분 남았어요! 지금 바로 입장해주세요!
+          {noticeTone === 'enter' ? (
+            <ErrorCircleFilledIcon className="h-5 w-5 shrink-0" aria-hidden />
+          ) : (
+            <InfoIcon className="h-5 w-5 shrink-0" aria-hidden />
+          )}
+          <p
+            className={`text-label-1 min-w-0 truncate font-semibold ${
+              noticeTone === 'enter' ? 'text-red-600' : 'text-blue-600'
+            }`}
+          >
+            {noticeTone === 'enter'
+              ? '파티 시작이 5분 남았어요! 지금 바로 입장해주세요!'
+              : '라이브 파티가 종료됐어요'}
           </p>
         </div>
       )}

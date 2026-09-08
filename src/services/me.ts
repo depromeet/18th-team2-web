@@ -56,6 +56,7 @@ function mapUpcomingParty(party: UpcomingPartyResponse): UpcomingParty {
     date: startedAt?.isValid() ? startedAt.format('YY.MM.DD') : '',
     time: startedAt?.isValid() ? formatKoreanTime(startedAt.toDate()) : undefined,
     endDate: endedAt?.isValid() ? endedAt.format('YY.MM.DD') : undefined,
+    rollingPaperOpenAt: party.hostRollingPaperOpenAt ?? undefined,
     role: party.isHost ? PARTY_ROLE.HOST : PARTY_ROLE.PARTICIPANT,
     partyOption: party.partyOption ?? 'REALTIME',
     isOpen,

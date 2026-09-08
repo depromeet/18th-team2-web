@@ -12,6 +12,7 @@ export interface UpcomingParty {
   date: string;
   time?: string;
   endDate?: string;
+  rollingPaperOpenAt?: string;
   /** BE `host` 기반 */
   role: PartyRole;
   /** BE `partyOption` 기반 */
