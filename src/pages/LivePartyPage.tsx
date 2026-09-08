@@ -144,6 +144,7 @@ export default function LivePartyPage() {
     isPhaseError,
     goToEndStep,
     liveStartedAt,
+    liveDeadlineAt,
     liveStartedServerNow,
   } = useLivePartyStep({
     partyId,
@@ -449,6 +450,7 @@ export default function LivePartyPage() {
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
           liveStartAt={liveStartedAt}
+          liveDeadlineAt={liveDeadlineAt}
           serverNow={liveStartedServerNow}
         />
       )}
