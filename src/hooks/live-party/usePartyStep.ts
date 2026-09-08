@@ -2,12 +2,23 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   LIVE_PARTY_STEP,
+  MUSIC_LYRICS_TIMINGS,
   OVERLAY_FADE_DURATION,
   OVERLAY_TRANSITION_STEPS,
   STEP_DELAY_DURATION,
   type PartyStep,
 } from '@/constants/live-party';
-import { useGetPhase, useAdvancePhase, type PartyApiPhase } from '@/services/live-party';
+import {
+  useGetPhase,
+  useAdvancePhase,
+  useRealtimePartyState,
+  type PartyApiPhase,
+} from '@/services/live-party';
+
+const MUSIC_TO_CANDLE_ADVANCE_DELAY_MS = 1200;
+const MUSIC_PHASE_DURATION_MS =
+  MUSIC_LYRICS_TIMINGS[MUSIC_LYRICS_TIMINGS.length - 1].end * 1000 +
+  MUSIC_TO_CANDLE_ADVANCE_DELAY_MS;
 
 function apiPhaseToStep(phase: PartyApiPhase): PartyStep {
   switch (phase) {
@@ -43,6 +54,34 @@ function stepToApiPhase(step: PartyStep): PartyApiPhase {
   }
 }
 
+function shiftDateTime(value: string | null | undefined, offsetMs: number) {
+  if (!value) return null;
+
+  const timestamp = new Date(value).getTime();
+
+  if (Number.isNaN(timestamp)) return null;
+
+  return new Date(timestamp + offsetMs).toISOString();
+}
+
+function getRecoveredLiveStartAt(
+  phase: PartyApiPhase,
+  phaseStartedAt: string | null | undefined,
+  fallbackLiveTimerStartedAt: string | null | undefined,
+) {
+  switch (phase) {
+    case 'MUSIC':
+      return phaseStartedAt ?? fallbackLiveTimerStartedAt;
+    case 'CANDLE':
+      return fallbackLiveTimerStartedAt ?? shiftDateTime(phaseStartedAt, -MUSIC_PHASE_DURATION_MS);
+    case 'BURST':
+    case 'CLOSEABLE':
+      return fallbackLiveTimerStartedAt ?? shiftDateTime(phaseStartedAt, -MUSIC_PHASE_DURATION_MS);
+    default:
+      return fallbackLiveTimerStartedAt;
+  }
+}
+
 interface UseLivePartyStepOptions {
   partyId: string;
   partyPhase?: PartyApiPhase | null;
@@ -67,10 +106,12 @@ export function useLivePartyStep({
   const [liveStartedAt, setLiveStartedAt] = useState<string | null>(() =>
     partyId ? sessionStorage.getItem(`live-party-started-at:${partyId}`) : null,
   );
+  const [liveDeadlineAt, setLiveDeadlineAt] = useState<string | null>(null);
   const [liveStartedServerNow, setLiveStartedServerNow] = useState<string | null>(null);
   const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
   const { data: phaseData, isError: isPhaseError } = useGetPhase(partyId, enabled);
+  const { data: realtimeState } = useRealtimePartyState(partyId, enabled);
   const { mutate: advancePhase } = useAdvancePhase();
 
   const rememberLiveStart = useCallback(
@@ -87,8 +128,13 @@ export function useLivePartyStep({
     [partyId],
   );
 
+  const rememberLiveDeadline = useCallback((deadlineAt?: string | null) => {
+    setLiveDeadlineAt(deadlineAt ?? null);
+  }, []);
+
   const clearRememberedLiveStart = useCallback(() => {
     setLiveStartedAt(null);
+    setLiveDeadlineAt(null);
     setLiveStartedServerNow(null);
 
     if (partyId) {
@@ -139,6 +185,39 @@ export function useLivePartyStep({
     setIsInitialized(true);
   }, [phaseData, isInitialized, rememberLiveStart, clearRememberedLiveStart]);
 
+  // 중간 입장/새로고침 복구: 현재 phase가 MUSIC 이후라면 전체 파티 시작 시각을 복구한다.
+  useEffect(() => {
+    const phaseSnapshot = phaseData?.data;
+    const currentPhase = phaseSnapshot?.phase ?? partyPhase ?? null;
+    const currentPhaseStartedAt = phaseSnapshot?.phaseStartedAt ?? partyPhaseStartedAt;
+    const currentServerNow = phaseSnapshot?.serverNow ?? serverNow ?? realtimeState?.serverNow;
+    const liveStartAt =
+      currentPhase != null
+        ? getRecoveredLiveStartAt(
+            currentPhase,
+            currentPhaseStartedAt,
+            realtimeState?.liveTimerStartedAt,
+          )
+        : null;
+
+    if (!currentPhase || currentPhase === 'ENTRY' || !liveStartAt) return;
+
+    rememberLiveStart(liveStartAt, currentServerNow);
+    rememberLiveDeadline(realtimeState?.liveDeadlineAt);
+  }, [
+    phaseData?.data?.phase,
+    phaseData?.data?.phaseStartedAt,
+    phaseData?.data?.serverNow,
+    partyPhase,
+    partyPhaseStartedAt,
+    serverNow,
+    realtimeState?.liveTimerStartedAt,
+    realtimeState?.liveDeadlineAt,
+    realtimeState?.serverNow,
+    rememberLiveStart,
+    rememberLiveDeadline,
+  ]);
+
   // WebSocket party-phase-changed 반영
   useEffect(() => {
     if (!partyPhase) return;
@@ -151,6 +230,13 @@ export function useLivePartyStep({
       rememberLiveStart(partyPhaseStartedAt, serverNow);
     }
 
+    if (partyPhase === 'CANDLE') {
+      rememberLiveStart(
+        getRecoveredLiveStartAt(partyPhase, partyPhaseStartedAt, liveStartedAt),
+        serverNow,
+      );
+    }
+
     applyStepTransition(apiPhaseToStep(partyPhase));
     setIsInitialized(true);
   }, [
@@ -160,6 +246,7 @@ export function useLivePartyStep({
     applyStepTransition,
     rememberLiveStart,
     clearRememberedLiveStart,
+    liveStartedAt,
   ]);
 
   // 파티 중간 입장: entry 완료 후 현재 phase로 step 전환
@@ -202,10 +289,17 @@ export function useLivePartyStep({
           if (res.data?.phase === 'MUSIC') {
             rememberLiveStart(res.data.phaseStartedAt, res.data.serverNow);
           }
+
+          if (res.data?.phase === 'CANDLE') {
+            rememberLiveStart(
+              getRecoveredLiveStartAt(res.data.phase, res.data.phaseStartedAt, liveStartedAt),
+              res.data.serverNow,
+            );
+          }
         },
       },
     );
-  }, [advancePhase, partyId, rememberLiveStart]);
+  }, [advancePhase, partyId, rememberLiveStart, liveStartedAt]);
 
   const goToEndStep = useCallback(() => {
     setIsTransitioning(false);
@@ -232,6 +326,7 @@ export function useLivePartyStep({
     isEntryReady,
     goToEndStep,
     liveStartedAt,
+    liveDeadlineAt,
     liveStartedServerNow,
   };
 }

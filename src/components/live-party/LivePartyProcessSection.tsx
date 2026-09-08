@@ -61,9 +61,9 @@ function getProcessItems(
   }
 
   if (step === LIVE_PARTY_STEP.CLOSEABLE) {
-    return PROCESS_STEPS.slice(3).map((label) => ({
+    return PROCESS_STEPS.slice(2).map((label, index) => ({
       label,
-      status: 'active',
+      status: index === 0 ? 'completed' : 'pending',
     }));
   }
 
