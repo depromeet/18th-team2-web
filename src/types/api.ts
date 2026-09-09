@@ -1545,7 +1545,7 @@ export interface components {
             enterableFrom: string;
             /**
              * Format: date-time
-             * @description 실시간 파티 종료 시각
+             * @description 실시간 파티가 닫히는 시각. 조기 종료했으면 실제 종료 시각, 시작했으면 실제 시작 + 10분, 아직 시작 전이면 예약 시작 + 30분(시작 유예 마감)
              */
             liveEndAt: string;
             /**
@@ -2054,6 +2054,17 @@ export interface components {
              */
             hostRollingPaperOpenAt?: string;
             realtimeSchedule?: components["schemas"]["UpcomingRealtimeScheduleResponse"];
+            /**
+             * @description 실시간 파티 현재 상태. PAPER_ONLY면 null
+             * @example ROLLING_PAPER_OPEN
+             * @enum {string}
+             */
+            realtimeStatus?: "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED" | "ROLLING_PAPER_OPEN" | "LIVE_OPEN" | "LIVE_ENDING" | "LIVE_CLOSED" | "ROLLING_PAPER_CLOSED";
+            /**
+             * @description 실시간 파티 입장 가능 여부. enterableFrom 이후 liveEndAt 이전에만 true. PAPER_ONLY면 false
+             * @example false
+             */
+            realtimeEnterable: boolean;
         };
         /** @description 홈 다가오는 실시간 파티 일정 */
         UpcomingRealtimeScheduleResponse: {
@@ -2064,12 +2075,17 @@ export interface components {
             enterableFrom: string;
             /**
              * Format: date-time
-             * @description 실시간 파티 시작 시각
+             * @description 실시간 파티 예약 시작 시각
              */
             liveStartAt: string;
             /**
              * Format: date-time
-             * @description 실시간 파티 종료 시각
+             * @description 주최자가 실제로 파티를 시작한 시각. 아직 시작하지 않았으면 null. 상단 10분 타이머의 기준 시각
+             */
+            liveStartedAt?: string;
+            /**
+             * Format: date-time
+             * @description 실시간 파티가 닫히는 시각. 조기 종료했으면 실제 종료 시각, 시작했으면 liveStartedAt + 10분, 아직 시작 전이면 예약 시작 + 30분(시작 유예 마감)
              */
             liveEndAt: string;
         };

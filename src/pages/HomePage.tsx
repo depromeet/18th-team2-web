@@ -35,7 +35,7 @@ function HomePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: archiveData } = useArchiveList();
   const { data: upcomingParties } = useUpcomingParties();
-  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareParty, setShareParty] = useState<UpcomingParty | null>(null);
   const [archiveNotice, setArchiveNotice] = useState(
     locationState?.rollingPaperArchiveNotice ?? null,
   );
@@ -43,13 +43,17 @@ function HomePage() {
   const archiveCount = isAuthenticated ? (archiveData?.totalCount ?? 0) : 0;
   const archivePreview = isAuthenticated ? archiveData?.items[0] : undefined;
   const parties = upcomingParties ?? [];
-  const shareLink = shareToken
-    ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: shareToken })}`
+  const shareLink = shareParty?.inviteToken
+    ? `${window.location.origin}${generatePath(ROUTES.partyInvite, {
+        inviteToken: shareParty.inviteToken,
+      })}`
     : '';
+  const isRollingPaperShare =
+    shareParty?.partyOption === 'REALTIME' && shareParty.isEnded && shareParty.role === 'HOST';
 
   const handleCardShare = useCallback((party: UpcomingParty) => {
     if (!canShareParty(party) || !party.inviteToken) return;
-    setShareToken(party.inviteToken);
+    setShareParty(party);
   }, []);
 
   useEffect(() => {
@@ -127,11 +131,13 @@ function HomePage() {
       </div>
 
       <LinkShareSheet
-        isOpen={shareToken !== null}
+        isOpen={shareParty !== null}
         link={shareLink}
-        title="초대장 링크 공유하기"
-        shareText="파티 초대장이 도착했어요"
-        onClose={() => setShareToken(null)}
+        title={isRollingPaperShare ? '롤링페이퍼 링크 공유하기' : '초대장 링크 공유하기'}
+        shareText={
+          isRollingPaperShare ? '롤링페이퍼 작성 초대장이 왔어요' : '파티 초대장이 도착했어요'
+        }
+        onClose={() => setShareParty(null)}
       />
 
       {archiveNotice && (

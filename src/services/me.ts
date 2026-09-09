@@ -9,11 +9,10 @@ import { formatKoreanTime, parseKstDateTime } from '@/utils/date';
 
 type UpcomingPartyResponse = components['schemas']['UpcomingPartyResponse'];
 
-// 표시용 상태 파생: BE는 "열림 여부"나 "단계"를 직접 주지 않으므로 시각 필드로 파생한다.
-// 라이브/롤페 구분(partyOption)은 BE 값 그대로 유지하고, 시점만 파생한다.
+// 표시용 상태 파생.
+// 라이브/롤페 구분(partyOption)은 BE 값 그대로 유지하고, 홈 카드에 필요한 시점만 파생한다.
 // - isOpen: PAPER_ONLY는 hostRollingPaperOpenAt, REALTIME은 enterableFrom 기준.
-// - isEnded: REALTIME 라이브 종료(>liveEndAt) → 롤링페이퍼 단계 (파티 종료 후에도 롤페 작성/확인 가능).
-// (이슈 #84 — 파생 규칙 BE 확인 권장)
+// - isEnded: REALTIME 라이브 종료 → 롤링페이퍼 단계 (파티 종료 후에도 롤페 작성/확인 가능).
 function deriveDisplayState(party: UpcomingPartyResponse): { isOpen: boolean; isEnded: boolean } {
   const now = Date.now();
 
@@ -27,12 +26,15 @@ function deriveDisplayState(party: UpcomingPartyResponse): { isOpen: boolean; is
 
   // REALTIME
   const schedule = party.realtimeSchedule;
+  const status = party.realtimeStatus;
   const liveEndAt = schedule?.liveEndAt;
   const enterableFrom = schedule?.enterableFrom;
-  const isEnded = liveEndAt != null && parseKstDateTime(liveEndAt).valueOf() <= now;
-  // 라이브 종료(롤페 단계) 후에는 '입장 가능(isOpen)'을 false로 강제 — 두 상태가 동시에 true가 되지 않도록.
-  const isOpen =
-    !isEnded && enterableFrom != null && parseKstDateTime(enterableFrom).valueOf() <= now;
+  const isEndedByStatus = status === 'LIVE_CLOSED' || status === 'ROLLING_PAPER_CLOSED';
+  const isEndedByTime = liveEndAt != null && parseKstDateTime(liveEndAt).valueOf() <= now;
+  const isEnded = isEndedByStatus || isEndedByTime;
+  const isOpenByTime = enterableFrom != null && parseKstDateTime(enterableFrom).valueOf() <= now;
+  const isOpen = !isEnded && (party.realtimeEnterable ?? isOpenByTime);
+
   return { isOpen, isEnded };
 }
 
@@ -56,6 +58,7 @@ function mapUpcomingParty(party: UpcomingPartyResponse): UpcomingParty {
     date: startedAt?.isValid() ? startedAt.format('YY.MM.DD') : '',
     time: startedAt?.isValid() ? formatKoreanTime(startedAt.toDate()) : undefined,
     endDate: endedAt?.isValid() ? endedAt.format('YY.MM.DD') : undefined,
+    rollingPaperOpenAt: party.hostRollingPaperOpenAt ?? undefined,
     role: party.isHost ? PARTY_ROLE.HOST : PARTY_ROLE.PARTICIPANT,
     partyOption: party.partyOption ?? 'REALTIME',
     isOpen,
