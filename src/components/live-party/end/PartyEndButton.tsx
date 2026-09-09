@@ -10,16 +10,25 @@ interface PartyEndButtonProps {
   role: PartyUserRole;
   action?: RealtimePartyNextActionResult | null;
   hostName?: string;
+  fallbackInviteToken?: string;
 }
 
-export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) {
+export function PartyEndButton({
+  role,
+  action,
+  hostName,
+  fallbackInviteToken,
+}: PartyEndButtonProps) {
   const navigate = useNavigate();
   const { partyId } = useParams<{ partyId: string }>();
   const isActionReady = Boolean(action);
+  const canUseFallbackAction =
+    role === PARTY_USER.HOST ||
+    (role === PARTY_USER.PARTICIPANT_NOT_WRITTEN && Boolean(fallbackInviteToken));
   const rollingPaperId =
     action?.type === 'HOST_ROLLING_PAPER_LIST' ? String(action.partyId) : (partyId ?? '');
   const rollingPaperWriteInviteToken =
-    action?.type === 'PARTICIPANT_ROLLING_PAPER_WRITE' ? action.inviteToken : undefined;
+    action?.type === 'PARTICIPANT_ROLLING_PAPER_WRITE' ? action.inviteToken : fallbackInviteToken;
 
   const handleHome = () => navigate(ROUTES.home);
   const handleRollingPaperCheck = () =>
@@ -29,7 +38,7 @@ export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) 
     { inviteToken: rollingPaperWriteInviteToken, hostName },
   );
 
-  if (!isActionReady) {
+  if (!isActionReady && !canUseFallbackAction) {
     return null;
   }
 
