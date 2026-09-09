@@ -65,7 +65,10 @@ export default function RollingPaperCreateCompletePage() {
       <div className="relative mt-[clamp(24px,5svh,40px)] min-h-18">
         <H1 className="rolling-paper-complete-title text-center">롤링페이퍼가 완성되었어요</H1>
         <H1 className="rolling-paper-complete-open-title absolute inset-x-0 top-0 text-center">
-          {openDateLabel} {ROLLING_PAPER_OPEN_TIME}부터
+          <span className="text-blue-700">
+            {openDateLabel} {ROLLING_PAPER_OPEN_TIME}
+          </span>
+          부터
           <br />
           받은 롤링페이퍼를 확인할 수 있어요
         </H1>
