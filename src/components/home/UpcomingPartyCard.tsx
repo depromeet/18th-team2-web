@@ -154,7 +154,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
   return (
     <div
       className={`rounded-btn-lg flex flex-col overflow-hidden ${
-        noticeTone === 'enter' ? 'bg-red-30' : noticeTone === 'ended' ? 'bg-blue-30' : 'bg-white'
+        noticeTone === 'enter' ? 'bg-red-30' : noticeTone === 'ended' ? 'bg-blue-50' : 'bg-white'
       }`}
     >
       <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
