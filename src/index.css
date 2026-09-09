@@ -232,6 +232,10 @@ textarea {
   animation-timing-function: ease-out;
 }
 
+.rolling-paper-complete-button {
+  animation-delay: 2850ms;
+}
+
 @keyframes party-complete-card-rise {
   from {
     opacity: 0;
