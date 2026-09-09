@@ -74,16 +74,23 @@ const ACTION_VARIANT_CLASS: Record<ActionVariant, string> = {
 
 const ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS = 24 * 60 * 60 * 1000;
 const COUNTDOWN_TICK_MS = 1000;
+const ROLLING_PAPER_OPEN_FALLBACK_TEXT = '당일 밤 10시 공개 예정';
+
+function parseValidRollingPaperOpenTime(openAt: string | undefined) {
+  if (!openAt) return null;
+  const openTime = parseKstDateTime(openAt);
+  return openTime.isValid() ? openTime : null;
+}
 
 function getRollingPaperOpenText(openAt: string | undefined, nowMs: number) {
-  if (!openAt) return '당일 밤 10시 공개 예정';
-
-  const openTime = parseKstDateTime(openAt);
-  if (!openTime.isValid()) return '당일 밤 10시 공개 예정';
+  const openTime = parseValidRollingPaperOpenTime(openAt);
+  if (!openTime) return ROLLING_PAPER_OPEN_FALLBACK_TEXT;
 
   const remainingMs = openTime.valueOf() - nowMs;
   if (remainingMs <= 0) return '롤링페이퍼 확인하기';
-  if (remainingMs > ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS) return '당일 밤 10시 공개 예정';
+  if (remainingMs > ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS) {
+    return ROLLING_PAPER_OPEN_FALLBACK_TEXT;
+  }
 
   const totalSeconds = Math.ceil(remainingMs / 1000);
   const hours = Math.floor(totalSeconds / 3600);
@@ -96,10 +103,8 @@ function getRollingPaperOpenText(openAt: string | undefined, nowMs: number) {
 }
 
 function hasRollingPaperOpened(openAt: string | undefined, nowMs: number) {
-  if (!openAt) return false;
-
-  const openTime = parseKstDateTime(openAt);
-  return openTime.isValid() && openTime.valueOf() <= nowMs;
+  const openTime = parseValidRollingPaperOpenTime(openAt);
+  return Boolean(openTime && openTime.valueOf() <= nowMs);
 }
 
 export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCardProps) {
@@ -141,8 +146,8 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
   useEffect(() => {
     if (!isHostPaperOnlyClosed || !party.rollingPaperOpenAt) return;
 
-    const openTime = parseKstDateTime(party.rollingPaperOpenAt);
-    if (!openTime.isValid()) return;
+    const openTime = parseValidRollingPaperOpenTime(party.rollingPaperOpenAt);
+    if (!openTime) return;
 
     const remainingMs = openTime.valueOf() - Date.now();
     if (remainingMs <= 0 || remainingMs > ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS) return;
