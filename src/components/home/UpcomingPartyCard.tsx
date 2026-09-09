@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { B1, H2 } from '@/components/ui/Typography';
+import { Button } from '@/components/ui/Button';
 import { ErrorCircleFilledIcon } from '@/components/ui/icons/ErrorCircleFilledIcon';
 import { PARTY_ROLE, type PartyRole } from '@/constants/party';
 import type { PartyOption, UpcomingParty } from '@/types/home';
@@ -16,6 +17,7 @@ interface UpcomingPartyCardProps {
 }
 
 type ActionVariant = 'primary' | 'disabled';
+type CardButtonVariant = 'primary' | 'secondary';
 
 interface UpcomingPartyCardView {
   badgeText: string;
@@ -67,9 +69,9 @@ const ENDED_VIEW: Record<PartyRole, UpcomingPartyCardView> = {
   PARTICIPANT: { ...LIVE_BADGE, actionText: '롤링페이퍼 작성하기', actionVariant: 'primary' },
 };
 
-const ACTION_VARIANT_CLASS: Record<ActionVariant, string> = {
-  primary: 'bg-blue-500 text-white',
-  disabled: 'bg-grey-50 text-grey-300',
+const ACTION_BUTTON_VARIANT: Record<ActionVariant, CardButtonVariant> = {
+  primary: 'primary',
+  disabled: 'secondary',
 };
 
 const ROLLING_PAPER_COUNTDOWN_THRESHOLD_MS = 24 * 60 * 60 * 1000;
@@ -192,32 +194,38 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
 
         {showShareButton ? (
           <div className="flex gap-2">
-            <button
+            <Button
               type="button"
-              className="rounded-btn-sm text-label-1 disabled:bg-grey-50 disabled:text-grey-300 flex-1 border border-blue-200 bg-white py-2 font-semibold text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
-              onClick={canShare ? onShare : undefined}
+              variant="white-blue"
+              size="sm"
+              className="text-label-1 flex-1"
+              onClick={onShare}
               disabled={!canShare}
             >
               {shareButtonText}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className={`rounded-btn-sm text-label-1 flex-1 py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
-              onClick={isActionEnabled ? onAction : undefined}
+              variant={ACTION_BUTTON_VARIANT[view.actionVariant]}
+              size="sm"
+              className="text-label-1 flex-1"
+              onClick={onAction}
               disabled={!isActionEnabled}
             >
               {actionButtonText}
-            </button>
+            </Button>
           </div>
         ) : (
-          <button
+          <Button
             type="button"
-            className={`rounded-btn-sm text-label-1 w-full py-2 font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${ACTION_VARIANT_CLASS[view.actionVariant]}`}
-            onClick={isActionEnabled ? onAction : undefined}
+            variant={ACTION_BUTTON_VARIANT[view.actionVariant]}
+            size="sm"
+            className="text-label-1 w-full"
+            onClick={onAction}
             disabled={!isActionEnabled}
           >
             {actionButtonText}
-          </button>
+          </Button>
         )}
       </div>
 
