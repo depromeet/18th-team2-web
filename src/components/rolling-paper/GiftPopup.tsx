@@ -25,9 +25,9 @@ export function GiftPopup({ onConfirm, onClose }: GiftPopupProps) {
           <div className="flex flex-col items-center gap-3 px-3">
             <H3 className="text-grey-700 text-center">선물이 도착했어요!</H3>
             <B1 className="text-grey-500 text-center font-medium">
-              친구들이 남긴 따뜻한 마음들이
+              친구들이 남긴 따뜻한 마음들이 모두 도착했어요.
               <br />
-              모두 도착했어요. 지금 바로 열어볼까요?
+              지금 바로 열어볼까요?
             </B1>
           </div>
         </div>
