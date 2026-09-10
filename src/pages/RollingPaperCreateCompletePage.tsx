@@ -65,7 +65,10 @@ export default function RollingPaperCreateCompletePage() {
       <div className="relative mt-[clamp(24px,5svh,40px)] min-h-18">
         <H1 className="rolling-paper-complete-title text-center">롤링페이퍼가 완성되었어요</H1>
         <H1 className="rolling-paper-complete-open-title absolute inset-x-0 top-0 text-center">
-          {openDateLabel} {ROLLING_PAPER_OPEN_TIME}부터
+          <span className="text-blue-700">
+            {openDateLabel} {ROLLING_PAPER_OPEN_TIME}
+          </span>
+          부터
           <br />
           받은 롤링페이퍼를 확인할 수 있어요
         </H1>
@@ -83,7 +86,7 @@ export default function RollingPaperCreateCompletePage() {
           * 파티 정보는 시작 24시간 전까지 수정할 수 있어요
         </B1>
 
-        <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
+        <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <Button
             variant="white"
             size="full"

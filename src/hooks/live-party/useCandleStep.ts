@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { CANDLES } from '@/constants/live-party';
@@ -8,12 +8,19 @@ import { useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
 export function useCandleStep() {
   const { partyId } = useParams<{ partyId: string }>();
   const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
+  const setCandleBlowState = useLivePartyCandleStore((s) => s.setCandleBlowState);
 
   const [optimisticOffIds, setOptimisticOffIds] = useState<Set<number>>(new Set());
 
   const { mutate: blowCandle } = useBlowCandle();
 
   const { data: initialData } = useGetCandleBlowState(partyId);
+
+  useEffect(() => {
+    if (!initialData?.data) return;
+
+    setCandleBlowState(initialData.data);
+  }, [initialData?.data, setCandleBlowState]);
 
   const initialCandles = useMemo(
     () => initialData?.data?.candles ?? [],

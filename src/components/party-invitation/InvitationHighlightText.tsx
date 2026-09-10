@@ -10,7 +10,7 @@ export function InvitationHighlightText({ children }: InvitationHighlightTextPro
   return (
     <H1
       as="span"
-      className="inline-block max-w-full font-bold tracking-[-0.0044px] break-words text-blue-500"
+      className="inline-block max-w-full font-bold tracking-normal break-words text-blue-500"
     >
       {children}
     </H1>

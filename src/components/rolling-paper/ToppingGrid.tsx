@@ -34,12 +34,14 @@ interface ToppingGridProps {
   messages: RollingPaperMessage[];
   onToppingClick: (messageIndex: number) => void;
   hasBottomAction?: boolean;
+  isInteractive?: boolean;
 }
 
 export function ToppingGrid({
   messages,
   onToppingClick,
   hasBottomAction = false,
+  isInteractive = true,
 }: ToppingGridProps) {
   const totalPages = Math.ceil(messages.length / TOPPINGS_PER_PAGE);
   const [currentPage, setCurrentPage] = useState(0);
@@ -72,14 +74,22 @@ export function ToppingGrid({
                 {pageMessages.map((message, index) => {
                   const pos = TOPPING_POSITIONS[index];
                   const globalIndex = pageIndex * TOPPINGS_PER_PAGE + index;
+                  const buttonClassName = [
+                    'absolute z-10 flex w-20 flex-col items-center gap-1',
+                    isInteractive ? 'cursor-pointer' : 'cursor-default',
+                  ]
+                    .filter(Boolean)
+                    .join(' ');
 
                   return (
                     <button
                       key={message.id}
                       type="button"
-                      className="absolute z-10 flex w-20 cursor-pointer flex-col items-center gap-1"
+                      className={buttonClassName}
                       style={{ left: `calc(50% - 187.5px + ${pos.left}px)`, top: `${pos.top}px` }}
-                      onClick={() => onToppingClick(globalIndex)}
+                      onClick={isInteractive ? () => onToppingClick(globalIndex) : undefined}
+                      aria-disabled={!isInteractive}
+                      tabIndex={isInteractive ? 0 : -1}
                     >
                       <img
                         src={TOPPING_IMAGES[message.toppingType]}

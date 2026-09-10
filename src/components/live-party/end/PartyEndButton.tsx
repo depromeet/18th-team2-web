@@ -4,24 +4,58 @@ import { ROUTES } from '@/constants/routes';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { LaterWriteRollingPaperDialog } from '@/components/live-party/end/LaterWriteRollingPaperDialog';
 import { useLaterWriteDialog } from '@/hooks/live-party/useLaterWriteDialog';
+import { useRollingPaper } from '@/services/rolling-paper';
 import type { RealtimePartyNextActionResult } from '@/services/live-party';
+import {
+  formatArchiveNoticeDate,
+  formatArchiveNoticePartyName,
+} from '@/utils/rollingPaperArchiveNotice';
 
 interface PartyEndButtonProps {
   role: PartyUserRole;
   action?: RealtimePartyNextActionResult | null;
   hostName?: string;
+  fallbackInviteToken?: string;
 }
 
-export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) {
+export function PartyEndButton({
+  role,
+  action,
+  hostName,
+  fallbackInviteToken,
+}: PartyEndButtonProps) {
   const navigate = useNavigate();
   const { partyId } = useParams<{ partyId: string }>();
   const isActionReady = Boolean(action);
+  const canUseFallbackAction =
+    role === PARTY_USER.HOST ||
+    (role === PARTY_USER.PARTICIPANT_NOT_WRITTEN && Boolean(fallbackInviteToken));
   const rollingPaperId =
     action?.type === 'HOST_ROLLING_PAPER_LIST' ? String(action.partyId) : (partyId ?? '');
   const rollingPaperWriteInviteToken =
-    action?.type === 'PARTICIPANT_ROLLING_PAPER_WRITE' ? action.inviteToken : undefined;
+    action?.type === 'PARTICIPANT_ROLLING_PAPER_WRITE' ? action.inviteToken : fallbackInviteToken;
+  const { data: rollingPaperData } = useRollingPaper(
+    rollingPaperId,
+    undefined,
+    role === PARTY_USER.HOST && Boolean(rollingPaperId),
+  );
 
-  const handleHome = () => navigate(ROUTES.home);
+  const handleHome = () => {
+    if (role === PARTY_USER.HOST) {
+      navigate(ROUTES.home, {
+        state: {
+          rollingPaperArchiveNotice: {
+            partyId: rollingPaperId,
+            partyName: formatArchiveNoticePartyName(rollingPaperData?.hostName ?? hostName),
+            date: formatArchiveNoticeDate(rollingPaperData?.writableUntil),
+          },
+        },
+      });
+      return;
+    }
+
+    navigate(ROUTES.home);
+  };
   const handleRollingPaperCheck = () =>
     navigate(generatePath(ROUTES.rollingPaper, { id: rollingPaperId }));
 
@@ -29,7 +63,7 @@ export function PartyEndButton({ role, action, hostName }: PartyEndButtonProps) 
     { inviteToken: rollingPaperWriteInviteToken, hostName },
   );
 
-  if (!isActionReady) {
+  if (!isActionReady && !canUseFallbackAction) {
     return null;
   }
 

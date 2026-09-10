@@ -2,8 +2,7 @@ import { Button } from '@/components/ui/Button';
 
 import { PartyEntranceHint } from './PartyHintText';
 
-const activeInvitationButtonClassName =
-  'bg-[linear-gradient(111deg,#5892FC_20.81%,#3444F3_70.81%)] shadow-[5px_5px_14px_#8FB6FF]';
+const activeInvitationButtonClassName = 'bg-invitation-primary shadow-invitation-primary';
 
 interface ParticipantActionsProps {
   isWithin5Minutes: boolean;

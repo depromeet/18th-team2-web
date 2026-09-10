@@ -3,6 +3,7 @@ import { generatePath, Navigate, useLocation, useNavigate, useParams } from 'rea
 
 import { PartyEndedView } from '@/components/party-ended/PartyEndedView';
 import { PartyInvitationView } from '@/components/party-invitation/PartyInvitationView';
+import { RollingPaperInviteView } from '@/components/rolling-paper/RollingPaperInviteView';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { Toast, type ToastState } from '@/components/ui/Toast';
 import { ROUTES } from '@/constants/routes';
@@ -117,6 +118,41 @@ export default function PartyInviteEntryPage() {
       data.realtimeStatus === 'LIVE_CLOSED' ||
       data.realtimeStatus === 'ROLLING_PAPER_CLOSED');
 
+  if (data.partyOption === 'PAPER_ONLY' && !data.isHost) {
+    const rollingPaperWritableUntil = getRollingPaperWritableUntil(data);
+
+    if (rollingPaperWritableUntil.getTime() <= Date.now()) {
+      if (!data.partyStartDate || !data.partyEndDate) {
+        return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
+      }
+
+      return (
+        <>
+          <PartyEndedView
+            partyId={data.partyId}
+            inviteToken={inviteToken}
+            hostName={hostName}
+            writableFrom={new Date(data.partyStartDate)}
+            writableUntil={rollingPaperWritableUntil}
+          />
+          {toastNode}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <RollingPaperInviteView
+          partyId={data.partyId}
+          inviteToken={inviteToken}
+          hostName={hostName}
+          writableUntil={rollingPaperWritableUntil.toISOString()}
+        />
+        {toastNode}
+      </>
+    );
+  }
+
   // 파티 종료 후 화면
   if (data.partyEnded || isRealtimeClosed || isRealtimeLiveEnded) {
     if (data.isHost) {
@@ -127,13 +163,15 @@ export default function PartyInviteEntryPage() {
       return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
     }
 
+    const rollingPaperWritableUntil = getRollingPaperWritableUntil(data);
+
     return (
       <PartyEndedView
         partyId={data.partyId}
         inviteToken={inviteToken}
         hostName={hostName}
         writableFrom={new Date(data.partyStartDate)}
-        writableUntil={getRollingPaperWritableUntil(data)}
+        writableUntil={rollingPaperWritableUntil}
       />
     );
   }

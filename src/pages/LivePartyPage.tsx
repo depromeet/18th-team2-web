@@ -36,6 +36,7 @@ import { PartyFirecrackerEffect } from '@/components/live-party/chat/PartyFirecr
 import { useGetMyRealtimeProfile } from '@/services/party-enter';
 import {
   useGetPartyParticipants,
+  useLeaveParty,
   useRealtimePartyNextAction,
   useStartRealtimeEnd,
 } from '@/services/live-party';
@@ -100,6 +101,7 @@ export default function LivePartyPage() {
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const canFetch = isAuthenticated || hasParticipantToken;
+  const { mutate: leaveParty } = useLeaveParty();
 
   useEffect(() => {
     if (!nicknameDuplicate) return;
@@ -144,6 +146,7 @@ export default function LivePartyPage() {
     isPhaseError,
     goToEndStep,
     liveStartedAt,
+    liveDeadlineAt,
     liveStartedServerNow,
   } = useLivePartyStep({
     partyId,
@@ -238,7 +241,13 @@ export default function LivePartyPage() {
 
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
-  const { data: nextAction } = useRealtimePartyNextAction(partyId, participantToken, isPartyEnded);
+  const [isPartyEndingNoticeDismissed, setIsPartyEndingNoticeDismissed] = useState(false);
+  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed;
+  const { data: nextAction } = useRealtimePartyNextAction(
+    partyId,
+    participantToken,
+    isPartyEndingFlow || isPartyEnded || partyEnd,
+  );
   const [isBurstGameOverlayDismissed, setIsBurstGameOverlayDismissed] = useState(false);
   const endingReason = partyEndingState?.endingReason;
   const shouldShowAutoEndedSheet =
@@ -249,6 +258,36 @@ export default function LivePartyPage() {
       goToEndStep();
     }
   }, [goToEndStep, partyEndingState?.ended]);
+
+  useEffect(() => {
+    if (!isPartyEnding) {
+      setIsPartyEndingNoticeDismissed(false);
+    }
+  }, [isPartyEnding]);
+
+  const showPartyEndStep = useCallback(() => {
+    setIsPartyEndingNoticeDismissed(true);
+    goToEndStep();
+  }, [goToEndStep]);
+
+  useEffect(() => {
+    if (!isHost || !isPartyEnding || hostGate.guestCount > 0) return;
+
+    showPartyEndStep();
+  }, [hostGate.guestCount, isHost, isPartyEnding, showPartyEndStep]);
+
+  const handleExitClick = useCallback(() => {
+    if (isPartyEnding) {
+      if (partyId) {
+        leaveParty({ partyId });
+      }
+
+      showPartyEndStep();
+      return;
+    }
+
+    handleOpenExitDialog();
+  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -376,9 +415,9 @@ export default function LivePartyPage() {
     step !== LIVE_PARTY_STEP.CANDLE;
 
   const showPartyMain =
-    isPartyEnding || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
+    showPartyEndingNotice || (isEntryReady && step === LIVE_PARTY_STEP.ENTRY) || shouldShowByStep;
   const showEntryReadyUI = isEntryReady && isEntryStep && !isPartyEndingFlow;
-  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || isPartyEnding;
+  const hasChatTopOverlayContent = step === LIVE_PARTY_STEP.MUSIC || showPartyEndingNotice;
   const musicTextBottomOffset =
     step === LIVE_PARTY_STEP.MUSIC && chatSheetMetrics.isExpanded
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
@@ -411,7 +450,7 @@ export default function LivePartyPage() {
     );
   }
 
-  if (hostGate.shouldGateHost) {
+  if (hostGate.shouldGateHost && !isPartyEndingFlow) {
     return (
       <>
         <HostWaitingView
@@ -439,16 +478,17 @@ export default function LivePartyPage() {
       {showPartyMain && <PartyFirecrackerEffect />}
       {!partyEnd && (
         <LivePartyHeader
-          onExitClick={handleOpenExitDialog}
+          onExitClick={handleExitClick}
           musicIsMuted={musicIsMuted}
           handleToggleMute={handleToggleMute}
           step={step}
           showMuteButton={step !== LIVE_PARTY_STEP.ENTRY}
           forceShowMusicButton={showEntryReadyUI}
-          isPartyEnding={isPartyEnding}
+          isPartyEnding={showPartyEndingNotice}
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
           liveStartAt={liveStartedAt}
+          liveDeadlineAt={liveDeadlineAt}
           serverNow={liveStartedServerNow}
         />
       )}
@@ -458,7 +498,7 @@ export default function LivePartyPage() {
       {showEntryReadyUI && (
         <PartyEntryReadyOverlay isHost={isHost} onStartClick={handleOpenPartyStartSheet} />
       )}
-      {!isPartyEnding && !(isEntryStep && isEntryReady) && (
+      {!showPartyEndingNotice && !(isEntryStep && isEntryReady) && (
         <StepRenderer
           step={step}
           onStepComplete={isEntryStep ? handleEntryComplete : handleNextStep}
@@ -469,6 +509,7 @@ export default function LivePartyPage() {
           userRole={partyEnd ? endUserRole : userRole}
           endAction={nextAction}
           endHostName={hostName}
+          endFallbackInviteToken={inviteToken}
           musicTextBottomOffset={musicTextBottomOffset}
         />
       )}
@@ -507,7 +548,7 @@ export default function LivePartyPage() {
           </Button>
         </div>
       )}
-      {isPartyEnding && partyEndingState && (
+      {showPartyEndingNotice && partyEndingState && (
         <PartyEndingNotice partyEndingState={partyEndingState} />
       )}
       <TransitionEffect isTransitioning={isTransitioning} />

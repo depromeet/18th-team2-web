@@ -8,9 +8,10 @@ interface PartyEndStepProps {
   role: PartyUserRole;
   action?: RealtimePartyNextActionResult | null;
   hostName?: string;
+  fallbackInviteToken?: string;
 }
 
-export function PartyEndStep({ role, action, hostName }: PartyEndStepProps) {
+export function PartyEndStep({ role, action, hostName, fallbackInviteToken }: PartyEndStepProps) {
   return (
     <div className="party-intro-screen relative flex h-svh w-full flex-col items-center overflow-hidden pt-[20vh] [@media_(max-height:700px)]:pt-[13vh]">
       <PartyEndText role={role} />
@@ -23,7 +24,12 @@ export function PartyEndStep({ role, action, hostName }: PartyEndStepProps) {
         />
       </div>
       <div className="party-intro-overlay pointer-events-none absolute right-0 bottom-0 left-0 h-[50%] [@media_(max-height:700px)]:h-[46%]" />
-      <PartyEndButton role={role} action={action} hostName={hostName} />
+      <PartyEndButton
+        role={role}
+        action={action}
+        hostName={hostName}
+        fallbackInviteToken={fallbackInviteToken}
+      />
     </div>
   );
 }
