@@ -1,7 +1,10 @@
+import { useState } from 'react';
+
 import candleImg from '@/assets/images/rolling-paper/topping-candle.png';
 import cherryImg from '@/assets/images/rolling-paper/topping-cherry.png';
 import strawberryImg from '@/assets/images/rolling-paper/topping-strawberry.png';
 import { RollingPaperFormHeading } from '@/components/rolling-paper-write/RollingPaperFormHeading';
+import { RollingPaperSubmitConfirmSheet } from '@/components/rolling-paper-write/RollingPaperSubmitConfirmSheet';
 import { Button } from '@/components/ui/Button';
 import { CalloutMessage } from '@/components/ui/CalloutMessage';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -37,6 +40,8 @@ export function RollingPaperWriteComplete({
   onBack,
   onComplete,
 }: RollingPaperWriteCompleteProps) {
+  const [isConfirmSheetOpen, setIsConfirmSheetOpen] = useState(false);
+
   return (
     <main className="bg-gradient-bg flex h-dvh flex-col overflow-hidden">
       <PageHeader onBack={onBack} />
@@ -73,10 +78,15 @@ export function RollingPaperWriteComplete({
 
       <div className="bg-white-footer-fade-soft pb-safe-bottom-6 short-height:pt-6 short-height:pb-safe-bottom-4 fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-150 flex-col items-center gap-3 px-4 pt-8">
         <CalloutMessage>작성 완료 후에는 수정이 어려워요</CalloutMessage>
-        <Button variant="primary" size="full" onClick={onComplete}>
+        <Button variant="primary" size="full" onClick={() => setIsConfirmSheetOpen(true)}>
           작성 완료
         </Button>
       </div>
+      <RollingPaperSubmitConfirmSheet
+        isOpen={isConfirmSheetOpen}
+        onClose={() => setIsConfirmSheetOpen(false)}
+        onConfirm={onComplete}
+      />
     </main>
   );
 }
