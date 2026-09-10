@@ -86,7 +86,7 @@ export default function RollingPaperCreateCompletePage() {
           * 파티 정보는 시작 24시간 전까지 수정할 수 있어요
         </B1>
 
-        <div className="party-complete-button rolling-paper-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
+        <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <Button
             variant="white"
             size="full"
