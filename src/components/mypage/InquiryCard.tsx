@@ -8,20 +8,20 @@ export function InquiryCard({ openChatUrl }: InquiryCardProps) {
   return (
     <div className="flex flex-col gap-5 rounded-xl bg-white px-4 py-3">
       <div className="flex flex-col gap-2">
-        <H3 className="text-grey-900">1:1 문의</H3>
+        <H3 className="text-grey-900">서비스 문의</H3>
         <Caption className="text-grey-400 font-medium">
-          기타 사항 발생 시
+          이용 중 불편한 점이 있으신가요?
           <br />
-          카카오톡 오픈 채팅으로 문의주세요
+          아래 문의 폼을 작성해 주시면 바로 확인할게요.
         </Caption>
       </div>
       <a
         href={openChatUrl}
         target="_blank"
         rel="noreferrer noopener"
-        className="rounded-btn-md bg-blue-30 text-body-2 flex h-[46px] w-full items-center justify-center font-semibold text-blue-500"
+        className="rounded-btn-md bg-blue-30 text-body-2 flex h-11.5 w-full items-center justify-center font-semibold text-blue-500"
       >
-        카카오 오픈 채팅
+        구글 폼 작성하기
       </a>
     </div>
   );

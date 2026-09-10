@@ -1,6 +1,5 @@
 export const EXTERNAL_URLS = {
-  // TODO: BE에서 오픈채팅 URL 제공 시 교체
-  KAKAO_OPEN_CHAT: 'https://open.kakao.com/',
+  GOOGLE_FORM: 'https://forms.gle/4XXL6sDs3mw56rgw8',
 } as const;
 
 export const SHARE_ENDPOINTS = {

@@ -12,6 +12,7 @@ import { ROUTES } from '@/constants/routes';
 import { useLogout, useMe } from '@/services/auth';
 import { useMeAccount } from '@/services/me';
 import { parseKstDateTime } from '@/utils/date';
+import { EXTERNAL_URLS } from '@/constants/external-urls';
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export default function MyPage() {
           {account ? (
             <>
               <LinkedAccountCard provider="KAKAO" connectedAt={connectedAt} />
-              {account.supportChatUrl && <InquiryCard openChatUrl={account.supportChatUrl} />}
+              <InquiryCard openChatUrl={EXTERNAL_URLS.GOOGLE_FORM} />
             </>
           ) : isAccountLoading ? (
             <>
