@@ -22,7 +22,10 @@ import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { isFuture } from '@/utils/date';
-import { formatArchiveNoticeDate } from '@/utils/rollingPaperArchiveNotice';
+import {
+  formatArchiveNoticeDate,
+  formatArchiveNoticePartyName,
+} from '@/utils/rollingPaperArchiveNotice';
 
 interface RollingPaperLocationState {
   mode?: 'write-complete';
@@ -107,7 +110,7 @@ export default function RollingPaperPage() {
         state: {
           rollingPaperArchiveNotice: {
             partyId: data.partyId,
-            partyName: `${data.hostName ?? '내'}의 파티`,
+            partyName: formatArchiveNoticePartyName(data.hostName),
             date: formatArchiveNoticeDate(data.writableUntil),
           },
         },

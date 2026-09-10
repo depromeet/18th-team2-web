@@ -10,3 +10,7 @@ export function formatArchiveNoticeDate(writableUntil?: string) {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}.${month}.${day}`;
 }
+
+export function formatArchiveNoticePartyName(hostName?: string) {
+  return hostName ? `${hostName}의 파티` : '내 파티';
+}

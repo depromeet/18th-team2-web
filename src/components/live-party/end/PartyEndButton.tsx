@@ -6,7 +6,10 @@ import { LaterWriteRollingPaperDialog } from '@/components/live-party/end/LaterW
 import { useLaterWriteDialog } from '@/hooks/live-party/useLaterWriteDialog';
 import { useRollingPaper } from '@/services/rolling-paper';
 import type { RealtimePartyNextActionResult } from '@/services/live-party';
-import { formatArchiveNoticeDate } from '@/utils/rollingPaperArchiveNotice';
+import {
+  formatArchiveNoticeDate,
+  formatArchiveNoticePartyName,
+} from '@/utils/rollingPaperArchiveNotice';
 
 interface PartyEndButtonProps {
   role: PartyUserRole;
@@ -43,7 +46,7 @@ export function PartyEndButton({
         state: {
           rollingPaperArchiveNotice: {
             partyId: rollingPaperId,
-            partyName: `${rollingPaperData?.hostName ?? hostName ?? '내'}의 파티`,
+            partyName: formatArchiveNoticePartyName(rollingPaperData?.hostName ?? hostName),
             date: formatArchiveNoticeDate(rollingPaperData?.writableUntil),
           },
         },
