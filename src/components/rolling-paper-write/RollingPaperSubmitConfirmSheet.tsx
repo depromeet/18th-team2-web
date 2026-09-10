@@ -55,9 +55,6 @@ export function RollingPaperSubmitConfirmSheet({
         }`}
       >
         <div className="relative flex flex-col overflow-hidden rounded-2xl bg-white">
-          <div className="flex h-4 items-end justify-center">
-            <div className="bg-grey-100 h-1 w-12 rounded-full" />
-          </div>
           <div className="flex items-start justify-between px-5 pt-5 pb-2.5">
             <div className="flex flex-col gap-1">
               <H2 id="rolling-paper-submit-confirm-title">롤링페이퍼를 전달할까요?</H2>
