@@ -1,4 +1,5 @@
 import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
+import { CheckCircleFilledIcon } from '@/components/ui/icons/CheckCircleFilledIcon';
 
 const PROCESS_STEPS = ['축하노래', '촛불끄기', '박 터뜨리기', '마무리'] as const;
 
@@ -77,11 +78,7 @@ function getProcessItems(
 
 function ProcessIcon({ status }: { status: ProcessStatus }) {
   if (status === 'completed') {
-    return (
-      <span className="relative size-4 rounded-full bg-[#5892ff]">
-        <span className="absolute top-[4px] left-[4px] h-[5px] w-[8px] -rotate-45 border-b-2 border-l-2 border-white" />
-      </span>
-    );
+    return <CheckCircleFilledIcon className="size-4 shrink-0" aria-hidden />;
   }
 
   return (
