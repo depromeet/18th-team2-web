@@ -279,6 +279,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/parties/{partyId}/host-rolling-paper-seen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 주최자 롤링페이퍼 오픈 안내 확인 처리
+         * @description 홈 목록의 hostRollingPaperNoticePending 을 소진시킨다. 멱등이며, 안내를 노출한 직후와 주최자 롤링페이퍼 화면 진입 시 호출한다.
+         */
+        post: operations["markRollingPaperNoticeSeen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/{partyId}/fireworks": {
         parameters: {
             query?: never;
@@ -1167,6 +1187,15 @@ export interface components {
             status: number;
             data?: components["schemas"]["ActivateInviteLinkResponse"];
         };
+        /** @description 공통 성공 응답 */
+        ApiResponseUnit: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status: number;
+        };
         SendChatMessageRequest: {
             content: string;
         };
@@ -2053,6 +2082,11 @@ export interface components {
              * @description 주최자 롤링페이퍼 오픈 시각. 주최자가 아니면 null
              */
             hostRollingPaperOpenAt?: string;
+            /**
+             * @description 주최자에게 롤링페이퍼 오픈 안내를 노출해야 하는지 여부. 오픈 시각이 지났고 아직 안내를 확인하지 않았으면 true. 주최자가 아니면 false
+             * @example false
+             */
+            hostRollingPaperNoticePending: boolean;
             realtimeSchedule?: components["schemas"]["UpcomingRealtimeScheduleResponse"];
             /**
              * @description 실시간 파티 현재 상태. PAPER_ONLY면 null
@@ -2570,15 +2604,6 @@ export interface components {
             /** @enum {string} */
             provider: "KAKAO" | "GOOGLE" | "APPLE" | "NAVER";
             birthDay: string;
-        };
-        /** @description 공통 성공 응답 */
-        ApiResponseUnit: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status: number;
         };
     };
     responses: never;
@@ -3379,6 +3404,59 @@ export interface operations {
                      *       }
                      *     }
                      */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    markRollingPaperNoticeSeen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 ID
+                 * @example 1
+                 */
+                partyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 확인 처리 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseUnit"];
+                };
+            };
+            /** @description 인증 실패 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
