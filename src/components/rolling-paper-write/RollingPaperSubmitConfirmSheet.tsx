@@ -8,6 +8,7 @@ interface RollingPaperSubmitConfirmSheetProps {
   isOpen: boolean;
   isPending?: boolean;
   onClose: () => void;
+  onEdit: () => void;
   onConfirm: () => void;
 }
 
@@ -15,6 +16,7 @@ export function RollingPaperSubmitConfirmSheet({
   isOpen,
   isPending = false,
   onClose,
+  onEdit,
   onConfirm,
 }: RollingPaperSubmitConfirmSheetProps) {
   const [isAnimatedOpen, setIsAnimatedOpen] = useState(false);
@@ -72,7 +74,7 @@ export function RollingPaperSubmitConfirmSheet({
             </button>
           </div>
           <div className="flex gap-2 px-5 py-4">
-            <Button className="flex-1" variant="white-grey" onClick={onClose} disabled={isPending}>
+            <Button className="flex-1" variant="white-grey" onClick={onEdit} disabled={isPending}>
               수정하기
             </Button>
             <Button className="flex-1" variant="primary" onClick={onConfirm} disabled={isPending}>

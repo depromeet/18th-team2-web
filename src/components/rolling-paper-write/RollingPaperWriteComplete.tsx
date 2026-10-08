@@ -88,6 +88,7 @@ export function RollingPaperWriteComplete({
         isOpen={isConfirmSheetOpen}
         isPending={isPending}
         onClose={() => setIsConfirmSheetOpen(false)}
+        onEdit={onBack}
         onConfirm={onComplete}
       />
     </main>
