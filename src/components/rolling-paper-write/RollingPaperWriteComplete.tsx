@@ -44,9 +44,14 @@ export function RollingPaperWriteComplete({
 }: RollingPaperWriteCompleteProps) {
   const [isConfirmSheetOpen, setIsConfirmSheetOpen] = useState(false);
 
+  function handleBack() {
+    if (isPending) return;
+    onBack();
+  }
+
   return (
     <main className="bg-gradient-bg flex h-dvh flex-col overflow-hidden">
-      <PageHeader onBack={onBack} />
+      <PageHeader onBack={handleBack} />
 
       <section className="share-scroll-hide pb-rolling-paper-write-complete-bottom short-height:pb-rolling-paper-write-complete-bottom-sm flex flex-1 flex-col overflow-y-auto px-4">
         <RollingPaperFormHeading
@@ -88,7 +93,7 @@ export function RollingPaperWriteComplete({
         isOpen={isConfirmSheetOpen}
         isPending={isPending}
         onClose={() => setIsConfirmSheetOpen(false)}
-        onEdit={onBack}
+        onEdit={handleBack}
         onConfirm={onComplete}
       />
     </main>
