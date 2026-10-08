@@ -1,0 +1,59 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 추가된 기능'
+    labels:
+      - feature
+  - title: '🐛 버그 수정'
+    labels:
+      - fix
+  - title: '🎨 UI/UX 변경'
+    labels:
+      - design
+  - title: '🔌 API 연동'
+    labels:
+      - api
+  - title: '♻️ 리팩터링'
+    labels:
+      - refactor
+  - title: '📝 문서'
+    labels:
+      - docs
+  - title: '🧹 기타 작업'
+    labels:
+      - chore
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - breaking
+  minor:
+    labels:
+      - feature
+      - api
+  patch:
+    labels:
+      - fix
+      - design
+      - refactor
+      - docs
+      - chore
+  default: patch
+
+template: |
+  ## 이번 버전 요약
+
+  $CHANGES
+
+  ## 테스트 필요 항목
+  - [ ] 주요 사용자 플로우 정상 동작 확인
+  - [ ] 모바일 화면 확인
+  - [ ] API 에러 케이스 확인
+  - [ ] 초대링크 진입/복귀 플로우 확인
+
+  ## 알려진 이슈
+  - 없음
