@@ -28,6 +28,7 @@ interface RollingPaperWriteCompleteProps {
   nickname: string;
   message: string;
   toppingType: ToppingType;
+  isPending?: boolean;
   onBack: () => void;
   onComplete: () => void;
 }
@@ -37,6 +38,7 @@ export function RollingPaperWriteComplete({
   nickname,
   message,
   toppingType,
+  isPending = false,
   onBack,
   onComplete,
 }: RollingPaperWriteCompleteProps) {
@@ -84,6 +86,7 @@ export function RollingPaperWriteComplete({
       </div>
       <RollingPaperSubmitConfirmSheet
         isOpen={isConfirmSheetOpen}
+        isPending={isPending}
         onClose={() => setIsConfirmSheetOpen(false)}
         onConfirm={onComplete}
       />
