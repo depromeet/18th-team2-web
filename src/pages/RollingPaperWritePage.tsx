@@ -73,7 +73,7 @@ export default function RollingPaperWritePage() {
     return error.message || '롤링페이퍼 작성에 실패했어요. 잠시 후 다시 시도해주세요.';
   }
 
-  function handleMessageSubmit() {
+  function handleSubmit() {
     if (!partyId || !inviteToken) {
       setWriteError('초대장 정보를 확인할 수 없어요. 초대장 링크로 다시 접속해주세요.');
       return;
@@ -85,55 +85,57 @@ export default function RollingPaperWritePage() {
     writeRollingPaper(
       { inviteToken, writerNickname: nickname, content: message, toppingType },
       {
-        onSuccess: () => setStep('complete'),
+        onSuccess: () => {
+          navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
+            replace: true,
+            state: {
+              mode: 'write-complete',
+              completeCta,
+              invitePath,
+              inviteToken,
+            },
+          });
+        },
         onError: (error) => setWriteError(getWriteErrorMessage(error)),
       },
     );
   }
 
-  function handleComplete() {
-    if (!partyId) return;
-
-    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
-      replace: true,
-      state: {
-        mode: 'write-complete',
-        completeCta,
-        invitePath,
-        inviteToken,
-      },
-    });
-  }
+  const writeErrorToast = writeError && (
+    <div className="fixed top-4 left-1/2 z-60 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-3 text-sm text-white">
+      {writeError}
+    </div>
+  );
 
   if (step === 'complete') {
     const { nickname, message, toppingType } = methods.getValues();
     if (!toppingType) return null;
 
     return (
-      <RollingPaperWriteComplete
-        hostName={hostName}
-        nickname={nickname}
-        message={message}
-        toppingType={toppingType}
-        onBack={() => setStep('message')}
-        onComplete={handleComplete}
-      />
+      <>
+        {writeErrorToast}
+        <RollingPaperWriteComplete
+          hostName={hostName}
+          nickname={nickname}
+          message={message}
+          toppingType={toppingType}
+          isPending={isPending}
+          onBack={() => setStep('message')}
+          onComplete={isPending ? () => undefined : handleSubmit}
+        />
+      </>
     );
   }
 
   return (
     <FormProvider {...methods}>
-      {writeError && (
-        <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-black/70 px-4 py-3 text-sm text-white">
-          {writeError}
-        </div>
-      )}
+      {writeErrorToast}
       {step === 'nickname' && <RollingPaperNicknameForm onNext={() => setStep('message')} />}
       {step === 'message' && (
         <RollingPaperMessageForm
           hostName={hostName}
           onBack={() => setStep('nickname')}
-          onNext={isPending ? () => undefined : handleMessageSubmit}
+          onNext={() => setStep('complete')}
         />
       )}
     </FormProvider>
