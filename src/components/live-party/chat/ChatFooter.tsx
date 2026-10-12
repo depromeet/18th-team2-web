@@ -28,7 +28,7 @@ export function ChatFooter({ onSend }: ChatFooterProps) {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder="하고 싶은 말을 남겨주세요!"
-        className={`placeholder:text-grey-300 text-label-1! min-w-0 flex-1 rounded-[200px] bg-white/10 px-4 py-2 font-semibold text-white outline-none placeholder:font-normal ${
+        className={`placeholder:text-grey-300 min-w-0 flex-1 rounded-[200px] bg-white/10 px-4 py-2 leading-5 font-semibold text-white outline-none placeholder:font-normal ${
           isFocused ? 'border-2 border-blue-600' : 'border border-white'
         }`}
       />
