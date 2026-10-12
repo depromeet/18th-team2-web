@@ -69,7 +69,9 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
     getRemainingSeconds(partyEndingState, serverClockOffsetMs),
   );
   const [noticeStep, setNoticeStep] = useState<NoticeStep>(() =>
-    getRemainingSeconds(partyEndingState, serverClockOffsetMs) <= FALLBACK_REMAINING_SECONDS - 5 ? 'countdown' : 'title',
+    getRemainingSeconds(partyEndingState, serverClockOffsetMs) <= FALLBACK_REMAINING_SECONDS - 5
+      ? 'countdown'
+      : 'title',
   );
 
   useEffect(() => {
