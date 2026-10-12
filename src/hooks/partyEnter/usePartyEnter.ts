@@ -48,9 +48,7 @@ export function usePartyEnter() {
   const isPartyFull = maxCount > 0 && totalCount >= maxCount;
 
   // 파티 시작 여부 — 시작 후 참가자에게 "이미 진행 중" 안내
-  const { isReady, hasStarted } = usePartyStartCountdown(
-    invite?.realtimeSchedule?.liveStartAt,
-  );
+  const { isReady, hasStarted } = usePartyStartCountdown(invite?.realtimeSchedule?.liveStartAt);
 
   const [nickname, setNickname] = useState('');
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
