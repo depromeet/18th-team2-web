@@ -47,8 +47,8 @@ export function usePartyEnter() {
   const maxCount = participantsResponse?.maxCount ?? 0;
   const isPartyFull = maxCount > 0 && totalCount >= maxCount;
 
-  // 파티 시작 시각까지 카운트다운 — liveStartAt 도달 시 입장 가능
-  const { isReady, minutes, seconds, hasStarted } = usePartyStartCountdown(
+  // 파티 시작 여부 — 시작 후 참가자에게 "이미 진행 중" 안내
+  const { isReady, hasStarted } = usePartyStartCountdown(
     invite?.realtimeSchedule?.liveStartAt,
   );
 
@@ -186,8 +186,6 @@ export function usePartyEnter() {
     title,
     isHost,
     isPending,
-    // 시작 전(유효 스케줄 보유)에만 "X분 Y초 남았어요" 노출
-    countdown: isReady && !hasStarted ? { minutes, seconds } : null,
     // 시작 시각 도달 후 "파티가 이미 진행 중이에요!" 노출
     hasPartyStarted: isReady && hasStarted,
     isPartyFull,
