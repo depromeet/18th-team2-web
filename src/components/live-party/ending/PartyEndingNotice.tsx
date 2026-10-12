@@ -7,7 +7,7 @@ import { parseKstDateTime } from '@/utils/date';
 import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 
 const INTRO_STEP_DURATION = 2000;
-const FALLBACK_REMAINING_SECONDS = 60;
+const FALLBACK_REMAINING_SECONDS = 30;
 
 type NoticeStep = 'title' | 'thanks' | 'countdown';
 
@@ -69,7 +69,7 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
     getRemainingSeconds(partyEndingState, serverClockOffsetMs),
   );
   const [noticeStep, setNoticeStep] = useState<NoticeStep>(() =>
-    getRemainingSeconds(partyEndingState, serverClockOffsetMs) <= 55 ? 'countdown' : 'title',
+    getRemainingSeconds(partyEndingState, serverClockOffsetMs) <= FALLBACK_REMAINING_SECONDS - 5 ? 'countdown' : 'title',
   );
 
   useEffect(() => {

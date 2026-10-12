@@ -49,7 +49,7 @@ import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
 const MUSIC_PROCESS_DURATION_SECONDS = MUSIC_LYRICS_TIMINGS[MUSIC_LYRICS_TIMINGS.length - 1].end;
-const PARTY_ENDING_FALLBACK_SECONDS = 60;
+const PARTY_ENDING_FALLBACK_SECONDS = 30;
 
 function clampProgress(value: number) {
   return Math.min(1, Math.max(0, value));
