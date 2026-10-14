@@ -12,7 +12,6 @@ export default function PartyEnterPage() {
     title,
     isHost,
     isPending,
-    countdown,
     hasPartyStarted,
     isPartyFull,
     inputValue,
@@ -46,14 +45,6 @@ export default function PartyEnterPage() {
             <CharacterSelect value={selectedCharacterId} onSelect={handleSelectCharacter} />
           </section>
           <footer className="flex w-full flex-col items-center gap-2">
-            {countdown && (
-              <B2 className="text-grey-500 font-medium">
-                <span className="text-red-500">
-                  {countdown.minutes}분 {countdown.seconds}초
-                </span>{' '}
-                후에 입장할 수 있어요
-              </B2>
-            )}
             {hasPartyStarted && !isHost && (
               <B2 className="text-center font-medium text-blue-700">파티가 이미 진행 중이에요!</B2>
             )}
@@ -64,7 +55,7 @@ export default function PartyEnterPage() {
                 <B2 className="font-medium text-red-500">참가자가 모두 차서 입장이 불가능해요</B2>
               </div>
             )}
-            <Button type="submit" disabled={isPending || isPartyFull || !!countdown}>
+            <Button type="submit" disabled={isPending || isPartyFull}>
               파티 입장하러 가기
             </Button>
           </footer>
