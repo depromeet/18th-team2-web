@@ -4,7 +4,7 @@ import { useGetPartyParticipants, useStartRealtimeEnd } from '@/services/live-pa
 import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 import { parseKstDateTime } from '@/utils/date';
 
-const AUTO_END_SECONDS = 60;
+const AUTO_END_SECONDS = 30;
 const TICK_INTERVAL_MS = 1000;
 
 function getServerClockOffset(serverNow?: string | null) {

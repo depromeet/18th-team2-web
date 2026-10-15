@@ -23,7 +23,7 @@ function resolveImageUrl(url: string | null | undefined) {
 
 export function HostWaitingView({
   celebrant,
-  remainingSeconds = 60,
+  remainingSeconds = 30,
   isEnding,
   onInvite,
   onClose,
