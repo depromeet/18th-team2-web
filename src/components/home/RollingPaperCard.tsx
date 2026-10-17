@@ -1,10 +1,16 @@
+import { Link } from 'react-router-dom';
+
+import { ROUTES } from '@/constants/routes';
 import rollingPaper from '@/assets/images/home/rolling-paper.png';
 import { Badge } from '../ui/Badge';
 import { H3 } from '../ui/Typography';
 
 export function RollingPaperCard() {
   return (
-    <div className="relative h-47.5 w-full min-w-85.75 overflow-hidden rounded-2xl border border-blue-50 bg-linear-to-br from-[#D3E1FF] to-white pt-6 pl-5">
+    <Link
+      to={ROUTES.createRollingPaperIntro}
+      className="relative block h-47.5 w-full min-w-85.75 cursor-pointer overflow-hidden rounded-2xl border border-blue-50 bg-linear-to-br from-[#D3E1FF] to-white pt-6 pl-5"
+    >
       <img
         src={rollingPaper}
         alt="롤링페이퍼"
@@ -22,6 +28,6 @@ export function RollingPaperCard() {
           <Badge theme="white">7일 후 공개</Badge>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

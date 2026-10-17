@@ -1,10 +1,16 @@
+import { Link } from 'react-router-dom';
+
+import { ROUTES } from '@/constants/routes';
 import { Badge } from '../ui/Badge';
 import { H3 } from '../ui/Typography';
 import liveParty from '@/assets/images/home/live-party.png';
 
 export function LivePartyCard() {
   return (
-    <div className="relative flex h-47.5 w-full min-w-85.75 overflow-hidden rounded-2xl border border-blue-300 bg-linear-to-br from-[#1744f4] to-[#afd1ff] pt-6 pl-5">
+    <Link
+      to={ROUTES.createPartyIntro}
+      className="relative flex h-47.5 w-full min-w-85.75 cursor-pointer overflow-hidden rounded-2xl border border-blue-300 bg-linear-to-br from-[#1744f4] to-[#afd1ff] pt-6 pl-5"
+    >
       <img
         src={liveParty}
         alt="라이브파티"
@@ -19,6 +25,6 @@ export function LivePartyCard() {
         </H3>
         <Badge>채팅 + 게임 + 롤링페이퍼</Badge>
       </div>
-    </div>
+    </Link>
   );
 }
