@@ -25,5 +25,12 @@ const PARTY_ONBOARDING_ITEMS: GuideCarouselItem[] = [
 export function LivePartyOnboarding() {
   const { isOpen, close } = useGuideSeenOnce(LIVE_PARTY_ONBOARDING_SEEN_KEY);
 
-  return <GuideCarouselDialog isOpen={isOpen} items={PARTY_ONBOARDING_ITEMS} onClose={close} />;
+  return (
+    <GuideCarouselDialog
+      isOpen={isOpen}
+      items={PARTY_ONBOARDING_ITEMS}
+      onClose={close}
+      ariaLabel="실시간 파티 만들기 가이드"
+    />
+  );
 }

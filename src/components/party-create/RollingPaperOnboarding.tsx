@@ -23,6 +23,11 @@ export function RollingPaperOnboarding() {
   const { isOpen, close } = useGuideSeenOnce(ROLLING_PAPER_ONBOARDING_SEEN_KEY);
 
   return (
-    <GuideCarouselDialog isOpen={isOpen} items={ROLLING_PAPER_ONBOARDING_ITEMS} onClose={close} />
+    <GuideCarouselDialog
+      isOpen={isOpen}
+      items={ROLLING_PAPER_ONBOARDING_ITEMS}
+      onClose={close}
+      ariaLabel="롤링페이퍼 만들기 가이드"
+    />
   );
 }

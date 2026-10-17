@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperInstance } from 'swiper';
@@ -15,6 +15,7 @@ interface GuideCarouselDialogProps {
   isOpen: boolean;
   items: GuideCarouselItem[];
   onClose: () => void;
+  ariaLabel?: string;
 }
 
 export function GuideCarouselDialog({ isOpen, ...props }: GuideCarouselDialogProps) {
@@ -22,10 +23,24 @@ export function GuideCarouselDialog({ isOpen, ...props }: GuideCarouselDialogPro
   return <GuideCarouselDialogContent {...props} />;
 }
 
-function GuideCarouselDialogContent({ items, onClose }: Omit<GuideCarouselDialogProps, 'isOpen'>) {
+function GuideCarouselDialogContent({
+  items,
+  onClose,
+  ariaLabel = '이용 가이드',
+}: Omit<GuideCarouselDialogProps, 'isOpen'>) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const isLast = activeIndex === items.length - 1;
+
+  // 열릴 때 닫기 버튼으로 포커스를 옮기고, 닫힐 때 직전 포커스 요소로 복원
+  useEffect(() => {
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButtonRef.current?.focus();
+
+    return () => previouslyFocused?.focus();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -48,16 +63,13 @@ function GuideCarouselDialogContent({ items, onClose }: Omit<GuideCarouselDialog
     <div
       role="dialog"
       aria-modal="true"
+      aria-label={ariaLabel}
       className="guide-carousel-fade-in fixed inset-0 z-120 flex items-center justify-center"
     >
-      <button
-        type="button"
-        aria-label="팝업 닫기"
-        className="absolute inset-0 cursor-default bg-black/75"
-        onClick={onClose}
-      />
+      <div role="presentation" className="absolute inset-0 bg-black/75" onClick={onClose} />
       <div className="relative flex flex-col items-end gap-2">
         <button
+          ref={closeButtonRef}
           type="button"
           aria-label="닫기"
           className="cursor-pointer p-1 text-white"
