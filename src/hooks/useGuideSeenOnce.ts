@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 function hasSeenGuide(storageKey: string) {
   try {
@@ -18,15 +18,15 @@ function markGuideSeen(storageKey: string) {
 
 /**
  * 가이드를 기기당 한 번만 노출한다. 로그인 여부와 무관하게 localStorage 기준으로 판정한다.
+ * 닫기·건너뛰기·배경 클릭·ESC·마지막 장 다음 등 가이드를 닫는 시점에 본 것으로 저장한다.
  */
 export function useGuideSeenOnce(storageKey: string) {
   const [isOpen, setIsOpen] = useState(() => !hasSeenGuide(storageKey));
 
-  useEffect(() => {
-    if (isOpen) markGuideSeen(storageKey);
-  }, [isOpen, storageKey]);
-
-  const close = useCallback(() => setIsOpen(false), []);
+  const close = useCallback(() => {
+    markGuideSeen(storageKey);
+    setIsOpen(false);
+  }, [storageKey]);
 
   return { isOpen, close };
 }
