@@ -4,7 +4,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { ArchiveDetailLayout } from '@/components/archive/ArchiveDetailLayout';
 import { MyPaperSection } from '@/components/archive/MyPaperSection';
 import { ParticipantsSection } from '@/components/archive/ParticipantsSection';
-import { PartyChatSection } from '@/components/archive/PartyChatSection';
 import { PartyInfoSection } from '@/components/archive/PartyInfoSection';
 import { SingleMessageModal } from '@/components/message/SingleMessageModal';
 import { PARTY_ROLE } from '@/constants/party';
@@ -57,8 +56,6 @@ export default function ArchivePartyDetailPage() {
           onClick={handlePaperClick}
         />
       )}
-
-      {data.chatMessages.length > 0 && <PartyChatSection messages={data.chatMessages} />}
 
       {paperOpen && data.myPaperContent && (
         <SingleMessageModal

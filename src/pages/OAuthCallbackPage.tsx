@@ -15,7 +15,7 @@ export default function OAuthCallbackPage() {
       useAuthStore.getState().setToken(token);
       const redirectUrl = useAuthStore.getState().redirectUrl;
       useAuthStore.getState().clearRedirectUrl();
-      navigate(redirectUrl ?? ROUTES.home, { replace: true });
+      navigate(redirectUrl ?? ROUTES.home, { replace: true, state: { loginSuccess: true } });
     } else {
       navigate(ROUTES.home, { replace: true });
     }

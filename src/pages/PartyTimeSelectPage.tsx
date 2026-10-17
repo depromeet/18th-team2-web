@@ -6,6 +6,7 @@ import CalendarMonoIcon from '@/assets/images/icons/calendar-mono.svg?react';
 import ClockColorIcon from '@/assets/images/icons/clock-color.svg?react';
 import ClockMonoIcon from '@/assets/images/icons/clock-mono.svg?react';
 import { Button } from '@/components/ui/Button';
+import { Loading } from '@/components/ui/Loading';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { H1 } from '@/components/ui/Typography';
 import { AnchoredPopover } from '@/components/party-create/AnchoredPopover';
@@ -139,7 +140,7 @@ function getAvailableTimePickerOptions(date: Date, value: TimePickerValue) {
 
 export default function PartyTimeSelectPage() {
   const navigate = useNavigate();
-  const { data: meData } = useMe();
+  const { data: meData, isLoading: isMeLoading } = useMe();
 
   const { defaultHostName, hostName, setHostName } = useCreateHostName(meData?.data?.name);
   const today = getTodayMidnight();
@@ -250,6 +251,7 @@ export default function PartyTimeSelectPage() {
 
   return (
     <div className="bg-gradient-bg relative flex min-h-dvh flex-col">
+      {isMeLoading && <Loading />}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute right-0 bottom-0 left-0 z-0 h-[38vh] bg-gradient-to-b from-[#EEF5FF]/0 via-[#EEF5FF] to-[#F5F9FF]"
