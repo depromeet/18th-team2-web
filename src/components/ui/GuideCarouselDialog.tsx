@@ -53,7 +53,7 @@ function GuideCarouselDialogContent({ items, onClose }: Omit<GuideCarouselDialog
       <button
         type="button"
         aria-label="팝업 닫기"
-        className="absolute inset-0 cursor-default bg-black/40"
+        className="absolute inset-0 cursor-default bg-black/75"
         onClick={onClose}
       />
       <div className="relative flex flex-col items-end gap-2">
