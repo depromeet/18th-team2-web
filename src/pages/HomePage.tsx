@@ -29,6 +29,18 @@ interface HomeLocationState {
   };
 }
 
+function PartyAlternativeDivider() {
+  return (
+    <div className="flex w-full items-center justify-center gap-2 py-2">
+      <span className="bg-grey-100 h-px max-w-41.5 min-w-[57.5px] flex-1" />
+      <span className="bg-grey-100 size-1 shrink-0 rounded-full" />
+      <L1 className="text-grey-700/60 shrink-0 whitespace-nowrap">파티가 부담스럽다면?</L1>
+      <span className="bg-grey-100 size-1 shrink-0 rounded-full" />
+      <span className="bg-grey-100 h-px max-w-41.5 min-w-[57.5px] flex-1" />
+    </div>
+  );
+}
+
 function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -125,13 +137,7 @@ function HomePage() {
         </div>
         <div className="flex flex-col gap-2.25 px-4">
           <LivePartyCard />
-          <div className="flex w-full items-center justify-center gap-2 py-2">
-            <span className="bg-grey-100 h-px max-w-41.5 min-w-[57.5px] flex-1" />
-            <span className="bg-grey-100 size-1 shrink-0 rounded-full" />
-            <L1 className="text-grey-700/60 shrink-0 whitespace-nowrap">파티가 부담스럽다면?</L1>
-            <span className="bg-grey-100 size-1 shrink-0 rounded-full" />
-            <span className="bg-grey-100 h-px max-w-41.5 min-w-[57.5px] flex-1" />
-          </div>
+          <PartyAlternativeDivider />
           <RollingPaperCard />
         </div>
         <ArchiveCard count={archiveCount} previewItem={archivePreview} />
