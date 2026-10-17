@@ -8,7 +8,7 @@ import liveParty from '@/assets/images/home/live-party.png';
 export function LivePartyCard() {
   return (
     <Link
-      to={ROUTES.createPartyIntro}
+      to={ROUTES.createPartyTime}
       className="relative flex h-47.5 w-full min-w-85.75 cursor-pointer overflow-hidden rounded-2xl border border-blue-300 bg-linear-to-br from-[#1744f4] to-[#afd1ff] pt-6 pl-5"
     >
       <img
