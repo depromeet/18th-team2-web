@@ -10,6 +10,7 @@ import { DatePickerPopover } from '@/components/party-create/DatePickerPopover';
 import { EditableNamePill } from '@/components/party-create/EditableNamePill';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { InvitationCard } from '@/components/party-create/InvitationCard';
+import { RollingPaperOnboarding } from '@/components/party-create/RollingPaperOnboarding';
 import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvitationBackdrop';
 import { ROLLING_PAPER_DURATION_DAYS } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
@@ -192,6 +193,7 @@ export default function RollingPaperCreateSetupPage() {
           롤링페이퍼 생성하기
         </Button>
       </div>
+      <RollingPaperOnboarding />
     </div>
   );
 }
