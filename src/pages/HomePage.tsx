@@ -3,10 +3,9 @@ import { generatePath, Navigate, useLocation, useNavigate } from 'react-router-d
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { H2, L1 } from '@/components/ui/Typography';
+import { H2, H4, L1 } from '@/components/ui/Typography';
 import { ArchiveCard } from '@/components/home/ArchiveCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
-import { PartyCard } from '@/components/home/PartyCard';
 import { UpcomingPartyCard } from '@/components/home/UpcomingPartyCard';
 import { RollingPaperArchiveNoticeSheet } from '@/components/rolling-paper/RollingPaperArchiveNoticeSheet';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
@@ -19,6 +18,8 @@ import { canShareParty } from '@/utils/party';
 
 import type { UpcomingParty } from '@/types/home';
 import { ONBOARDING_SEEN_KEY } from '@/constants/onboarding';
+import { LivePartyCard } from '@/components/home/LivePartyCard';
+import { RollingPaperCard } from '@/components/home/RollingPaperCard';
 
 interface HomeLocationState {
   rollingPaperArchiveNotice?: {
@@ -119,13 +120,19 @@ function HomePage() {
           </div>
         )}
         <div className="flex flex-col gap-2.25 px-4 py-5">
-          <H2 className="tracking-tight">내 생일을 위한 파티를 열어보세요</H2>
-          <L1 className="text-grey-400 font-medium">
-            축하가 끝난 뒤에는 롤링페이퍼도 함께 보낼 수 있어요
-          </L1>
+          <H2 className="tracking-tight">특별한 날을 기념해 볼까요?</H2>
+          <H4 className="text-grey-500 font-medium!">당일이 아니라도, 미리 만들어 둘 수 있어요</H4>
         </div>
-        <div className="px-4">
-          <PartyCard />
+        <div className="flex flex-col gap-2.25 px-4">
+          <LivePartyCard />
+          <div className="flex w-full items-center justify-center gap-2 py-2">
+            <span className="bg-grey-100 h-px max-w-41.5 min-w-[57.5px] flex-1" />
+            <span className="bg-grey-100 size-1 shrink-0 rounded-full" />
+            <L1 className="text-grey-700/60 shrink-0 whitespace-nowrap">파티가 부담스럽다면?</L1>
+            <span className="bg-grey-100 size-1 shrink-0 rounded-full" />
+            <span className="bg-grey-100 h-px max-w-41.5 min-w-[57.5px] flex-1" />
+          </div>
+          <RollingPaperCard />
         </div>
         <ArchiveCard count={archiveCount} previewItem={archivePreview} />
       </div>
