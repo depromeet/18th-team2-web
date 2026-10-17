@@ -17,7 +17,9 @@ const THEME_CLASS: Record<BadgeTheme, string> = {
 
 export function Badge({ children, theme = 'blue', className }: BadgeProps) {
   return (
-    <div className={`flex h-6.5 w-fit rounded-2xl px-2.5 py-1 ${THEME_CLASS[theme]} ${className ?? ''}`}>
+    <div
+      className={`flex h-6.5 w-fit rounded-2xl px-2.5 py-1 ${THEME_CLASS[theme]} ${className ?? ''}`}
+    >
       <L2>{children}</L2>
     </div>
   );
