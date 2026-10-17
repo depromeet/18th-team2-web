@@ -8,7 +8,7 @@ import { H3 } from '../ui/Typography';
 export function RollingPaperCard() {
   return (
     <Link
-      to={ROUTES.createRollingPaperIntro}
+      to={ROUTES.createRollingPaperSetup}
       className="relative block h-47.5 w-full min-w-85.75 cursor-pointer overflow-hidden rounded-2xl border border-blue-50 bg-linear-to-br from-[#D3E1FF] to-white pt-6 pl-5"
     >
       <img
