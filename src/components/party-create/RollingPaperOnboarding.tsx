@@ -1,10 +1,10 @@
-import { useState } from 'react';
-
 import rollingPaperOnboardingFirstImage from '@/assets/images/create-party/rolling-paper-onboarding-01.png';
 import rollingPaperOnboardingSecondImage from '@/assets/images/create-party/rolling-paper-onboarding-02.png';
 import rollingPaperOnboardingThirdImage from '@/assets/images/create-party/rolling-paper-onboarding-03.png';
 import rollingPaperOnboardingFourthImage from '@/assets/images/create-party/rolling-paper-onboarding-04.png';
 import { GuideCarouselDialog, type GuideCarouselItem } from '@/components/ui/GuideCarouselDialog';
+import { ROLLING_PAPER_ONBOARDING_SEEN_KEY } from '@/constants/partyCreate';
+import { useGuideSeenOnce } from '@/hooks/useGuideSeenOnce';
 
 const ROLLING_PAPER_ONBOARDING_ITEMS: GuideCarouselItem[] = [
   { imageSrc: rollingPaperOnboardingFirstImage, text: '색다른 선물,\n롤링페이퍼를 받아보세요' },
@@ -20,13 +20,9 @@ const ROLLING_PAPER_ONBOARDING_ITEMS: GuideCarouselItem[] = [
 ];
 
 export function RollingPaperOnboarding() {
-  const [isOpen, setIsOpen] = useState(true);
+  const { isOpen, close } = useGuideSeenOnce(ROLLING_PAPER_ONBOARDING_SEEN_KEY);
 
   return (
-    <GuideCarouselDialog
-      isOpen={isOpen}
-      items={ROLLING_PAPER_ONBOARDING_ITEMS}
-      onClose={() => setIsOpen(false)}
-    />
+    <GuideCarouselDialog isOpen={isOpen} items={ROLLING_PAPER_ONBOARDING_ITEMS} onClose={close} />
   );
 }

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-
 import livePartyOnboardingFirstImage from '@/assets/images/create-party/live-party-onboarding-01.png';
 import livePartyOnboardingSecondImage from '@/assets/images/create-party/live-party-onboarding-02.png';
 import livePartyOnboardingThirdImage from '@/assets/images/create-party/live-party-onboarding-03.png';
 import livePartyOnboardingFourthImage from '@/assets/images/create-party/live-party-onboarding-04.png';
 import { GuideCarouselDialog, type GuideCarouselItem } from '@/components/ui/GuideCarouselDialog';
+import { LIVE_PARTY_ONBOARDING_SEEN_KEY } from '@/constants/partyCreate';
+import { useGuideSeenOnce } from '@/hooks/useGuideSeenOnce';
 
 const PARTY_ONBOARDING_ITEMS: GuideCarouselItem[] = [
   {
@@ -23,13 +23,7 @@ const PARTY_ONBOARDING_ITEMS: GuideCarouselItem[] = [
 ];
 
 export function LivePartyOnboarding() {
-  const [isOpen, setIsOpen] = useState(true);
+  const { isOpen, close } = useGuideSeenOnce(LIVE_PARTY_ONBOARDING_SEEN_KEY);
 
-  return (
-    <GuideCarouselDialog
-      isOpen={isOpen}
-      items={PARTY_ONBOARDING_ITEMS}
-      onClose={() => setIsOpen(false)}
-    />
-  );
+  return <GuideCarouselDialog isOpen={isOpen} items={PARTY_ONBOARDING_ITEMS} onClose={close} />;
 }
