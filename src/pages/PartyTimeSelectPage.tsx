@@ -261,7 +261,8 @@ export default function PartyTimeSelectPage() {
       </div>
 
       <H1 className="relative z-10 mt-2 px-5 tracking-[-0.0002em]">
-        파티 초대장 내용을 완성해 주세요
+        나만의 온라인 생일파티를 <br />
+        만들어볼까요?
       </H1>
 
       <div className="relative mt-[clamp(36px,7svh,72px)]">
