@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 import linkIcon from '@/assets/icons/icon-line.svg';
 import facebookIcon from '@/assets/images/sns-logo/facebook.png';
+import instagramIcon from '@/assets/images/sns-logo/instagram.png';
 import kakaoIcon from '@/assets/images/sns-logo/kakao.png';
 import lineIcon from '@/assets/images/sns-logo/line.png';
 import naverIcon from '@/assets/images/sns-logo/naver.png';
@@ -14,6 +15,8 @@ import { shareToKakao } from '@/utils/kakao';
 
 const TOAST_VISIBLE_MS = 1600;
 const TOAST_EXIT_MS = 300;
+// 복사 토스트를 확인할 시간을 준 뒤 인스타그램으로 이동
+const INSTAGRAM_REDIRECT_DELAY_MS = 1000;
 
 interface LinkShareSheetProps {
   isOpen: boolean;
@@ -26,6 +29,7 @@ interface LinkShareSheetProps {
 }
 
 const SHARE_SERVICES = [
+  { id: 'instagram', label: '인스타그램', icon: instagramIcon },
   { id: 'kakao', label: '카카오톡', icon: kakaoIcon },
   { id: 'x', label: 'X', icon: xIcon },
   { id: 'naver', label: '네이버', icon: naverIcon },
@@ -39,7 +43,8 @@ function getShareUrl(serviceId: ShareServiceId, link: string, shareText: string)
   const encodedUrl = encodeURIComponent(link);
   const encodedTitle = encodeURIComponent(shareText);
 
-  if (serviceId === 'kakao') {
+  // 카카오는 SDK, 인스타그램은 링크 복사 후 이동이라 버튼으로 처리
+  if (serviceId === 'kakao' || serviceId === 'instagram') {
     return null;
   }
 
@@ -74,6 +79,7 @@ export function LinkShareSheet({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const toastTimerRef = useRef<number | null>(null);
   const toastExitTimerRef = useRef<number | null>(null);
+  const instagramRedirectTimerRef = useRef<number | null>(null);
   const mouseDragRef = useRef({
     isDown: false,
     didDrag: false,
@@ -90,6 +96,9 @@ export function LinkShareSheet({
       }
       if (toastExitTimerRef.current) {
         window.clearTimeout(toastExitTimerRef.current);
+      }
+      if (instagramRedirectTimerRef.current) {
+        window.clearTimeout(instagramRedirectTimerRef.current);
       }
     };
   }, []);
@@ -126,7 +135,20 @@ export function LinkShareSheet({
     }
   };
 
+  // 인스타그램은 링크를 넘기는 공유 URL이 없어, 링크를 복사하고 토스트를 보여준 뒤 홈으로 이동한다
+  const handleShareInstagram = async () => {
+    await handleCopyLink();
+    instagramRedirectTimerRef.current = window.setTimeout(() => {
+      window.location.href = SHARE_ENDPOINTS.instagram();
+    }, INSTAGRAM_REDIRECT_DELAY_MS);
+  };
+
   const handleShareServiceClick = async (serviceId: ShareServiceId) => {
+    if (serviceId === 'instagram') {
+      await handleShareInstagram();
+      return;
+    }
+
     if (serviceId !== 'kakao') return;
 
     try {
@@ -249,7 +271,7 @@ export function LinkShareSheet({
                     className="h-15 w-15 shrink-0 rounded-2xl object-cover"
                     draggable={false}
                   />
-                  <L1 className="text-grey-500">{service.label}</L1>
+                  <L1 className="text-grey-500 whitespace-nowrap">{service.label}</L1>
                 </>
               );
 
