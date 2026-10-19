@@ -114,7 +114,7 @@ export default function PartyCreateCompletePage() {
           durationMinutes={PARTY_DURATION_MINUTES}
         />
 
-        <div className="party-complete-button pb-safe-bottom-6 mt-auto [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
+        <div className="party-complete-button pb-safe-bottom-6 mt-auto pt-8 [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <div className="flex flex-col gap-2">
             <Button
               variant="white"
