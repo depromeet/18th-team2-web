@@ -747,3 +747,15 @@ textarea {
   animation: dialog-overlay-in 350ms ease-out both;
   will-change: opacity;
 }
+
+/* 롤링페이퍼 설정 — 입력 단계별 제목 전환 */
+.create-setup-title-swap {
+  animation: party-enter-fade-in 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 축약 속성이 duration을 덮어쓰지 않도록 선언 뒤에 둔다 */
+@media (prefers-reduced-motion: reduce) {
+  .create-setup-title-swap {
+    animation: none;
+  }
+}
