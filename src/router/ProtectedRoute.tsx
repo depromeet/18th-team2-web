@@ -19,7 +19,7 @@ function getLoginPromptTitlePrefix(pathname: string): string {
   }
 
   if (pathname.startsWith(ROUTE_PREFIXES.createParty)) {
-    return '파티를 만들기 위해서는';
+    return '주인공으로 파티에 입장하려면';
   }
 
   if (pathname.startsWith(ROUTE_PREFIXES.archive)) {

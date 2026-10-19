@@ -471,7 +471,12 @@ export default function PartyTimeSelectPage() {
         </div>
       </div>
       <LivePartyOnboarding />
-      <LoginPromptSheet isOpen={isLoginPromptOpen} onClose={() => setIsLoginPromptOpen(false)} />
+      <LoginPromptSheet
+        titlePrefix="주인공으로 파티에 입장하려면"
+        isOpen={isLoginPromptOpen}
+        onClose={() => setIsLoginPromptOpen(false)}
+        description="로그인하면 링크로 언제든 다시 입장할 수 있어요"
+      />
     </div>
   );
 }
