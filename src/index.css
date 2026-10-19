@@ -337,8 +337,7 @@ textarea {
   .rolling-paper-action-panel,
   .rolling-paper-share-tooltip,
   .rolling-paper-archive-sheet,
-  .rolling-paper-archive-flip-inner,
-  .create-setup-title-swap {
+  .rolling-paper-archive-flip-inner {
     animation-duration: 1ms;
     animation-iteration-count: 1;
   }
@@ -752,4 +751,11 @@ textarea {
 /* 롤링페이퍼 설정 — 입력 단계별 제목 전환 */
 .create-setup-title-swap {
   animation: party-enter-fade-in 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 축약 속성이 duration을 덮어쓰지 않도록 선언 뒤에 둔다 */
+@media (prefers-reduced-motion: reduce) {
+  .create-setup-title-swap {
+    animation: none;
+  }
 }
