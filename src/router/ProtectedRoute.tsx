@@ -15,7 +15,7 @@ const ROUTE_PREFIXES = {
 
 function getLoginPromptTitlePrefix(pathname: string): string {
   if (pathname.startsWith(ROUTE_PREFIXES.createRollingPaper)) {
-    return '롤링페이퍼를 만들기 위해서는';
+    return '롤링페이퍼를 나만보려면';
   }
 
   if (pathname.startsWith(ROUTE_PREFIXES.createParty)) {
