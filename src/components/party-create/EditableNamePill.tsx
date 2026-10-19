@@ -5,6 +5,9 @@ import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { HOST_NAME_MAX_LENGTH } from '@/constants/partyCreate';
 import { clampHostName } from '@/utils/string';
 
+// 이름이 없을 때(비회원) 시간 선택 pill과 같은 형태로 노출하는 안내 문구
+export const HOST_NAME_PLACEHOLDER = '이름입력';
+
 interface EditableNamePillProps {
   value: string;
   fallbackValue: string;
@@ -65,16 +68,24 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
     );
   }
 
+  const displayName = value || fallbackValue;
+
   return (
     <HighlightPill
-      variant="filled"
-      icon={<PencilMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />}
+      variant={displayName ? 'filled' : 'outlined'}
+      icon={
+        displayName ? (
+          <PencilMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+        ) : (
+          <PencilColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+        )
+      }
       onClick={() => {
         setDraftName(value);
         setIsEditing(true);
       }}
     >
-      {value || fallbackValue}
+      {displayName || HOST_NAME_PLACEHOLDER}
     </HighlightPill>
   );
 }
