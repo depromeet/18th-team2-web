@@ -14,6 +14,7 @@ import { DatePickerPopover } from '@/components/party-create/DatePickerPopover';
 import { EditableNamePill } from '@/components/party-create/EditableNamePill';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { InvitationCard } from '@/components/party-create/InvitationCard';
+import { LivePartyOnboarding } from '@/components/party-create/LivePartyOnboarding';
 import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvitationBackdrop';
 import { PARTY_DURATION_MINUTES } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
@@ -411,6 +412,7 @@ export default function PartyTimeSelectPage() {
           파티 생성하기
         </Button>
       </div>
+      <LivePartyOnboarding />
     </div>
   );
 }

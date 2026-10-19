@@ -740,3 +740,10 @@ textarea {
     transform: translateY(16px);
   }
 }
+
+/* 가이드 캐러셀 다이얼로그 */
+
+.guide-carousel-fade-in {
+  animation: dialog-overlay-in 350ms ease-out both;
+  will-change: opacity;
+}
