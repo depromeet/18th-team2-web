@@ -117,7 +117,8 @@ export default function RollingPaperCreateSetupPage() {
       )}
 
       <H1 className="relative z-10 mt-2 px-5 tracking-[-0.0002em]">
-        일주일 동안 롤링페이퍼를 받아요
+        나만의 롤링페이퍼를 <br />
+        만들어볼까요?
       </H1>
 
       <div className="relative mt-[clamp(36px,7svh,72px)]">
