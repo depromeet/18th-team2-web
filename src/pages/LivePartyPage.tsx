@@ -24,6 +24,7 @@ import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import {
   CANDLES,
+  GET_PARTICIPANT_INTERVAL,
   LIVE_PARTY_STEP,
   MUSIC_LYRICS_TIMINGS,
   PARTICIPANT_TOKEN_KEY,
@@ -45,6 +46,7 @@ import { ErrorView } from '@/components/ui/ErrorView';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
 import { BURST_GAME_DURATION_SECONDS } from '@/hooks/live-party/useBurstGameStep';
+import { isApiErrorStatus } from '@/utils/api-error';
 import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
@@ -431,9 +433,31 @@ export default function LivePartyPage() {
     step === LIVE_PARTY_STEP.MUSIC && chatSheetMetrics.isExpanded
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
       : undefined;
-  const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
+  const shouldWatchForDeletedParty = !isHost && isEntryStep && !isPartyEndingFlow;
+  const {
+    data: entryParticipantsData,
+    error: participantsError,
+    isError: isParticipantsError,
+  } = useGetPartyParticipants(partyId, {
     enabled: showPartyMain,
+    refetchInterval: shouldWatchForDeletedParty ? GET_PARTICIPANT_INTERVAL.SHORT : undefined,
   });
+  const isDeletedWaitingParty =
+    shouldWatchForDeletedParty &&
+    isParticipantsError &&
+    (isApiErrorStatus(participantsError, 404) || isApiErrorStatus(participantsError, 403));
+
+  if (isDeletedWaitingParty) {
+    return (
+      <ErrorView
+        variant="notFound"
+        title="파티가 종료되었어요"
+        description="주최자가 파티를 종료해 더 이상 참여할 수 없어요."
+        primaryLabel="홈으로"
+        onPrimaryClick={handleGoHome}
+      />
+    );
+  }
 
   if (wsError || isPhaseError) {
     return (
