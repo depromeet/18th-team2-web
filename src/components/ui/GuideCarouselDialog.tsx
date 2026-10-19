@@ -112,8 +112,13 @@ function GuideCarouselDialogContent({
                 />
               ))}
             </div>
-            <button type="button" className="w-10 max-w-10 cursor-pointer" onClick={handleNext}>
-              <L2 className="text-blue-100">다음</L2>
+            {/* 건너뛰기와 같은 너비로 맞춰 가운데 점 위치가 흔들리지 않게 한다 */}
+            <button
+              type="button"
+              className="w-12 max-w-12 cursor-pointer text-right whitespace-nowrap"
+              onClick={handleNext}
+            >
+              <L2 className="text-blue-100">{isLast ? '시작하기' : '다음'}</L2>
             </button>
           </div>
         </div>
