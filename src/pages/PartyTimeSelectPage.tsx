@@ -285,9 +285,10 @@ export default function PartyTimeSelectPage() {
     setPendingTime(formatDisplayTime(value));
   };
 
-  // 시트를 닫으면 로그인하지 않기로 한 것이므로 저장해 둔 입력값을 비우고 화면에 남는다
+  // 시트를 닫으면 로그인하지 않기로 한 것이므로 저장해 둔 입력값과 로그인 후 이동 경로를 비우고 화면에 남는다
   const handleCloseLoginPrompt = () => {
     clearTimeSelectDraft();
+    useAuthStore.getState().clearRedirectUrl();
     setLoginPromptMode(null);
   };
 
