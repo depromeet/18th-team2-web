@@ -42,11 +42,12 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
         <PencilColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
         <span className="grid min-w-8">
           <span className="invisible col-start-1 row-start-1 whitespace-pre" aria-hidden="true">
-            {draftName || ' '}
+            {draftName || HOST_NAME_PLACEHOLDER}
           </span>
           <input
             ref={inputRef}
             value={draftName}
+            placeholder={HOST_NAME_PLACEHOLDER}
             maxLength={HOST_NAME_MAX_LENGTH}
             aria-label="이름 입력"
             onChange={(event) => setDraftName(clampHostName(event.target.value))}
@@ -61,7 +62,7 @@ export function EditableNamePill({ value, fallbackValue, onChange }: EditableNam
                 cancelEditing();
               }
             }}
-            className="col-start-1 row-start-1 w-full min-w-0 bg-transparent p-0 outline-none"
+            className="placeholder:text-grey-500 col-start-1 row-start-1 w-full min-w-0 bg-transparent p-0 outline-none"
           />
         </span>
       </span>
