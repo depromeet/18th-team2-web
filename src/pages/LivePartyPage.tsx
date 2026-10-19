@@ -12,7 +12,7 @@ import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
-import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
+import { usePartyExitDialog, type PartyExitMode } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
@@ -123,8 +123,6 @@ export default function LivePartyPage() {
     locationState?.nickname,
   ]);
 
-  const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
-    usePartyExitDialog();
   const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
     inviteToken,
     isAuthenticated,
@@ -143,6 +141,7 @@ export default function LivePartyPage() {
     isEntryReady,
     isTransitioning,
     isInitialized,
+    isAdvancingPhase,
     isPhaseError,
     goToEndStep,
     liveStartedAt,
@@ -156,6 +155,16 @@ export default function LivePartyPage() {
     isPartyEnded,
     enabled: canFetch,
   });
+
+  const partyExitMode: PartyExitMode = !isHost
+    ? 'leave'
+    : !isInitialized || isAdvancingPhase
+      ? 'pending'
+      : step === LIVE_PARTY_STEP.ENTRY && !liveStartedAt
+        ? 'delete'
+        : 'leave';
+  const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
+    usePartyExitDialog({ mode: partyExitMode });
 
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });

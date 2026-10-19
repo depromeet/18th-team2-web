@@ -112,7 +112,7 @@ export function useLivePartyStep({
 
   const { data: phaseData, isError: isPhaseError } = useGetPhase(partyId, enabled);
   const { data: realtimeState } = useRealtimePartyState(partyId, enabled);
-  const { mutate: advancePhase } = useAdvancePhase();
+  const { mutate: advancePhase, isPending: isAdvancingPhase } = useAdvancePhase();
 
   const rememberLiveStart = useCallback(
     (startedAt?: string | null, serverNow?: string | null) => {
@@ -318,6 +318,7 @@ export function useLivePartyStep({
     step,
     isTransitioning,
     isInitialized,
+    isAdvancingPhase,
     isPhaseError,
     partyEnd,
     showChatBottomSheet,
