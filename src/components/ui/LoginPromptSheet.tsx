@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import kakaoIcon from '@/assets/icons/icon-kakao.svg';
 import { CloseIcon } from '@/components/ui/icons/CloseIcon';
 import { B1, H3 } from '@/components/ui/Typography';
@@ -8,6 +8,8 @@ interface LoginPromptSheetProps {
   isOpen: boolean;
   onClose: () => void;
   titlePrefix?: string;
+  /** 지정하면 "{titlePrefix} 로그인이 필요해요" 대신 이 제목만 보여준다 */
+  title?: ReactNode;
   description?: string;
 }
 
@@ -15,6 +17,7 @@ export function LoginPromptSheet({
   isOpen,
   onClose,
   titlePrefix = '파티를 만들기 위해서는',
+  title,
   description,
 }: LoginPromptSheetProps) {
   const [isAnimatedOpen, setIsAnimatedOpen] = useState(false);
@@ -49,9 +52,13 @@ export function LoginPromptSheet({
           </button>
           <div className="mb-5">
             <H3 className="text-grey-900">
-              {titlePrefix}
-              <br />
-              로그인이 필요해요
+              {title ?? (
+                <>
+                  {titlePrefix}
+                  <br />
+                  로그인이 필요해요
+                </>
+              )}
             </H3>
             {description && <B1 className="text-grey-400 mt-1 font-medium">{description}</B1>}
           </div>

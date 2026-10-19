@@ -197,7 +197,8 @@ export default function PartyTimeSelectPage() {
   const [timePickerValue, setTimePickerValue] = useState<TimePickerValue>(
     () => draft?.timePickerValue ?? getNearestTimePickerValue(),
   );
-  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+  // required: 파티 만들기 버튼에서 로그인 유도 / resume: 로그인 도중 돌아왔을 때 이어서 로그인 유도
+  const [loginPromptMode, setLoginPromptMode] = useState<'required' | 'resume' | null>(null);
   const isReady = Boolean(hostName && hasSelectedDate && selectedTime);
   const timePickerOptions = useMemo(
     () => getAvailableTimePickerOptions(selectedDate, timePickerValue),
@@ -214,7 +215,15 @@ export default function PartyTimeSelectPage() {
   useEffect(() => {
     if (!draft) return;
     if (draft.hostName) setHostName(draft.hostName);
-    clearTimeSelectDraft();
+
+    if (isAuthenticated) {
+      clearTimeSelectDraft();
+      return;
+    }
+
+    // 카카오 로그인 화면에서 완료하지 않고 돌아온 경우 — 입력값은 복원하고 이어서 로그인을 권한다
+    useAuthStore.getState().setRedirectUrl(ROUTES.createPartyTime);
+    setLoginPromptMode('resume');
     // 마운트 시 한 번만 복원한다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -276,6 +285,12 @@ export default function PartyTimeSelectPage() {
     setPendingTime(formatDisplayTime(value));
   };
 
+  // 시트를 닫으면 로그인하지 않기로 한 것이므로 저장해 둔 입력값을 비우고 화면에 남는다
+  const handleCloseLoginPrompt = () => {
+    clearTimeSelectDraft();
+    setLoginPromptMode(null);
+  };
+
   const handleCreateParty = () => {
     if (!isAuthenticated) {
       saveTimeSelectDraft({
@@ -285,7 +300,7 @@ export default function PartyTimeSelectPage() {
         hostName,
       });
       useAuthStore.getState().setRedirectUrl(ROUTES.createPartyTime);
-      setIsLoginPromptOpen(true);
+      setLoginPromptMode('required');
       return;
     }
 
@@ -473,9 +488,14 @@ export default function PartyTimeSelectPage() {
       <LivePartyOnboarding />
       <LoginPromptSheet
         titlePrefix="주인공으로 파티에 입장하려면"
-        isOpen={isLoginPromptOpen}
-        onClose={() => setIsLoginPromptOpen(false)}
-        description="로그인하면 링크로 언제든 다시 입장할 수 있어요"
+        isOpen={loginPromptMode !== null}
+        onClose={handleCloseLoginPrompt}
+        title={loginPromptMode === 'resume' ? '이어서 로그인할까요?' : undefined}
+        description={
+          loginPromptMode === 'resume'
+            ? '로그인하면 1초만에 생성이 완료돼요'
+            : '로그인하면 링크로 언제든 다시 입장할 수 있어요'
+        }
       />
     </div>
   );
