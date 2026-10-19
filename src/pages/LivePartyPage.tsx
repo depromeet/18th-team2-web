@@ -162,9 +162,9 @@ export default function LivePartyPage() {
       ? 'pending'
       : step === LIVE_PARTY_STEP.ENTRY && !liveStartedAt
         ? 'delete'
-        : 'leave';
+        : 'host-end';
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
-    usePartyExitDialog({ mode: partyExitMode });
+    usePartyExitDialog({ mode: partyExitMode, onHostEnd: goToEndStep });
 
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
@@ -251,7 +251,7 @@ export default function LivePartyPage() {
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const [isPartyEndingNoticeDismissed, setIsPartyEndingNoticeDismissed] = useState(false);
-  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed;
+  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed && !partyEnd;
   const { data: nextAction } = useRealtimePartyNextAction(
     partyId,
     participantToken,

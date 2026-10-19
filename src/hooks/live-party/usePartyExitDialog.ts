@@ -2,22 +2,24 @@ import { useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
-import { useLeaveParty } from '@/services/live-party';
+import { useLeaveParty, useStartRealtimeEnd } from '@/services/live-party';
 import { useDeleteParty } from '@/services/party';
 
-export type PartyExitMode = 'pending' | 'delete' | 'leave';
+export type PartyExitMode = 'pending' | 'delete' | 'host-end' | 'leave';
 
 interface UsePartyExitDialogParams {
   mode: PartyExitMode;
+  onHostEnd: () => void;
 }
 
-export function usePartyExitDialog({ mode }: UsePartyExitDialogParams) {
+export function usePartyExitDialog({ mode, onHostEnd }: UsePartyExitDialogParams) {
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const { partyId } = useParams<{ partyId: string }>();
   const { mutate: leaveParty } = useLeaveParty();
+  const { mutate: startRealtimeEnd } = useStartRealtimeEnd();
   const { mutate: deleteParty } = useDeleteParty();
 
   const handleOpenExitDialog = useCallback(() => {
@@ -48,6 +50,16 @@ export function usePartyExitDialog({ mode }: UsePartyExitDialogParams) {
         onSuccess: () => {
           setIsExitDialogOpen(false);
           navigate(ROUTES.home, { replace: true });
+        },
+      });
+      return;
+    }
+
+    if (mode === 'host-end') {
+      startRealtimeEnd(partyId, {
+        onSuccess: () => {
+          setIsExitDialogOpen(false);
+          onHostEnd();
         },
       });
       return;
