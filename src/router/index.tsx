@@ -40,6 +40,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.createParty, element: <PartyTypePage /> },
       // 비회원도 진입 가능, 파티 생성하기 버튼에서 로그인 유도
       { path: ROUTES.createPartyTime, element: <PartyTimeSelectPage /> },
+      { path: ROUTES.createRollingPaperSetup, element: <RollingPaperCreateSetupPage /> },
       { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
       { path: ROUTES.partyEnter, element: <PartyEnterPage /> },
       { path: ROUTES.liveParty, element: <LivePartyPage /> },
@@ -53,7 +54,6 @@ export const router = createBrowserRouter([
           { path: ROUTES.createPartyCharacter, element: <PartyCharacterSelectPage /> },
           { path: ROUTES.createPartyComplete, element: <PartyCreateCompletePage /> },
           { path: ROUTES.createRollingPaperIntro, element: <RollingPaperCreateIntroPage /> },
-          { path: ROUTES.createRollingPaperSetup, element: <RollingPaperCreateSetupPage /> },
           { path: ROUTES.createRollingPaperComplete, element: <RollingPaperCreateCompletePage /> },
           { path: ROUTES.archive, element: <ArchivePage /> },
           { path: ROUTES.archivePartyDetail, element: <ArchivePartyDetailPage /> },

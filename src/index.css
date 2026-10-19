@@ -337,7 +337,8 @@ textarea {
   .rolling-paper-action-panel,
   .rolling-paper-share-tooltip,
   .rolling-paper-archive-sheet,
-  .rolling-paper-archive-flip-inner {
+  .rolling-paper-archive-flip-inner,
+  .create-setup-title-swap {
     animation-duration: 1ms;
     animation-iteration-count: 1;
   }
@@ -746,4 +747,9 @@ textarea {
 .guide-carousel-fade-in {
   animation: dialog-overlay-in 350ms ease-out both;
   will-change: opacity;
+}
+
+/* 롤링페이퍼 설정 — 입력 단계별 제목 전환 */
+.create-setup-title-swap {
+  animation: party-enter-fade-in 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
