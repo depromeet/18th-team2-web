@@ -126,8 +126,6 @@ export default function LivePartyPage() {
     locationState?.nickname,
   ]);
 
-  const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
-    usePartyExitDialog();
   const { data: profile, isLoading: isProfileLoading } = useGetMyRealtimeProfile(
     inviteToken,
     isAuthenticated,
@@ -162,7 +160,14 @@ export default function LivePartyPage() {
   });
 
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
-  const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
+  const isMusicEnabled =
+    canFetch && isInitialized && !isProfileLoading && !hostGate.shouldGateHost && !isPhaseError;
+  const { musicIsMuted, handleToggleMute, stopMusic } = usePartyMusic({
+    step,
+    enabled: isMusicEnabled,
+  });
+  const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
+    usePartyExitDialog({ onBeforeExit: stopMusic });
   const hostName =
     hostGate.celebrant?.nickname ??
     locationState?.hostName ??
@@ -320,6 +325,8 @@ export default function LivePartyPage() {
 
   const handleExitClick = useCallback(() => {
     if (isPartyEnding) {
+      stopMusic();
+
       if (partyId) {
         leaveParty({ partyId });
       }
@@ -329,7 +336,7 @@ export default function LivePartyPage() {
     }
 
     handleOpenExitDialog();
-  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep]);
+  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep, stopMusic]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {

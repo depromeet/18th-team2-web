@@ -26,6 +26,10 @@ interface UseTalkCalendarReminderParams {
   returnLocation?: Pick<Location, 'pathname' | 'search'>;
 }
 
+interface TalkCalendarRegistrationOptions {
+  allowConsentRedirect?: boolean;
+}
+
 export function useTalkCalendarReminder({
   partyId,
   isAuthenticated,
@@ -44,8 +48,13 @@ export function useTalkCalendarReminder({
     useIssueTalkCalendarConsentUrl();
 
   const handleTalkCalendarError = useCallback(
-    (error: unknown) => {
+    (error: unknown, allowConsentRedirect: boolean) => {
       if (error instanceof ApiError && error.code === CALENDAR_CONSENT_REQUIRED_CODE) {
+        if (!allowConsentRedirect) {
+          showToast('error', '카카오 톡캘린더 알림을 등록할 수 없어요. 잠시 후 다시 시도해주세요.');
+          return;
+        }
+
         issueTalkCalendarConsentUrl(buildTalkCalendarReturnPath(reminderReturnLocation, true), {
           onSuccess: (res) => {
             const consentUrl = res.data?.consentUrl;
@@ -77,29 +86,26 @@ export function useTalkCalendarReminder({
     [issueTalkCalendarConsentUrl, reminderReturnLocation, showToast],
   );
 
-  const requestTalkCalendarRegistration = useCallback(() => {
-    if (hasRegisteredTalkCalendar) {
-      showToast('success', '이미 알림을 설정했어요.');
-      return;
-    }
+  const requestTalkCalendarRegistration = useCallback(
+    ({ allowConsentRedirect = true }: TalkCalendarRegistrationOptions = {}) => {
+      if (hasRegisteredTalkCalendar) {
+        showToast('success', '이미 알림을 설정했어요.');
+        return;
+      }
 
-    registerTalkCalendar(partyId, {
-      onSuccess: (res) => {
-        setHasRegisteredTalkCalendar(true);
-        showToast(
-          'success',
-          res.data?.updated ? '이미 알림을 설정했어요.' : '카카오 톡캘린더 알림이 등록됐어요.',
-        );
-      },
-      onError: handleTalkCalendarError,
-    });
-  }, [
-    handleTalkCalendarError,
-    hasRegisteredTalkCalendar,
-    partyId,
-    registerTalkCalendar,
-    showToast,
-  ]);
+      registerTalkCalendar(partyId, {
+        onSuccess: (res) => {
+          setHasRegisteredTalkCalendar(true);
+          showToast(
+            'success',
+            res.data?.updated ? '이미 알림을 설정했어요.' : '카카오 톡캘린더 알림이 등록됐어요.',
+          );
+        },
+        onError: (error) => handleTalkCalendarError(error, allowConsentRedirect),
+      });
+    },
+    [handleTalkCalendarError, hasRegisteredTalkCalendar, partyId, registerTalkCalendar, showToast],
+  );
 
   const handleRegisterTalkCalendar = useCallback(() => {
     if (!isAuthenticated) {
@@ -130,7 +136,10 @@ export function useTalkCalendarReminder({
     }
 
     if (isAuthenticated) {
-      requestTalkCalendarRegistration();
+      requestTalkCalendarRegistration({
+        // 동의를 마치고 돌아온 뒤에는 다시 동의 URL로 보내지 않아 무한 리다이렉트를 막는다.
+        allowConsentRedirect: calendarConsent !== 'granted',
+      });
       return;
     }
 
