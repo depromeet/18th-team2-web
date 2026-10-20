@@ -64,6 +64,7 @@ export function useLivePartyConnection() {
 
     wsTimeoutRef.current = window.setTimeout(() => {
       if (!hasInitializedRef.current) {
+        controller.abort();
         useLivePartyStateStore.getState().setWsError(true);
       }
     }, 15000);
@@ -158,11 +159,19 @@ export function useLivePartyConnection() {
       },
       controller.signal,
     ).catch((err) => {
+      if (wsTimeoutRef.current) {
+        clearTimeout(wsTimeoutRef.current);
+        wsTimeoutRef.current = null;
+      }
+
+      controller.abort();
+
       if ((err as Error & { status?: number }).status === 409) {
         useLivePartyStateStore.getState().setNicknameDuplicate(true);
         return;
       }
 
+      useLivePartyStateStore.getState().setWsError(true);
       console.error(WS_ERROR_MESSAGE.CONNECTION_FAILED, err);
       Sentry.captureException(err, { extra: { message: WS_ERROR_MESSAGE.CONNECTION_FAILED } });
     });

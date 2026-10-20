@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { ROUTES } from '@/constants/routes';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
+import { PartyRouteGuard } from '@/router/PartyRouteGuard';
 import OnboardingPage from '@/pages/OnboardingPage';
 import HomePage from '@/pages/HomePage';
 import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
@@ -42,8 +43,22 @@ export const router = createBrowserRouter([
       { path: ROUTES.createPartyTime, element: <PartyTimeSelectPage /> },
       { path: ROUTES.createRollingPaperSetup, element: <RollingPaperCreateSetupPage /> },
       { path: ROUTES.partyInvite, element: <PartyInviteEntryPage /> },
-      { path: ROUTES.partyEnter, element: <PartyEnterPage /> },
-      { path: ROUTES.liveParty, element: <LivePartyPage /> },
+      {
+        path: ROUTES.partyEnter,
+        element: (
+          <PartyRouteGuard>
+            <PartyEnterPage />
+          </PartyRouteGuard>
+        ),
+      },
+      {
+        path: ROUTES.liveParty,
+        element: (
+          <PartyRouteGuard requireNickname>
+            <LivePartyPage />
+          </PartyRouteGuard>
+        ),
+      },
       { path: ROUTES.rollingPaper, element: <RollingPaperPage /> },
       { path: ROUTES.rollingPaperWrite, element: <RollingPaperWritePage /> },
       // 보호 라우트

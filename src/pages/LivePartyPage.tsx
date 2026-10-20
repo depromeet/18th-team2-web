@@ -100,7 +100,7 @@ export default function LivePartyPage() {
   const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const canFetch = isAuthenticated || hasParticipantToken;
+  const canFetch = hasParticipantToken && Boolean(participantToken);
   const { mutate: leaveParty } = useLeaveParty();
 
   useEffect(() => {
