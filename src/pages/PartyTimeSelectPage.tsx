@@ -8,19 +8,21 @@ import ClockMonoIcon from '@/assets/images/icons/clock-mono.svg?react';
 import { Button } from '@/components/ui/Button';
 import { Loading } from '@/components/ui/Loading';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { H1 } from '@/components/ui/Typography';
+import { H1, L1 } from '@/components/ui/Typography';
 import { AnchoredPopover } from '@/components/party-create/AnchoredPopover';
 import { DatePickerPopover } from '@/components/party-create/DatePickerPopover';
 import { EditableNamePill } from '@/components/party-create/EditableNamePill';
 import { HighlightPill } from '@/components/party-create/HighlightPill';
 import { InvitationCard } from '@/components/party-create/InvitationCard';
 import { LivePartyOnboarding } from '@/components/party-create/LivePartyOnboarding';
+import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { StackedInvitationBackdrop } from '@/components/party-create/StackedInvitationBackdrop';
 import { PARTY_DURATION_MINUTES } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { useAnchoredOverlay } from '@/hooks/useAnchoredOverlay';
 import { useCreateHostName } from '@/hooks/useCreateHostName';
 import { useMe } from '@/services/auth';
+import { useAuthStore } from '@/stores/useAuthStore';
 import {
   formatDisplayTime,
   formatDotDate,
@@ -28,7 +30,6 @@ import {
   formatKoreanDate,
   getTodayMidnight,
 } from '@/utils/date';
-import { getObjectParticle } from '@/utils/koreanPostposition';
 
 type PickerMode = 'date' | 'time' | null;
 
@@ -40,6 +41,41 @@ interface TimePickerValue {
 }
 
 const TIME_PICKER_MINUTE_STEP = 5;
+
+// 비회원이 파티 생성 시 로그인하러 다녀오는 동안 입력값을 보존한다
+const TIME_SELECT_DRAFT_KEY = 'party-time-select-draft';
+
+interface TimeSelectDraft {
+  selectedDate: string | null;
+  selectedTime: string | null;
+  timePickerValue: TimePickerValue;
+  hostName: string;
+}
+
+function readTimeSelectDraft(): TimeSelectDraft | null {
+  try {
+    const raw = window.sessionStorage.getItem(TIME_SELECT_DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as TimeSelectDraft) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveTimeSelectDraft(draft: TimeSelectDraft) {
+  try {
+    window.sessionStorage.setItem(TIME_SELECT_DRAFT_KEY, JSON.stringify(draft));
+  } catch {
+    // 저장소 접근이 막힌 환경에서는 로그인 후 입력값이 초기화된다
+  }
+}
+
+function clearTimeSelectDraft() {
+  try {
+    window.sessionStorage.removeItem(TIME_SELECT_DRAFT_KEY);
+  } catch {
+    /* empty */
+  }
+}
 
 const TIME_PICKER_OPTIONS = {
   period: ['오전', '오후'],
@@ -141,22 +177,29 @@ function getAvailableTimePickerOptions(date: Date, value: TimePickerValue) {
 
 export default function PartyTimeSelectPage() {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data: meData, isLoading: isMeLoading } = useMe();
 
   const { defaultHostName, hostName, setHostName } = useCreateHostName(meData?.data?.name);
   const today = getTodayMidnight();
+  const [draft] = useState(readTimeSelectDraft);
 
-  const [selectedDate, setSelectedDate] = useState<Date>(today);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(() =>
+    draft?.selectedDate ? new Date(draft.selectedDate) : today,
+  );
+  // 기본 날짜를 노출하지 않고 사용자가 직접 고르게 한다. 고르기 전에는 오늘 기준으로 시간 선택지를 계산한다
+  const [hasSelectedDate, setHasSelectedDate] = useState(() => Boolean(draft?.selectedDate));
+  const [selectedTime, setSelectedTime] = useState<string | null>(
+    () => draft?.selectedTime ?? null,
+  );
   const [pendingTime, setPendingTime] = useState<string | null>(null);
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
-  const [showTimeTooltip, setShowTimeTooltip] = useState(false);
-  const [hasOpenedTimePicker, setHasOpenedTimePicker] = useState(false);
-  const [timePickerValue, setTimePickerValue] = useState<TimePickerValue>(() =>
-    getNearestTimePickerValue(),
+  const [timePickerValue, setTimePickerValue] = useState<TimePickerValue>(
+    () => draft?.timePickerValue ?? getNearestTimePickerValue(),
   );
-  const isReady = Boolean(hostName && selectedTime);
-  const hostNameParticle = getObjectParticle(hostName || defaultHostName);
+  // required: 파티 만들기 버튼에서 로그인 유도 / resume: 로그인 도중 돌아왔을 때 이어서 로그인 유도
+  const [loginPromptMode, setLoginPromptMode] = useState<'required' | 'resume' | null>(null);
+  const isReady = Boolean(hostName && hasSelectedDate && selectedTime);
   const timePickerOptions = useMemo(
     () => getAvailableTimePickerOptions(selectedDate, timePickerValue),
     [selectedDate, timePickerValue],
@@ -170,14 +213,20 @@ export default function PartyTimeSelectPage() {
     useAnchoredOverlay<HTMLSpanElement>(isTimePickerOpen);
 
   useEffect(() => {
-    if (hasOpenedTimePicker) return;
+    if (!draft) return;
+    if (draft.hostName) setHostName(draft.hostName);
 
-    const timeoutId = window.setTimeout(() => {
-      setShowTimeTooltip(true);
-    }, 1500);
+    if (isAuthenticated) {
+      clearTimeSelectDraft();
+      return;
+    }
 
-    return () => window.clearTimeout(timeoutId);
-  }, [hasOpenedTimePicker]);
+    // 카카오 로그인 화면에서 완료하지 않고 돌아온 경우 — 입력값은 복원하고 이어서 로그인을 권한다
+    useAuthStore.getState().setRedirectUrl(ROUTES.createPartyTime);
+    setLoginPromptMode('resume');
+    // 마운트 시 한 번만 복원한다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isSelectableTime(selectedDate, timePickerValue)) return;
@@ -195,9 +244,6 @@ export default function PartyTimeSelectPage() {
   };
 
   const handleOpenTimePicker = () => {
-    setHasOpenedTimePicker(true);
-    setShowTimeTooltip(false);
-
     const nextTime =
       selectedTime && isSelectableTime(selectedDate, timePickerValue)
         ? timePickerValue
@@ -224,6 +270,7 @@ export default function PartyTimeSelectPage() {
   const handleSelectDate = (date: Date | undefined) => {
     if (!date) return;
     setSelectedDate(date);
+    setHasSelectedDate(true);
     if (!isSelectableTime(date, timePickerValue)) {
       const nextTime = getFirstSelectableTimePickerValue(date);
       setTimePickerValue(nextTime ?? getNearestTimePickerValue());
@@ -238,7 +285,26 @@ export default function PartyTimeSelectPage() {
     setPendingTime(formatDisplayTime(value));
   };
 
+  // 시트를 닫으면 로그인하지 않기로 한 것이므로 저장해 둔 입력값과 로그인 후 이동 경로를 비우고 화면에 남는다
+  const handleCloseLoginPrompt = () => {
+    clearTimeSelectDraft();
+    useAuthStore.getState().clearRedirectUrl();
+    setLoginPromptMode(null);
+  };
+
   const handleCreateParty = () => {
+    if (!isAuthenticated) {
+      saveTimeSelectDraft({
+        selectedDate: hasSelectedDate ? selectedDate.toISOString() : null,
+        selectedTime,
+        timePickerValue,
+        hostName,
+      });
+      useAuthStore.getState().setRedirectUrl(ROUTES.createPartyTime);
+      setLoginPromptMode('required');
+      return;
+    }
+
     navigate(ROUTES.createPartyCharacter, {
       state: {
         hostName,
@@ -276,7 +342,10 @@ export default function PartyTimeSelectPage() {
           />
         )}
         <div className="relative z-10 flex justify-center">
-          <InvitationCard title="파티 초대장" footerDate={formatDotDate(selectedDate)}>
+          <InvitationCard
+            title="파티 초대장"
+            footerDate={hasSelectedDate ? formatDotDate(selectedDate) : ''}
+          >
             <div className="text-head-1 text-grey-600 relative flex flex-col gap-3 font-normal tracking-[-0.0002em]">
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <span className="inline-flex items-center gap-x-1.5 whitespace-nowrap">
@@ -285,15 +354,15 @@ export default function PartyTimeSelectPage() {
                     fallbackValue={defaultHostName}
                     onChange={setHostName}
                   />
-                  <span className="text-head-3">{hostNameParticle} 위해</span>
+                  <span className="text-head-3">님을 위해</span>
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
                 <span ref={datePillRef} className="inline-flex">
                   <HighlightPill
-                    variant={isDatePickerOpen ? 'active' : 'filled'}
+                    variant={isDatePickerOpen ? 'active' : hasSelectedDate ? 'filled' : 'outlined'}
                     icon={
-                      isDatePickerOpen ? (
+                      isDatePickerOpen || !hasSelectedDate ? (
                         <CalendarColorIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
                       ) : (
                         <CalendarMonoIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
@@ -301,7 +370,7 @@ export default function PartyTimeSelectPage() {
                     }
                     onClick={handleOpenDatePicker}
                   >
-                    {formatKoreanDate(selectedDate)}
+                    {hasSelectedDate ? formatKoreanDate(selectedDate) : '날짜선택'}
                   </HighlightPill>
                 </span>
                 <span className="text-head-3">에</span>
@@ -323,16 +392,6 @@ export default function PartyTimeSelectPage() {
                   </HighlightPill>
                 </span>
                 <span className="text-head-3 shrink-0">부터 {PARTY_DURATION_MINUTES}분 동안</span>
-                {showTimeTooltip && !hasOpenedTimePicker && (
-                  <div className="pointer-events-none absolute top-[52px] left-12 z-20 flex h-14 w-[131px] items-center rounded-xl bg-[#000341] px-3 py-2 text-[13px] leading-[20px] font-semibold whitespace-nowrap text-white shadow-[0px_4px_12px_0px_#00000033]">
-                    <span className="absolute -top-1.5 left-5 h-3 w-3 rotate-45 bg-[#000341]" />
-                    <span className="relative z-10">
-                      원하는 파티 시간을
-                      <br />
-                      선택해 주세요!
-                    </span>
-                  </div>
-                )}
               </div>
               <span className="text-head-3">온라인 생일 파티가 열려요</span>
             </div>
@@ -343,7 +402,7 @@ export default function PartyTimeSelectPage() {
 
       {isDatePickerOpen && datePickerPosition && (
         <DatePickerPopover
-          selectedDate={selectedDate}
+          selectedDate={hasSelectedDate ? selectedDate : undefined}
           minDate={today}
           position={datePickerPosition}
           onSelectDate={handleSelectDate}
@@ -402,17 +461,43 @@ export default function PartyTimeSelectPage() {
         </AnchoredPopover>
       )}
 
-      <div className="party-time-touch-tablet-action relative z-30 mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
-        <Button
-          variant={isReady ? 'primary' : 'secondary'}
-          size="full"
-          disabled={!isReady}
-          onClick={handleCreateParty}
-        >
-          파티 생성하기
-        </Button>
+      <div className="party-time-touch-tablet-action pb-safe-bottom-4 relative z-30 mt-auto px-5 pt-12">
+        <div className="relative">
+          {!isAuthenticated && (
+            <div className="absolute bottom-full left-1/2 z-30 -mb-2 -translate-x-1/2">
+              <div className="rolling-paper-share-tooltip bg-blue-1000 relative flex w-max items-center justify-center rounded-xl px-3 py-2 whitespace-nowrap">
+                <L1 className="font-bold! text-white">
+                  파티생성 링크를 만들려면 로그인이 필요해요
+                </L1>
+                <span
+                  aria-hidden
+                  className="border-t-blue-1000 absolute -bottom-1.75 left-4 h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent"
+                />
+              </div>
+            </div>
+          )}
+          <Button
+            variant={isReady ? 'primary' : 'secondary'}
+            size="full"
+            disabled={!isReady}
+            onClick={handleCreateParty}
+          >
+            파티 만들기
+          </Button>
+        </div>
       </div>
       <LivePartyOnboarding />
+      <LoginPromptSheet
+        titlePrefix="주인공으로 파티에 입장하려면"
+        isOpen={loginPromptMode !== null}
+        onClose={handleCloseLoginPrompt}
+        title={loginPromptMode === 'resume' ? '이어서 로그인할까요?' : undefined}
+        description={
+          loginPromptMode === 'resume'
+            ? '로그인하면 1초만에 생성이 완료돼요'
+            : '로그인하면 링크로 언제든 다시 입장할 수 있어요'
+        }
+      />
     </div>
   );
 }

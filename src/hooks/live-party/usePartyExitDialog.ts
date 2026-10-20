@@ -10,9 +10,10 @@ export type PartyExitMode = 'pending' | 'delete' | 'host-end' | 'leave';
 interface UsePartyExitDialogParams {
   mode: PartyExitMode;
   onHostEnd: () => void;
+  onBeforeExit?: () => void;
 }
 
-export function usePartyExitDialog({ mode, onHostEnd }: UsePartyExitDialogParams) {
+export function usePartyExitDialog({ mode, onHostEnd, onBeforeExit }: UsePartyExitDialogParams) {
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -33,6 +34,11 @@ export function usePartyExitDialog({ mode, onHostEnd }: UsePartyExitDialogParams
   const handleConfirmExit = () => {
     if (mode === 'pending') return;
 
+    const completeExit = () => {
+      setIsExitDialogOpen(false);
+      onBeforeExit?.();
+    };
+
     const from = (location.state as { from?: string } | null)?.from;
 
     const doNavigate = () => {
@@ -40,7 +46,7 @@ export function usePartyExitDialog({ mode, onHostEnd }: UsePartyExitDialogParams
     };
 
     if (!partyId) {
-      setIsExitDialogOpen(false);
+      completeExit();
       doNavigate();
       return;
     }
@@ -48,7 +54,7 @@ export function usePartyExitDialog({ mode, onHostEnd }: UsePartyExitDialogParams
     if (mode === 'delete') {
       deleteParty(partyId, {
         onSuccess: () => {
-          setIsExitDialogOpen(false);
+          completeExit();
           navigate(ROUTES.home, { replace: true });
         },
       });
@@ -58,14 +64,14 @@ export function usePartyExitDialog({ mode, onHostEnd }: UsePartyExitDialogParams
     if (mode === 'host-end') {
       startRealtimeEnd(partyId, {
         onSuccess: () => {
-          setIsExitDialogOpen(false);
+          completeExit();
           onHostEnd();
         },
       });
       return;
     }
 
-    setIsExitDialogOpen(false);
+    completeExit();
     leaveParty({ partyId }, { onSettled: doNavigate });
   };
 

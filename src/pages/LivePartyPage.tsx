@@ -102,7 +102,7 @@ export default function LivePartyPage() {
   const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const canFetch = isAuthenticated || hasParticipantToken;
+  const canFetch = hasParticipantToken && Boolean(participantToken);
   const { mutate: leaveParty } = useLeaveParty();
 
   useEffect(() => {
@@ -165,11 +165,20 @@ export default function LivePartyPage() {
       : step === LIVE_PARTY_STEP.ENTRY && !liveStartedAt
         ? 'delete'
         : 'host-end';
-  const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
-    usePartyExitDialog({ mode: partyExitMode, onHostEnd: goToEndStep });
 
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
-  const { musicIsMuted, handleToggleMute } = usePartyMusic({ step });
+  const isMusicEnabled =
+    canFetch && isInitialized && !isProfileLoading && !hostGate.shouldGateHost && !isPhaseError;
+  const { musicIsMuted, handleToggleMute, stopMusic } = usePartyMusic({
+    step,
+    enabled: isMusicEnabled,
+  });
+  const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
+    usePartyExitDialog({
+      mode: partyExitMode,
+      onHostEnd: goToEndStep,
+      onBeforeExit: stopMusic,
+    });
   const hostName =
     hostGate.celebrant?.nickname ??
     locationState?.hostName ??
@@ -289,6 +298,8 @@ export default function LivePartyPage() {
 
   const handleExitClick = useCallback(() => {
     if (isPartyEnding) {
+      stopMusic();
+
       if (partyId) {
         leaveParty({ partyId });
       }
@@ -298,7 +309,7 @@ export default function LivePartyPage() {
     }
 
     handleOpenExitDialog();
-  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep]);
+  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep, stopMusic]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {

@@ -8,6 +8,7 @@ import type { PartyOption, UpcomingParty } from '@/types/home';
 import { canShareParty } from '@/utils/party';
 import InfoIcon from '@/assets/icons/icon-info.svg?react';
 import { parseKstDateTime } from '@/utils/date';
+import { getRealtimeCardTiming } from '@/utils/upcomingParty';
 
 interface UpcomingPartyCardProps {
   party: UpcomingParty;
@@ -115,8 +116,10 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
   const isRollingPaper = partyOption === 'PAPER_ONLY';
   const isHost = role === PARTY_ROLE.HOST;
   const isHostPaperOnly = isHost && isRollingPaper && !isEnded;
-  const effectiveIsOpen =
-    isOpen || (isHostPaperOnly && hasRollingPaperOpened(party.rollingPaperOpenAt, nowMs));
+  const realtimeTiming = useMemo(() => getRealtimeCardTiming(party, nowMs), [nowMs, party]);
+  const effectiveIsOpen = isRollingPaper
+    ? isOpen || (isHostPaperOnly && hasRollingPaperOpened(party.rollingPaperOpenAt, nowMs))
+    : realtimeTiming.isEnterable;
   const view = isEnded
     ? ENDED_VIEW[role]
     : UPCOMING_PARTY_CARD_VIEW[role][partyOption][effectiveIsOpen ? 'open' : 'closed'];
@@ -125,7 +128,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
   // 링크 복사 노출 규칙은 canShareParty 단일 소스 사용 (HomePage 공유 핸들러와 동일 기준)
   const showShareButton = canShareParty(party);
   const canShare = Boolean(inviteToken);
-  const showEnterNotice = partyOption === 'REALTIME' && isOpen && !isEnded;
+  const showEnterNotice = realtimeTiming.noticeText != null;
   const showEndedNotice = partyOption === 'REALTIME' && isEnded && isHost;
   const noticeTone = showEnterNotice ? 'enter' : showEndedNotice ? 'ended' : null;
   const shareButtonText = showEnterNotice
@@ -157,6 +160,13 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
     const timerId = window.setInterval(() => setNowMs(Date.now()), COUNTDOWN_TICK_MS);
     return () => window.clearInterval(timerId);
   }, [isHostPaperOnlyClosed, party.rollingPaperOpenAt]);
+
+  useEffect(() => {
+    if (isRollingPaper || isEnded || !party.realtimeSchedule) return;
+
+    const timerId = window.setInterval(() => setNowMs(Date.now()), COUNTDOWN_TICK_MS);
+    return () => window.clearInterval(timerId);
+  }, [isEnded, isRollingPaper, party.realtimeSchedule]);
 
   return (
     <div
@@ -198,7 +208,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
               type="button"
               variant="white-blue"
               size="sm"
-              className="text-label-1 flex-1"
+              className="text-label-1 min-w-0 flex-1 px-2! whitespace-nowrap"
               onClick={onShare}
               disabled={!canShare}
             >
@@ -208,7 +218,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
               type="button"
               variant={ACTION_BUTTON_VARIANT[view.actionVariant]}
               size="sm"
-              className="text-label-1 flex-1"
+              className="text-label-1 min-w-0 flex-1 px-2! whitespace-nowrap"
               onClick={onAction}
               disabled={!isActionEnabled}
             >
@@ -241,9 +251,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
               noticeTone === 'enter' ? 'text-red-600' : 'text-blue-600'
             }`}
           >
-            {noticeTone === 'enter'
-              ? '파티 시작이 5분 남았어요! 지금 바로 입장해주세요!'
-              : '라이브 파티가 종료됐어요'}
+            {noticeTone === 'enter' ? realtimeTiming.noticeText : '라이브 파티가 종료됐어요'}
           </p>
         </div>
       )}

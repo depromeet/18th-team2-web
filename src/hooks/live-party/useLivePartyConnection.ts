@@ -14,6 +14,13 @@ import {
 } from '@/stores/useLivePartyBurstGameStore';
 import { applyPartyStateWsEvent, useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 
+function resetLivePartyStores() {
+  useLivePartyChatStore.getState().reset();
+  useLivePartyCandleStore.getState().reset();
+  useLivePartyBurstGameStore.getState().reset();
+  useLivePartyStateStore.getState().reset();
+}
+
 export function useLivePartyConnection() {
   const { partyId } = useParams<{ partyId: string }>();
   const queryClient = useQueryClient();
@@ -32,6 +39,11 @@ export function useLivePartyConnection() {
     nickname: locationState?.nickname ?? '',
     characterId: locationState?.characterId,
   });
+  connectParamsRef.current = {
+    inviteToken: locationState?.inviteToken ?? '',
+    nickname: locationState?.nickname ?? '',
+    characterId: locationState?.characterId,
+  };
 
   const hasInitializedRef = useRef(false);
   const wsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -41,21 +53,18 @@ export function useLivePartyConnection() {
   useEffect(() => {
     const { inviteToken, nickname, characterId } = connectParamsRef.current;
 
-    if (!inviteToken || !nickname) {
-      return;
-    }
+    // 새 파티 진입 시 이전 파티의 단계·종료·게임 상태가 잠시라도 노출되지 않도록 먼저 정리한다.
+    resetLivePartyStores();
 
-    // 파티 전환 시 이전 파티의 잔여 상태(종료 플래그, participantToken 등)가
-    // 새 파티로 새어 들어가지 않도록 연결 시작 시점에 전부 초기화한다.
-    useLivePartyChatStore.getState().reset();
-    useLivePartyCandleStore.getState().reset();
-    useLivePartyBurstGameStore.getState().reset();
-    useLivePartyStateStore.getState().reset();
+    if (!inviteToken || !nickname) {
+      return resetLivePartyStores;
+    }
 
     const controller = new AbortController();
 
     wsTimeoutRef.current = window.setTimeout(() => {
       if (!hasInitializedRef.current) {
+        controller.abort();
         useLivePartyStateStore.getState().setWsError(true);
       }
     }, 15000);
@@ -150,11 +159,19 @@ export function useLivePartyConnection() {
       },
       controller.signal,
     ).catch((err) => {
+      if (wsTimeoutRef.current) {
+        clearTimeout(wsTimeoutRef.current);
+        wsTimeoutRef.current = null;
+      }
+
+      controller.abort();
+
       if ((err as Error & { status?: number }).status === 409) {
         useLivePartyStateStore.getState().setNicknameDuplicate(true);
         return;
       }
 
+      useLivePartyStateStore.getState().setWsError(true);
       console.error(WS_ERROR_MESSAGE.CONNECTION_FAILED, err);
       Sentry.captureException(err, { extra: { message: WS_ERROR_MESSAGE.CONNECTION_FAILED } });
     });
@@ -166,6 +183,7 @@ export function useLivePartyConnection() {
         clearTimeout(wsTimeoutRef.current);
         wsTimeoutRef.current = null;
       }
+      resetLivePartyStores();
     };
   }, [partyId, queryClient, fire]);
 

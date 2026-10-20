@@ -6,7 +6,7 @@ import homeIcon from '@/assets/icons/icon-home.svg';
 import { CompletedInvitationCard } from '@/components/party-create/CompletedInvitationCard';
 import { Button } from '@/components/ui/Button';
 import { Toast, type ToastState } from '@/components/ui/Toast';
-import { B1, H1 } from '@/components/ui/Typography';
+import { H1 } from '@/components/ui/Typography';
 import { DUMMY_HOST_NAME, PARTY_DURATION_MINUTES } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { useTalkCalendarReminder } from '@/hooks/party-invitation/useTalkCalendarReminder';
@@ -95,9 +95,14 @@ export default function PartyCreateCompletePage() {
         </button>
       </header>
 
-      <H1 className="party-complete-title mt-[clamp(24px,5svh,40px)] text-center">
-        파티 초대장이 완성되었어요
-      </H1>
+      <div className="relative mt-[clamp(24px,5svh,40px)] min-h-18">
+        <H1 className="rolling-paper-complete-title text-center">파티 초대장이 완성되었어요</H1>
+        <H1 className="rolling-paper-complete-open-title absolute inset-x-0 top-0 text-center">
+          초대장은 파티 시작 <span className="text-red-600">24시간 전</span>까지
+          <br />
+          삭제할 수 있어요
+        </H1>
+      </div>
 
       <div className="mx-auto mt-[clamp(24px,7svh,64px)] flex w-full max-w-[343px] flex-1 flex-col [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:flex-none">
         <CompletedInvitationCard
@@ -109,11 +114,7 @@ export default function PartyCreateCompletePage() {
           durationMinutes={PARTY_DURATION_MINUTES}
         />
 
-        <B1 className="party-complete-notice mt-3 font-medium text-white">
-          * 파티 시작 24시간 전까지 수정할 수 있어요
-        </B1>
-
-        <div className="party-complete-button pb-safe-bottom-6 mt-auto [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
+        <div className="party-complete-button pb-safe-bottom-6 mt-auto pt-8 [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <div className="flex flex-col gap-2">
             <Button
               variant="white"
