@@ -233,7 +233,7 @@ export default function LivePartyPage() {
     setToast({
       id: Date.now(),
       type: 'error',
-      message: '예약된 시간부터 파티를 시작할 수 있어요.',
+      message: '아직 파티 시작 시간이 아니에요.',
     });
   }, []);
 
