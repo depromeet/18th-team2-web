@@ -6,12 +6,20 @@ import { LIVE_PARTY_STEP, type PartyStep } from '@/constants/live-party';
 
 interface UsePartyMusicParams {
   step: PartyStep;
+  enabled?: boolean;
 }
 
-export function usePartyMusic({ step }: UsePartyMusicParams) {
+export function usePartyMusic({ step, enabled = true }: UsePartyMusicParams) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [musicIsMuted, setMusicIsMuted] = useState(false);
+
+  const stopMusic = useCallback(() => {
+    if (!audioRef.current) return;
+
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+  }, []);
 
   const handleToggleMute = useCallback(() => {
     setMusicIsMuted((prev) => !prev);
@@ -19,10 +27,10 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
 
   useEffect(() => {
     return () => {
-      audioRef.current?.pause();
+      stopMusic();
       audioRef.current = null;
     };
-  }, []);
+  }, [stopMusic]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -30,19 +38,13 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
       audioRef.current.loop = true;
     }
 
-    if (step === LIVE_PARTY_STEP.END) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-
-      return;
-    }
-
-    if (step === LIVE_PARTY_STEP.ENTRY) {
+    if (!enabled || step === LIVE_PARTY_STEP.ENTRY || step === LIVE_PARTY_STEP.END) {
+      stopMusic();
       return;
     }
 
     void audioRef.current.play();
-  }, [step]);
+  }, [enabled, step, stopMusic]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -55,5 +57,6 @@ export function usePartyMusic({ step }: UsePartyMusicParams) {
   return {
     musicIsMuted,
     handleToggleMute,
+    stopMusic,
   };
 }
