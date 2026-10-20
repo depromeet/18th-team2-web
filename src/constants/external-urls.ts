@@ -3,6 +3,7 @@ export const EXTERNAL_URLS = {
 } as const;
 
 export const SHARE_ENDPOINTS = {
+  instagram: () => 'https://www.instagram.com/',
   x: (encodedUrl: string, encodedTitle: string) =>
     `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
   naver: (encodedUrl: string, encodedTitle: string) =>

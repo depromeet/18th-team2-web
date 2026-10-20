@@ -5,6 +5,7 @@ import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 import { B1, H2 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import type { ArchiveListItem } from '@/types/archive';
+import { ArchiveEmptyView } from '@/components/home/ArchiveEmptyView';
 
 interface ArchiveCardProps {
   count: number;
@@ -32,6 +33,7 @@ export function ArchiveCard({ count, previewItem }: ArchiveCardProps) {
           <ChevronRightIcon className="text-grey-400 h-5 w-5" />
         </div>
       </button>
+      {count === 0 && <ArchiveEmptyView />}
       {previewItem && (
         <div className="px-4">
           <ArchiveStampCard item={previewItem} />

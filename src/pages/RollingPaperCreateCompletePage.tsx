@@ -1,10 +1,8 @@
-import { useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 
 import homeIcon from '@/assets/icons/icon-home.svg';
 import { CompletedRollingPaperCard } from '@/components/party-create/CompletedRollingPaperCard';
 import { Button } from '@/components/ui/Button';
-import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
 import { DUMMY_HOST_NAME, ROLLING_PAPER_DURATION_DAYS } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
@@ -28,7 +26,6 @@ export default function RollingPaperCreateCompletePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const rollingPaperState = getRollingPaperCompleteState(location.state);
-  const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
 
   const hostName = rollingPaperState.hostName ?? DUMMY_HOST_NAME;
   const startDate = rollingPaperState.startDate
@@ -39,15 +36,12 @@ export default function RollingPaperCreateCompletePage() {
     : addDays(startDate, ROLLING_PAPER_DURATION_DAYS);
   const openDateLabel = formatKoreanShortDate(startDate);
 
-  const inviteToken = rollingPaperState.inviteToken;
-  const shareLink = useMemo(
-    () =>
-      inviteToken
-        ? `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken })}`
-        : '',
-    [inviteToken],
-  );
-  const canShare = Boolean(inviteToken);
+  const partyId = rollingPaperState.partyId;
+
+  const handleViewRollingPaper = () => {
+    if (partyId == null) return;
+    navigate(generatePath(ROUTES.rollingPaper, { id: String(partyId) }));
+  };
 
   return (
     <div className="party-complete-page relative flex min-h-dvh flex-col overflow-hidden px-5">
@@ -65,9 +59,7 @@ export default function RollingPaperCreateCompletePage() {
       <div className="relative mt-[clamp(24px,5svh,40px)] min-h-18">
         <H1 className="rolling-paper-complete-title text-center">롤링페이퍼가 완성되었어요</H1>
         <H1 className="rolling-paper-complete-open-title absolute inset-x-0 top-0 text-center">
-          <span className="text-blue-700">
-            {openDateLabel} {ROLLING_PAPER_OPEN_TIME}
-          </span>
+          {openDateLabel} <span className="text-red-500">{ROLLING_PAPER_OPEN_TIME}</span>
           부터
           <br />
           받은 롤링페이퍼를 확인할 수 있어요
@@ -83,28 +75,20 @@ export default function RollingPaperCreateCompletePage() {
         />
 
         <B1 className="party-complete-notice mt-3 font-medium text-white">
-          * 파티 정보는 시작 24시간 전까지 수정할 수 있어요
+          * 파티 시작 24시간 전까지 수정할 수 있어요
         </B1>
 
         <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <Button
             variant="white"
             size="full"
-            disabled={!canShare}
-            onClick={() => setIsShareSheetOpen(true)}
+            disabled={partyId == null}
+            onClick={handleViewRollingPaper}
           >
-            링크 공유하기
+            내 롤링페이퍼 확인하기
           </Button>
         </div>
       </div>
-
-      <LinkShareSheet
-        isOpen={isShareSheetOpen}
-        link={shareLink}
-        title="롤링페이퍼 링크 공유하기"
-        shareText="롤링페이퍼 작성 초대장이 왔어요"
-        onClose={() => setIsShareSheetOpen(false)}
-      />
     </div>
   );
 }

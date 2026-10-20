@@ -2,7 +2,7 @@ import { DayPicker } from 'react-day-picker';
 import { AnchoredPopover } from '@/components/party-create/AnchoredPopover';
 
 interface DatePickerPopoverProps {
-  selectedDate: Date;
+  selectedDate?: Date;
   minDate: Date;
   position: {
     top: number;
@@ -22,7 +22,7 @@ export function DatePickerPopover({
       <DayPicker
         mode="single"
         selected={selectedDate}
-        defaultMonth={selectedDate}
+        defaultMonth={selectedDate ?? minDate}
         disabled={{ before: minDate }}
         onSelect={onSelectDate}
         weekStartsOn={0}
