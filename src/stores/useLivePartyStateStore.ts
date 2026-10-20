@@ -19,6 +19,7 @@ export interface RealtimePartyEndingState {
 }
 
 interface PartyStatePayload {
+  partyId?: number;
   liveStartAt?: string;
   liveTimerStartedAt?: string;
   liveDeadlineAt?: string;
@@ -116,23 +117,31 @@ export const useLivePartyStateStore = create<LivePartyState>()(
 
       setPartyState: (payload) =>
         set(
-          (state) => ({
-            liveStartAt: payload.liveStartAt ?? state.liveStartAt,
-            liveTimerStartedAt: payload.liveTimerStartedAt ?? state.liveTimerStartedAt,
-            liveDeadlineAt: payload.liveDeadlineAt ?? state.liveDeadlineAt,
-            status: payload.status ?? state.status,
-            // 스냅샷 시점에 이미 종료 카운트다운이 진행 중이었다면 그대로 반영 (재연결 시 따라잡기용)
-            partyEndingState: payload.endingStartedAt
-              ? {
-                  endingStartedAt: payload.endingStartedAt,
-                  endedAt: payload.endedAt,
-                  endingReason: payload.endingReason,
-                  hostNickname: payload.hostNickname,
-                  serverNow: payload.serverNow,
-                  ended: payload.status === 'LIVE_CLOSED',
-                }
-              : state.partyEndingState,
-          }),
+          (state) => {
+            const isClosed =
+              payload.status === 'LIVE_CLOSED' || payload.status === 'ROLLING_PAPER_CLOSED';
+            const shouldApplyEndingState = isClosed || Boolean(payload.endingStartedAt);
+
+            return {
+              liveStartAt: payload.liveStartAt ?? state.liveStartAt,
+              liveTimerStartedAt: payload.liveTimerStartedAt ?? state.liveTimerStartedAt,
+              liveDeadlineAt: payload.liveDeadlineAt ?? state.liveDeadlineAt,
+              status: payload.status ?? state.status,
+              // 재연결·REST 복구 스냅샷이 종료 상태라면 party-ended 이벤트 없이도 종료 처리한다.
+              partyEndingState: shouldApplyEndingState
+                ? {
+                    partyId: payload.partyId ?? state.partyEndingState?.partyId,
+                    endingStartedAt:
+                      payload.endingStartedAt ?? state.partyEndingState?.endingStartedAt,
+                    endedAt: payload.endedAt ?? state.partyEndingState?.endedAt,
+                    endingReason: payload.endingReason ?? state.partyEndingState?.endingReason,
+                    hostNickname: payload.hostNickname ?? state.partyEndingState?.hostNickname,
+                    serverNow: payload.serverNow ?? state.partyEndingState?.serverNow,
+                    ended: isClosed,
+                  }
+                : state.partyEndingState,
+            };
+          },
           false,
           'setPartyState',
         ),
@@ -148,6 +157,7 @@ export function applyPartyStateWsEvent(event: string, parsed: Record<string, unk
   switch (event) {
     case WS_EVENT.PARTY_STATE:
       store.setPartyState({
+        partyId: parsed.partyId as number | undefined,
         liveStartAt: parsed.liveStartAt as string | undefined,
         liveTimerStartedAt: parsed.liveTimerStartedAt as string | undefined,
         liveDeadlineAt: parsed.liveDeadlineAt as string | undefined,
