@@ -3,7 +3,7 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import homeIcon from '@/assets/icons/icon-home.svg';
 import { CompletedRollingPaperCard } from '@/components/party-create/CompletedRollingPaperCard';
 import { Button } from '@/components/ui/Button';
-import { B1, H1 } from '@/components/ui/Typography';
+import { H1 } from '@/components/ui/Typography';
 import { DUMMY_HOST_NAME, ROLLING_PAPER_DURATION_DAYS } from '@/constants/partyCreate';
 import { ROUTES } from '@/constants/routes';
 import { addDays, formatKoreanShortDate, getTodayMidnight } from '@/utils/date';
@@ -73,10 +73,6 @@ export default function RollingPaperCreateCompletePage() {
           startDate={startDate}
           endDate={endDate}
         />
-
-        <B1 className="party-complete-notice mt-3 font-medium text-white">
-          * 파티 시작 24시간 전까지 수정할 수 있어요
-        </B1>
 
         <div className="party-complete-button mt-auto pb-[calc(24px+env(safe-area-inset-bottom))] [animation-delay:2850ms] [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:mt-10 [@media_(hover:none)_and_(pointer:coarse)_and_(min-width:768px)_and_(min-height:900px)]:pb-10">
           <Button
