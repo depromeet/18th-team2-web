@@ -23,6 +23,7 @@ interface LivePartyHeaderProps {
   liveStartAt?: string | null;
   liveDeadlineAt?: string | null;
   serverNow?: string | null;
+  durationSeconds?: number;
 }
 
 function getTimestamp(value?: string | null) {
@@ -34,11 +35,14 @@ function getTimestamp(value?: string | null) {
   return dateTime.valueOf();
 }
 
-function getLiveTiming(liveStartAt?: string | null, liveDeadlineAt?: string | null) {
+function getLiveTiming(
+  liveStartAt?: string | null,
+  liveDeadlineAt?: string | null,
+  durationSeconds = LIVE_PARTY_DURATION_SECONDS,
+) {
   const startAt = getTimestamp(liveStartAt);
   const deadlineAt =
-    getTimestamp(liveDeadlineAt) ??
-    (startAt != null ? startAt + LIVE_PARTY_DURATION_SECONDS * 1000 : null);
+    getTimestamp(liveDeadlineAt) ?? (startAt != null ? startAt + durationSeconds * 1000 : null);
 
   return { startAt, deadlineAt };
 }
@@ -51,12 +55,13 @@ function getRemainingSeconds(
   liveStartAt?: string | null,
   liveDeadlineAt?: string | null,
   serverClockOffsetMs = 0,
+  durationSeconds = LIVE_PARTY_DURATION_SECONDS,
 ) {
-  const { deadlineAt } = getLiveTiming(liveStartAt, liveDeadlineAt);
-  if (deadlineAt == null) return LIVE_PARTY_DURATION_SECONDS;
+  const { deadlineAt } = getLiveTiming(liveStartAt, liveDeadlineAt, durationSeconds);
+  if (deadlineAt == null) return durationSeconds;
 
   return Math.min(
-    LIVE_PARTY_DURATION_SECONDS,
+    durationSeconds,
     Math.max(0, Math.ceil((deadlineAt - getCurrentTime(serverClockOffsetMs)) / 1000)),
   );
 }
@@ -80,10 +85,11 @@ export const LivePartyHeader = memo(function LivePartyHeader({
   liveStartAt,
   liveDeadlineAt,
   serverNow,
+  durationSeconds = LIVE_PARTY_DURATION_SECONDS,
 }: LivePartyHeaderProps) {
   const showMusicButton =
     forceShowMusicButton || (showMuteButton ?? step !== LIVE_PARTY_STEP.ENTRY);
-  const showProcessSection = step !== LIVE_PARTY_STEP.ENTRY;
+  const showProcessSection = isPartyEnding || step !== LIVE_PARTY_STEP.ENTRY;
   const shouldShadeHeader =
     step === LIVE_PARTY_STEP.MUSIC || step === LIVE_PARTY_STEP.CLOSEABLE || isPartyEnding;
   const serverClockOffsetMs = useMemo(() => {
@@ -91,7 +97,7 @@ export const LivePartyHeader = memo(function LivePartyHeader({
     return serverNowMs == null ? 0 : Date.now() - serverNowMs;
   }, [serverNow]);
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
-    getRemainingSeconds(liveStartAt, liveDeadlineAt, serverClockOffsetMs),
+    getRemainingSeconds(liveStartAt, liveDeadlineAt, serverClockOffsetMs, durationSeconds),
   );
   const remainingTimeLabel = useMemo(
     () => formatRemainingTime(remainingSeconds),
@@ -99,16 +105,20 @@ export const LivePartyHeader = memo(function LivePartyHeader({
   );
 
   useEffect(() => {
-    setRemainingSeconds(getRemainingSeconds(liveStartAt, liveDeadlineAt, serverClockOffsetMs));
+    setRemainingSeconds(
+      getRemainingSeconds(liveStartAt, liveDeadlineAt, serverClockOffsetMs, durationSeconds),
+    );
 
     if (!showProcessSection) return;
 
     const id = window.setInterval(() => {
-      setRemainingSeconds(getRemainingSeconds(liveStartAt, liveDeadlineAt, serverClockOffsetMs));
+      setRemainingSeconds(
+        getRemainingSeconds(liveStartAt, liveDeadlineAt, serverClockOffsetMs, durationSeconds),
+      );
     }, 1000);
 
     return () => window.clearInterval(id);
-  }, [liveDeadlineAt, liveStartAt, serverClockOffsetMs, showProcessSection]);
+  }, [durationSeconds, liveDeadlineAt, liveStartAt, serverClockOffsetMs, showProcessSection]);
 
   return (
     <header

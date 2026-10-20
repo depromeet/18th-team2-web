@@ -373,6 +373,7 @@ export default function LivePartyPage() {
   const isBurstGameStep = step === LIVE_PARTY_STEP.BURST_GAME;
   const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
+  const isEntryPartyEnding = isEntryStep && isPartyEnding;
   const showBurstGameOverlay = isBurstGameStep && !isBurstGameOverlayDismissed;
   const isBurstGameOverlayActive = showBurstGameOverlay && !isPartyEnding;
   const showHostEndingButton =
@@ -538,9 +539,10 @@ export default function LivePartyPage() {
           isPartyEnding={showPartyEndingNotice}
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
-          liveStartAt={liveStartedAt}
-          liveDeadlineAt={liveDeadlineAt}
-          serverNow={liveStartedServerNow}
+          liveStartAt={isEntryPartyEnding ? partyEndingState?.endingStartedAt : liveStartedAt}
+          liveDeadlineAt={isEntryPartyEnding ? partyEndingState?.endedAt : liveDeadlineAt}
+          serverNow={isEntryPartyEnding ? partyEndingState?.serverNow : liveStartedServerNow}
+          durationSeconds={isEntryPartyEnding ? PARTY_ENDING_FALLBACK_SECONDS : undefined}
         />
       )}
       {showPartyMain && !showEntryReadyUI && (
