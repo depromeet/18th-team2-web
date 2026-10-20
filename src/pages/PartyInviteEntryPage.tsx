@@ -123,7 +123,12 @@ export default function PartyInviteEntryPage() {
 
     if (rollingPaperWritableUntil.getTime() <= Date.now()) {
       if (!data.partyStartDate || !data.partyEndDate) {
-        return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
+        return (
+          <>
+            <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />
+            {toastNode}
+          </>
+        );
       }
 
       return (
@@ -160,39 +165,55 @@ export default function PartyInviteEntryPage() {
     }
 
     if (!data.partyStartDate || !data.partyEndDate) {
-      return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
+      return (
+        <>
+          <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />
+          {toastNode}
+        </>
+      );
     }
 
     const rollingPaperWritableUntil = getRollingPaperWritableUntil(data);
 
     return (
-      <PartyEndedView
-        partyId={data.partyId}
-        inviteToken={inviteToken}
-        hostName={hostName}
-        writableFrom={new Date(data.partyStartDate)}
-        writableUntil={rollingPaperWritableUntil}
-      />
+      <>
+        <PartyEndedView
+          partyId={data.partyId}
+          inviteToken={inviteToken}
+          hostName={hostName}
+          writableFrom={new Date(data.partyStartDate)}
+          writableUntil={rollingPaperWritableUntil}
+        />
+        {toastNode}
+      </>
     );
   }
 
   // 파티 시작 전 초대장 화면 — 실시간 파티는 liveStartAt, 그 외는 partyStartDate
   const startsAtSource = data.realtimeSchedule?.liveStartAt ?? data.partyStartDate;
   if (!startsAtSource) {
-    return <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />;
+    return (
+      <>
+        <InvalidLinkLayout message="파티 정보를 불러올 수 없어요." />
+        {toastNode}
+      </>
+    );
   }
 
   return (
-    <PartyInvitationView
-      partyId={data.partyId}
-      inviteToken={inviteToken}
-      hostName={hostName}
-      startsAt={new Date(startsAtSource)}
-      endsAt={data.partyEndDate ? new Date(data.partyEndDate) : undefined}
-      isHost={data.isHost}
-      rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten}
-      partyOption={data.partyOption ?? 'REALTIME'}
-    />
+    <>
+      <PartyInvitationView
+        partyId={data.partyId}
+        inviteToken={inviteToken}
+        hostName={hostName}
+        startsAt={new Date(startsAtSource)}
+        endsAt={data.partyEndDate ? new Date(data.partyEndDate) : undefined}
+        isHost={data.isHost}
+        rollingPaperWritten={locationState?.rollingPaperWritten ?? data.rollingPaperWritten}
+        partyOption={data.partyOption ?? 'REALTIME'}
+      />
+      {toastNode}
+    </>
   );
 }
 
