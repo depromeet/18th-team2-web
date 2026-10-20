@@ -461,11 +461,11 @@ export default function PartyTimeSelectPage() {
         </AnchoredPopover>
       )}
 
-      <div className="party-time-touch-tablet-action relative z-30 mt-auto px-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
+      <div className="party-time-touch-tablet-action pb-safe-bottom-4 relative z-30 mt-auto px-5 pt-12">
         <div className="relative">
           {!isAuthenticated && (
             <div className="absolute bottom-full left-1/2 z-30 -mb-2 -translate-x-1/2">
-              <div className="rolling-paper-share-tooltip bg-blue-1000 relative flex w-fit max-w-[calc(100vw-28px)] items-center justify-center rounded-xl px-3 py-2">
+              <div className="rolling-paper-share-tooltip bg-blue-1000 relative flex w-max items-center justify-center rounded-xl px-3 py-2 whitespace-nowrap">
                 <L1 className="font-bold! text-white">
                   파티생성 링크를 만들려면 로그인이 필요해요
                 </L1>

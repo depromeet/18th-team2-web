@@ -3,6 +3,20 @@ import type { PartyRole } from '@/constants/party';
 /** BE `partyOption` 값 그대로 — REALTIME: 실시간 파티, PAPER_ONLY: 롤링페이퍼 전용 */
 export type PartyOption = 'REALTIME' | 'PAPER_ONLY';
 
+export type RealtimePartyStatus =
+  | 'ROLLING_PAPER_OPEN'
+  | 'LIVE_OPEN'
+  | 'LIVE_ENDING'
+  | 'LIVE_CLOSED'
+  | 'ROLLING_PAPER_CLOSED';
+
+export interface UpcomingRealtimeSchedule {
+  enterableFrom: string;
+  liveStartAt: string;
+  liveStartedAt?: string;
+  liveEndAt: string;
+}
+
 export interface UpcomingParty {
   partyId?: string;
   /** BE `inviteToken` — 초대장 진입에 사용. 유효 토큰 없으면 undefined */
@@ -13,6 +27,9 @@ export interface UpcomingParty {
   time?: string;
   endDate?: string;
   rollingPaperOpenAt?: string;
+  realtimeSchedule?: UpcomingRealtimeSchedule;
+  realtimeStatus?: RealtimePartyStatus;
+  realtimeEnterable: boolean;
   /** BE `host` 기반 */
   role: PartyRole;
   /** BE `partyOption` 기반 */
