@@ -64,8 +64,15 @@ export function usePartyExitDialog({ mode, onHostEnd, onBeforeExit }: UsePartyEx
     if (mode === 'host-end') {
       startRealtimeEnd(partyId, {
         onSuccess: () => {
-          completeExit();
-          onHostEnd();
+          leaveParty(
+            { partyId },
+            {
+              onSettled: () => {
+                completeExit();
+                onHostEnd();
+              },
+            },
+          );
         },
       });
       return;

@@ -18,6 +18,12 @@ export interface RealtimePartyEndingState {
   ended: boolean;
 }
 
+export interface RealtimePartyDeletedState {
+  partyId?: number;
+  reason?: 'HOST_DELETED';
+  serverNow?: string;
+}
+
 interface PartyStatePayload {
   partyId?: number;
   liveStartAt?: string;
@@ -39,6 +45,7 @@ interface LivePartyState {
   currentPhaseStartedAt: string | null;
   currentPhaseServerNow: string | null;
   partyEndingState: RealtimePartyEndingState | null;
+  partyDeletedState: RealtimePartyDeletedState | null;
   // 입장 시 한 번 오는 party-state 스냅샷 — liveStartAt/status는 WS 브로드캐스트로 갱신되지 않는다.
   liveStartAt: string | null;
   liveTimerStartedAt: string | null;
@@ -55,6 +62,7 @@ interface LivePartyState {
   ) => void;
   startPartyEnding: (payload: Omit<RealtimePartyEndingState, 'ended'>) => void;
   endParty: (payload: Omit<RealtimePartyEndingState, 'ended' | 'endingStartedAt'>) => void;
+  deleteParty: (payload: RealtimePartyDeletedState) => void;
   setPartyState: (payload: PartyStatePayload) => void;
   reset: () => void;
 }
@@ -67,6 +75,7 @@ const initialState = {
   currentPhaseStartedAt: null,
   currentPhaseServerNow: null,
   partyEndingState: null,
+  partyDeletedState: null,
   liveStartAt: null,
   liveTimerStartedAt: null,
   liveDeadlineAt: null,
@@ -114,6 +123,8 @@ export const useLivePartyStateStore = create<LivePartyState>()(
           false,
           'endParty',
         ),
+
+      deleteParty: (payload) => set({ partyDeletedState: payload }, false, 'deleteParty'),
 
       setPartyState: (payload) =>
         set(
@@ -195,6 +206,14 @@ export function applyPartyStateWsEvent(event: string, parsed: Record<string, unk
         endedAt: parsed.endedAt as string | undefined,
         endingReason: parsed.endingReason as PartyEndingReason | undefined,
         hostNickname: parsed.hostNickname as string | undefined,
+        serverNow: parsed.serverNow as string | undefined,
+      });
+      return true;
+
+    case WS_EVENT.PARTY_DELETED:
+      store.deleteParty({
+        partyId: parsed.partyId as number | undefined,
+        reason: parsed.reason as RealtimePartyDeletedState['reason'],
         serverNow: parsed.serverNow as string | undefined,
       });
       return true;

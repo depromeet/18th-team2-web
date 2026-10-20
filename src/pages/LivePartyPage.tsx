@@ -24,7 +24,6 @@ import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 import { PartyMainBackground } from '@/components/live-party/main-background/PartyMainBackground';
 import {
   CANDLES,
-  GET_PARTICIPANT_INTERVAL,
   LIVE_PARTY_STEP,
   MUSIC_LYRICS_TIMINGS,
   PARTICIPANT_TOKEN_KEY,
@@ -46,7 +45,6 @@ import { ErrorView } from '@/components/ui/ErrorView';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
 import { BURST_GAME_DURATION_SECONDS } from '@/hooks/live-party/useBurstGameStep';
-import { isApiErrorStatus } from '@/utils/api-error';
 import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
@@ -94,6 +92,7 @@ export default function LivePartyPage() {
   const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
   const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
   const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
+  const partyDeletedState = useLivePartyStateStore((s) => s.partyDeletedState);
   const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
   const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
   const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
@@ -149,6 +148,8 @@ export default function LivePartyPage() {
     liveStartedAt,
     liveDeadlineAt,
     liveStartedServerNow,
+    hostExitAction,
+    refetchRealtimeState,
   } = useLivePartyStep({
     partyId,
     partyPhase: currentPhase,
@@ -162,9 +163,11 @@ export default function LivePartyPage() {
     ? 'leave'
     : !isInitialized || isAdvancingPhase
       ? 'pending'
-      : step === LIVE_PARTY_STEP.ENTRY && !liveStartedAt
+      : hostExitAction === 'DELETE'
         ? 'delete'
-        : 'host-end';
+        : hostExitAction === 'END'
+          ? 'host-end'
+          : 'pending';
 
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const isMusicEnabled =
@@ -296,7 +299,7 @@ export default function LivePartyPage() {
     showPartyEndStep();
   }, [hostGate.guestCount, isHost, isPartyEnding, showPartyEndStep]);
 
-  const handleExitClick = useCallback(() => {
+  const handleExitClick = useCallback(async () => {
     if (isPartyEnding) {
       stopMusic();
 
@@ -308,8 +311,21 @@ export default function LivePartyPage() {
       return;
     }
 
+    if (isHost) {
+      await refetchRealtimeState();
+    }
+
     handleOpenExitDialog();
-  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep, stopMusic]);
+  }, [
+    handleOpenExitDialog,
+    isHost,
+    isPartyEnding,
+    leaveParty,
+    partyId,
+    refetchRealtimeState,
+    showPartyEndStep,
+    stopMusic,
+  ]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -444,19 +460,10 @@ export default function LivePartyPage() {
     step === LIVE_PARTY_STEP.MUSIC && chatSheetMetrics.isExpanded
       ? chatSheetMetrics.height + chatSheetMetrics.bottomOffset
       : undefined;
-  const shouldWatchForDeletedParty = !isHost && isEntryStep && !isPartyEndingFlow;
-  const {
-    data: entryParticipantsData,
-    error: participantsError,
-    isError: isParticipantsError,
-  } = useGetPartyParticipants(partyId, {
+  const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
     enabled: showPartyMain,
-    refetchInterval: shouldWatchForDeletedParty ? GET_PARTICIPANT_INTERVAL.SHORT : undefined,
   });
-  const isDeletedWaitingParty =
-    shouldWatchForDeletedParty &&
-    isParticipantsError &&
-    (isApiErrorStatus(participantsError, 404) || isApiErrorStatus(participantsError, 403));
+  const isDeletedWaitingParty = !isProfileLoading && !isHost && Boolean(partyDeletedState);
 
   if (isDeletedWaitingParty) {
     return (
@@ -502,7 +509,7 @@ export default function LivePartyPage() {
           remainingSeconds={hostGate.remainingSeconds}
           isEnding={hostGate.isEnding}
           onInvite={handleInvite}
-          onClose={handleOpenExitDialog}
+          onClose={handleExitClick}
         />
         <PartyExitDialog
           isOpen={isExitDialogOpen}

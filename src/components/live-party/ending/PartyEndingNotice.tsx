@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Lottie from 'lottie-react';
 
 import { B1 } from '@/components/ui/Typography';
 import type { RealtimePartyEndingState } from '@/stores/useLivePartyStateStore';
 import { parseKstDateTime } from '@/utils/date';
-import loadingBarAnimation from '@/assets/images/live-party/loading-bar.json';
 
 const INTRO_STEP_DURATION = 2000;
 const FALLBACK_REMAINING_SECONDS = 30;
@@ -59,7 +57,6 @@ function getRemainingSeconds(
 }
 
 export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) {
-  const isHostLeft = partyEndingState.endingReason === 'HOST_LEFT';
   const serverClockOffsetMs = useMemo(
     () => getServerClockOffset(partyEndingState.serverNow) ?? 0,
     [partyEndingState.serverNow],
@@ -125,28 +122,6 @@ export function PartyEndingNotice({ partyEndingState }: PartyEndingNoticeProps) 
       </div>
     );
   }, [noticeStep, partyEndingState, remainingSeconds]);
-
-  if (isHostLeft) {
-    return (
-      <div className="pointer-events-none fixed inset-x-0 top-0 bottom-[var(--live-party-chat-min-height,320px)] z-[65] mx-auto w-full max-w-150 overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-0 h-[min(65svh,529px)] bg-gradient-to-b from-[#000341]/0 to-[#000341] backdrop-blur-[40px]"
-        />
-
-        <div className="absolute top-[clamp(220px,31svh,251px)] left-1/2 flex -translate-x-1/2 flex-col items-center gap-3 text-center">
-          <Lottie animationData={loadingBarAnimation} className="h-9 w-9" loop />
-          <p className="max-w-[calc(100vw-32px)] text-[18px] leading-[26px] font-semibold break-keep text-white/60">
-            <span>{partyEndingState.hostNickname ?? '주최자'}님이 파티를 떠났어요</span>
-            <br />
-            <span>
-              <span className="text-[#5892ff]">10분</span> 동안 돌아오지 않으면 파티가 사라져요
-            </span>
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-[calc(100svh-var(--live-party-chat-min-height,283px)-96px)] z-20 mx-auto flex w-full max-w-[600px] justify-center px-6 [@media_(max-height:700px)]:top-[calc(100svh-var(--live-party-chat-min-height,260px)-84px)]">

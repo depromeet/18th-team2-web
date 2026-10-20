@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
+import { applyPartyStateWsEvent, useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
 
 describe('useLivePartyStateStore', () => {
   beforeEach(() => {
@@ -35,6 +35,21 @@ describe('useLivePartyStateStore', () => {
       partyId: 42,
       endingReason: 'HOST_REQUEST',
       ended: false,
+    });
+  });
+
+  it('party-deleted 이벤트를 파티 삭제 상태로 반영한다', () => {
+    const handled = applyPartyStateWsEvent('party-deleted', {
+      partyId: 42,
+      reason: 'HOST_DELETED',
+      serverNow: '2026-10-20T20:00:00',
+    });
+
+    expect(handled).toBe(true);
+    expect(useLivePartyStateStore.getState().partyDeletedState).toEqual({
+      partyId: 42,
+      reason: 'HOST_DELETED',
+      serverNow: '2026-10-20T20:00:00',
     });
   });
 });
