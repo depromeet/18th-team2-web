@@ -208,7 +208,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
               type="button"
               variant="white-blue"
               size="sm"
-              className="text-label-1 flex-1"
+              className="text-label-1 min-w-0 flex-1 px-2! whitespace-nowrap"
               onClick={onShare}
               disabled={!canShare}
             >
@@ -218,7 +218,7 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
               type="button"
               variant={ACTION_BUTTON_VARIANT[view.actionVariant]}
               size="sm"
-              className="text-label-1 flex-1"
+              className="text-label-1 min-w-0 flex-1 px-2! whitespace-nowrap"
               onClick={onAction}
               disabled={!isActionEnabled}
             >
