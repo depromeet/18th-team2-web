@@ -12,7 +12,7 @@ import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
-import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
+import { usePartyExitDialog, type PartyExitMode } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
@@ -94,6 +94,7 @@ export default function LivePartyPage() {
   const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
   const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
   const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
+  const partyDeletedState = useLivePartyStateStore((s) => s.partyDeletedState);
   const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
   const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
   const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
@@ -144,12 +145,14 @@ export default function LivePartyPage() {
     isEntryReady,
     isTransitioning,
     isInitialized,
-    isPhaseError,
     isAdvancingPhase,
+    isPhaseError,
     goToEndStep,
     liveStartedAt,
     liveDeadlineAt,
     liveStartedServerNow,
+    hostExitAction,
+    refetchRealtimeState,
   } = useLivePartyStep({
     partyId,
     partyPhase: currentPhase,
@@ -159,6 +162,16 @@ export default function LivePartyPage() {
     enabled: canFetch,
   });
 
+  const partyExitMode: PartyExitMode = !isHost
+    ? 'leave'
+    : !isInitialized || isAdvancingPhase
+      ? 'pending'
+      : hostExitAction === 'DELETE'
+        ? 'delete'
+        : hostExitAction === 'END'
+          ? 'host-end'
+          : 'pending';
+
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const isMusicEnabled =
     canFetch && isInitialized && !isProfileLoading && !hostGate.shouldGateHost && !isPhaseError;
@@ -167,7 +180,11 @@ export default function LivePartyPage() {
     enabled: isMusicEnabled,
   });
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
-    usePartyExitDialog({ onBeforeExit: stopMusic });
+    usePartyExitDialog({
+      mode: partyExitMode,
+      onHostEnd: goToEndStep,
+      onBeforeExit: stopMusic,
+    });
   const hostName =
     hostGate.celebrant?.nickname ??
     locationState?.hostName ??
@@ -289,7 +306,7 @@ export default function LivePartyPage() {
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const [isPartyEndingNoticeDismissed, setIsPartyEndingNoticeDismissed] = useState(false);
-  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed;
+  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed && !partyEnd;
   const { data: nextAction } = useRealtimePartyNextAction(
     partyId,
     participantToken,
@@ -323,7 +340,7 @@ export default function LivePartyPage() {
     showPartyEndStep();
   }, [hostGate.guestCount, isHost, isPartyEnding, showPartyEndStep]);
 
-  const handleExitClick = useCallback(() => {
+  const handleExitClick = useCallback(async () => {
     if (isPartyEnding) {
       stopMusic();
 
@@ -335,8 +352,21 @@ export default function LivePartyPage() {
       return;
     }
 
+    if (isHost) {
+      await refetchRealtimeState();
+    }
+
     handleOpenExitDialog();
-  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep, stopMusic]);
+  }, [
+    handleOpenExitDialog,
+    isHost,
+    isPartyEnding,
+    leaveParty,
+    partyId,
+    refetchRealtimeState,
+    showPartyEndStep,
+    stopMusic,
+  ]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -384,6 +414,7 @@ export default function LivePartyPage() {
   const isBurstGameStep = step === LIVE_PARTY_STEP.BURST_GAME;
   const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
+  const isEntryPartyEnding = isEntryStep && isPartyEnding;
   const showBurstGameOverlay = isBurstGameStep && !isBurstGameOverlayDismissed;
   const isBurstGameOverlayActive = showBurstGameOverlay && !isPartyEnding;
   const showHostEndingButton =
@@ -474,6 +505,19 @@ export default function LivePartyPage() {
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
     enabled: showPartyMain,
   });
+  const isDeletedWaitingParty = !isProfileLoading && !isHost && Boolean(partyDeletedState);
+
+  if (isDeletedWaitingParty) {
+    return (
+      <ErrorView
+        variant="notFound"
+        title="파티가 종료되었어요"
+        description="주최자가 파티를 종료해 더 이상 참여할 수 없어요."
+        primaryLabel="홈으로"
+        onPrimaryClick={handleGoHome}
+      />
+    );
+  }
 
   if (wsError || isPhaseError) {
     return (
@@ -507,7 +551,7 @@ export default function LivePartyPage() {
           remainingSeconds={hostGate.remainingSeconds}
           isEnding={hostGate.isEnding}
           onInvite={handleInvite}
-          onClose={handleOpenExitDialog}
+          onClose={handleExitClick}
         />
         <PartyExitDialog
           isOpen={isExitDialogOpen}
@@ -536,9 +580,10 @@ export default function LivePartyPage() {
           isPartyEnding={showPartyEndingNotice}
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
-          liveStartAt={liveStartedAt}
-          liveDeadlineAt={liveDeadlineAt}
-          serverNow={liveStartedServerNow}
+          liveStartAt={isEntryPartyEnding ? partyEndingState?.endingStartedAt : liveStartedAt}
+          liveDeadlineAt={isEntryPartyEnding ? partyEndingState?.endedAt : liveDeadlineAt}
+          serverNow={isEntryPartyEnding ? partyEndingState?.serverNow : liveStartedServerNow}
+          durationSeconds={isEntryPartyEnding ? PARTY_ENDING_FALLBACK_SECONDS : undefined}
         />
       )}
       {showPartyMain && !showEntryReadyUI && (

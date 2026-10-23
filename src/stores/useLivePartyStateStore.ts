@@ -18,7 +18,14 @@ export interface RealtimePartyEndingState {
   ended: boolean;
 }
 
+export interface RealtimePartyDeletedState {
+  partyId?: number;
+  reason?: 'HOST_DELETED';
+  serverNow?: string;
+}
+
 interface PartyStatePayload {
+  partyId?: number;
   liveStartAt?: string;
   liveTimerStartedAt?: string;
   liveDeadlineAt?: string;
@@ -38,6 +45,7 @@ interface LivePartyState {
   currentPhaseStartedAt: string | null;
   currentPhaseServerNow: string | null;
   partyEndingState: RealtimePartyEndingState | null;
+  partyDeletedState: RealtimePartyDeletedState | null;
   // 입장 시 한 번 오는 party-state 스냅샷 — liveStartAt/status는 WS 브로드캐스트로 갱신되지 않는다.
   liveStartAt: string | null;
   liveTimerStartedAt: string | null;
@@ -54,6 +62,7 @@ interface LivePartyState {
   ) => void;
   startPartyEnding: (payload: Omit<RealtimePartyEndingState, 'ended'>) => void;
   endParty: (payload: Omit<RealtimePartyEndingState, 'ended' | 'endingStartedAt'>) => void;
+  deleteParty: (payload: RealtimePartyDeletedState) => void;
   setPartyState: (payload: PartyStatePayload) => void;
   reset: () => void;
 }
@@ -66,6 +75,7 @@ const initialState = {
   currentPhaseStartedAt: null,
   currentPhaseServerNow: null,
   partyEndingState: null,
+  partyDeletedState: null,
   liveStartAt: null,
   liveTimerStartedAt: null,
   liveDeadlineAt: null,
@@ -114,25 +124,35 @@ export const useLivePartyStateStore = create<LivePartyState>()(
           'endParty',
         ),
 
+      deleteParty: (payload) => set({ partyDeletedState: payload }, false, 'deleteParty'),
+
       setPartyState: (payload) =>
         set(
-          (state) => ({
-            liveStartAt: payload.liveStartAt ?? state.liveStartAt,
-            liveTimerStartedAt: payload.liveTimerStartedAt ?? state.liveTimerStartedAt,
-            liveDeadlineAt: payload.liveDeadlineAt ?? state.liveDeadlineAt,
-            status: payload.status ?? state.status,
-            // 스냅샷 시점에 이미 종료 카운트다운이 진행 중이었다면 그대로 반영 (재연결 시 따라잡기용)
-            partyEndingState: payload.endingStartedAt
-              ? {
-                  endingStartedAt: payload.endingStartedAt,
-                  endedAt: payload.endedAt,
-                  endingReason: payload.endingReason,
-                  hostNickname: payload.hostNickname,
-                  serverNow: payload.serverNow,
-                  ended: payload.status === 'LIVE_CLOSED',
-                }
-              : state.partyEndingState,
-          }),
+          (state) => {
+            const isClosed =
+              payload.status === 'LIVE_CLOSED' || payload.status === 'ROLLING_PAPER_CLOSED';
+            const shouldApplyEndingState = isClosed || Boolean(payload.endingStartedAt);
+
+            return {
+              liveStartAt: payload.liveStartAt ?? state.liveStartAt,
+              liveTimerStartedAt: payload.liveTimerStartedAt ?? state.liveTimerStartedAt,
+              liveDeadlineAt: payload.liveDeadlineAt ?? state.liveDeadlineAt,
+              status: payload.status ?? state.status,
+              // 재연결·REST 복구 스냅샷이 종료 상태라면 party-ended 이벤트 없이도 종료 처리한다.
+              partyEndingState: shouldApplyEndingState
+                ? {
+                    partyId: payload.partyId ?? state.partyEndingState?.partyId,
+                    endingStartedAt:
+                      payload.endingStartedAt ?? state.partyEndingState?.endingStartedAt,
+                    endedAt: payload.endedAt ?? state.partyEndingState?.endedAt,
+                    endingReason: payload.endingReason ?? state.partyEndingState?.endingReason,
+                    hostNickname: payload.hostNickname ?? state.partyEndingState?.hostNickname,
+                    serverNow: payload.serverNow ?? state.partyEndingState?.serverNow,
+                    ended: isClosed,
+                  }
+                : state.partyEndingState,
+            };
+          },
           false,
           'setPartyState',
         ),
@@ -148,6 +168,7 @@ export function applyPartyStateWsEvent(event: string, parsed: Record<string, unk
   switch (event) {
     case WS_EVENT.PARTY_STATE:
       store.setPartyState({
+        partyId: parsed.partyId as number | undefined,
         liveStartAt: parsed.liveStartAt as string | undefined,
         liveTimerStartedAt: parsed.liveTimerStartedAt as string | undefined,
         liveDeadlineAt: parsed.liveDeadlineAt as string | undefined,
@@ -185,6 +206,14 @@ export function applyPartyStateWsEvent(event: string, parsed: Record<string, unk
         endedAt: parsed.endedAt as string | undefined,
         endingReason: parsed.endingReason as PartyEndingReason | undefined,
         hostNickname: parsed.hostNickname as string | undefined,
+        serverNow: parsed.serverNow as string | undefined,
+      });
+      return true;
+
+    case WS_EVENT.PARTY_DELETED:
+      store.deleteParty({
+        partyId: parsed.partyId as number | undefined,
+        reason: parsed.reason as RealtimePartyDeletedState['reason'],
         serverNow: parsed.serverNow as string | undefined,
       });
       return true;
