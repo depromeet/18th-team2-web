@@ -42,9 +42,11 @@ import {
 } from '@/services/live-party';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
+import { Toast, type ToastState } from '@/components/ui/Toast';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
 import { BURST_GAME_DURATION_SECONDS } from '@/hooks/live-party/useBurstGameStep';
+import { ApiError } from '@/services/api';
 import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
@@ -95,6 +97,7 @@ export default function LivePartyPage() {
   const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
   const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
   const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
+  const scheduledLiveStartAt = useLivePartyStateStore((s) => s.liveStartAt);
   const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
   const wsError = useLivePartyStateStore((s) => s.wsError);
   const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
@@ -142,6 +145,7 @@ export default function LivePartyPage() {
     isTransitioning,
     isInitialized,
     isPhaseError,
+    isAdvancingPhase,
     goToEndStep,
     liveStartedAt,
     liveDeadlineAt,
@@ -171,6 +175,7 @@ export default function LivePartyPage() {
 
   const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
   const [isPartyStartSheetVisible, setIsPartyStartSheetVisible] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const [processCompletedStep, setProcessCompletedStep] = useState<PartyStep | null>(null);
   const [processProgressNowMs, setProcessProgressNowMs] = useState(() => Date.now());
   const [chatSheetMetrics, setChatSheetMetrics] = useState<ChatBottomSheetMetrics>({
@@ -223,7 +228,26 @@ export default function LivePartyPage() {
     setProcessCompletedStep(completedStep);
   }, []);
 
+  const closeToast = useCallback(() => setToast(null), []);
+  const showPartyStartTimeToast = useCallback(() => {
+    setToast({
+      id: Date.now(),
+      type: 'error',
+      message: '아직 파티 시작 시간이 아니에요.',
+    });
+  }, []);
+
+  const isBeforeScheduledStart = () => {
+    const scheduledStartTimestamp = getTimestamp(scheduledLiveStartAt);
+    return scheduledStartTimestamp != null && scheduledStartTimestamp > Date.now();
+  };
+
   const handleOpenPartyStartSheet = () => {
+    if (isBeforeScheduledStart()) {
+      showPartyStartTimeToast();
+      return;
+    }
+
     setIsPartyStartSheetOpen(true);
 
     requestAnimationFrame(() => {
@@ -240,8 +264,26 @@ export default function LivePartyPage() {
   };
 
   const handleStartParty = () => {
-    setIsPartyStartSheetOpen(false);
-    handleNextStep();
+    if (isBeforeScheduledStart()) {
+      showPartyStartTimeToast();
+      return;
+    }
+
+    handleNextStep({
+      onSuccess: handleClosePartyStartSheet,
+      onError: (error) => {
+        if (error instanceof ApiError && error.status === 409) {
+          showPartyStartTimeToast();
+          return;
+        }
+
+        setToast({
+          id: Date.now(),
+          type: 'error',
+          message: '파티를 시작하지 못했어요. 다시 시도해주세요.',
+        });
+      },
+    });
   };
 
   const isPartyEndingFlow = Boolean(partyEndingState);
@@ -538,6 +580,7 @@ export default function LivePartyPage() {
               partyId={partyId}
               onClose={handleClosePartyStartSheet}
               onStart={handleStartParty}
+              isStarting={isAdvancingPhase || !isPartyStartSheetVisible}
             />
           </div>
         </div>
@@ -576,6 +619,7 @@ export default function LivePartyPage() {
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
       />
+      <Toast toast={toast} onClose={closeToast} />
     </div>
   );
 }
