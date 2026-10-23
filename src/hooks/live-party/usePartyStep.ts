@@ -96,6 +96,11 @@ interface UseLivePartyStepOptions {
   enabled?: boolean;
 }
 
+interface AdvancePhaseCallbacks {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}
+
 export function useLivePartyStep({
   partyId,
   partyPhase,
@@ -290,26 +295,32 @@ export function useLivePartyStep({
     }, OVERLAY_FADE_DURATION);
   }, []);
 
-  const handleNextStep = useCallback(() => {
-    if (!partyId) return;
-    advancePhase(
-      { partyId, currentPhase: stepToApiPhase(stepRef.current) },
-      {
-        onSuccess: (res) => {
-          if (res.data?.phase === 'MUSIC') {
-            rememberLiveStart(res.data.phaseStartedAt, res.data.serverNow);
-          }
+  const handleNextStep = useCallback(
+    (callbacks?: AdvancePhaseCallbacks) => {
+      if (!partyId) return;
+      advancePhase(
+        { partyId, currentPhase: stepToApiPhase(stepRef.current) },
+        {
+          onSuccess: (res) => {
+            if (res.data?.phase === 'MUSIC') {
+              rememberLiveStart(res.data.phaseStartedAt, res.data.serverNow);
+            }
 
-          if (res.data?.phase === 'CANDLE') {
-            rememberLiveStart(
-              getRecoveredLiveStartAt(res.data.phase, res.data.phaseStartedAt, liveStartedAt),
-              res.data.serverNow,
-            );
-          }
+            if (res.data?.phase === 'CANDLE') {
+              rememberLiveStart(
+                getRecoveredLiveStartAt(res.data.phase, res.data.phaseStartedAt, liveStartedAt),
+                res.data.serverNow,
+              );
+            }
+
+            callbacks?.onSuccess?.();
+          },
+          onError: callbacks?.onError,
         },
-      },
-    );
-  }, [advancePhase, partyId, rememberLiveStart, liveStartedAt]);
+      );
+    },
+    [advancePhase, partyId, rememberLiveStart, liveStartedAt],
+  );
 
   const goToEndStep = useCallback(() => {
     setIsTransitioning(false);
