@@ -2,19 +2,26 @@ import { useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
-import { useLeaveParty } from '@/services/live-party';
+import { useLeaveParty, useStartRealtimeEnd } from '@/services/live-party';
+import { useDeleteParty } from '@/services/party';
 
-interface UsePartyExitDialogOptions {
+export type PartyExitMode = 'pending' | 'delete' | 'host-end' | 'leave';
+
+interface UsePartyExitDialogParams {
+  mode: PartyExitMode;
+  onHostEnd: () => void;
   onBeforeExit?: () => void;
 }
 
-export function usePartyExitDialog({ onBeforeExit }: UsePartyExitDialogOptions = {}) {
+export function usePartyExitDialog({ mode, onHostEnd, onBeforeExit }: UsePartyExitDialogParams) {
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const { partyId } = useParams<{ partyId: string }>();
   const { mutate: leaveParty } = useLeaveParty();
+  const { mutate: startRealtimeEnd } = useStartRealtimeEnd();
+  const { mutate: deleteParty } = useDeleteParty();
 
   const handleOpenExitDialog = useCallback(() => {
     setIsExitDialogOpen(true);
@@ -25,8 +32,12 @@ export function usePartyExitDialog({ onBeforeExit }: UsePartyExitDialogOptions =
   };
 
   const handleConfirmExit = () => {
-    setIsExitDialogOpen(false);
-    onBeforeExit?.();
+    if (mode === 'pending') return;
+
+    const completeExit = () => {
+      setIsExitDialogOpen(false);
+      onBeforeExit?.();
+    };
 
     const from = (location.state as { from?: string } | null)?.from;
 
@@ -34,11 +45,41 @@ export function usePartyExitDialog({ onBeforeExit }: UsePartyExitDialogOptions =
       navigate(from ?? ROUTES.home);
     };
 
-    if (partyId) {
-      leaveParty({ partyId }, { onSettled: doNavigate });
-    } else {
+    if (!partyId) {
+      completeExit();
       doNavigate();
+      return;
     }
+
+    if (mode === 'delete') {
+      deleteParty(partyId, {
+        onSuccess: () => {
+          completeExit();
+          navigate(ROUTES.home, { replace: true });
+        },
+      });
+      return;
+    }
+
+    if (mode === 'host-end') {
+      startRealtimeEnd(partyId, {
+        onSuccess: () => {
+          leaveParty(
+            { partyId },
+            {
+              onSettled: () => {
+                completeExit();
+                onHostEnd();
+              },
+            },
+          );
+        },
+      });
+      return;
+    }
+
+    completeExit();
+    leaveParty({ partyId }, { onSettled: doNavigate });
   };
 
   return {
