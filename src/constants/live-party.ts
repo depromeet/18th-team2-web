@@ -168,6 +168,7 @@ export const WS_EVENT = {
   PARTY_PHASE_CHANGED: 'party-phase-changed',
   PARTY_ENDING: 'party-ending',
   PARTY_ENDED: 'party-ended',
+  PARTY_DELETED: 'party-deleted',
 } as const;
 
 export type WSEventName = (typeof WS_EVENT)[keyof typeof WS_EVENT];

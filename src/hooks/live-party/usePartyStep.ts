@@ -13,12 +13,17 @@ import {
   useAdvancePhase,
   useRealtimePartyState,
   type PartyApiPhase,
+  type RealtimePartyStateResult,
 } from '@/services/live-party';
 
 const MUSIC_TO_CANDLE_ADVANCE_DELAY_MS = 1200;
 const MUSIC_PHASE_DURATION_MS =
   MUSIC_LYRICS_TIMINGS[MUSIC_LYRICS_TIMINGS.length - 1].end * 1000 +
   MUSIC_TO_CANDLE_ADVANCE_DELAY_MS;
+
+type RealtimeStateWithHostExitAction = RealtimePartyStateResult & {
+  hostExitAction?: 'DELETE' | 'END' | null;
+};
 
 function apiPhaseToStep(phase: PartyApiPhase): PartyStep {
   switch (phase) {
@@ -116,7 +121,12 @@ export function useLivePartyStep({
   const stepRef = useRef<PartyStep>(LIVE_PARTY_STEP.ENTRY);
 
   const { data: phaseData, isError: isPhaseError } = useGetPhase(partyId, enabled);
-  const { data: realtimeState } = useRealtimePartyState(partyId, enabled);
+  const { data: realtimeState, refetch: refetchRealtimeState } = useRealtimePartyState(
+    partyId,
+    enabled,
+  );
+  const hostExitAction = (realtimeState as RealtimeStateWithHostExitAction | null | undefined)
+    ?.hostExitAction;
   const { mutate: advancePhase, isPending: isAdvancingPhase } = useAdvancePhase();
 
   const rememberLiveStart = useCallback(
@@ -329,8 +339,8 @@ export function useLivePartyStep({
     step,
     isTransitioning,
     isInitialized,
-    isPhaseError,
     isAdvancingPhase,
+    isPhaseError,
     partyEnd,
     showChatBottomSheet,
     handleNextStep,
@@ -340,5 +350,7 @@ export function useLivePartyStep({
     liveStartedAt,
     liveDeadlineAt,
     liveStartedServerNow,
+    hostExitAction: hostExitAction ?? null,
+    refetchRealtimeState,
   };
 }
