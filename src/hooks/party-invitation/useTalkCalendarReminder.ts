@@ -3,6 +3,7 @@ import { useLocation, useNavigate, type Location } from 'react-router-dom';
 
 import { ApiError } from '@/services/api';
 import {
+  useIssueGuestTalkCalendarConsentUrl,
   useIssueTalkCalendarConsentUrl,
   useRegisterPartyTalkCalendar,
 } from '@/services/talk-calendar';
@@ -19,6 +20,7 @@ type TalkCalendarToastType = 'success' | 'error';
 
 interface UseTalkCalendarReminderParams {
   partyId: string;
+  inviteToken?: string;
   isAuthenticated: boolean;
   showToast: (type: TalkCalendarToastType, message: string) => void;
   openLoginPrompt: () => void;
@@ -32,6 +34,7 @@ interface TalkCalendarRegistrationOptions {
 
 export function useTalkCalendarReminder({
   partyId,
+  inviteToken,
   isAuthenticated,
   showToast,
   openLoginPrompt,
@@ -46,6 +49,29 @@ export function useTalkCalendarReminder({
     useRegisterPartyTalkCalendar();
   const { mutate: issueTalkCalendarConsentUrl, isPending: isIssuingTalkCalendarConsentUrl } =
     useIssueTalkCalendarConsentUrl();
+  const {
+    mutate: issueGuestTalkCalendarConsentUrl,
+    isPending: isIssuingGuestTalkCalendarConsentUrl,
+  } = useIssueGuestTalkCalendarConsentUrl(
+    inviteToken ?? '',
+    buildTalkCalendarReturnPath(reminderReturnLocation),
+  );
+
+  const redirectToConsentUrl = useCallback(
+    (consentUrl?: string) => {
+      if (!consentUrl) {
+        showToast('error', '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.');
+        return;
+      }
+
+      window.location.href = consentUrl;
+    },
+    [showToast],
+  );
+
+  const showConsentUrlError = useCallback(() => {
+    showToast('error', '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.');
+  }, [showToast]);
 
   const handleTalkCalendarError = useCallback(
     (error: unknown, allowConsentRedirect: boolean) => {
@@ -56,22 +82,8 @@ export function useTalkCalendarReminder({
         }
 
         issueTalkCalendarConsentUrl(buildTalkCalendarReturnPath(reminderReturnLocation, true), {
-          onSuccess: (res) => {
-            const consentUrl = res.data?.consentUrl;
-
-            if (!consentUrl) {
-              showToast(
-                'error',
-                '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.',
-              );
-              return;
-            }
-
-            window.location.href = consentUrl;
-          },
-          onError: () => {
-            showToast('error', '카카오 톡캘린더 동의 URL을 받아오지 못했어요. 다시 시도해주세요.');
-          },
+          onSuccess: (res) => redirectToConsentUrl(res.data?.consentUrl),
+          onError: showConsentUrlError,
         });
         return;
       }
@@ -83,7 +95,13 @@ export function useTalkCalendarReminder({
 
       showToast('error', '카카오 톡캘린더 알림을 등록할 수 없어요. 다시 시도해주세요.');
     },
-    [issueTalkCalendarConsentUrl, reminderReturnLocation, showToast],
+    [
+      issueTalkCalendarConsentUrl,
+      redirectToConsentUrl,
+      reminderReturnLocation,
+      showConsentUrlError,
+      showToast,
+    ],
   );
 
   const requestTalkCalendarRegistration = useCallback(
@@ -109,6 +127,14 @@ export function useTalkCalendarReminder({
 
   const handleRegisterTalkCalendar = useCallback(() => {
     if (!isAuthenticated) {
+      if (inviteToken) {
+        issueGuestTalkCalendarConsentUrl(undefined, {
+          onSuccess: (res) => redirectToConsentUrl(res.data?.consentUrl),
+          onError: showConsentUrlError,
+        });
+        return;
+      }
+
       useAuthStore
         .getState()
         .setRedirectUrl(buildTalkCalendarReturnPath(reminderReturnLocation, true));
@@ -117,7 +143,16 @@ export function useTalkCalendarReminder({
     }
 
     requestTalkCalendarRegistration();
-  }, [isAuthenticated, reminderReturnLocation, openLoginPrompt, requestTalkCalendarRegistration]);
+  }, [
+    inviteToken,
+    isAuthenticated,
+    issueGuestTalkCalendarConsentUrl,
+    openLoginPrompt,
+    redirectToConsentUrl,
+    reminderReturnLocation,
+    requestTalkCalendarRegistration,
+    showConsentUrlError,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -129,6 +164,9 @@ export function useTalkCalendarReminder({
 
     handledTalkCalendarReturnRef.current = true;
     navigate(buildTalkCalendarReturnPath(location), { replace: true });
+
+    // 비회원 콜백에서는 서버가 이미 일정을 등록한다. 결과 안내는 진입 페이지에서 처리한다.
+    if (!isAuthenticated && calendarConsent && calendarConsent !== 'granted') return;
 
     if (calendarConsent && calendarConsent !== 'granted') {
       showToast('error', getCalendarConsentMessage(calendarConsent));
@@ -154,7 +192,10 @@ export function useTalkCalendarReminder({
   ]);
 
   return {
-    isTalkCalendarPending: isRegisteringTalkCalendar || isIssuingTalkCalendarConsentUrl,
+    isTalkCalendarPending:
+      isRegisteringTalkCalendar ||
+      isIssuingTalkCalendarConsentUrl ||
+      isIssuingGuestTalkCalendarConsentUrl,
     handleRegisterTalkCalendar,
   };
 }

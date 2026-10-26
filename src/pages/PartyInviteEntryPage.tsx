@@ -14,6 +14,7 @@ import {
   CALENDAR_CONSENT_QUERY_KEY,
   CALENDAR_REMINDER_QUERY_KEY,
   getCalendarConsentMessage,
+  isCalendarConsentSuccess,
 } from '@/utils/talkCalendar';
 
 function buildCleanInvitePath(pathname: string, search: string) {
@@ -34,9 +35,9 @@ export default function PartyInviteEntryPage() {
   } | null;
   const [toast, setToast] = useState<ToastState | null>(null);
   const calendarConsent = new URLSearchParams(location.search).get(CALENDAR_CONSENT_QUERY_KEY);
-  const hasFailedCalendarConsent = Boolean(calendarConsent && calendarConsent !== 'granted');
+  const hasCalendarConsentResult = Boolean(calendarConsent && calendarConsent !== 'granted');
   const { data, isLoading, isError, error, refetch } = usePartyInvite(inviteToken ?? '', {
-    enabled: !hasFailedCalendarConsent,
+    enabled: !hasCalendarConsentResult,
   });
   const showToast = useCallback((type: ToastState['type'], message: string) => {
     setToast({ id: Date.now(), type, message });
@@ -46,7 +47,10 @@ export default function PartyInviteEntryPage() {
     if (!calendarConsent || calendarConsent === 'granted') return;
 
     navigate(buildCleanInvitePath(location.pathname, location.search), { replace: true });
-    showToast('error', getCalendarConsentMessage(calendarConsent));
+    showToast(
+      isCalendarConsentSuccess(calendarConsent) ? 'success' : 'error',
+      getCalendarConsentMessage(calendarConsent),
+    );
   }, [calendarConsent, location.pathname, location.search, navigate, showToast]);
 
   const toastNode = <Toast toast={toast} onClose={() => setToast(null)} />;
@@ -60,7 +64,7 @@ export default function PartyInviteEntryPage() {
     );
   }
 
-  if (hasFailedCalendarConsent || isLoading) {
+  if (hasCalendarConsentResult || isLoading) {
     return (
       <>
         <LoadingLayout />

@@ -27,3 +27,14 @@ export function useIssueTalkCalendarConsentUrl() {
       ),
   });
 }
+
+export function useIssueGuestTalkCalendarConsentUrl(inviteToken: string, returnPath: string) {
+  return useMutation({
+    mutationFn: () =>
+      api.get<ApiResponseKakaoCalendarConsentUrlResult>(
+        `/api/v1/party-invites/${encodeURIComponent(inviteToken)}/talk-calendar/consent-url?returnPath=${encodeURIComponent(
+          returnPath,
+        )}`,
+      ),
+  });
+}
