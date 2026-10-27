@@ -34,7 +34,7 @@ export default function RollingPaperCreateCompletePage() {
   const endDate = rollingPaperState.endDate
     ? new Date(rollingPaperState.endDate)
     : addDays(startDate, ROLLING_PAPER_DURATION_DAYS);
-  const openDateLabel = formatKoreanShortDate(startDate);
+  const openDateLabel = formatKoreanShortDate(endDate);
 
   const partyId = rollingPaperState.partyId;
 
