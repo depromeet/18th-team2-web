@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { B2 } from '@/components/ui/Typography';
+import { parseKstDateTime } from '@/utils/date';
 
 interface CountdownTimerProps {
   targetDate: string;
@@ -19,16 +20,20 @@ function formatParts(ms: number) {
   };
 }
 
+function getRemainingMs(targetDate: string) {
+  return parseKstDateTime(targetDate).valueOf() - Date.now();
+}
+
 export function CountdownTimer({
   targetDate,
   className = 'text-grey-500 text-center font-medium',
   timeClassName = 'font-semibold text-red-500',
 }: CountdownTimerProps) {
-  const [remaining, setRemaining] = useState(() => new Date(targetDate).getTime() - Date.now());
+  const [remaining, setRemaining] = useState(() => getRemainingMs(targetDate));
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const next = new Date(targetDate).getTime() - Date.now();
+      const next = getRemainingMs(targetDate);
       if (next <= 0) {
         setRemaining(0);
         clearInterval(timer);

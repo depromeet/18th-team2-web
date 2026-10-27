@@ -83,7 +83,15 @@ function HomePage() {
   const handleCardAction = (party: UpcomingParty) => {
     const path = getCardRoutePath(party);
     if (!path) return;
-    navigate(path);
+    navigate(path, {
+      state:
+        party.partyOption === 'PAPER_ONLY' && party.role === 'HOST'
+          ? {
+              partyOption: party.partyOption,
+              writableUntil: party.rollingPaperOpenAt,
+            }
+          : undefined,
+    });
   };
 
   return (

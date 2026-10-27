@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
+import { EmptyRollingPaperHostView } from '@/components/rolling-paper/EmptyRollingPaperHostView';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { RollingPaperLockedView } from '@/components/rolling-paper/RollingPaperLockedView';
 import { MessageCard } from '@/components/message/MessageCard';
@@ -13,13 +14,13 @@ import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
-import letterImage from '@/assets/images/live-party/letter.png';
 import { ROUTES } from '@/constants/routes';
 import { useActivateInviteLink } from '@/services/party-create';
 import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
 import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
+import type { PartyOption } from '@/types/home';
 import { isApiErrorStatus } from '@/utils/api-error';
 import { isFuture } from '@/utils/date';
 import {
@@ -32,6 +33,8 @@ interface RollingPaperLocationState {
   completeCta?: 'invite' | 'home';
   invitePath?: string;
   inviteToken?: string;
+  partyOption?: PartyOption;
+  writableUntil?: string;
 }
 
 export default function RollingPaperPage() {
@@ -55,6 +58,7 @@ export default function RollingPaperPage() {
 
   const isWritable = isFuture(data?.writableUntil);
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
+  const isPaperOnlyHostView = locationState?.partyOption === 'PAPER_ONLY';
   const messages = data?.messages ?? [];
   const messageCount = messages.length;
   // BE 응답에 partyStartedAt이 없어 "파티 시작 전" 판정이 사실상 불가 → 기본 'home'.
@@ -143,6 +147,26 @@ export default function RollingPaperPage() {
     // 403: 권한 없음 또는 "아직 열람 불가"(롤페만 작성 파티의 조회 가능 시간 전).
     // 정상 진입한 화면이므로 권한 오류보다 "오픈 전" 케이스가 대부분 → 에러 대신 잠금 화면.
     if (isApiErrorStatus(error, 403)) {
+      if (
+        !inviteToken &&
+        !isWriteCompleteMode &&
+        isPaperOnlyHostView &&
+        locationState?.writableUntil
+      ) {
+        return (
+          <EmptyRollingPaperHostView
+            writableUntil={locationState.writableUntil}
+            isShareSheetOpen={isShareSheetOpen}
+            inviteShareLink={inviteShareLink}
+            isActivatingInvite={isActivatingInvite}
+            onShareClick={handleShareClick}
+            onShareSheetClose={() => setIsShareSheetOpen(false)}
+            onBackClick={() => navigate(-1)}
+            onRefresh={() => void refetch()}
+          />
+        );
+      }
+
       return <RollingPaperLockedView />;
     }
 
@@ -161,7 +185,7 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
-  if (!inviteToken && !isWriteCompleteMode && messageCount === 0 && isWritable) {
+  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && data.totalCount === 0) {
     return (
       <EmptyRollingPaperHostView
         writableUntil={data.writableUntil}
@@ -170,7 +194,8 @@ export default function RollingPaperPage() {
         isActivatingInvite={isActivatingInvite}
         onShareClick={handleShareClick}
         onShareSheetClose={() => setIsShareSheetOpen(false)}
-        onHomeClick={() => navigate(ROUTES.home)}
+        onBackClick={() => navigate(-1)}
+        onRefresh={() => void refetch()}
       />
     );
   }
@@ -206,7 +231,7 @@ export default function RollingPaperPage() {
                 <button
                   type="button"
                   aria-label="새로고침"
-                  onClick={() => window.location.reload()}
+                  onClick={() => void refetch()}
                   className="flex h-12 w-12 items-center justify-center"
                 >
                   <RefreshIcon />
@@ -297,86 +322,5 @@ export default function RollingPaperPage() {
           document.body,
         )}
     </>
-  );
-}
-
-interface EmptyRollingPaperHostViewProps {
-  writableUntil?: string;
-  isShareSheetOpen: boolean;
-  inviteShareLink: string | null;
-  isActivatingInvite: boolean;
-  onShareClick: () => void;
-  onShareSheetClose: () => void;
-  onHomeClick: () => void;
-}
-
-function EmptyRollingPaperHostView({
-  writableUntil,
-  isShareSheetOpen,
-  inviteShareLink,
-  isActivatingInvite,
-  onShareClick,
-  onShareSheetClose,
-  onHomeClick,
-}: EmptyRollingPaperHostViewProps) {
-  return (
-    <div
-      className="relative mx-auto h-dvh w-full max-w-150 overflow-hidden"
-      style={{
-        background: 'linear-gradient(179.96deg, #3342F3 0.03%, #5C8BFD 46.18%)',
-      }}
-    >
-      <div className="pt-safe-top-3 relative z-20 flex items-center justify-end px-4">
-        <button
-          type="button"
-          aria-label="새로고침"
-          onClick={() => window.location.reload()}
-          className="flex h-12 w-12 items-center justify-center text-white"
-        >
-          <RefreshIcon className="h-6 w-6" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="메인으로"
-          onClick={onHomeClick}
-          className="flex h-12 w-12 items-center justify-center text-white"
-        >
-          <HomeIcon className="h-6 w-6" />
-        </button>
-      </div>
-
-      <main className="top-rolling-paper-empty-top short-height:bottom-41 short-height:pt-8 absolute inset-x-0 bottom-45 z-10 flex flex-col items-center px-4 pt-[clamp(36px,7.4dvh,60px)] text-center">
-        <img
-          src={letterImage}
-          alt=""
-          className="drop-shadow-rolling-paper-empty w-rolling-paper-empty-image short-height:w-rolling-paper-empty-image-sm max-h-[34dvh] shrink-0 object-contain"
-        />
-
-        <div className="mt-rolling-paper-empty-copy-top short-height:gap-3 flex flex-col items-center gap-4">
-          <h1 className="text-head-2 font-bold tracking-normal text-white">
-            아직 편지를 남긴 친구가 없어요
-          </h1>
-          <p className="text-body-1 leading-6 font-medium whitespace-pre-line text-blue-100">
-            {'친구들에게 링크를 공유해\n롤링페이퍼를 알려보세요!'}
-          </p>
-        </div>
-      </main>
-
-      <RollingPaperShareActionArea
-        writableUntil={writableUntil}
-        isActivatingInvite={isActivatingInvite}
-        onShareClick={onShareClick}
-        variant="solid"
-      />
-
-      <LinkShareSheet
-        isOpen={isShareSheetOpen}
-        link={inviteShareLink ?? ''}
-        title="롤링페이퍼 링크 공유하기"
-        shareText="롤링페이퍼 작성 초대장이 왔어요"
-        onClose={onShareSheetClose}
-      />
-    </div>
   );
 }
