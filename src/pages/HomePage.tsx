@@ -88,6 +88,7 @@ function HomePage() {
         party.partyOption === 'PAPER_ONLY' && party.role === 'HOST'
           ? {
               partyOption: party.partyOption,
+              hostName: party.hostName,
               writableUntil: party.rollingPaperOpenAt,
             }
           : undefined,

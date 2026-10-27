@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
-import { EmptyRollingPaperHostView } from '@/components/rolling-paper/EmptyRollingPaperHostView';
+import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { RollingPaperLockedView } from '@/components/rolling-paper/RollingPaperLockedView';
 import { MessageCard } from '@/components/message/MessageCard';
@@ -34,6 +34,7 @@ interface RollingPaperLocationState {
   invitePath?: string;
   inviteToken?: string;
   partyOption?: PartyOption;
+  hostName?: string;
   writableUntil?: string;
 }
 
@@ -154,7 +155,8 @@ export default function RollingPaperPage() {
         locationState?.writableUntil
       ) {
         return (
-          <EmptyRollingPaperHostView
+          <PaperOnlyRollingPaperHostView
+            hostName={locationState.hostName}
             writableUntil={locationState.writableUntil}
             isShareSheetOpen={isShareSheetOpen}
             inviteShareLink={inviteShareLink}
@@ -185,9 +187,12 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
-  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && data.totalCount === 0) {
+  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && isWritable) {
     return (
-      <EmptyRollingPaperHostView
+      <PaperOnlyRollingPaperHostView
+        hostName={data.hostName ?? locationState?.hostName}
+        messages={data.messages}
+        totalCount={data.totalCount}
         writableUntil={data.writableUntil}
         isShareSheetOpen={isShareSheetOpen}
         inviteShareLink={inviteShareLink}

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { EmptyRollingPaperHostView } from '@/components/rolling-paper/EmptyRollingPaperHostView';
+import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
 
 vi.mock('@/assets/images/icons/close.svg?react', () => ({
   default: () => <svg aria-hidden="true" />,
@@ -28,7 +28,7 @@ function renderView() {
   const onRefresh = vi.fn();
 
   render(
-    <EmptyRollingPaperHostView
+    <PaperOnlyRollingPaperHostView
       writableUntil="2099-10-21T22:00:00+09:00"
       isShareSheetOpen={false}
       inviteShareLink="https://hapalin.com/invite/test"
@@ -43,7 +43,7 @@ function renderView() {
   return { onRefresh, onShareClick };
 }
 
-describe('EmptyRollingPaperHostView', () => {
+describe('PaperOnlyRollingPaperHostView', () => {
   it('공개 일시와 작성 마감 카운트다운을 표시한다', () => {
     renderView();
 
@@ -73,5 +73,36 @@ describe('EmptyRollingPaperHostView', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '새로고침' }));
     expect(onRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('편지가 있으면 기존 토핑을 공개 전 비활성 상태로 표시한다', () => {
+    render(
+      <PaperOnlyRollingPaperHostView
+        hostName="김이라"
+        messages={[
+          {
+            id: '1',
+            writerNickname: '해파링링',
+            toppingType: 'cherry',
+          },
+        ]}
+        totalCount={1}
+        writableUntil="2099-10-21T22:00:00+09:00"
+        isShareSheetOpen={false}
+        inviteShareLink={null}
+        isActivatingInvite={false}
+        onShareClick={vi.fn()}
+        onShareSheetClose={vi.fn()}
+        onBackClick={vi.fn()}
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
+    expect(screen.getByText(/친구들이 총/)).toHaveTextContent('친구들이 총 1개의 편지를 남겼어요!');
+    expect(screen.getByRole('button', { name: /해파링링/ })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 });
