@@ -4,9 +4,9 @@ import { PARTY_ROLE } from '@/constants/party';
 import { ROUTES } from '@/constants/routes';
 import type { UpcomingParty } from '@/types/home';
 
-// 카드 CTA → 이동 경로. 디자인상 primary 버튼만 목적지가 있고, 비활성 안내문은 null.
+// 카드 CTA → 이동 경로.
 export function getCardRoutePath(party: UpcomingParty): string | null {
-  const { role, partyOption, isOpen, isEnded, partyId, inviteToken } = party;
+  const { role, partyOption, isEnded, partyId, inviteToken } = party;
   const isHost = role === PARTY_ROLE.HOST;
 
   // 라이브 종료 → 롤링페이퍼 단계: 주최자는 확인, 참가자는 초대장 기반 작성
@@ -20,9 +20,9 @@ export function getCardRoutePath(party: UpcomingParty): string | null {
     return inviteToken ? generatePath(ROUTES.partyInvite, { inviteToken }) : null;
   }
 
-  // PAPER_ONLY — 참가자: 초대장 기반 롤페 작성 / 주최자: 공개 후 롤페 확인
+  // PAPER_ONLY — 참가자는 초대장 기반 작성, 주최자는 공개 전에도 작성 현황을 확인한다.
   if (role === PARTY_ROLE.PARTICIPANT) {
     return inviteToken ? generatePath(ROUTES.partyInvite, { inviteToken }) : null;
   }
-  return isOpen && partyId ? generatePath(ROUTES.rollingPaper, { id: partyId }) : null;
+  return partyId ? generatePath(ROUTES.rollingPaper, { id: partyId }) : null;
 }
