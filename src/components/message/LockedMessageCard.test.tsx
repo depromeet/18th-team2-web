@@ -28,6 +28,7 @@ describe('LockedMessageCard', () => {
     expect(screen.getByRole('dialog', { name: '롤링페이퍼 공개 안내' })).toBeInTheDocument();
     expect(screen.getByText('1일 12시간 35분 남았어요')).toBeInTheDocument();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(screen.getByRole('progressbar')).toHaveClass('rolling-paper-lock-progress');
   });
 
   it('닫기 버튼을 누르면 모달을 닫는다', () => {

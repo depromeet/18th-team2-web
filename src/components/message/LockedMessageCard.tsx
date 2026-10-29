@@ -128,7 +128,7 @@ export function LockedMessageCard({
                       aria-valuemin={0}
                       aria-valuemax={100}
                       aria-valuenow={Math.round(progress)}
-                      className="mt-5 h-2.25 w-full overflow-hidden rounded-[20px] bg-blue-50"
+                      className="rolling-paper-lock-progress mt-5 h-2.25 w-full overflow-hidden rounded-[20px] bg-blue-50"
                     >
                       <div
                         className="h-full rounded-[20px] bg-gradient-to-r from-blue-600 to-blue-300 transition-[width] duration-1000 ease-linear"
