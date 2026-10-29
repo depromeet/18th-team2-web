@@ -44,7 +44,6 @@ export default function RollingPaperCreateCompletePage() {
       state: {
         partyOption: 'PAPER_ONLY',
         hostName,
-        writableUntil: endDate.toISOString(),
       },
     });
   };

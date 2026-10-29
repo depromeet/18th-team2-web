@@ -11,8 +11,14 @@ vi.mock('@/services/api', () => ({
   api: { get: vi.fn() },
 }));
 
-type OwnerListResponse = components['schemas']['OwnerRollingPaperListResponse'];
-type OwnerListItem = components['schemas']['OwnerRollingPaperListItemResult'];
+type OwnerListItem = Omit<components['schemas']['OwnerRollingPaperListItemResult'], 'content'> & {
+  content: string | null;
+};
+type OwnerListResponse = Omit<components['schemas']['OwnerRollingPaperListResponse'], 'items'> & {
+  viewable: boolean;
+  viewableAt: string;
+  items: OwnerListItem[];
+};
 type ParticipantListResponse = components['schemas']['ParticipantRollingPaperListResponse'];
 type ParticipantListItem = components['schemas']['ParticipantRollingPaperListItemResult'];
 type PageInfo = components['schemas']['RollingPaperPageInfoResult'];
@@ -62,6 +68,8 @@ function ownerResponse(overrides: Partial<OwnerListResponse> = {}): OwnerListRes
   return {
     celebrantNickname: '홍길동',
     partyEndAt: '2026-05-19T22:10:00+09:00',
+    viewable: true,
+    viewableAt: '2026-05-12T22:00:00+09:00',
     items: [],
     pageInfo: pageInfo(),
     ...overrides,
@@ -89,6 +97,33 @@ beforeEach(() => {
 });
 
 describe('useRollingPaper (주최자 — partyId 경로)', () => {
+  it('공개 전에는 본문이 없어도 토핑 메타데이터와 열람 시각을 매핑한다', async () => {
+    apiGetMock.mockResolvedValue(
+      ok(
+        ownerResponse({
+          viewable: false,
+          viewableAt: '2026-05-12T22:00:00+09:00',
+          items: [ownerItem({ content: null })],
+          pageInfo: pageInfo({ page: 1, totalPages: 1, totalCount: 1, hasNext: false }),
+        }),
+      ),
+    );
+
+    const { result } = renderHook(() => useRollingPaper('42'), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toMatchObject({
+      viewable: false,
+      viewableAt: '2026-05-12T22:00:00+09:00',
+      totalCount: 1,
+    });
+    expect(result.current.data?.messages[0]).toMatchObject({
+      id: '1',
+      writerNickname: '축하요정',
+      toppingType: 'cherry',
+    });
+  });
+
   it('totalPages=3이면 page 1·2·3을 모두 호출하고 전체 페이지의 토핑을 합산한다', async () => {
     // page1: 3개, page2: 7개, page3: 5개 → 합계 15개, totalCount 15
     const page1 = ownerResponse({

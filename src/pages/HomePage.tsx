@@ -89,7 +89,6 @@ function HomePage() {
           ? {
               partyOption: party.partyOption,
               hostName: party.hostName,
-              writableUntil: party.rollingPaperOpenAt,
             }
           : undefined,
     });

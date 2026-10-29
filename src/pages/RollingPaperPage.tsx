@@ -5,7 +5,6 @@ import { generatePath, useLocation, useNavigate, useParams } from 'react-router-
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
-import { RollingPaperLockedView } from '@/components/rolling-paper/RollingPaperLockedView';
 import { MessageCard } from '@/components/message/MessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
@@ -35,7 +34,6 @@ interface RollingPaperLocationState {
   inviteToken?: string;
   partyOption?: PartyOption;
   hostName?: string;
-  writableUntil?: string;
 }
 
 export default function RollingPaperPage() {
@@ -128,7 +126,7 @@ export default function RollingPaperPage() {
 
   // 작성 완료 화면에선 본인 외 메시지 열람 차단 — 토핑 클릭 무반응
   function handleToppingClick(index: number) {
-    if (isWriteCompleteMode || inviteToken) return;
+    if (isWriteCompleteMode || inviteToken || data?.viewable === false) return;
     setSelectedMessageIndex(index);
   }
 
@@ -145,31 +143,16 @@ export default function RollingPaperPage() {
   if (isLoading) return null;
 
   if (isError) {
-    // 403: 권한 없음 또는 "아직 열람 불가"(롤페만 작성 파티의 조회 가능 시간 전).
-    // 정상 진입한 화면이므로 권한 오류보다 "오픈 전" 케이스가 대부분 → 에러 대신 잠금 화면.
-    if (isApiErrorStatus(error, 403)) {
-      if (
-        !inviteToken &&
-        !isWriteCompleteMode &&
-        isPaperOnlyHostView &&
-        locationState?.writableUntil
-      ) {
-        return (
-          <PaperOnlyRollingPaperHostView
-            hostName={locationState.hostName}
-            writableUntil={locationState.writableUntil}
-            isShareSheetOpen={isShareSheetOpen}
-            inviteShareLink={inviteShareLink}
-            isActivatingInvite={isActivatingInvite}
-            onShareClick={handleShareClick}
-            onShareSheetClose={() => setIsShareSheetOpen(false)}
-            onBackClick={() => navigate(-1)}
-            onRefresh={() => void refetch()}
-          />
-        );
-      }
-
-      return <RollingPaperLockedView />;
+    // 주최자 목록 API의 403은 주최자가 아닌 사용자의 접근만 의미한다.
+    if (!inviteToken && isApiErrorStatus(error, 403)) {
+      return (
+        <ErrorView
+          variant="notFound"
+          title="롤링페이퍼를 확인할 수 없어요"
+          description="주최자만 확인할 수 있는 롤링페이퍼예요."
+          onPrimaryClick={() => navigate(ROUTES.home)}
+        />
+      );
     }
 
     if (isApiErrorStatus(error, 404)) {
@@ -187,13 +170,13 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
-  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && isWritable) {
+  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && data.viewable === false) {
     return (
       <PaperOnlyRollingPaperHostView
         hostName={data.hostName ?? locationState?.hostName}
         messages={data.messages}
         totalCount={data.totalCount}
-        writableUntil={data.writableUntil}
+        viewableAt={data.viewableAt}
         isShareSheetOpen={isShareSheetOpen}
         inviteShareLink={inviteShareLink}
         isActivatingInvite={isActivatingInvite}
@@ -267,7 +250,9 @@ export default function RollingPaperPage() {
                 총 <span className="font-medium text-white">{messageCount}</span>개의 편지가
                 도착했어요!
                 <br />
-                토핑을 눌러 확인해 보세요
+                {data.viewable === false
+                  ? '작성된 내용은 공개 시간 이후 확인할 수 있어요'
+                  : '토핑을 눌러 확인해 보세요'}
               </>
             ) : (
               <>
@@ -284,7 +269,7 @@ export default function RollingPaperPage() {
             messages={messages}
             onToppingClick={handleToppingClick}
             hasBottomAction={showHostShareAction}
-            isInteractive={!inviteToken && !isWriteCompleteMode}
+            isInteractive={!inviteToken && !isWriteCompleteMode && data.viewable !== false}
           />
         )}
 

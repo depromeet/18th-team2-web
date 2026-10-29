@@ -29,7 +29,7 @@ function renderView() {
 
   render(
     <PaperOnlyRollingPaperHostView
-      writableUntil="2099-10-21T22:00:00+09:00"
+      viewableAt="2099-10-21T22:00:00+09:00"
       isShareSheetOpen={false}
       inviteShareLink="https://hapalin.com/invite/test"
       isActivatingInvite={false}
@@ -87,7 +87,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
           },
         ]}
         totalCount={1}
-        writableUntil="2099-10-21T22:00:00+09:00"
+        viewableAt="2099-10-21T22:00:00+09:00"
         isShareSheetOpen={false}
         inviteShareLink={null}
         isActivatingInvite={false}

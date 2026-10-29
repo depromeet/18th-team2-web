@@ -18,7 +18,7 @@ interface PaperOnlyRollingPaperHostViewProps {
   hostName?: string;
   messages?: RollingPaperMessage[];
   totalCount?: number;
-  writableUntil?: string;
+  viewableAt?: string;
   isShareSheetOpen: boolean;
   inviteShareLink: string | null;
   isActivatingInvite: boolean;
@@ -32,7 +32,7 @@ export function PaperOnlyRollingPaperHostView({
   hostName,
   messages = [],
   totalCount = messages.length,
-  writableUntil,
+  viewableAt,
   isShareSheetOpen,
   inviteShareLink,
   isActivatingInvite,
@@ -44,10 +44,10 @@ export function PaperOnlyRollingPaperHostView({
   const [isShareNoticeOpen, setIsShareNoticeOpen] = useState(true);
   const hasMessages = totalCount > 0;
   const openDateLabel = useMemo(() => {
-    if (!writableUntil) return null;
-    const openDate = parseKstDateTime(writableUntil);
+    if (!viewableAt) return null;
+    const openDate = parseKstDateTime(viewableAt);
     return openDate.isValid() ? formatKoreanShortDate(openDate.toDate()) : null;
-  }, [writableUntil]);
+  }, [viewableAt]);
 
   return (
     <div
@@ -169,9 +169,9 @@ export function PaperOnlyRollingPaperHostView({
         />
 
         <div className="relative mx-auto flex max-w-[343px] flex-col items-center gap-2">
-          {writableUntil && (
+          {viewableAt && (
             <CountdownTimer
-              targetDate={writableUntil}
+              targetDate={viewableAt}
               className="text-grey-500 text-[15px] leading-[22px] font-medium"
               timeClassName="font-medium text-red-500"
             />
