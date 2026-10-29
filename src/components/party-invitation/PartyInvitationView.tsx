@@ -65,6 +65,7 @@ export function PartyInvitationView({
   const openLoginPrompt = useCallback(() => setIsLoginPromptOpen(true), []);
   const { isTalkCalendarPending, handleRegisterTalkCalendar } = useTalkCalendarReminder({
     partyId,
+    inviteToken,
     isAuthenticated,
     showToast,
     openLoginPrompt,

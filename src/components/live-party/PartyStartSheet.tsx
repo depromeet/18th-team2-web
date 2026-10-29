@@ -18,9 +18,15 @@ interface PartyStartSheetProps {
   partyId: string;
   onClose: () => void;
   onStart: () => void;
+  isStarting?: boolean;
 }
 
-export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetProps) {
+export function PartyStartSheet({
+  partyId,
+  onClose,
+  onStart,
+  isStarting = false,
+}: PartyStartSheetProps) {
   const { data } = useGetPartyParticipants(partyId);
 
   const participants: PartyParticipant[] = useMemo(
@@ -130,7 +136,7 @@ export function PartyStartSheet({ partyId, onClose, onStart }: PartyStartSheetPr
         </div>
       </div>
 
-      <Button size="full" className="mt-auto" onClick={onStart}>
+      <Button size="full" className="mt-auto" onClick={onStart} disabled={isStarting}>
         시작할게요
       </Button>
     </div>
