@@ -170,21 +170,37 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
-  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && data.viewable === false) {
+  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && isWritable) {
     return (
-      <PaperOnlyRollingPaperHostView
-        hostName={data.hostName ?? locationState?.hostName}
-        messages={data.messages}
-        totalCount={data.totalCount}
-        viewableAt={data.viewableAt}
-        isShareSheetOpen={isShareSheetOpen}
-        inviteShareLink={inviteShareLink}
-        isActivatingInvite={isActivatingInvite}
-        onShareClick={handleShareClick}
-        onShareSheetClose={() => setIsShareSheetOpen(false)}
-        onBackClick={() => navigate(-1)}
-        onRefresh={() => void refetch()}
-      />
+      <>
+        <PaperOnlyRollingPaperHostView
+          hostName={data.hostName ?? locationState?.hostName}
+          messages={data.messages}
+          totalCount={data.totalCount}
+          viewableAt={data.viewableAt}
+          writableUntil={data.writableUntil}
+          isViewable={data.viewable !== false}
+          isShareSheetOpen={isShareSheetOpen}
+          inviteShareLink={inviteShareLink}
+          isActivatingInvite={isActivatingInvite}
+          onShareClick={handleShareClick}
+          onShareSheetClose={() => setIsShareSheetOpen(false)}
+          onBackClick={() => navigate(-1)}
+          onRefresh={() => void refetch()}
+          onToppingClick={handleToppingClick}
+        />
+
+        {selectedMessageIndex !== null &&
+          createPortal(
+            <MessageCard
+              partyId={data.partyId}
+              messages={messages}
+              initialIndex={selectedMessageIndex}
+              onClose={() => setSelectedMessageIndex(null)}
+            />,
+            document.body,
+          )}
+      </>
     );
   }
 

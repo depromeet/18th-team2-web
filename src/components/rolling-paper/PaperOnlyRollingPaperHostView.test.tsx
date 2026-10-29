@@ -30,6 +30,7 @@ function renderView() {
   render(
     <PaperOnlyRollingPaperHostView
       viewableAt="2099-10-21T22:00:00+09:00"
+      writableUntil="2099-10-28T22:00:00+09:00"
       isShareSheetOpen={false}
       inviteShareLink="https://hapalin.com/invite/test"
       isActivatingInvite={false}
@@ -88,6 +89,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
         ]}
         totalCount={1}
         viewableAt="2099-10-21T22:00:00+09:00"
+        writableUntil="2099-10-28T22:00:00+09:00"
         isShareSheetOpen={false}
         inviteShareLink={null}
         isActivatingInvite={false}
@@ -107,5 +109,32 @@ describe('PaperOnlyRollingPaperHostView', () => {
       'aria-disabled',
       'true',
     );
+  });
+
+  it('공개 후에는 토핑을 활성화하고 클릭 콜백을 호출한다', () => {
+    const onToppingClick = vi.fn();
+
+    render(
+      <PaperOnlyRollingPaperHostView
+        messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
+        totalCount={1}
+        viewableAt="2099-10-21T22:00:00+09:00"
+        writableUntil="2099-10-28T22:00:00+09:00"
+        isViewable
+        isShareSheetOpen={false}
+        inviteShareLink={null}
+        isActivatingInvite={false}
+        onShareClick={vi.fn()}
+        onShareSheetClose={vi.fn()}
+        onBackClick={vi.fn()}
+        onRefresh={vi.fn()}
+        onToppingClick={onToppingClick}
+      />,
+    );
+
+    const topping = screen.getByRole('button', { name: /해파링링/ });
+    expect(topping).toHaveAttribute('aria-disabled', 'false');
+    fireEvent.click(topping);
+    expect(onToppingClick).toHaveBeenCalledWith(0);
   });
 });

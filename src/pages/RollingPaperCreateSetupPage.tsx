@@ -214,8 +214,8 @@ export default function RollingPaperCreateSetupPage() {
           </>
         ) : (
           <>
-            마감일인 <span className="text-red-500">{formatKoreanShortDate(endDate)}</span>부터{' '}
-            <br />
+            시작일인 <span className="text-red-500">{formatKoreanShortDate(selectedDate)}</span>{' '}
+            오후 10시부터 <br />
             롤링페이퍼를 확인할 수 있어요
           </>
         )}

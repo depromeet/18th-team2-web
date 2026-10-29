@@ -19,6 +19,8 @@ interface PaperOnlyRollingPaperHostViewProps {
   messages?: RollingPaperMessage[];
   totalCount?: number;
   viewableAt?: string;
+  writableUntil?: string;
+  isViewable?: boolean;
   isShareSheetOpen: boolean;
   inviteShareLink: string | null;
   isActivatingInvite: boolean;
@@ -26,6 +28,7 @@ interface PaperOnlyRollingPaperHostViewProps {
   onShareSheetClose: () => void;
   onBackClick: () => void;
   onRefresh: () => void;
+  onToppingClick?: (index: number) => void;
 }
 
 export function PaperOnlyRollingPaperHostView({
@@ -33,6 +36,8 @@ export function PaperOnlyRollingPaperHostView({
   messages = [],
   totalCount = messages.length,
   viewableAt,
+  writableUntil,
+  isViewable = false,
   isShareSheetOpen,
   inviteShareLink,
   isActivatingInvite,
@@ -40,6 +45,7 @@ export function PaperOnlyRollingPaperHostView({
   onShareSheetClose,
   onBackClick,
   onRefresh,
+  onToppingClick,
 }: PaperOnlyRollingPaperHostViewProps) {
   const [isShareNoticeOpen, setIsShareNoticeOpen] = useState(true);
   const hasMessages = totalCount > 0;
@@ -101,7 +107,7 @@ export function PaperOnlyRollingPaperHostView({
               <p className="text-body-2 mt-2 leading-[22px] font-medium text-blue-100">
                 롤링페이퍼는{' '}
                 <strong className="font-semibold text-white">
-                  {openDateLabel ? `${openDateLabel} 밤 10시` : '마감일 밤 10시'}
+                  {openDateLabel ? `${openDateLabel} 밤 10시` : '생성일 밤 10시'}
                 </strong>
                 에 공개돼요
                 <br />
@@ -123,9 +129,9 @@ export function PaperOnlyRollingPaperHostView({
       {hasMessages && (
         <ToppingGrid
           messages={messages}
-          onToppingClick={() => undefined}
+          onToppingClick={onToppingClick ?? (() => undefined)}
           hasBottomAction
-          isInteractive={false}
+          isInteractive={isViewable}
         />
       )}
 
@@ -165,9 +171,9 @@ export function PaperOnlyRollingPaperHostView({
         />
 
         <div className="relative mx-auto flex max-w-[343px] flex-col items-center gap-2">
-          {viewableAt && (
+          {writableUntil && (
             <CountdownTimer
-              targetDate={viewableAt}
+              targetDate={writableUntil}
               className="text-grey-500 text-[15px] leading-[22px] font-medium"
               timeClassName="font-medium text-red-500"
             />
