@@ -56,6 +56,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
   it('공유 안내는 닫기 전까지 노출되고 X 버튼으로 닫힌다', () => {
     renderView();
 
+    expect(screen.getByRole('status')).toHaveClass('link-share-toast');
     expect(screen.getByText(/친구들에게 공유하면/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '공유 안내 닫기' }));
     expect(screen.queryByText(/친구들에게 공유하면/)).not.toBeInTheDocument();

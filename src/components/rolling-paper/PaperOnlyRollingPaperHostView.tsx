@@ -139,7 +139,7 @@ export function PaperOnlyRollingPaperHostView({
         <div className="pointer-events-none absolute inset-x-0 bottom-[calc(109px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
           <div
             role="status"
-            className="pointer-events-auto flex h-[76px] w-[343px] max-w-full items-center justify-between rounded-[14px] bg-black/70 p-4 text-white"
+            className="link-share-toast pointer-events-auto flex h-[76px] w-[343px] max-w-full items-center justify-between rounded-[14px] bg-black/70 p-4 text-white"
           >
             <span aria-hidden="true" className="text-[34px] leading-none">
               🎉
