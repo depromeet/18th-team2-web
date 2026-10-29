@@ -77,7 +77,9 @@ describe('PaperOnlyRollingPaperHostView', () => {
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it('편지가 있으면 기존 토핑을 공개 전 비활성 상태로 표시한다', () => {
+  it('편지가 있으면 공개 전에도 토핑 클릭 콜백을 호출한다', () => {
+    const onToppingClick = vi.fn();
+
     render(
       <PaperOnlyRollingPaperHostView
         hostName="김이라"
@@ -98,6 +100,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
         onShareSheetClose={vi.fn()}
         onBackClick={vi.fn()}
         onRefresh={vi.fn()}
+        onToppingClick={onToppingClick}
       />,
     );
 
@@ -106,10 +109,11 @@ describe('PaperOnlyRollingPaperHostView', () => {
     );
     expect(screen.getByText(/친구들이 총/)).toHaveTextContent('친구들이 총 1개의 편지를 남겼어요!');
     expect(screen.queryByText(/롤링페이퍼는/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /해파링링/ })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    expect(screen.getByRole('main')).toHaveClass('pointer-events-none');
+    const topping = screen.getByRole('button', { name: /해파링링/ });
+    expect(topping).toHaveAttribute('aria-disabled', 'false');
+    fireEvent.click(topping);
+    expect(onToppingClick).toHaveBeenCalledWith(0);
   });
 
   it('공개 후에는 토핑을 활성화하고 클릭 콜백을 호출한다', () => {
@@ -121,7 +125,6 @@ describe('PaperOnlyRollingPaperHostView', () => {
         totalCount={1}
         viewableAt="2099-10-21T22:00:00+09:00"
         writableUntil="2099-10-28T22:00:00+09:00"
-        isViewable
         isShareSheetOpen={false}
         inviteShareLink={null}
         isActivatingInvite={false}

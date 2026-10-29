@@ -20,7 +20,6 @@ interface PaperOnlyRollingPaperHostViewProps {
   totalCount?: number;
   viewableAt?: string;
   writableUntil?: string;
-  isViewable?: boolean;
   isShareSheetOpen: boolean;
   inviteShareLink: string | null;
   isActivatingInvite: boolean;
@@ -37,7 +36,6 @@ export function PaperOnlyRollingPaperHostView({
   totalCount = messages.length,
   viewableAt,
   writableUntil,
-  isViewable = false,
   isShareSheetOpen,
   inviteShareLink,
   isActivatingInvite,
@@ -85,7 +83,7 @@ export function PaperOnlyRollingPaperHostView({
         </button>
       </header>
 
-      <main className="absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] bottom-[165px] z-20 flex flex-col px-4">
+      <main className="pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] bottom-[165px] z-20 flex flex-col px-4">
         {hasMessages ? (
           <div>
             <H1 className="font-semibold tracking-normal text-white">
@@ -131,7 +129,7 @@ export function PaperOnlyRollingPaperHostView({
           messages={messages}
           onToppingClick={onToppingClick ?? (() => undefined)}
           hasBottomAction
-          isInteractive={isViewable}
+          isInteractive={Boolean(onToppingClick)}
         />
       )}
 

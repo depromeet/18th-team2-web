@@ -6,6 +6,7 @@ import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { MessageCard } from '@/components/message/MessageCard';
+import { LockedMessageCard } from '@/components/message/LockedMessageCard';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { Button } from '@/components/ui/Button';
 import { ErrorView } from '@/components/ui/ErrorView';
@@ -130,6 +131,10 @@ export default function RollingPaperPage() {
     setSelectedMessageIndex(index);
   }
 
+  function handlePaperOnlyToppingClick(index: number) {
+    setSelectedMessageIndex(index);
+  }
+
   if (requiresLogin) {
     return (
       <LoginPromptSheet
@@ -179,7 +184,6 @@ export default function RollingPaperPage() {
           totalCount={data.totalCount}
           viewableAt={data.viewableAt}
           writableUntil={data.writableUntil}
-          isViewable={data.viewable !== false}
           isShareSheetOpen={isShareSheetOpen}
           inviteShareLink={inviteShareLink}
           isActivatingInvite={isActivatingInvite}
@@ -187,17 +191,26 @@ export default function RollingPaperPage() {
           onShareSheetClose={() => setIsShareSheetOpen(false)}
           onBackClick={() => navigate(-1)}
           onRefresh={() => void refetch()}
-          onToppingClick={handleToppingClick}
+          onToppingClick={handlePaperOnlyToppingClick}
         />
 
         {selectedMessageIndex !== null &&
           createPortal(
-            <MessageCard
-              partyId={data.partyId}
-              messages={messages}
-              initialIndex={selectedMessageIndex}
-              onClose={() => setSelectedMessageIndex(null)}
-            />,
+            data.viewable === false ? (
+              <LockedMessageCard
+                messages={messages}
+                initialIndex={selectedMessageIndex}
+                viewableAt={data.viewableAt}
+                onClose={() => setSelectedMessageIndex(null)}
+              />
+            ) : (
+              <MessageCard
+                partyId={data.partyId}
+                messages={messages}
+                initialIndex={selectedMessageIndex}
+                onClose={() => setSelectedMessageIndex(null)}
+              />
+            ),
             document.body,
           )}
       </>
