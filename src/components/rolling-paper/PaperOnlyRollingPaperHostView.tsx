@@ -83,17 +83,13 @@ export function PaperOnlyRollingPaperHostView({
         {hasMessages ? (
           <div>
             <H1 className="font-semibold tracking-normal text-white">
-              {hostName ? `${hostName}님의 롤링페이퍼` : '내 롤링페이퍼'}
+              {hostName ? `${hostName}님을 위해` : '나를 위해'}
+              <br />
+              롤링페이퍼를 작성해 주세요!
             </H1>
             <B1 className="mt-2 text-blue-100">
               친구들이 총 <span className="font-medium text-white">{totalCount}</span>개의 편지를
               남겼어요!
-              <br />
-              롤링페이퍼는{' '}
-              <span className="font-medium text-white">
-                {openDateLabel ? `${openDateLabel} 밤 10시` : '마감일 밤 10시'}
-              </span>
-              에 공개돼요
             </B1>
           </div>
         ) : (

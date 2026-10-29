@@ -98,8 +98,11 @@ describe('PaperOnlyRollingPaperHostView', () => {
       />,
     );
 
-    expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
+    expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
+      '김이라님을 위해롤링페이퍼를 작성해 주세요!',
+    );
     expect(screen.getByText(/친구들이 총/)).toHaveTextContent('친구들이 총 1개의 편지를 남겼어요!');
+    expect(screen.queryByText(/롤링페이퍼는/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /해파링링/ })).toHaveAttribute(
       'aria-disabled',
       'true',
