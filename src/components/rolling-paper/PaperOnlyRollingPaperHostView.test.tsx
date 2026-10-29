@@ -114,6 +114,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
     expect(topping).toHaveAttribute('aria-disabled', 'false');
     fireEvent.click(topping);
     expect(onToppingClick).toHaveBeenCalledWith(0);
+    expect(screen.queryByText(/토핑을 눌러 확인해 보세요!/)).not.toBeInTheDocument();
   });
 
   it('공개 후에는 토핑을 활성화하고 클릭 콜백을 호출한다', () => {
@@ -121,10 +122,12 @@ describe('PaperOnlyRollingPaperHostView', () => {
 
     render(
       <PaperOnlyRollingPaperHostView
+        hostName="김이라"
         messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
         totalCount={1}
         viewableAt="2099-10-21T22:00:00+09:00"
         writableUntil="2099-10-28T22:00:00+09:00"
+        isViewable
         isShareSheetOpen={false}
         inviteShareLink={null}
         isActivatingInvite={false}
@@ -140,5 +143,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
     expect(topping).toHaveAttribute('aria-disabled', 'false');
     fireEvent.click(topping);
     expect(onToppingClick).toHaveBeenCalledWith(0);
+    expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
+    expect(screen.getByText(/토핑을 눌러 확인해 보세요!/)).toBeInTheDocument();
   });
 });

@@ -20,6 +20,7 @@ interface PaperOnlyRollingPaperHostViewProps {
   totalCount?: number;
   viewableAt?: string;
   writableUntil?: string;
+  isViewable?: boolean;
   isShareSheetOpen: boolean;
   inviteShareLink: string | null;
   isActivatingInvite: boolean;
@@ -36,6 +37,7 @@ export function PaperOnlyRollingPaperHostView({
   totalCount = messages.length,
   viewableAt,
   writableUntil,
+  isViewable = false,
   isShareSheetOpen,
   inviteShareLink,
   isActivatingInvite,
@@ -87,13 +89,29 @@ export function PaperOnlyRollingPaperHostView({
         {hasMessages ? (
           <div>
             <H1 className="font-semibold tracking-normal text-white">
-              {hostName ? `${hostName}님을 위해` : '나를 위해'}
-              <br />
-              롤링페이퍼를 작성해 주세요!
+              {isViewable ? (
+                hostName ? (
+                  `${hostName}님의 롤링페이퍼`
+                ) : (
+                  '내 롤링페이퍼'
+                )
+              ) : (
+                <>
+                  {hostName ? `${hostName}님을 위해` : '나를 위해'}
+                  <br />
+                  롤링페이퍼를 작성해 주세요!
+                </>
+              )}
             </H1>
             <B1 className="mt-2 text-blue-100">
               친구들이 총 <span className="font-medium text-white">{totalCount}</span>개의 편지를
               남겼어요!
+              {isViewable && (
+                <>
+                  <br />
+                  토핑을 눌러 확인해 보세요!
+                </>
+              )}
             </B1>
           </div>
         ) : (

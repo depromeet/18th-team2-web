@@ -184,6 +184,7 @@ export default function RollingPaperPage() {
           totalCount={data.totalCount}
           viewableAt={data.viewableAt}
           writableUntil={data.writableUntil}
+          isViewable={data.viewable !== false}
           isShareSheetOpen={isShareSheetOpen}
           inviteShareLink={inviteShareLink}
           isActivatingInvite={isActivatingInvite}
