@@ -1,13 +1,12 @@
-import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import shareIcon from '@/assets/icons/icon-share.svg';
+import letterImage from '@/assets/images/live-party/letter.png';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { ErrorView } from '@/components/ui/ErrorView';
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
-import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
+import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { B1, H1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { useRollingPaper } from '@/services/rolling-paper';
@@ -32,14 +31,9 @@ export function RollingPaperInviteView({
 }: RollingPaperInviteViewProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
   const { data, isLoading, isError, error, refetch } = useRollingPaper(partyId, inviteToken, true);
   const messages = data?.messages ?? [];
   const displayName = hostName || '주인공';
-  const inviteLink =
-    typeof window === 'undefined'
-      ? location.pathname
-      : `${window.location.origin}${location.pathname}`;
 
   function handleWriteClick() {
     const writeContext = {
@@ -71,7 +65,7 @@ export function RollingPaperInviteView({
 
   return (
     <div className="rolling-paper-scene-vars bg-rolling-paper-main relative mx-auto h-dvh w-full max-w-150 overflow-hidden">
-      <CakeBackground hideBottomDecoration />
+      {messages.length > 0 && <CakeBackground hideBottomDecoration />}
 
       <div className="relative z-20 px-4 pt-3">
         <div className="flex items-center justify-between">
@@ -86,23 +80,47 @@ export function RollingPaperInviteView({
 
           <button
             type="button"
-            onClick={() => setIsShareSheetOpen(true)}
-            className="text-label-1 inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full bg-black/70 px-3 font-semibold text-white"
+            aria-label="새로고침"
+            onClick={() => void refetch()}
+            className="flex h-12 w-12 cursor-pointer items-center justify-center text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
           >
-            <img src={shareIcon} alt="" className="h-5 w-5" />
-            공유하기
+            <RefreshIcon className="h-6 w-6" />
           </button>
         </div>
 
         <H1 className="mt-5 font-semibold tracking-normal text-white">
-          {displayName}님의 롤링페이퍼
+          {messages.length === 0 ? (
+            <>
+              {displayName}님을 위해
+              <br />
+              롤링페이퍼를 작성해 주세요!
+            </>
+          ) : (
+            `${displayName}님의 롤링페이퍼`
+          )}
         </H1>
         <B1 className="mt-2 text-blue-100">
-          롤링페이퍼로 축하를 남겨보세요!
-          <br />
-          작성한 내용은 주인공만 볼 수 있어요
+          {messages.length === 0 ? (
+            '가장 처음으로 마음을 남겨보세요'
+          ) : (
+            <>
+              롤링페이퍼로 축하를 남겨보세요!
+              <br />
+              작성한 내용은 주인공만 볼 수 있어요
+            </>
+          )}
         </B1>
       </div>
+
+      {messages.length === 0 && (
+        <div className="pointer-events-none absolute inset-x-0 top-[235px] bottom-[143px] z-10 flex items-center justify-center">
+          <img
+            src={letterImage}
+            alt=""
+            className="drop-shadow-rolling-paper-empty max-h-full w-[min(250px,68vw)] object-contain"
+          />
+        </div>
+      )}
 
       {messages.length > 0 && (
         <ToppingGrid
@@ -118,16 +136,8 @@ export function RollingPaperInviteView({
         isActivatingInvite={false}
         onShareClick={handleWriteClick}
         variant="solid"
-        buttonLabel="롤링페이퍼 작성하기"
+        buttonLabel="롤링페이퍼 남기기"
         showTooltip={false}
-      />
-
-      <LinkShareSheet
-        isOpen={isShareSheetOpen}
-        link={inviteLink}
-        title="롤링페이퍼 링크 공유하기"
-        shareText="롤링페이퍼 작성 초대장이 왔어요"
-        onClose={() => setIsShareSheetOpen(false)}
       />
     </div>
   );
