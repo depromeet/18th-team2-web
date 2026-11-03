@@ -15,6 +15,7 @@ import type { RollingPaperMessage } from '@/services/rolling-paper';
 import { formatKoreanShortDate, parseKstDateTime } from '@/utils/date';
 
 interface PaperOnlyRollingPaperHostViewProps {
+  partyType?: 'paper-only' | 'realtime';
   hostName?: string;
   messages?: RollingPaperMessage[];
   totalCount?: number;
@@ -33,6 +34,7 @@ interface PaperOnlyRollingPaperHostViewProps {
 }
 
 export function PaperOnlyRollingPaperHostView({
+  partyType = 'paper-only',
   hostName,
   messages = [],
   totalCount = messages.length,
@@ -52,12 +54,19 @@ export function PaperOnlyRollingPaperHostView({
   const [isShareNoticeOpen, setIsShareNoticeOpen] = useState(true);
   const [hasWritableTime, setHasWritableTime] = useState(isWritable);
   const hasMessages = totalCount > 0;
-  const showShareControls = hasWritableTime && !isViewable;
+  const isRealtimeParty = partyType === 'realtime';
+  const showShareControls = hasWritableTime && (isRealtimeParty || !isViewable);
+  const showDownloadAction = !isRealtimeParty || hasMessages;
   const openDateLabel = useMemo(() => {
     if (!viewableAt) return null;
     const openDate = parseKstDateTime(viewableAt);
     return openDate.isValid() ? formatKoreanShortDate(openDate.toDate()) : null;
   }, [viewableAt]);
+  const writableDateLabel = useMemo(() => {
+    if (!writableUntil) return null;
+    const writableDate = parseKstDateTime(writableUntil);
+    return writableDate.isValid() ? formatKoreanShortDate(writableDate.toDate()) : null;
+  }, [writableUntil]);
 
   return (
     <div
@@ -95,7 +104,13 @@ export function PaperOnlyRollingPaperHostView({
         {hasMessages ? (
           <div>
             <H1 className="font-semibold tracking-normal text-white">
-              {isViewable ? (
+              {isRealtimeParty ? (
+                <>
+                  {hostName ? `${hostName}님을 위해` : '나를 위해'}
+                  <br />
+                  롤링페이퍼를 작성해 주세요!
+                </>
+              ) : isViewable ? (
                 hostName ? (
                   `${hostName}님의 롤링페이퍼`
                 ) : (
@@ -112,7 +127,7 @@ export function PaperOnlyRollingPaperHostView({
             <B1 className="mt-2 text-blue-100">
               친구들이 총 <span className="font-medium text-white">{totalCount}</span>개의 편지를
               남겼어요!
-              {isViewable && (
+              {isViewable && !isRealtimeParty && (
                 <>
                   <br />
                   토핑을 눌러 확인해 보세요!
@@ -124,16 +139,37 @@ export function PaperOnlyRollingPaperHostView({
           <>
             <div>
               <h1 className="text-head-2 font-semibold tracking-normal text-white">
-                {hostName ? `${hostName}님을 위해` : '나를 위해'}
-                <br />
-                롤링페이퍼를 작성해 주세요!
+                {isRealtimeParty ? (
+                  '아직 편지를 남긴 친구가 없어요'
+                ) : (
+                  <>
+                    {hostName ? `${hostName}님을 위해` : '나를 위해'}
+                    <br />
+                    롤링페이퍼를 작성해 주세요!
+                  </>
+                )}
               </h1>
               <p className="text-body-2 mt-2 leading-[22px] font-medium text-blue-100">
-                롤링페이퍼는{' '}
-                <strong className="font-semibold text-white">
-                  {openDateLabel ? `${openDateLabel} 밤 10시` : '생성일 밤 10시'}
-                </strong>
-                에 공개돼요
+                {isRealtimeParty ? (
+                  <>
+                    링크를 공유해 친구들에게 알려보세요!
+                    <br />
+                    롤링페이퍼는{' '}
+                    <strong className="font-semibold text-white">
+                      {writableDateLabel
+                        ? `${writableDateLabel} 까지 받을 수 있어요`
+                        : '작성 기간까지 받을 수 있어요'}
+                    </strong>
+                  </>
+                ) : (
+                  <>
+                    롤링페이퍼는{' '}
+                    <strong className="font-semibold text-white">
+                      {openDateLabel ? `${openDateLabel} 밤 10시` : '생성일 밤 10시'}
+                    </strong>
+                    에 공개돼요
+                  </>
+                )}
               </p>
             </div>
 
@@ -204,15 +240,17 @@ export function PaperOnlyRollingPaperHostView({
             )}
 
             <div className="flex w-full max-w-[340px] gap-2">
-              <button
-                type="button"
-                aria-label="이미지 다운로드 기능 준비 중"
-                title="이미지 다운로드 기능 준비 중"
-                disabled
-                className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
-              >
-                <DownloadIcon className="h-6 w-6" />
-              </button>
+              {showDownloadAction && (
+                <button
+                  type="button"
+                  aria-label="이미지 다운로드 기능 준비 중"
+                  title="이미지 다운로드 기능 준비 중"
+                  disabled
+                  className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
+                >
+                  <DownloadIcon className="h-6 w-6" />
+                </button>
+              )}
               <div className="min-w-0 flex-1">
                 <Button
                   variant="primary"

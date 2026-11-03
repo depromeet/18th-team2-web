@@ -35,6 +35,7 @@ interface RollingPaperLocationState {
   inviteToken?: string;
   partyOption?: PartyOption;
   hostName?: string;
+  entrySource?: 'live-party-end';
 }
 
 export default function RollingPaperPage() {
@@ -125,6 +126,15 @@ export default function RollingPaperPage() {
     navigate(ROUTES.home);
   }
 
+  function handleBackClick() {
+    if (locationState?.entrySource === 'live-party-end') {
+      navigate(ROUTES.home, { replace: true });
+      return;
+    }
+
+    navigate(-1);
+  }
+
   // 작성 완료 화면에선 본인 외 메시지 열람 차단 — 토핑 클릭 무반응
   function handleToppingClick(index: number) {
     if (isWriteCompleteMode || inviteToken || data?.viewable === false) return;
@@ -175,10 +185,11 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
-  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView) {
+  if (!inviteToken && !isWriteCompleteMode) {
     return (
       <>
         <PaperOnlyRollingPaperHostView
+          partyType={isPaperOnlyHostView ? 'paper-only' : 'realtime'}
           hostName={data.hostName ?? locationState?.hostName}
           messages={data.messages}
           totalCount={data.totalCount}
@@ -191,7 +202,7 @@ export default function RollingPaperPage() {
           isActivatingInvite={isActivatingInvite}
           onShareClick={handleShareClick}
           onShareSheetClose={() => setIsShareSheetOpen(false)}
-          onBackClick={() => navigate(-1)}
+          onBackClick={handleBackClick}
           onRefresh={() => void refetch()}
           onToppingClick={handlePaperOnlyToppingClick}
         />

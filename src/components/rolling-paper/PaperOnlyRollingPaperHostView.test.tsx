@@ -212,4 +212,64 @@ describe('PaperOnlyRollingPaperHostView', () => {
       vi.useRealTimers();
     }
   });
+
+  it('실시간 파티 종료 후 편지가 없으면 종료 후 안내와 전체 폭 공유 버튼을 표시한다', () => {
+    render(
+      <PaperOnlyRollingPaperHostView
+        partyType="realtime"
+        hostName="김이라"
+        writableUntil="2099-10-28T22:00:00+09:00"
+        isViewable
+        isWritable
+        isShareSheetOpen={false}
+        inviteShareLink={null}
+        isActivatingInvite={false}
+        onShareClick={vi.fn()}
+        onShareSheetClose={vi.fn()}
+        onBackClick={vi.fn()}
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('아직 편지를 남긴 친구가 없어요')).toBeInTheDocument();
+    expect(screen.getByText(/링크를 공유해 친구들에게 알려보세요!/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '롤링페이퍼 공유하기' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '이미지 다운로드 기능 준비 중' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('실시간 파티 종료 후 편지가 있으면 편지 개수와 다운로드 UI를 표시한다', () => {
+    const onToppingClick = vi.fn();
+
+    render(
+      <PaperOnlyRollingPaperHostView
+        partyType="realtime"
+        hostName="김이라"
+        messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
+        totalCount={1}
+        writableUntil="2099-10-28T22:00:00+09:00"
+        isViewable
+        isWritable
+        isShareSheetOpen={false}
+        inviteShareLink={null}
+        isActivatingInvite={false}
+        onShareClick={vi.fn()}
+        onShareSheetClose={vi.fn()}
+        onBackClick={vi.fn()}
+        onRefresh={vi.fn()}
+        onToppingClick={onToppingClick}
+      />,
+    );
+
+    expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
+      '김이라님을 위해롤링페이퍼를 작성해 주세요!',
+    );
+    expect(screen.getByText(/친구들이 총/)).toHaveTextContent('친구들이 총 1개의 편지를 남겼어요!');
+    expect(screen.queryByText(/토핑을 눌러 확인해 보세요!/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '이미지 다운로드 기능 준비 중' })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: /해파링링/ }));
+    expect(onToppingClick).toHaveBeenCalledWith(0);
+  });
 });
