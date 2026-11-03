@@ -21,6 +21,7 @@ interface PaperOnlyRollingPaperHostViewProps {
   viewableAt?: string;
   writableUntil?: string;
   isViewable?: boolean;
+  isWritable: boolean;
   isShareSheetOpen: boolean;
   inviteShareLink: string | null;
   isActivatingInvite: boolean;
@@ -38,6 +39,7 @@ export function PaperOnlyRollingPaperHostView({
   viewableAt,
   writableUntil,
   isViewable = false,
+  isWritable,
   isShareSheetOpen,
   inviteShareLink,
   isActivatingInvite,
@@ -48,7 +50,9 @@ export function PaperOnlyRollingPaperHostView({
   onToppingClick,
 }: PaperOnlyRollingPaperHostViewProps) {
   const [isShareNoticeOpen, setIsShareNoticeOpen] = useState(true);
+  const [hasWritableTime, setHasWritableTime] = useState(isWritable);
   const hasMessages = totalCount > 0;
+  const showShareControls = hasWritableTime && !isViewable;
   const openDateLabel = useMemo(() => {
     if (!viewableAt) return null;
     const openDate = parseKstDateTime(viewableAt);
@@ -63,7 +67,7 @@ export function PaperOnlyRollingPaperHostView({
         ['--rolling-paper-action-height' as string]: 'calc(172px + env(safe-area-inset-bottom))',
       }}
     >
-      {hasMessages && <CakeBackground hideBottomDecoration />}
+      {hasMessages && <CakeBackground hideBottomDecoration={showShareControls} />}
 
       <header className="pt-safe-top-3 relative z-30 flex items-center justify-between px-2">
         <button
@@ -85,7 +89,9 @@ export function PaperOnlyRollingPaperHostView({
         </button>
       </header>
 
-      <main className="pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] bottom-[165px] z-20 flex flex-col px-4">
+      <main
+        className={`pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] z-20 flex flex-col px-4 ${showShareControls ? 'bottom-[165px]' : 'bottom-0'}`}
+      >
         {hasMessages ? (
           <div>
             <H1 className="font-semibold tracking-normal text-white">
@@ -146,12 +152,12 @@ export function PaperOnlyRollingPaperHostView({
         <ToppingGrid
           messages={messages}
           onToppingClick={onToppingClick ?? (() => undefined)}
-          hasBottomAction
+          hasBottomAction={showShareControls}
           isInteractive={Boolean(onToppingClick)}
         />
       )}
 
-      {isShareNoticeOpen && (
+      {showShareControls && isShareNoticeOpen && (
         <div className="pointer-events-none absolute inset-x-0 bottom-[calc(109px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
           <div
             role="status"
@@ -176,56 +182,61 @@ export function PaperOnlyRollingPaperHostView({
         </div>
       )}
 
-      <section className="pb-safe-bottom-6 absolute right-0 bottom-0 left-0 z-20 bg-white px-4 pt-7">
-        <div
-          aria-hidden="true"
-          className="absolute -top-[43px] left-1/2 h-[87px] w-[156%] min-w-[585px] -translate-x-1/2"
-          style={{
-            background:
-              'radial-gradient(circle at 28px 44px, #FFFFFF 0 28px, transparent 29px) 0 0 / 57px 87px repeat-x',
-          }}
-        />
+      {showShareControls && (
+        <section className="pb-safe-bottom-6 absolute right-0 bottom-0 left-0 z-20 bg-white px-4 pt-7">
+          <div
+            aria-hidden="true"
+            className="absolute -top-[43px] left-1/2 h-[87px] w-[156%] min-w-[585px] -translate-x-1/2"
+            style={{
+              background:
+                'radial-gradient(circle at 28px 44px, #FFFFFF 0 28px, transparent 29px) 0 0 / 57px 87px repeat-x',
+            }}
+          />
 
-        <div className="relative mx-auto flex max-w-[343px] flex-col items-center gap-2">
-          {writableUntil && (
-            <CountdownTimer
-              targetDate={writableUntil}
-              className="text-grey-500 text-[15px] leading-[22px] font-medium"
-              timeClassName="font-medium text-red-500"
-            />
-          )}
+          <div className="relative mx-auto flex max-w-[343px] flex-col items-center gap-2">
+            {writableUntil && (
+              <CountdownTimer
+                targetDate={writableUntil}
+                className="text-grey-500 text-[15px] leading-[22px] font-medium"
+                timeClassName="font-medium text-red-500"
+                onComplete={() => setHasWritableTime(false)}
+              />
+            )}
 
-          <div className="flex w-full max-w-[340px] gap-2">
-            <button
-              type="button"
-              aria-label="이미지 다운로드 기능 준비 중"
-              title="이미지 다운로드 기능 준비 중"
-              disabled
-              className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
-            >
-              <DownloadIcon className="h-6 w-6" />
-            </button>
-            <div className="min-w-0 flex-1">
-              <Button
-                variant="primary"
-                size="full"
-                disabled={isActivatingInvite}
-                onClick={onShareClick}
+            <div className="flex w-full max-w-[340px] gap-2">
+              <button
+                type="button"
+                aria-label="이미지 다운로드 기능 준비 중"
+                title="이미지 다운로드 기능 준비 중"
+                disabled
+                className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
               >
-                롤링페이퍼 공유하기
-              </Button>
+                <DownloadIcon className="h-6 w-6" />
+              </button>
+              <div className="min-w-0 flex-1">
+                <Button
+                  variant="primary"
+                  size="full"
+                  disabled={isActivatingInvite}
+                  onClick={onShareClick}
+                >
+                  롤링페이퍼 공유하기
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <LinkShareSheet
-        isOpen={isShareSheetOpen}
-        link={inviteShareLink ?? ''}
-        title="롤링페이퍼 링크 공유하기"
-        shareText="롤링페이퍼 작성 초대장이 왔어요"
-        onClose={onShareSheetClose}
-      />
+      {showShareControls && (
+        <LinkShareSheet
+          isOpen={isShareSheetOpen}
+          link={inviteShareLink ?? ''}
+          title="롤링페이퍼 링크 공유하기"
+          shareText="롤링페이퍼 작성 초대장이 왔어요"
+          onClose={onShareSheetClose}
+        />
+      )}
     </div>
   );
 }

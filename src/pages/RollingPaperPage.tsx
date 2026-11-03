@@ -175,7 +175,7 @@ export default function RollingPaperPage() {
 
   if (!data) return null;
 
-  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView && isWritable) {
+  if (!inviteToken && !isWriteCompleteMode && isPaperOnlyHostView) {
     return (
       <>
         <PaperOnlyRollingPaperHostView
@@ -185,6 +185,7 @@ export default function RollingPaperPage() {
           viewableAt={data.viewableAt}
           writableUntil={data.writableUntil}
           isViewable={data.viewable !== false}
+          isWritable={isWritable}
           isShareSheetOpen={isShareSheetOpen}
           inviteShareLink={inviteShareLink}
           isActivatingInvite={isActivatingInvite}

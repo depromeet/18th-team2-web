@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
@@ -32,6 +32,7 @@ function renderView() {
       hostName="김이라"
       viewableAt="2099-10-21T22:00:00+09:00"
       writableUntil="2099-10-28T22:00:00+09:00"
+      isWritable
       isShareSheetOpen={false}
       inviteShareLink="https://hapalin.com/invite/test"
       isActivatingInvite={false}
@@ -97,6 +98,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
         totalCount={1}
         viewableAt="2099-10-21T22:00:00+09:00"
         writableUntil="2099-10-28T22:00:00+09:00"
+        isWritable
         isShareSheetOpen={false}
         inviteShareLink={null}
         isActivatingInvite={false}
@@ -132,6 +134,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
         viewableAt="2099-10-21T22:00:00+09:00"
         writableUntil="2099-10-28T22:00:00+09:00"
         isViewable
+        isWritable
         isShareSheetOpen={false}
         inviteShareLink={null}
         isActivatingInvite={false}
@@ -149,5 +152,64 @@ describe('PaperOnlyRollingPaperHostView', () => {
     expect(onToppingClick).toHaveBeenCalledWith(0);
     expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
     expect(screen.getByText(/토핑을 눌러 확인해 보세요!/)).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.queryByText(/작성 가능한 시간/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '롤링페이퍼 공유하기' })).not.toBeInTheDocument();
+  });
+
+  it('작성 기간이 끝나면 공개 전이어도 공유 영역을 노출하지 않는다', () => {
+    render(
+      <PaperOnlyRollingPaperHostView
+        hostName="김이라"
+        viewableAt="2099-10-21T22:00:00+09:00"
+        writableUntil="2099-10-28T22:00:00+09:00"
+        isWritable={false}
+        isShareSheetOpen={false}
+        inviteShareLink={null}
+        isActivatingInvite={false}
+        onShareClick={vi.fn()}
+        onShareSheetClose={vi.fn()}
+        onBackClick={vi.fn()}
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.queryByText(/작성 가능한 시간/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '롤링페이퍼 공유하기' })).not.toBeInTheDocument();
+  });
+
+  it('화면을 열어둔 채 작성 마감 시각이 지나면 공유 영역을 제거한다', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-21T21:59:59+09:00'));
+
+    try {
+      render(
+        <PaperOnlyRollingPaperHostView
+          hostName="김이라"
+          viewableAt="2026-10-21T22:00:00+09:00"
+          writableUntil="2026-10-21T22:00:00+09:00"
+          isWritable
+          isShareSheetOpen={false}
+          inviteShareLink={null}
+          isActivatingInvite={false}
+          onShareClick={vi.fn()}
+          onShareSheetClose={vi.fn()}
+          onBackClick={vi.fn()}
+          onRefresh={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByRole('button', { name: '롤링페이퍼 공유하기' })).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.queryByRole('button', { name: '롤링페이퍼 공유하기' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

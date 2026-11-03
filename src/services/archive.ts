@@ -54,6 +54,7 @@ function formatKstOrEmpty(iso: string | null | undefined, pattern: string): stri
 function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
   return {
     id: res.partyId != null ? String(res.partyId) : '',
+    partyOption: res.partyOption,
     title: buildArchiveTitle(
       res.celebrantNickname,
       res.partyOption === 'PAPER_ONLY' ? 'PAPER' : 'PARTY',

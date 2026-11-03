@@ -176,6 +176,7 @@ describe('useArchiveDetail', () => {
     expect(apiGetMock).toHaveBeenCalledWith('/api/v1/archive/party/42');
     expect(result.current.data).toEqual({
       id: '42',
+      partyOption: 'REALTIME',
       title: '김루카의 파티',
       date: '26.05.12',
       time: '22:10',
@@ -205,6 +206,7 @@ describe('useArchiveDetail', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data?.title).toBe('김루카의 롤링페이퍼');
+    expect(result.current.data?.partyOption).toBe('PAPER_ONLY');
     expect(result.current.data?.participants).toEqual([]);
   });
 

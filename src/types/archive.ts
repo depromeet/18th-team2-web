@@ -1,4 +1,5 @@
 import type { PartyRole } from '@/constants/party';
+import type { PartyOption } from '@/types/home';
 
 export type ArchiveItemType = 'PARTY' | 'PAPER';
 export type StampType = 'strawberry' | 'candle' | 'firework' | 'rollcake' | 'donut';
@@ -27,6 +28,7 @@ export interface ChatMessage {
 // PAPER_ONLY는 participants/chatMessages가 빈 배열, endDate(파티 종료=롤페 기한)로 표시.
 export interface PartyDetail {
   id: string;
+  partyOption: PartyOption;
   /** 표시용 제목 — BE 제목 필드 없음, celebrantNickname + partyOption으로 FE 조합 (리스트와 동일 패턴) */
   title: string;
   date: string;

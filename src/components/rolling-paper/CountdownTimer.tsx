@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { B2 } from '@/components/ui/Typography';
 import { parseKstDateTime } from '@/utils/date';
@@ -7,6 +7,7 @@ interface CountdownTimerProps {
   targetDate: string;
   className?: string;
   timeClassName?: string;
+  onComplete?: () => void;
 }
 
 function formatParts(ms: number) {
@@ -28,18 +29,32 @@ export function CountdownTimer({
   targetDate,
   className = 'text-grey-500 text-center font-medium',
   timeClassName = 'font-semibold text-red-500',
+  onComplete,
 }: CountdownTimerProps) {
   const [remaining, setRemaining] = useState(() => getRemainingMs(targetDate));
+  const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    function updateRemaining() {
       const next = getRemainingMs(targetDate);
       if (next <= 0) {
         setRemaining(0);
-        clearInterval(timer);
-      } else {
-        setRemaining(next);
+        onCompleteRef.current?.();
+        return false;
       }
+
+      setRemaining(next);
+      return true;
+    }
+
+    if (!updateRemaining()) return;
+
+    const timer = setInterval(() => {
+      if (!updateRemaining()) clearInterval(timer);
     }, 1000);
 
     return () => clearInterval(timer);
