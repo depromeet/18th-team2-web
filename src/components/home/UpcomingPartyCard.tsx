@@ -7,6 +7,7 @@ import { PARTY_ROLE, type PartyRole } from '@/constants/party';
 import type { PartyOption, UpcomingParty } from '@/types/home';
 import { canShareParty } from '@/utils/party';
 import InfoIcon from '@/assets/icons/icon-info.svg?react';
+import { parseKstDateTime } from '@/utils/date';
 import { getRealtimeCardTiming } from '@/utils/upcomingParty';
 
 interface UpcomingPartyCardProps {
@@ -70,6 +71,12 @@ const ACTION_BUTTON_VARIANT: Record<ActionVariant, CardButtonVariant> = {
   disabled: 'secondary',
 };
 
+const CARD_STATUS = {
+  scheduled: { text: '예정된 파티', className: 'text-grey-500' },
+  active: { text: '진행 중', className: 'text-blue-800' },
+  ended: { text: '마감됨', className: 'text-red-700' },
+} as const;
+
 const COUNTDOWN_TICK_MS = 1000;
 
 export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCardProps) {
@@ -79,9 +86,21 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
   const isHost = role === PARTY_ROLE.HOST;
   const realtimeTiming = useMemo(() => getRealtimeCardTiming(party, nowMs), [nowMs, party]);
   const effectiveIsOpen = isRollingPaper ? isOpen : realtimeTiming.isEnterable;
+  const liveStartAt = party.realtimeSchedule?.liveStartAt;
+  const isRealtimeStarted = Boolean(
+    liveStartAt && parseKstDateTime(liveStartAt).valueOf() <= nowMs,
+  );
+  const endedView = isRollingPaper
+    ? { ...PAPER_BADGE, actionText: '롤링페이퍼 확인하기', actionVariant: 'primary' as const }
+    : ENDED_VIEW[role];
   const view = isEnded
-    ? ENDED_VIEW[role]
+    ? endedView
     : UPCOMING_PARTY_CARD_VIEW[role][partyOption][effectiveIsOpen ? 'open' : 'closed'];
+  const status = isEnded
+    ? CARD_STATUS.ended
+    : isRollingPaper || isRealtimeStarted
+      ? CARD_STATUS.active
+      : CARD_STATUS.scheduled;
   const isActionEnabled = view.actionVariant === 'primary';
   // 링크 복사 노출 규칙은 canShareParty 단일 소스 사용 (HomePage 공유 핸들러와 동일 기준)
   const showShareButton = canShareParty(party);
@@ -111,31 +130,34 @@ export function UpcomingPartyCard({ party, onAction, onShare }: UpcomingPartyCar
         noticeTone === 'enter' ? 'bg-red-30' : noticeTone === 'ended' ? 'bg-blue-50' : 'bg-white'
       }`}
     >
-      <div className="rounded-btn-lg flex flex-col gap-3 bg-white p-4">
-        <div className="flex flex-col gap-0.5">
+      <div className="rounded-btn-lg flex flex-col gap-4 bg-white p-4">
+        <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
-            <H2>{partyName}</H2>
+            <span className={`text-label-1 font-medium ${status.className}`}>{status.text}</span>
             <span
               className={`text-label-2 shrink-0 rounded-md px-2 py-1 font-semibold ${view.badgeClassName}`}
             >
               {view.badgeText}
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <B1 className="font-medium">{date}</B1>
-            {isRollingPaper && endDate ? (
-              <>
-                <span className="text-grey-200 text-body-1 font-medium">~</span>
-                <B1 className="font-medium">{endDate}</B1>
-              </>
-            ) : (
-              time && (
+          <div className="flex flex-col gap-1">
+            <H2>{partyName}</H2>
+            <div className="flex items-center gap-1.5">
+              <B1 className="font-medium">{date}</B1>
+              {isRollingPaper && endDate ? (
                 <>
-                  <span className="border-grey-200 h-3 border-l" />
-                  <B1 className="font-medium">{time}</B1>
+                  <span className="text-grey-200 text-body-1 font-medium">~</span>
+                  <B1 className="font-medium">{endDate}</B1>
                 </>
-              )
-            )}
+              ) : (
+                time && (
+                  <>
+                    <span className="border-grey-200 h-3 border-l" />
+                    <B1 className="font-medium">{time}</B1>
+                  </>
+                )
+              )}
+            </div>
           </div>
         </div>
 

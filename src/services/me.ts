@@ -13,14 +13,18 @@ type UpcomingPartyResponse = components['schemas']['UpcomingPartyResponse'];
 // 라이브/롤페 구분(partyOption)은 BE 값 그대로 유지하고, 홈 카드에 필요한 시점만 파생한다.
 // - isOpen: PAPER_ONLY는 hostRollingPaperOpenAt, REALTIME은 enterableFrom 기준.
 // - isEnded: REALTIME 라이브 종료 → 롤링페이퍼 단계 (파티 종료 후에도 롤페 작성/확인 가능).
-function deriveDisplayState(party: UpcomingPartyResponse): { isOpen: boolean; isEnded: boolean } {
+export function deriveDisplayState(party: UpcomingPartyResponse): {
+  isOpen: boolean;
+  isEnded: boolean;
+} {
   const now = Date.now();
 
   if (party.partyOption === 'PAPER_ONLY') {
     const openAt = party.hostRollingPaperOpenAt;
+    const endedAt = party.partyEndedAt;
     return {
       isOpen: openAt != null && parseKstDateTime(openAt).valueOf() <= now,
-      isEnded: false,
+      isEnded: endedAt != null && parseKstDateTime(endedAt).valueOf() <= now,
     };
   }
 
