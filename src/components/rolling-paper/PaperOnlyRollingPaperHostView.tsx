@@ -55,7 +55,7 @@ export function PaperOnlyRollingPaperHostView({
   const [hasWritableTime, setHasWritableTime] = useState(isWritable);
   const hasMessages = totalCount > 0;
   const isRealtimeParty = partyType === 'realtime';
-  const showShareControls = hasWritableTime && (isRealtimeParty || !isViewable);
+  const showShareControls = hasWritableTime;
   const showDownloadAction = !isRealtimeParty || hasMessages;
   const openDateLabel = useMemo(() => {
     if (!viewableAt) return null;

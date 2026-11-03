@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RollingPaperInviteView } from '@/components/rolling-paper/RollingPaperInviteView';
@@ -37,6 +37,36 @@ vi.mock('@/components/ui/icons/RefreshIcon', () => ({
 describe('RollingPaperInviteView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  it('작성 가능 시간이 끝나면 참가자 마감 전환을 요청한다', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-03T12:59:59+09:00'));
+    const onWritingExpired = vi.fn();
+    mockUseRollingPaper.mockReturnValue({
+      data: { partyId: '1', messages: [], totalCount: 0 },
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    render(
+      <RollingPaperInviteView
+        partyId="1"
+        inviteToken="test-token"
+        hostName="김이라"
+        writableUntil="2026-11-03T13:00:00+09:00"
+        onWritingExpired={onWritingExpired}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(onWritingExpired).toHaveBeenCalledTimes(1);
   });
 
   it('편지가 없는 참가자에게 작성 안내만 표시하고 공유 기능은 노출하지 않는다', () => {

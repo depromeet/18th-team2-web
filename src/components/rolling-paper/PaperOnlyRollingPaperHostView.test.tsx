@@ -123,7 +123,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
     expect(screen.queryByText(/토핑을 눌러 확인해 보세요!/)).not.toBeInTheDocument();
   });
 
-  it('공개 후에는 토핑을 활성화하고 클릭 콜백을 호출한다', () => {
+  it('공개 후에는 토핑을 활성화하고 작성 기간 동안 공유 영역을 유지한다', () => {
     const onToppingClick = vi.fn();
 
     render(
@@ -152,9 +152,9 @@ describe('PaperOnlyRollingPaperHostView', () => {
     expect(onToppingClick).toHaveBeenCalledWith(0);
     expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
     expect(screen.getByText(/토핑을 눌러 확인해 보세요!/)).toBeInTheDocument();
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    expect(screen.queryByText(/작성 가능한 시간/)).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '롤링페이퍼 공유하기' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByText(/작성 가능한 시간/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '롤링페이퍼 공유하기' })).toBeInTheDocument();
   });
 
   it('작성 기간이 끝나면 공개 전이어도 공유 영역을 노출하지 않는다', () => {

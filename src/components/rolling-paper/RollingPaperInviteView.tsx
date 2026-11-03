@@ -21,6 +21,7 @@ interface RollingPaperInviteViewProps {
   inviteToken: string;
   hostName: string;
   writableUntil?: string;
+  onWritingExpired?: () => void;
 }
 
 export function RollingPaperInviteView({
@@ -28,6 +29,7 @@ export function RollingPaperInviteView({
   inviteToken,
   hostName,
   writableUntil,
+  onWritingExpired,
 }: RollingPaperInviteViewProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -134,6 +136,7 @@ export function RollingPaperInviteView({
         variant="solid"
         buttonLabel="롤링페이퍼 남기기"
         showTooltip={false}
+        onWritingExpired={onWritingExpired}
       />
     </div>
   );

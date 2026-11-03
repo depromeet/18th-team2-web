@@ -9,6 +9,7 @@ interface RollingPaperShareActionAreaProps {
   animate?: boolean;
   buttonLabel?: string;
   showTooltip?: boolean;
+  onWritingExpired?: () => void;
 }
 
 export function RollingPaperShareActionArea({
@@ -19,6 +20,7 @@ export function RollingPaperShareActionArea({
   animate = false,
   buttonLabel = '롤링페이퍼 공유하기',
   showTooltip = true,
+  onWritingExpired,
 }: RollingPaperShareActionAreaProps) {
   const tooltipBubbleClassName = [
     'relative flex w-fit max-w-[calc(100vw-28px)] items-center justify-center rounded-xl bg-blue-1000 px-3 py-2',
@@ -67,6 +69,7 @@ export function RollingPaperShareActionArea({
             targetDate={writableUntil}
             className="text-body-2 text-grey-500 text-center font-medium"
             timeClassName="font-semibold text-red-500"
+            onComplete={onWritingExpired}
           />
         )}
         <Button variant="primary" size="full" disabled={isActivatingInvite} onClick={onShareClick}>
