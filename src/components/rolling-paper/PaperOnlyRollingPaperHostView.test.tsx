@@ -11,6 +11,10 @@ vi.mock('@/assets/images/icons/download.svg?react', () => ({
   default: () => <svg aria-hidden="true" />,
 }));
 
+vi.mock('@/assets/images/icons/party-popper.svg?react', () => ({
+  default: () => <svg aria-hidden="true" />,
+}));
+
 vi.mock('@/components/ui/icons/ChevronLeftIcon', () => ({
   ChevronLeftIcon: () => <svg aria-hidden="true" />,
 }));

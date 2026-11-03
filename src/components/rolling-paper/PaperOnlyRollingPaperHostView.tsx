@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import letterImage from '@/assets/images/live-party/letter.png';
 import CloseIcon from '@/assets/images/icons/close.svg?react';
 import DownloadIcon from '@/assets/images/icons/download.svg?react';
+import PartyPopperIcon from '@/assets/images/icons/party-popper.svg?react';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
@@ -199,9 +200,7 @@ export function PaperOnlyRollingPaperHostView({
             role="status"
             className="link-share-toast pointer-events-auto flex h-[76px] w-[343px] max-w-full items-center justify-between rounded-[14px] bg-black/70 p-4 text-white"
           >
-            <span aria-hidden="true" className="text-[34px] leading-none">
-              🎉
-            </span>
+            <PartyPopperIcon aria-hidden="true" className="h-10 w-10 shrink-0" />
             <p className="text-body-2 mx-3 flex-1 leading-[22px] font-medium break-keep">
               친구들에게 공유하면
               <br />더 많은 축하를 받을 수 있어요!
