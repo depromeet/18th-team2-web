@@ -55,8 +55,6 @@ function makeDetailResponse(
     participantCount: 2,
     paperCount: 3,
     participants: [{ nickname: '하파' }, { nickname: '린' }],
-    chatMessages: [],
-    chatHasMore: false,
     myPaperWritten: false,
     ...overrides,
   };
@@ -159,14 +157,6 @@ describe('useArchiveDetail', () => {
       status: 200,
       data: makeDetailResponse({
         role: 'HOST',
-        chatMessages: [
-          {
-            id: 7,
-            authorName: '하파',
-            content: '생일 축하해!',
-            sentAt: '2026-05-12T22:15:30+09:00',
-          },
-        ],
       }),
     });
 
@@ -188,7 +178,6 @@ describe('useArchiveDetail', () => {
       myPaperContent: undefined,
       myPaperWriterNickname: undefined,
       paperCount: 3,
-      chatMessages: [{ id: '7', authorName: '하파', content: '생일 축하해!', sentAt: '22:15' }],
     });
   });
 

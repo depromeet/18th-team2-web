@@ -50,7 +50,7 @@ function formatKstOrEmpty(iso: string | null | undefined, pattern: string): stri
 }
 
 // PARTY/PAPER_ONLY 모두 GET /api/v1/archive/party/{partyId} 한 엔드포인트로 조회한다.
-// PAPER_ONLY는 participants/chatMessages가 빈 배열로 응답. stamp는 BE 미제공(StampHeroCard 해시).
+// PAPER_ONLY는 participants가 빈 배열로 응답. stamp는 BE 미제공(StampHeroCard 해시).
 function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
   return {
     id: res.partyId != null ? String(res.partyId) : '',
@@ -69,12 +69,6 @@ function mapArchiveDetail(res: ArchivePartyDetailResponse): PartyDetail {
     myPaperContent: res.myPaperContent ?? undefined,
     myPaperWriterNickname: res.myPaperWriterNickname ?? undefined,
     paperCount: res.paperCount ?? 0,
-    chatMessages: (res.chatMessages ?? []).map((msg) => ({
-      id: msg.id != null ? String(msg.id) : '',
-      authorName: msg.authorName ?? '',
-      content: msg.content ?? '',
-      sentAt: formatKstOrEmpty(msg.sentAt, 'HH:mm'),
-    })),
   };
 }
 
