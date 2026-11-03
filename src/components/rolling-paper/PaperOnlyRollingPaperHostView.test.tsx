@@ -29,6 +29,7 @@ function renderView() {
 
   render(
     <PaperOnlyRollingPaperHostView
+      hostName="김이라"
       viewableAt="2099-10-21T22:00:00+09:00"
       writableUntil="2099-10-28T22:00:00+09:00"
       isShareSheetOpen={false}
@@ -48,8 +49,11 @@ describe('PaperOnlyRollingPaperHostView', () => {
   it('공개 일시와 작성 마감 카운트다운을 표시한다', () => {
     renderView();
 
-    expect(screen.getByText('아직 편지를 남긴 친구가 없어요')).toBeInTheDocument();
+    expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
+      '김이라님을 위해롤링페이퍼를 작성해 주세요!',
+    );
     expect(screen.getByText('10월 21일 밤 10시')).toBeInTheDocument();
+    expect(screen.queryByText('공개시간이 되면 확인할 수 있어요')).not.toBeInTheDocument();
     expect(screen.getByText(/작성 가능한 시간/)).toBeInTheDocument();
   });
 

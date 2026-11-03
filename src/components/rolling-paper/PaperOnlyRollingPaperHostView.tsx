@@ -118,7 +118,9 @@ export function PaperOnlyRollingPaperHostView({
           <>
             <div>
               <h1 className="text-head-2 font-semibold tracking-normal text-white">
-                아직 편지를 남긴 친구가 없어요
+                {hostName ? `${hostName}님을 위해` : '나를 위해'}
+                <br />
+                롤링페이퍼를 작성해 주세요!
               </h1>
               <p className="text-body-2 mt-2 leading-[22px] font-medium text-blue-100">
                 롤링페이퍼는{' '}
@@ -126,8 +128,6 @@ export function PaperOnlyRollingPaperHostView({
                   {openDateLabel ? `${openDateLabel} 밤 10시` : '생성일 밤 10시'}
                 </strong>
                 에 공개돼요
-                <br />
-                공개시간이 되면 확인할 수 있어요
               </p>
             </div>
 

@@ -89,24 +89,20 @@ export function RollingPaperInviteView({
         </div>
 
         <H1 className="mt-5 font-semibold tracking-normal text-white">
-          {messages.length === 0 ? (
-            <>
-              {displayName}님을 위해
-              <br />
-              롤링페이퍼를 작성해 주세요!
-            </>
-          ) : (
-            `${displayName}님의 롤링페이퍼`
-          )}
+          {displayName}님을 위해
+          <br />
+          롤링페이퍼를 작성해 주세요!
         </H1>
         <B1 className="mt-2 text-blue-100">
           {messages.length === 0 ? (
             '가장 처음으로 마음을 남겨보세요'
           ) : (
             <>
-              롤링페이퍼로 축하를 남겨보세요!
-              <br />
-              작성한 내용은 주인공만 볼 수 있어요
+              친구들이 총{' '}
+              <span className="font-semibold text-white">
+                {data?.totalCount ?? messages.length}개
+              </span>
+              의 편지를 남겼어요!
             </>
           )}
         </B1>

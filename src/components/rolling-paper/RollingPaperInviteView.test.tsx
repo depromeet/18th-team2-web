@@ -68,7 +68,7 @@ describe('RollingPaperInviteView', () => {
     expect(mockRefetch).toHaveBeenCalledTimes(1);
   });
 
-  it('편지가 있으면 기존 참가자 문구와 비활성 토핑을 유지한다', () => {
+  it('편지가 있으면 작성 안내와 편지 개수를 표시하고 토핑은 비활성으로 유지한다', () => {
     mockUseRollingPaper.mockReturnValue({
       data: {
         partyId: '1',
@@ -90,8 +90,10 @@ describe('RollingPaperInviteView', () => {
       />,
     );
 
-    expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
-    expect(screen.getByText(/롤링페이퍼로 축하를 남겨보세요!/)).toBeInTheDocument();
+    expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
+      '김이라님을 위해롤링페이퍼를 작성해 주세요!',
+    );
+    expect(screen.getByText(/친구들이 총/)).toHaveTextContent('친구들이 총 1개의 편지를 남겼어요!');
     expect(screen.getByRole('button', { name: /해파링링/ })).toHaveAttribute(
       'aria-disabled',
       'true',
