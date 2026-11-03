@@ -215,6 +215,7 @@ export default function RollingPaperPage() {
                 initialIndex={selectedMessageIndex}
                 viewableAt={data.viewableAt}
                 onClose={() => setSelectedMessageIndex(null)}
+                onViewable={() => void refetch()}
               />
             ) : (
               <MessageCard

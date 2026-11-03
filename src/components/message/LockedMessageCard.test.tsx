@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { LockedMessageCard } from '@/components/message/LockedMessageCard';
@@ -45,5 +45,27 @@ describe('LockedMessageCard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '메시지 닫기' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('공개 시각이 되면 목록 갱신 콜백을 호출한다', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-30T21:59:59+09:00'));
+    const onViewable = vi.fn();
+
+    render(
+      <LockedMessageCard
+        messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
+        initialIndex={0}
+        viewableAt="2026-10-30T22:00:00+09:00"
+        onClose={vi.fn()}
+        onViewable={onViewable}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(onViewable).toHaveBeenCalledTimes(1);
   });
 });

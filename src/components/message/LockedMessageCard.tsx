@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper/types';
 import 'swiper/css';
@@ -17,6 +17,7 @@ interface LockedMessageCardProps {
   initialIndex: number;
   viewableAt?: string;
   onClose: () => void;
+  onViewable?: () => void;
 }
 
 const PLACEHOLDER_MESSAGE = '생일 축하해! 오늘 하루 누구보다 행복하고 즐거운 일만 가득하기를 바라.';
@@ -42,11 +43,14 @@ export function LockedMessageCard({
   initialIndex,
   viewableAt,
   onClose,
+  onViewable,
 }: LockedMessageCardProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const [openedAt] = useState(() => Date.now());
   const [now, setNow] = useState(openedAt);
+  const onViewableRef = useRef(onViewable);
+  const hasNotifiedViewableRef = useRef(false);
   const viewableAtMs = viewableAt ? parseKstDateTime(viewableAt).valueOf() : Number.NaN;
   const hasValidViewableAt = Number.isFinite(viewableAtMs);
   const remainingMs = hasValidViewableAt ? Math.max(viewableAtMs - now, 0) : 0;
@@ -56,12 +60,30 @@ export function LockedMessageCard({
     : 0;
 
   useEffect(() => {
-    if (!hasValidViewableAt || viewableAtMs <= Date.now()) return;
+    onViewableRef.current = onViewable;
+  }, [onViewable]);
+
+  useEffect(() => {
+    if (!hasValidViewableAt) return;
+
+    function notifyViewable() {
+      if (hasNotifiedViewableRef.current) return;
+      hasNotifiedViewableRef.current = true;
+      onViewableRef.current?.();
+    }
+
+    if (viewableAtMs <= Date.now()) {
+      notifyViewable();
+      return;
+    }
 
     const timer = window.setInterval(() => {
       const nextNow = Date.now();
       setNow(nextNow);
-      if (nextNow >= viewableAtMs) window.clearInterval(timer);
+      if (nextNow >= viewableAtMs) {
+        window.clearInterval(timer);
+        notifyViewable();
+      }
     }, 1000);
 
     return () => window.clearInterval(timer);
