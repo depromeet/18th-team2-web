@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
+import { RollingPaperHostView } from '@/components/rolling-paper/RollingPaperHostView';
 
 vi.mock('@/assets/images/icons/close.svg?react', () => ({
   default: () => <svg aria-hidden="true" />,
@@ -32,7 +32,7 @@ function renderView() {
   const onRefresh = vi.fn();
 
   render(
-    <PaperOnlyRollingPaperHostView
+    <RollingPaperHostView
       hostName="김이라"
       viewableAt="2099-10-21T22:00:00+09:00"
       writableUntil="2099-10-28T22:00:00+09:00"
@@ -50,7 +50,7 @@ function renderView() {
   return { onRefresh, onShareClick };
 }
 
-describe('PaperOnlyRollingPaperHostView', () => {
+describe('RollingPaperHostView', () => {
   it('공개 일시와 작성 마감 카운트다운을 표시한다', () => {
     renderView();
 
@@ -90,7 +90,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
     const onToppingClick = vi.fn();
 
     render(
-      <PaperOnlyRollingPaperHostView
+      <RollingPaperHostView
         hostName="김이라"
         messages={[
           {
@@ -131,7 +131,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
     const onToppingClick = vi.fn();
 
     render(
-      <PaperOnlyRollingPaperHostView
+      <RollingPaperHostView
         hostName="김이라"
         messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
         totalCount={1}
@@ -163,7 +163,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
 
   it('작성 기간이 끝나면 공개 전이어도 공유 영역을 노출하지 않는다', () => {
     render(
-      <PaperOnlyRollingPaperHostView
+      <RollingPaperHostView
         hostName="김이라"
         viewableAt="2099-10-21T22:00:00+09:00"
         writableUntil="2099-10-28T22:00:00+09:00"
@@ -189,7 +189,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
 
     try {
       render(
-        <PaperOnlyRollingPaperHostView
+        <RollingPaperHostView
           hostName="김이라"
           viewableAt="2026-10-21T22:00:00+09:00"
           writableUntil="2026-10-21T22:00:00+09:00"
@@ -219,7 +219,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
 
   it('실시간 파티 종료 후 편지가 없으면 종료 후 안내와 전체 폭 공유 버튼을 표시한다', () => {
     render(
-      <PaperOnlyRollingPaperHostView
+      <RollingPaperHostView
         partyType="realtime"
         hostName="김이라"
         writableUntil="2099-10-28T22:00:00+09:00"
@@ -247,7 +247,7 @@ describe('PaperOnlyRollingPaperHostView', () => {
     const onToppingClick = vi.fn();
 
     render(
-      <PaperOnlyRollingPaperHostView
+      <RollingPaperHostView
         partyType="realtime"
         hostName="김이라"
         messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}

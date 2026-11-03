@@ -1,21 +1,18 @@
 import { useMemo, useState } from 'react';
 
 import letterImage from '@/assets/images/live-party/letter.png';
-import CloseIcon from '@/assets/images/icons/close.svg?react';
 import DownloadIcon from '@/assets/images/icons/download.svg?react';
-import PartyPopperIcon from '@/assets/images/icons/party-popper.svg?react';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
-import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
+import { RollingPaperSceneHeader } from '@/components/rolling-paper/RollingPaperSceneHeader';
+import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
+import { RollingPaperShareNotice } from '@/components/rolling-paper/RollingPaperShareNotice';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
-import { Button } from '@/components/ui/Button';
-import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
-import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
 import type { RollingPaperMessage } from '@/services/rolling-paper';
 import { formatKoreanShortDate, parseKstDateTime } from '@/utils/date';
 
-interface PaperOnlyRollingPaperHostViewProps {
+interface RollingPaperHostViewProps {
   partyType?: 'paper-only' | 'realtime';
   hostName?: string;
   messages?: RollingPaperMessage[];
@@ -34,7 +31,7 @@ interface PaperOnlyRollingPaperHostViewProps {
   onToppingClick?: (index: number) => void;
 }
 
-export function PaperOnlyRollingPaperHostView({
+export function RollingPaperHostView({
   partyType = 'paper-only',
   hostName,
   messages = [],
@@ -51,8 +48,7 @@ export function PaperOnlyRollingPaperHostView({
   onBackClick,
   onRefresh,
   onToppingClick,
-}: PaperOnlyRollingPaperHostViewProps) {
-  const [isShareNoticeOpen, setIsShareNoticeOpen] = useState(true);
+}: RollingPaperHostViewProps) {
   const [hasWritableTime, setHasWritableTime] = useState(isWritable);
   const hasMessages = totalCount > 0;
   const isRealtimeParty = partyType === 'realtime';
@@ -79,25 +75,7 @@ export function PaperOnlyRollingPaperHostView({
     >
       {hasMessages && <CakeBackground hideBottomDecoration={showShareControls} />}
 
-      <header className="pt-safe-top-3 relative z-30 flex items-center justify-between px-2">
-        <button
-          type="button"
-          aria-label="뒤로가기"
-          onClick={onBackClick}
-          className="flex h-12 w-12 cursor-pointer items-center justify-center text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-        >
-          <ChevronLeftIcon className="h-6 w-6" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="새로고침"
-          onClick={onRefresh}
-          className="flex h-12 w-12 cursor-pointer items-center justify-center text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-        >
-          <RefreshIcon className="h-6 w-6" />
-        </button>
-      </header>
+      <RollingPaperSceneHeader onBack={onBackClick} onRefresh={onRefresh} />
 
       <main
         className={`pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] z-20 flex flex-col px-4 ${showShareControls ? 'bottom-[165px]' : 'bottom-0'}`}
@@ -194,75 +172,31 @@ export function PaperOnlyRollingPaperHostView({
         />
       )}
 
-      {showShareControls && isShareNoticeOpen && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(109px+env(safe-area-inset-bottom))] z-40 flex justify-center px-4">
-          <div
-            role="status"
-            className="link-share-toast pointer-events-auto flex h-[76px] w-[343px] max-w-full items-center justify-between rounded-[14px] bg-black/70 p-4 text-white"
-          >
-            <PartyPopperIcon aria-hidden="true" className="h-10 w-10 shrink-0" />
-            <p className="text-body-2 mx-3 flex-1 leading-[22px] font-medium break-keep">
-              친구들에게 공유하면
-              <br />더 많은 축하를 받을 수 있어요!
-            </p>
-            <button
-              type="button"
-              aria-label="공유 안내 닫기"
-              onClick={() => setIsShareNoticeOpen(false)}
-              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-            >
-              <CloseIcon className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      )}
+      {showShareControls && <RollingPaperShareNotice />}
 
       {showShareControls && (
-        <section className="pb-safe-bottom-6 absolute right-0 bottom-0 left-0 z-20 bg-white px-4 pt-7">
-          <div
-            aria-hidden="true"
-            className="absolute -top-[43px] left-1/2 h-[87px] w-[156%] min-w-[585px] -translate-x-1/2"
-            style={{
-              background:
-                'radial-gradient(circle at 28px 44px, #FFFFFF 0 28px, transparent 29px) 0 0 / 57px 87px repeat-x',
-            }}
-          />
-
-          <div className="relative mx-auto flex max-w-[343px] flex-col items-center gap-2">
-            {writableUntil && (
-              <CountdownTimer
-                targetDate={writableUntil}
-                className="text-grey-500 text-[15px] leading-[22px] font-medium"
-                timeClassName="font-medium text-red-500"
-                onComplete={() => setHasWritableTime(false)}
-              />
-            )}
-
-            <div className="flex w-full max-w-[340px] gap-2">
-              {showDownloadAction && (
-                <button
-                  type="button"
-                  aria-label="이미지 다운로드 기능 준비 중"
-                  title="이미지 다운로드 기능 준비 중"
-                  disabled
-                  className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
-                >
-                  <DownloadIcon className="h-6 w-6" />
-                </button>
-              )}
-              <div className="min-w-0 flex-1">
-                <Button
-                  variant="primary"
-                  size="full"
-                  disabled={isActivatingInvite}
-                  onClick={onShareClick}
-                >
-                  롤링페이퍼 공유하기
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
+        <RollingPaperShareActionArea
+          writableUntil={writableUntil}
+          isActivatingInvite={isActivatingInvite}
+          onShareClick={onShareClick}
+          onWritingExpired={() => setHasWritableTime(false)}
+          variant="solid"
+          showTooltip={false}
+          layout="compact"
+          leadingAction={
+            showDownloadAction ? (
+              <button
+                type="button"
+                aria-label="이미지 다운로드 기능 준비 중"
+                title="이미지 다운로드 기능 준비 중"
+                disabled
+                className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
+              >
+                <DownloadIcon className="h-6 w-6" />
+              </button>
+            ) : undefined
+          }
+        />
       )}
 
       {showShareControls && (

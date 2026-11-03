@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
-import { PaperOnlyRollingPaperHostView } from '@/components/rolling-paper/PaperOnlyRollingPaperHostView';
+import { RollingPaperHostView } from '@/components/rolling-paper/RollingPaperHostView';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { MessageCard } from '@/components/message/MessageCard';
 import { LockedMessageCard } from '@/components/message/LockedMessageCard';
@@ -188,7 +188,7 @@ export default function RollingPaperPage() {
   if (!inviteToken && !isWriteCompleteMode) {
     return (
       <>
-        <PaperOnlyRollingPaperHostView
+        <RollingPaperHostView
           partyType={isPaperOnlyHostView ? 'paper-only' : 'realtime'}
           hostName={data.hostName ?? locationState?.hostName}
           messages={data.messages}

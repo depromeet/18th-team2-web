@@ -2,11 +2,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import letterImage from '@/assets/images/live-party/letter.png';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
+import { RollingPaperSceneHeader } from '@/components/rolling-paper/RollingPaperSceneHeader';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { ErrorView } from '@/components/ui/ErrorView';
-import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
-import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 import { B1, H1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
 import { useRollingPaper } from '@/services/rolling-paper';
@@ -69,45 +68,34 @@ export function RollingPaperInviteView({
     <div className="rolling-paper-scene-vars bg-rolling-paper-main relative mx-auto h-dvh w-full max-w-150 overflow-hidden">
       {messages.length > 0 && <CakeBackground hideBottomDecoration />}
 
-      <div className="relative z-20 px-4 pt-3">
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            aria-label="뒤로가기"
-            className="-ml-2 flex h-12 w-12 items-center justify-center"
-          >
-            <ChevronLeftIcon className="text-white" />
-          </button>
+      <div className="relative z-20">
+        <RollingPaperSceneHeader
+          onBack={() => navigate(-1)}
+          onRefresh={() => void refetch()}
+          className="z-20 px-4 pt-3"
+          backButtonClassName="-ml-2"
+        />
 
-          <button
-            type="button"
-            aria-label="새로고침"
-            onClick={() => void refetch()}
-            className="flex h-12 w-12 cursor-pointer items-center justify-center text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-          >
-            <RefreshIcon className="h-6 w-6" />
-          </button>
+        <div className="px-4">
+          <H1 className="mt-5 font-semibold tracking-normal text-white">
+            {displayName}님을 위해
+            <br />
+            롤링페이퍼를 작성해 주세요!
+          </H1>
+          <B1 className="mt-2 text-blue-100">
+            {messages.length === 0 ? (
+              '가장 처음으로 마음을 남겨보세요'
+            ) : (
+              <>
+                친구들이 총{' '}
+                <span className="font-semibold text-white">
+                  {data?.totalCount ?? messages.length}개
+                </span>
+                의 편지를 남겼어요!
+              </>
+            )}
+          </B1>
         </div>
-
-        <H1 className="mt-5 font-semibold tracking-normal text-white">
-          {displayName}님을 위해
-          <br />
-          롤링페이퍼를 작성해 주세요!
-        </H1>
-        <B1 className="mt-2 text-blue-100">
-          {messages.length === 0 ? (
-            '가장 처음으로 마음을 남겨보세요'
-          ) : (
-            <>
-              친구들이 총{' '}
-              <span className="font-semibold text-white">
-                {data?.totalCount ?? messages.length}개
-              </span>
-              의 편지를 남겼어요!
-            </>
-          )}
-        </B1>
       </div>
 
       {messages.length === 0 && (
