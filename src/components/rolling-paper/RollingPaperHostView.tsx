@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import letterImage from '@/assets/images/live-party/letter.png';
 import DownloadIcon from '@/assets/images/icons/download.svg?react';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
-import { RollingPaperSceneHeader } from '@/components/rolling-paper/RollingPaperSceneHeader';
+import { RollingPaperHeader } from '@/components/rolling-paper/RollingPaperHeader';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { RollingPaperShareNotice } from '@/components/rolling-paper/RollingPaperShareNotice';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
@@ -75,7 +75,7 @@ export function RollingPaperHostView({
     >
       {hasMessages && <CakeBackground hideBottomDecoration={showShareControls} />}
 
-      <RollingPaperSceneHeader onBack={onBackClick} onRefresh={onRefresh} />
+      <RollingPaperHeader onBack={onBackClick} onRefresh={onRefresh} />
 
       <main
         className={`pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] z-20 flex flex-col px-4 ${showShareControls ? 'bottom-[165px]' : 'bottom-0'}`}

@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import letterImage from '@/assets/images/live-party/letter.png';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
-import { RollingPaperSceneHeader } from '@/components/rolling-paper/RollingPaperSceneHeader';
+import { RollingPaperHeader } from '@/components/rolling-paper/RollingPaperHeader';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { ErrorView } from '@/components/ui/ErrorView';
@@ -69,7 +69,7 @@ export function RollingPaperInviteView({
       {messages.length > 0 && <CakeBackground hideBottomDecoration />}
 
       <div className="relative z-20">
-        <RollingPaperSceneHeader
+        <RollingPaperHeader
           onBack={() => navigate(-1)}
           onRefresh={() => void refetch()}
           className="z-20 px-4 pt-3"

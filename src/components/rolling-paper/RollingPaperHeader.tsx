@@ -1,19 +1,19 @@
 import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
 import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
 
-interface RollingPaperSceneHeaderProps {
+interface RollingPaperHeaderProps {
   onBack: () => void;
   onRefresh: () => void;
   className?: string;
   backButtonClassName?: string;
 }
 
-export function RollingPaperSceneHeader({
+export function RollingPaperHeader({
   onBack,
   onRefresh,
   className = 'pt-safe-top-3 z-30 px-2',
   backButtonClassName = '',
-}: RollingPaperSceneHeaderProps) {
+}: RollingPaperHeaderProps) {
   return (
     <header className={`relative flex items-center justify-between ${className}`}>
       <button
