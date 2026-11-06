@@ -238,7 +238,7 @@ describe('RollingPaperHostView', () => {
     }
   });
 
-  it('실시간 파티 종료 후 편지가 없으면 종료 후 안내와 전체 폭 공유 버튼을 표시한다', () => {
+  it('실시간 파티 종료 후 편지가 없어도 다운로드 UI와 공유 버튼을 표시한다', () => {
     renderView({
       partyType: 'realtime',
       data: createData({ viewable: true }),
@@ -247,9 +247,7 @@ describe('RollingPaperHostView', () => {
     expect(screen.getByText('아직 편지를 남긴 친구가 없어요')).toBeInTheDocument();
     expect(screen.getByText(/링크를 공유해 친구들에게 알려보세요!/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '롤링페이퍼 공유하기' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: '이미지 다운로드 기능 준비 중' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '이미지 다운로드 기능 준비 중' })).toBeDisabled();
   });
 
   it('실시간 파티 종료 후 편지가 있으면 편지 개수와 다운로드 UI를 표시한다', () => {
