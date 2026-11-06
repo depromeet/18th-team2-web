@@ -21,15 +21,15 @@ export function CakeBackground({ hideBottomDecoration = false }: CakeBackgroundP
             'radial-gradient(ellipse at 50% 0%, #405DF3 0%, #7086F6 25%, #A0AEF9 50%, #CFD7FC 75%, #FFFFFF 100%)',
         }}
       />
+      <div
+        className="absolute left-0 h-6 w-full"
+        style={{
+          top: 'calc(var(--rolling-paper-art-offset) + 587px)',
+          background: 'radial-gradient(ellipse at 50% 50%, #FFFFFF 0%, #DBE3FF 100%)',
+        }}
+      />
       {!hideBottomDecoration && (
         <>
-          <div
-            className="absolute left-0 h-6 w-full"
-            style={{
-              top: 'calc(var(--rolling-paper-art-offset) + 587px)',
-              background: 'radial-gradient(ellipse at 50% 50%, #FFFFFF 0%, #DBE3FF 100%)',
-            }}
-          />
           <div
             className="absolute left-1/2 h-[87px] w-[156%] max-w-[699px] min-w-[585px] -translate-x-1/2"
             style={{
