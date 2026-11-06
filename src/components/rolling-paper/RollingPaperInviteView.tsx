@@ -68,16 +68,11 @@ export function RollingPaperInviteView({
     <div className="rolling-paper-scene-vars bg-rolling-paper-main relative mx-auto h-dvh w-full max-w-150 overflow-hidden">
       {messages.length > 0 && <CakeBackground hideBottomDecoration />}
 
-      <div className="relative z-20">
-        <RollingPaperHeader
-          onBack={() => navigate(-1)}
-          onRefresh={() => void refetch()}
-          className="z-20 px-4 pt-3"
-          backButtonClassName="-ml-2"
-        />
+      <RollingPaperHeader onBack={() => navigate(-1)} onRefresh={() => void refetch()} />
 
-        <div className="px-4">
-          <H1 className="mt-5 font-semibold tracking-normal text-white">
+      <main className="pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] bottom-[165px] z-20 flex flex-col px-4">
+        <div>
+          <H1 className="font-semibold tracking-normal text-white">
             {displayName}님을 위해
             <br />
             롤링페이퍼를 작성해 주세요!
@@ -96,17 +91,17 @@ export function RollingPaperInviteView({
             )}
           </B1>
         </div>
-      </div>
 
-      {messages.length === 0 && (
-        <div className="pointer-events-none absolute inset-x-0 top-[235px] bottom-[143px] z-10 flex items-center justify-center">
-          <img
-            src={letterImage}
-            alt=""
-            className="drop-shadow-rolling-paper-empty max-h-full w-[min(250px,68vw)] object-contain"
-          />
-        </div>
-      )}
+        {messages.length === 0 && (
+          <div className="flex min-h-0 flex-1 items-center justify-center pb-5">
+            <img
+              src={letterImage}
+              alt=""
+              className="drop-shadow-rolling-paper-empty w-[min(250px,68vw)] object-contain"
+            />
+          </div>
+        )}
+      </main>
 
       {messages.length > 0 && (
         <ToppingGrid
