@@ -1,7 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RollingPaperHostView } from '@/components/rolling-paper/RollingPaperHostView';
+import type { RollingPaperData } from '@/services/rolling-paper';
+
+const mocks = vi.hoisted(() => ({
+  activateInviteLink: vi.fn(),
+}));
 
 vi.mock('@/assets/images/icons/close.svg?react', () => ({
   default: () => <svg aria-hidden="true" />,
@@ -24,33 +29,73 @@ vi.mock('@/components/ui/icons/RefreshIcon', () => ({
 }));
 
 vi.mock('@/components/ui/LinkShareSheet', () => ({
-  LinkShareSheet: () => null,
+  LinkShareSheet: ({
+    isOpen,
+    link,
+    onClose,
+  }: {
+    isOpen: boolean;
+    link: string;
+    onClose: () => void;
+  }) =>
+    isOpen ? (
+      <div role="dialog" data-link={link}>
+        <button type="button" onClick={onClose}>
+          공유 시트 닫기
+        </button>
+      </div>
+    ) : null,
 }));
 
-function renderView() {
-  const onShareClick = vi.fn();
+vi.mock('@/services/party-create', () => ({
+  useActivateInviteLink: () => ({
+    mutate: mocks.activateInviteLink,
+    isPending: false,
+  }),
+}));
+
+function createData(overrides: Partial<RollingPaperData> = {}): RollingPaperData {
+  return {
+    partyId: '1',
+    hostName: '김이라',
+    messages: [],
+    totalCount: 0,
+    viewableAt: '2099-10-21T22:00:00+09:00',
+    writableUntil: '2099-10-28T22:00:00+09:00',
+    viewable: false,
+    ...overrides,
+  };
+}
+
+function renderView({
+  partyType = 'paper-only',
+  data = createData(),
+  onToppingClick,
+}: {
+  partyType?: 'paper-only' | 'realtime';
+  data?: RollingPaperData;
+  onToppingClick?: (index: number) => void;
+} = {}) {
   const onRefresh = vi.fn();
 
   render(
     <RollingPaperHostView
-      hostName="김이라"
-      viewableAt="2099-10-21T22:00:00+09:00"
-      writableUntil="2099-10-28T22:00:00+09:00"
-      isWritable
-      isShareSheetOpen={false}
-      inviteShareLink="https://hapalin.com/invite/test"
-      isActivatingInvite={false}
-      onShareClick={onShareClick}
-      onShareSheetClose={vi.fn()}
+      partyType={partyType}
+      data={data}
       onBackClick={vi.fn()}
       onRefresh={onRefresh}
+      onToppingClick={onToppingClick}
     />,
   );
 
-  return { onRefresh, onShareClick };
+  return { onRefresh };
 }
 
 describe('RollingPaperHostView', () => {
+  beforeEach(() => {
+    mocks.activateInviteLink.mockReset();
+  });
+
   it('공개 일시와 작성 마감 카운트다운을 표시한다', () => {
     renderView();
 
@@ -71,12 +116,31 @@ describe('RollingPaperHostView', () => {
     expect(screen.queryByText(/친구들에게 공유하면/)).not.toBeInTheDocument();
   });
 
-  it('공유 버튼은 동작하고 다운로드 버튼은 준비 중 상태다', () => {
-    const { onShareClick } = renderView();
+  it('공유 버튼으로 링크를 발급해 공유 시트를 열고 닫는다', () => {
+    mocks.activateInviteLink.mockImplementation(
+      (
+        _partyId: number,
+        options: { onSuccess: (response: { data?: { token?: string } }) => void },
+      ) => {
+        options.onSuccess({ data: { token: 'test' } });
+      },
+    );
+    renderView();
 
     fireEvent.click(screen.getByRole('button', { name: '롤링페이퍼 공유하기' }));
-    expect(onShareClick).toHaveBeenCalledTimes(1);
+    expect(mocks.activateInviteLink).toHaveBeenCalledWith(1, expect.any(Object));
+    expect(screen.getByRole('dialog')).toHaveAttribute(
+      'data-link',
+      `${window.location.origin}/invite/test`,
+    );
     expect(screen.getByRole('button', { name: '이미지 다운로드 기능 준비 중' })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: '공유 시트 닫기' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '롤링페이퍼 공유하기' }));
+    expect(mocks.activateInviteLink).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
   it('새로고침 버튼은 목록 재조회 콜백을 호출한다', () => {
@@ -89,30 +153,19 @@ describe('RollingPaperHostView', () => {
   it('편지가 있으면 공개 전에도 토핑 클릭 콜백을 호출한다', () => {
     const onToppingClick = vi.fn();
 
-    render(
-      <RollingPaperHostView
-        hostName="김이라"
-        messages={[
+    renderView({
+      data: createData({
+        messages: [
           {
             id: '1',
             writerNickname: '해파링링',
             toppingType: 'cherry',
           },
-        ]}
-        totalCount={1}
-        viewableAt="2099-10-21T22:00:00+09:00"
-        writableUntil="2099-10-28T22:00:00+09:00"
-        isWritable
-        isShareSheetOpen={false}
-        inviteShareLink={null}
-        isActivatingInvite={false}
-        onShareClick={vi.fn()}
-        onShareSheetClose={vi.fn()}
-        onBackClick={vi.fn()}
-        onRefresh={vi.fn()}
-        onToppingClick={onToppingClick}
-      />,
-    );
+        ],
+        totalCount: 1,
+      }),
+      onToppingClick,
+    });
 
     expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
       '김이라님을 위해롤링페이퍼를 작성해 주세요!',
@@ -130,25 +183,14 @@ describe('RollingPaperHostView', () => {
   it('공개 후에는 토핑을 활성화하고 작성 기간 동안 공유 영역을 유지한다', () => {
     const onToppingClick = vi.fn();
 
-    render(
-      <RollingPaperHostView
-        hostName="김이라"
-        messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
-        totalCount={1}
-        viewableAt="2099-10-21T22:00:00+09:00"
-        writableUntil="2099-10-28T22:00:00+09:00"
-        isViewable
-        isWritable
-        isShareSheetOpen={false}
-        inviteShareLink={null}
-        isActivatingInvite={false}
-        onShareClick={vi.fn()}
-        onShareSheetClose={vi.fn()}
-        onBackClick={vi.fn()}
-        onRefresh={vi.fn()}
-        onToppingClick={onToppingClick}
-      />,
-    );
+    renderView({
+      data: createData({
+        messages: [{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }],
+        totalCount: 1,
+        viewable: true,
+      }),
+      onToppingClick,
+    });
 
     const topping = screen.getByRole('button', { name: /해파링링/ });
     expect(topping).toHaveAttribute('aria-disabled', 'false');
@@ -162,21 +204,9 @@ describe('RollingPaperHostView', () => {
   });
 
   it('작성 기간이 끝나면 공개 전이어도 공유 영역을 노출하지 않는다', () => {
-    render(
-      <RollingPaperHostView
-        hostName="김이라"
-        viewableAt="2099-10-21T22:00:00+09:00"
-        writableUntil="2099-10-28T22:00:00+09:00"
-        isWritable={false}
-        isShareSheetOpen={false}
-        inviteShareLink={null}
-        isActivatingInvite={false}
-        onShareClick={vi.fn()}
-        onShareSheetClose={vi.fn()}
-        onBackClick={vi.fn()}
-        onRefresh={vi.fn()}
-      />,
-    );
+    renderView({
+      data: createData({ writableUntil: '2020-10-28T22:00:00+09:00' }),
+    });
 
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(screen.queryByText(/작성 가능한 시간/)).not.toBeInTheDocument();
@@ -188,21 +218,12 @@ describe('RollingPaperHostView', () => {
     vi.setSystemTime(new Date('2026-10-21T21:59:59+09:00'));
 
     try {
-      render(
-        <RollingPaperHostView
-          hostName="김이라"
-          viewableAt="2026-10-21T22:00:00+09:00"
-          writableUntil="2026-10-21T22:00:00+09:00"
-          isWritable
-          isShareSheetOpen={false}
-          inviteShareLink={null}
-          isActivatingInvite={false}
-          onShareClick={vi.fn()}
-          onShareSheetClose={vi.fn()}
-          onBackClick={vi.fn()}
-          onRefresh={vi.fn()}
-        />,
-      );
+      renderView({
+        data: createData({
+          viewableAt: '2026-10-21T22:00:00+09:00',
+          writableUntil: '2026-10-21T22:00:00+09:00',
+        }),
+      });
 
       expect(screen.getByRole('button', { name: '롤링페이퍼 공유하기' })).toBeInTheDocument();
 
@@ -218,22 +239,10 @@ describe('RollingPaperHostView', () => {
   });
 
   it('실시간 파티 종료 후 편지가 없으면 종료 후 안내와 전체 폭 공유 버튼을 표시한다', () => {
-    render(
-      <RollingPaperHostView
-        partyType="realtime"
-        hostName="김이라"
-        writableUntil="2099-10-28T22:00:00+09:00"
-        isViewable
-        isWritable
-        isShareSheetOpen={false}
-        inviteShareLink={null}
-        isActivatingInvite={false}
-        onShareClick={vi.fn()}
-        onShareSheetClose={vi.fn()}
-        onBackClick={vi.fn()}
-        onRefresh={vi.fn()}
-      />,
-    );
+    renderView({
+      partyType: 'realtime',
+      data: createData({ viewable: true }),
+    });
 
     expect(screen.getByText('아직 편지를 남긴 친구가 없어요')).toBeInTheDocument();
     expect(screen.getByText(/링크를 공유해 친구들에게 알려보세요!/)).toBeInTheDocument();
@@ -246,25 +255,15 @@ describe('RollingPaperHostView', () => {
   it('실시간 파티 종료 후 편지가 있으면 편지 개수와 다운로드 UI를 표시한다', () => {
     const onToppingClick = vi.fn();
 
-    render(
-      <RollingPaperHostView
-        partyType="realtime"
-        hostName="김이라"
-        messages={[{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }]}
-        totalCount={1}
-        writableUntil="2099-10-28T22:00:00+09:00"
-        isViewable
-        isWritable
-        isShareSheetOpen={false}
-        inviteShareLink={null}
-        isActivatingInvite={false}
-        onShareClick={vi.fn()}
-        onShareSheetClose={vi.fn()}
-        onBackClick={vi.fn()}
-        onRefresh={vi.fn()}
-        onToppingClick={onToppingClick}
-      />,
-    );
+    renderView({
+      partyType: 'realtime',
+      data: createData({
+        messages: [{ id: '1', writerNickname: '해파링링', toppingType: 'cherry' }],
+        totalCount: 1,
+        viewable: true,
+      }),
+      onToppingClick,
+    });
 
     expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
       '김이라님을 위해롤링페이퍼를 작성해 주세요!',

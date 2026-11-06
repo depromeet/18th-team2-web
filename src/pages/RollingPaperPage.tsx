@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { RollingPaperHostView } from '@/components/rolling-paper/RollingPaperHostView';
@@ -15,7 +15,7 @@ import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { LoginPromptSheet } from '@/components/ui/LoginPromptSheet';
 import { H1, B1 } from '@/components/ui/Typography';
 import { ROUTES } from '@/constants/routes';
-import { useActivateInviteLink } from '@/services/party-create';
+import { useRollingPaperShare } from '@/hooks/rolling-paper/useRollingPaperShare';
 import { useRollingPaper } from '@/services/rolling-paper';
 import { HomeIcon } from '@/components/ui/icons/HomeIcon';
 import { RefreshIcon } from '@/components/ui/icons/RefreshIcon';
@@ -53,9 +53,8 @@ export default function RollingPaperPage() {
   );
 
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
-  const [isShareSheetOpen, setIsShareSheetOpen] = useState(false);
-  const [inviteShareLink, setInviteShareLink] = useState<string | null>(null);
-  const { mutate: activateInviteLink, isPending: isActivatingInvite } = useActivateInviteLink();
+  const { isShareSheetOpen, inviteShareLink, isActivatingInvite, openShareSheet, closeShareSheet } =
+    useRollingPaperShare(id);
 
   const isWritable = isFuture(data?.writableUntil);
   const isWriteCompleteMode = locationState?.mode === 'write-complete';
@@ -67,27 +66,6 @@ export default function RollingPaperPage() {
   const completeCta = locationState?.completeCta ?? 'home';
   const isHost = !inviteToken;
   const showHostShareAction = isHost && !isWriteCompleteMode && isWritable;
-
-  // 공유 버튼은 "롤링페이퍼 작성 권유"용이므로 조회 라우트가 아닌 초대 링크를 공유해야 한다.
-  // 초대 토큰은 주최자만 발급 가능하며, 작성 가능 기간(isWritable)에만 버튼이 노출된다.
-  function handleShareClick() {
-    if (inviteShareLink) {
-      setIsShareSheetOpen(true);
-      return;
-    }
-    if (!id) return;
-
-    activateInviteLink(Number(id), {
-      onSuccess: (res) => {
-        const token = res.data?.token;
-        if (!token) return;
-        setInviteShareLink(
-          `${window.location.origin}${generatePath(ROUTES.partyInvite, { inviteToken: token })}`,
-        );
-        setIsShareSheetOpen(true);
-      },
-    });
-  }
 
   useEffect(() => {
     if (requiresLogin) {
@@ -190,18 +168,8 @@ export default function RollingPaperPage() {
       <>
         <RollingPaperHostView
           partyType={isPaperOnlyHostView ? 'paper-only' : 'realtime'}
-          hostName={data.hostName ?? locationState?.hostName}
-          messages={data.messages}
-          totalCount={data.totalCount}
-          viewableAt={data.viewableAt}
-          writableUntil={data.writableUntil}
-          isViewable={data.viewable !== false}
-          isWritable={isWritable}
-          isShareSheetOpen={isShareSheetOpen}
-          inviteShareLink={inviteShareLink}
-          isActivatingInvite={isActivatingInvite}
-          onShareClick={handleShareClick}
-          onShareSheetClose={() => setIsShareSheetOpen(false)}
+          data={data}
+          fallbackHostName={locationState?.hostName}
           onBackClick={handleBackClick}
           onRefresh={() => void refetch()}
           onToppingClick={handlePaperOnlyToppingClick}
@@ -327,7 +295,7 @@ export default function RollingPaperPage() {
           <RollingPaperShareActionArea
             writableUntil={data.writableUntil}
             isActivatingInvite={isActivatingInvite}
-            onShareClick={handleShareClick}
+            onShareClick={openShareSheet}
             variant="solid"
             animate
           />
@@ -339,7 +307,7 @@ export default function RollingPaperPage() {
           link={inviteShareLink ?? ''}
           title="롤링페이퍼 링크 공유하기"
           shareText="롤링페이퍼 작성 초대장이 왔어요"
-          onClose={() => setIsShareSheetOpen(false)}
+          onClose={closeShareSheet}
         />
       </div>
 

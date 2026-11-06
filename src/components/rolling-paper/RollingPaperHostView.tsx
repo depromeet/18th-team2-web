@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import letterImage from '@/assets/images/live-party/letter.png';
 import DownloadIcon from '@/assets/images/icons/download.svg?react';
@@ -9,23 +9,14 @@ import { RollingPaperShareNotice } from '@/components/rolling-paper/RollingPaper
 import { ToppingGrid } from '@/components/rolling-paper/ToppingGrid';
 import { LinkShareSheet } from '@/components/ui/LinkShareSheet';
 import { B1, H1 } from '@/components/ui/Typography';
-import type { RollingPaperMessage } from '@/services/rolling-paper';
-import { formatKoreanShortDate, parseKstDateTime } from '@/utils/date';
+import { useRollingPaperShare } from '@/hooks/rolling-paper/useRollingPaperShare';
+import type { RollingPaperData } from '@/services/rolling-paper';
+import { formatKoreanShortDate, isFuture, parseKstDateTime } from '@/utils/date';
 
 interface RollingPaperHostViewProps {
   partyType?: 'paper-only' | 'realtime';
-  hostName?: string;
-  messages?: RollingPaperMessage[];
-  totalCount?: number;
-  viewableAt?: string;
-  writableUntil?: string;
-  isViewable?: boolean;
-  isWritable: boolean;
-  isShareSheetOpen: boolean;
-  inviteShareLink: string | null;
-  isActivatingInvite: boolean;
-  onShareClick: () => void;
-  onShareSheetClose: () => void;
+  data: RollingPaperData;
+  fallbackHostName?: string;
   onBackClick: () => void;
   onRefresh: () => void;
   onToppingClick?: (index: number) => void;
@@ -33,23 +24,18 @@ interface RollingPaperHostViewProps {
 
 export function RollingPaperHostView({
   partyType = 'paper-only',
-  hostName,
-  messages = [],
-  totalCount = messages.length,
-  viewableAt,
-  writableUntil,
-  isViewable = false,
-  isWritable,
-  isShareSheetOpen,
-  inviteShareLink,
-  isActivatingInvite,
-  onShareClick,
-  onShareSheetClose,
+  data,
+  fallbackHostName,
   onBackClick,
   onRefresh,
   onToppingClick,
 }: RollingPaperHostViewProps) {
-  const [hasWritableTime, setHasWritableTime] = useState(isWritable);
+  const { messages, totalCount, viewableAt, writableUntil } = data;
+  const hostName = data.hostName ?? fallbackHostName;
+  const isViewable = data.viewable !== false;
+  const [hasWritableTime, setHasWritableTime] = useState(() => isFuture(writableUntil));
+  const { isShareSheetOpen, inviteShareLink, isActivatingInvite, openShareSheet, closeShareSheet } =
+    useRollingPaperShare(data.partyId);
   const hasMessages = totalCount > 0;
   const isRealtimeParty = partyType === 'realtime';
   const showShareControls = hasWritableTime;
@@ -63,6 +49,10 @@ export function RollingPaperHostView({
     if (!writableUntil) return null;
     const writableDate = parseKstDateTime(writableUntil);
     return writableDate.isValid() ? formatKoreanShortDate(writableDate.toDate()) : null;
+  }, [writableUntil]);
+
+  useEffect(() => {
+    setHasWritableTime(isFuture(writableUntil));
   }, [writableUntil]);
 
   return (
@@ -178,7 +168,7 @@ export function RollingPaperHostView({
         <RollingPaperShareActionArea
           writableUntil={writableUntil}
           isActivatingInvite={isActivatingInvite}
-          onShareClick={onShareClick}
+          onShareClick={openShareSheet}
           onWritingExpired={() => setHasWritableTime(false)}
           variant="solid"
           showTooltip={false}
@@ -205,7 +195,7 @@ export function RollingPaperHostView({
           link={inviteShareLink ?? ''}
           title="롤링페이퍼 링크 공유하기"
           shareText="롤링페이퍼 작성 초대장이 왔어요"
-          onClose={onShareSheetClose}
+          onClose={closeShareSheet}
         />
       )}
     </div>
