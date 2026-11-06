@@ -72,9 +72,7 @@ export function RollingPaperShareActionArea({
         </div>
       )}
 
-      <div
-        className={`mx-auto flex flex-col items-center gap-2 ${layout === 'compact' ? 'max-w-[340px]' : 'max-w-[343px]'}`}
-      >
+      <div className="mx-auto flex w-full flex-col items-center gap-2">
         {writableUntil && (
           <CountdownTimer
             targetDate={writableUntil}
