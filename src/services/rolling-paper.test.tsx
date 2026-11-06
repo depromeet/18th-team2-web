@@ -1,14 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { api } from '@/services/api';
-import { useRollingPaper } from '@/services/rolling-paper';
+import { useRollingPaper, useWriteRollingPaper } from '@/services/rolling-paper';
 import type { components } from '@/types/api';
 
 vi.mock('@/services/api', () => ({
-  api: { get: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn() },
 }));
 
 type OwnerListItem = Omit<components['schemas']['OwnerRollingPaperListItemResult'], 'content'> & {
@@ -24,14 +24,20 @@ type ParticipantListItem = components['schemas']['ParticipantRollingPaperListIte
 type PageInfo = components['schemas']['RollingPaperPageInfoResult'];
 
 const apiGetMock = vi.mocked(api.get);
+const apiPostMock = vi.mocked(api.post);
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+function createWrapperWithClient(queryClient: QueryClient) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
+}
+
+function createWrapper() {
+  return createWrapperWithClient(
+    new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    }),
+  );
 }
 
 function pageInfo(overrides: Partial<PageInfo> = {}): PageInfo {
@@ -94,6 +100,7 @@ function ok<T>(data: T) {
 
 beforeEach(() => {
   apiGetMock.mockReset();
+  apiPostMock.mockReset();
 });
 
 describe('useRollingPaper (주최자 — partyId 경로)', () => {
@@ -300,6 +307,34 @@ describe('mapItems — toppingType 추정', () => {
     expect(result.current.data?.messages[0]).toMatchObject({
       id: '1',
       writerNickname: '축하요정',
+    });
+  });
+});
+
+describe('useWriteRollingPaper', () => {
+  it('작성 성공 시 해당 초대 토큰의 참가자 목록 캐시만 무효화한다', async () => {
+    apiPostMock.mockResolvedValue(ok({ rollingPaperId: 3 }));
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useWriteRollingPaper(), {
+      wrapper: createWrapperWithClient(queryClient),
+    });
+
+    act(() => {
+      result.current.mutate({
+        inviteToken: 'invite-abc',
+        writerNickname: '축하요정',
+        content: '생일 축하해요!',
+        toppingType: 'candle',
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['rolling-paper', 'invite-invite-abc'],
     });
   });
 });

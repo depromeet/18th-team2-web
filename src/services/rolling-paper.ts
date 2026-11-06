@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/services/api';
 import type { components } from '@/types/api';
@@ -88,6 +88,10 @@ function mapItems(items: RollingPaperListItem[] | undefined): RollingPaperMessag
   }));
 }
 
+function participantRollingPaperListQueryKey(inviteToken: string) {
+  return ['rolling-paper', `invite-${inviteToken}`] as const;
+}
+
 // ── 상세 ──
 
 export interface RollingPaperDetail {
@@ -122,7 +126,9 @@ export const rollingPaperQueries = {
   // totalPages만큼 순회해 모든 토핑을 받아온다. (1페이지만 받으면 2페이지 이상이 영구 누락됨)
   list: (partyId: string, inviteToken?: string, enabled = true) =>
     queryOptions({
-      queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`],
+      queryKey: inviteToken
+        ? participantRollingPaperListQueryKey(inviteToken)
+        : ['rolling-paper', `party-${partyId}`],
       queryFn: async (): Promise<RollingPaperData> => {
         if (inviteToken) {
           const fetchPage = (page: number) =>
@@ -188,6 +194,8 @@ export function useRollingPaperDetail(partyId: string, rollingPaperId: string) {
 // ── Mutation hooks ──
 
 export function useWriteRollingPaper() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ inviteToken, writerNickname, content, toppingType }: WriteRollingPaperParams) =>
       api.post<components['schemas']['ApiResponseCreateRollingPaperResponse']>(
@@ -198,5 +206,9 @@ export function useWriteRollingPaper() {
           toppingId: TOPPING_ID[toppingType],
         } satisfies components['schemas']['CreateRollingPaperRequest'],
       ),
+    onSuccess: (_response, { inviteToken }) =>
+      queryClient.invalidateQueries({
+        queryKey: participantRollingPaperListQueryKey(inviteToken),
+      }),
   });
 }
