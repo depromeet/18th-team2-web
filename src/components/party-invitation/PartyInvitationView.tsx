@@ -88,7 +88,9 @@ export function PartyInvitationView({
   }
 
   function handleViewRollingPaper() {
-    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }));
+    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
+      state: { partyOption, hostName },
+    });
   }
 
   function handleWriteRollingPaper() {

@@ -35,7 +35,7 @@ describe('getRealtimeCardTiming', () => {
     });
   });
 
-  it('예약 시작 시각이 지나면 5분 전 문구 대신 시작 안내를 표시한다', () => {
+  it('예약 시작 시각이 지나면 진행 중 안내를 표시한다', () => {
     const party = createRealtimeParty();
     party.time = '오전 11:30';
     party.realtimeSchedule = {
@@ -47,7 +47,7 @@ describe('getRealtimeCardTiming', () => {
 
     expect(getRealtimeCardTiming(party, nowMs)).toEqual({
       isEnterable: true,
-      noticeText: '파티 시작 시간이 되었어요! 지금 바로 입장해주세요!',
+      noticeText: '파티가 진행되고 있어요! 지금 바로 입장해주세요!',
     });
   });
 

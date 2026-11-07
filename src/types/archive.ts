@@ -1,4 +1,5 @@
 import type { PartyRole } from '@/constants/party';
+import type { PartyOption } from '@/types/home';
 
 export type ArchiveItemType = 'PARTY' | 'PAPER';
 export type StampType = 'strawberry' | 'candle' | 'firework' | 'rollcake' | 'donut';
@@ -16,17 +17,11 @@ export interface ArchiveListItem {
   role: PartyRole;
 }
 
-export interface ChatMessage {
-  id: string;
-  authorName: string;
-  content: string;
-  sentAt: string;
-}
-
 // PARTY/PAPER_ONLY 공통 상세 (GET /api/v1/archive/party/{partyId}).
-// PAPER_ONLY는 participants/chatMessages가 빈 배열, endDate(파티 종료=롤페 기한)로 표시.
+// PAPER_ONLY는 participants가 빈 배열, endDate(파티 종료=롤페 기한)로 표시.
 export interface PartyDetail {
   id: string;
+  partyOption: PartyOption;
   /** 표시용 제목 — BE 제목 필드 없음, celebrantNickname + partyOption으로 FE 조합 (리스트와 동일 패턴) */
   title: string;
   date: string;
@@ -41,5 +36,4 @@ export interface PartyDetail {
   /** 본인 롤페 작성 시 닉네임 스냅샷 (참가자 모달용) */
   myPaperWriterNickname?: string;
   paperCount: number;
-  chatMessages: ChatMessage[];
 }

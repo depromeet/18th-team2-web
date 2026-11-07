@@ -34,6 +34,7 @@ export default function PartyInviteEntryPage() {
     rollingPaperWritten?: boolean;
   } | null;
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [expiredPaperOnlyPartyId, setExpiredPaperOnlyPartyId] = useState<string | null>(null);
   const calendarConsent = new URLSearchParams(location.search).get(CALENDAR_CONSENT_QUERY_KEY);
   const hasCalendarConsentResult = Boolean(calendarConsent && calendarConsent !== 'granted');
   const { data, isLoading, isError, error, refetch } = usePartyInvite(inviteToken ?? '', {
@@ -125,7 +126,10 @@ export default function PartyInviteEntryPage() {
   if (data.partyOption === 'PAPER_ONLY' && !data.isHost) {
     const rollingPaperWritableUntil = getRollingPaperWritableUntil(data);
 
-    if (rollingPaperWritableUntil.getTime() <= Date.now()) {
+    if (
+      expiredPaperOnlyPartyId === data.partyId ||
+      rollingPaperWritableUntil.getTime() <= Date.now()
+    ) {
       if (!data.partyStartDate || !data.partyEndDate) {
         return (
           <>
@@ -156,6 +160,7 @@ export default function PartyInviteEntryPage() {
           inviteToken={inviteToken}
           hostName={hostName}
           writableUntil={rollingPaperWritableUntil.toISOString()}
+          onWritingExpired={() => setExpiredPaperOnlyPartyId(data.partyId)}
         />
         {toastNode}
       </>

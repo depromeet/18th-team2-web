@@ -741,6 +741,33 @@ textarea {
   }
 }
 
+.rolling-paper-lock-progress {
+  position: relative;
+  isolation: isolate;
+}
+
+.rolling-paper-lock-progress::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(143 182 255 / 15%) 30%,
+    rgb(255 255 255 / 85%) 50%,
+    rgb(143 182 255 / 15%) 70%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: rolling-paper-lock-progress-shine 1800ms ease-in-out infinite;
+}
+
+@keyframes rolling-paper-lock-progress-shine {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* 가이드 캐러셀 다이얼로그 */
 
 .guide-carousel-fade-in {
@@ -756,6 +783,10 @@ textarea {
 /* 축약 속성이 duration을 덮어쓰지 않도록 선언 뒤에 둔다 */
 @media (prefers-reduced-motion: reduce) {
   .create-setup-title-swap {
+    animation: none;
+  }
+
+  .rolling-paper-lock-progress::after {
     animation: none;
   }
 }
