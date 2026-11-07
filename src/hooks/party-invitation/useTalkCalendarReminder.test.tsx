@@ -10,6 +10,7 @@ import { CALENDAR_CONSENT_REQUIRED_CODE } from '@/utils/talkCalendar';
 const talkCalendarMocks = vi.hoisted(() => ({
   register: vi.fn(),
   issueConsentUrl: vi.fn(),
+  issueGuestConsentUrl: vi.fn(),
 }));
 
 vi.mock('@/services/talk-calendar', () => ({
@@ -19,6 +20,10 @@ vi.mock('@/services/talk-calendar', () => ({
   }),
   useIssueTalkCalendarConsentUrl: () => ({
     mutate: talkCalendarMocks.issueConsentUrl,
+    isPending: false,
+  }),
+  useIssueGuestTalkCalendarConsentUrl: () => ({
+    mutate: talkCalendarMocks.issueGuestConsentUrl,
     isPending: false,
   }),
 }));
@@ -32,6 +37,7 @@ function createWrapper(initialEntry: string) {
 beforeEach(() => {
   talkCalendarMocks.register.mockReset();
   talkCalendarMocks.issueConsentUrl.mockReset();
+  talkCalendarMocks.issueGuestConsentUrl.mockReset();
 });
 
 describe('useTalkCalendarReminder', () => {
@@ -91,5 +97,46 @@ describe('useTalkCalendarReminder', () => {
       'error',
       '카카오 톡캘린더 알림을 등록할 수 없어요. 잠시 후 다시 시도해주세요.',
     );
+  });
+
+  it('비회원은 로그인 안내 대신 초대 토큰으로 동의 URL을 요청한다', () => {
+    const openLoginPrompt = vi.fn();
+    const { result } = renderHook(
+      () =>
+        useTalkCalendarReminder({
+          partyId: '42',
+          inviteToken: 'test-token',
+          isAuthenticated: false,
+          showToast: vi.fn(),
+          openLoginPrompt,
+        }),
+      { wrapper: createWrapper('/invite/test-token') },
+    );
+
+    act(() => result.current.handleRegisterTalkCalendar());
+
+    expect(talkCalendarMocks.issueGuestConsentUrl).toHaveBeenCalledTimes(1);
+    expect(talkCalendarMocks.issueConsentUrl).not.toHaveBeenCalled();
+    expect(talkCalendarMocks.register).not.toHaveBeenCalled();
+    expect(openLoginPrompt).not.toHaveBeenCalled();
+  });
+
+  it('비회원 동의 복귀 결과에서는 등록 API를 다시 호출하지 않는다', async () => {
+    const openLoginPrompt = vi.fn();
+
+    renderHook(
+      () =>
+        useTalkCalendarReminder({
+          partyId: '42',
+          inviteToken: 'test-token',
+          isAuthenticated: false,
+          showToast: vi.fn(),
+          openLoginPrompt,
+        }),
+      { wrapper: createWrapper('/invite/test-token?calendarConsent=registered') },
+    );
+
+    await waitFor(() => expect(talkCalendarMocks.register).not.toHaveBeenCalled());
+    expect(openLoginPrompt).not.toHaveBeenCalled();
   });
 });

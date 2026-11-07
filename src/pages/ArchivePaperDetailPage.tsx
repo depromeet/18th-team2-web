@@ -30,7 +30,9 @@ export default function ArchivePaperDetailPage() {
 
   const handlePaperClick = () => {
     if (isHost) {
-      navigate(generatePath(ROUTES.rollingPaper, { id: data.id }));
+      navigate(generatePath(ROUTES.rollingPaper, { id: data.id }), {
+        state: { partyOption: data.partyOption },
+      });
     } else {
       setPaperOpen(true);
     }

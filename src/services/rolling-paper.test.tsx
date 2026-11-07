@@ -1,31 +1,43 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { api } from '@/services/api';
-import { useRollingPaper } from '@/services/rolling-paper';
+import { useRollingPaper, useWriteRollingPaper } from '@/services/rolling-paper';
 import type { components } from '@/types/api';
 
 vi.mock('@/services/api', () => ({
-  api: { get: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn() },
 }));
 
-type OwnerListResponse = components['schemas']['OwnerRollingPaperListResponse'];
-type OwnerListItem = components['schemas']['OwnerRollingPaperListItemResult'];
+type OwnerListItem = Omit<components['schemas']['OwnerRollingPaperListItemResult'], 'content'> & {
+  content: string | null;
+};
+type OwnerListResponse = Omit<components['schemas']['OwnerRollingPaperListResponse'], 'items'> & {
+  viewable: boolean;
+  viewableAt: string;
+  items: OwnerListItem[];
+};
 type ParticipantListResponse = components['schemas']['ParticipantRollingPaperListResponse'];
 type ParticipantListItem = components['schemas']['ParticipantRollingPaperListItemResult'];
 type PageInfo = components['schemas']['RollingPaperPageInfoResult'];
 
 const apiGetMock = vi.mocked(api.get);
+const apiPostMock = vi.mocked(api.post);
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+function createWrapperWithClient(queryClient: QueryClient) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
+}
+
+function createWrapper() {
+  return createWrapperWithClient(
+    new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    }),
+  );
 }
 
 function pageInfo(overrides: Partial<PageInfo> = {}): PageInfo {
@@ -62,6 +74,8 @@ function ownerResponse(overrides: Partial<OwnerListResponse> = {}): OwnerListRes
   return {
     celebrantNickname: '홍길동',
     partyEndAt: '2026-05-19T22:10:00+09:00',
+    viewable: true,
+    viewableAt: '2026-05-12T22:00:00+09:00',
     items: [],
     pageInfo: pageInfo(),
     ...overrides,
@@ -86,9 +100,37 @@ function ok<T>(data: T) {
 
 beforeEach(() => {
   apiGetMock.mockReset();
+  apiPostMock.mockReset();
 });
 
 describe('useRollingPaper (주최자 — partyId 경로)', () => {
+  it('공개 전에는 본문이 없어도 토핑 메타데이터와 열람 시각을 매핑한다', async () => {
+    apiGetMock.mockResolvedValue(
+      ok(
+        ownerResponse({
+          viewable: false,
+          viewableAt: '2026-05-12T22:00:00+09:00',
+          items: [ownerItem({ content: null })],
+          pageInfo: pageInfo({ page: 1, totalPages: 1, totalCount: 1, hasNext: false }),
+        }),
+      ),
+    );
+
+    const { result } = renderHook(() => useRollingPaper('42'), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toMatchObject({
+      viewable: false,
+      viewableAt: '2026-05-12T22:00:00+09:00',
+      totalCount: 1,
+    });
+    expect(result.current.data?.messages[0]).toMatchObject({
+      id: '1',
+      writerNickname: '축하요정',
+      toppingType: 'cherry',
+    });
+  });
+
   it('totalPages=3이면 page 1·2·3을 모두 호출하고 전체 페이지의 토핑을 합산한다', async () => {
     // page1: 3개, page2: 7개, page3: 5개 → 합계 15개, totalCount 15
     const page1 = ownerResponse({
@@ -265,6 +307,34 @@ describe('mapItems — toppingType 추정', () => {
     expect(result.current.data?.messages[0]).toMatchObject({
       id: '1',
       writerNickname: '축하요정',
+    });
+  });
+});
+
+describe('useWriteRollingPaper', () => {
+  it('작성 성공 시 해당 초대 토큰의 참가자 목록 캐시만 무효화한다', async () => {
+    apiPostMock.mockResolvedValue(ok({ rollingPaperId: 3 }));
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useWriteRollingPaper(), {
+      wrapper: createWrapperWithClient(queryClient),
+    });
+
+    act(() => {
+      result.current.mutate({
+        inviteToken: 'invite-abc',
+        writerNickname: '축하요정',
+        content: '생일 축하해요!',
+        toppingType: 'candle',
+      });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['rolling-paper', 'invite-invite-abc'],
     });
   });
 });

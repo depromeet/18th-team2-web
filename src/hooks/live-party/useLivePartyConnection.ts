@@ -1,10 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react';
 
 import { PARTICIPANT_TOKEN_KEY, WS_ERROR_MESSAGE, WS_EVENT } from '@/constants/live-party';
-import { connectRealtimeParty, useSendChatMessage } from '@/services/live-party';
+import {
+  connectRealtimeParty,
+  getRealtimePartyState,
+  useSendChatMessage,
+} from '@/services/live-party';
 import { useFirecrackerStore } from '@/stores/useFirecrackerStore';
 import { applyChatWsEvent, useLivePartyChatStore } from '@/stores/useLivePartyChatStore';
 import { applyCandleWsEvent, useLivePartyCandleStore } from '@/stores/useLivePartyCandleStore';
@@ -13,6 +17,32 @@ import {
   useLivePartyBurstGameStore,
 } from '@/stores/useLivePartyBurstGameStore';
 import { applyPartyStateWsEvent, useLivePartyStateStore } from '@/stores/useLivePartyStateStore';
+import { parseKstDateTime } from '@/utils/date';
+
+const PARTY_END_RECOVERY_DELAY_MS = 3000;
+const PARTY_ENDING_FALLBACK_MS = 30000;
+
+function getTimestamp(value?: string | null) {
+  if (!value) return null;
+
+  const dateTime = parseKstDateTime(value);
+  return dateTime.isValid() ? dateTime.valueOf() : null;
+}
+
+function getPartyEndRecoveryDelay(endingStartedAt?: string, endedAt?: string, serverNow?: string) {
+  const endingStartedAtMs = getTimestamp(endingStartedAt);
+  const endedAtMs =
+    getTimestamp(endedAt) ??
+    (endingStartedAtMs == null ? null : endingStartedAtMs + PARTY_ENDING_FALLBACK_MS);
+
+  if (endedAtMs == null) return null;
+
+  const serverNowMs = getTimestamp(serverNow);
+  const serverClockOffsetMs = serverNowMs == null ? 0 : Date.now() - serverNowMs;
+  const nowOnServer = Date.now() - serverClockOffsetMs;
+
+  return Math.max(0, endedAtMs - nowOnServer) + PARTY_END_RECOVERY_DELAY_MS;
+}
 
 function resetLivePartyStores() {
   useLivePartyChatStore.getState().reset();
@@ -47,8 +77,54 @@ export function useLivePartyConnection() {
 
   const hasInitializedRef = useRef(false);
   const wsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const recoveryInFlightRef = useRef(false);
+  const isActiveRef = useRef(true);
+  const activePartyIdRef = useRef(partyId);
+  activePartyIdRef.current = partyId;
+  const partyEndingState = useLivePartyStateStore((state) => state.partyEndingState);
+  const endingStartedAt = partyEndingState?.endingStartedAt;
+  const endingEndsAt = partyEndingState?.endedAt;
+  const endingServerNow = partyEndingState?.serverNow;
+  const isPartyEnded = partyEndingState?.ended ?? false;
 
   const { mutate: sendMessage } = useSendChatMessage();
+
+  useEffect(() => {
+    isActiveRef.current = true;
+    return () => {
+      isActiveRef.current = false;
+    };
+  }, [partyId]);
+
+  const recoverPartyState = useCallback(async () => {
+    if (!partyId || recoveryInFlightRef.current) return;
+
+    recoveryInFlightRef.current = true;
+
+    try {
+      const state = await getRealtimePartyState(partyId);
+      if (state && isActiveRef.current && activePartyIdRef.current === partyId) {
+        useLivePartyStateStore.getState().setPartyState(state);
+      }
+    } catch (err) {
+      Sentry.captureException(err, { extra: { message: '실시간 파티 종료 상태 복구 실패' } });
+    } finally {
+      recoveryInFlightRef.current = false;
+    }
+  }, [partyId]);
+
+  useEffect(() => {
+    if (isPartyEnded) return;
+
+    const recoveryDelay = getPartyEndRecoveryDelay(endingStartedAt, endingEndsAt, endingServerNow);
+    if (recoveryDelay == null) return;
+
+    const timerId = window.setTimeout(() => {
+      void recoverPartyState();
+    }, recoveryDelay);
+
+    return () => window.clearTimeout(timerId);
+  }, [endingEndsAt, endingServerNow, endingStartedAt, isPartyEnded, recoverPartyState]);
 
   useEffect(() => {
     const { inviteToken, nickname, characterId } = connectParamsRef.current;
@@ -98,16 +174,14 @@ export function useLivePartyConnection() {
           // 입장(핸드셰이크): participantToken 저장·초기 메시지·쿼리 무효화가 한 이벤트에 얽혀있어
           // 특정 도메인에 넣기보다 연결 훅에서 직접 조율한다.
           if (event === WS_EVENT.ENTERED) {
-            if (hasInitializedRef.current) {
-              return;
-            }
+            const isFirstEntry = !hasInitializedRef.current;
 
-            hasInitializedRef.current = true;
-
-            if (wsTimeoutRef.current) {
+            if (isFirstEntry && wsTimeoutRef.current) {
               clearTimeout(wsTimeoutRef.current);
               wsTimeoutRef.current = null;
             }
+
+            hasInitializedRef.current = true;
 
             const token = parsed.participantToken as string | undefined;
 
@@ -123,9 +197,11 @@ export function useLivePartyConnection() {
             queryClient.invalidateQueries({ queryKey: ['partyPhase', partyId] });
             queryClient.invalidateQueries({ queryKey: ['realtime-profile'] });
 
-            useLivePartyChatStore
-              .getState()
-              .setInitialMessages((parsed.messages as unknown[]) ?? []);
+            if (isFirstEntry) {
+              useLivePartyChatStore
+                .getState()
+                .setInitialMessages((parsed.messages as unknown[]) ?? []);
+            }
 
             if (
               parsed.liveStartAt ||
@@ -158,6 +234,11 @@ export function useLivePartyConnection() {
         }
       },
       controller.signal,
+      {
+        onReconnectError: () => {
+          void recoverPartyState();
+        },
+      },
     ).catch((err) => {
       if (wsTimeoutRef.current) {
         clearTimeout(wsTimeoutRef.current);
@@ -185,7 +266,7 @@ export function useLivePartyConnection() {
       }
       resetLivePartyStores();
     };
-  }, [partyId, queryClient, fire]);
+  }, [partyId, queryClient, fire, recoverPartyState]);
 
   const addMessage = (text: string) => {
     if (!text.trim() || !partyId) {

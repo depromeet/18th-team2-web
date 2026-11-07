@@ -42,7 +42,7 @@ export function getRealtimeCardTiming(party: UpcomingParty, nowMs: number): Real
   if (remainingMs <= 0) {
     return {
       isEnterable,
-      noticeText: '파티 시작 시간이 되었어요! 지금 바로 입장해주세요!',
+      noticeText: '파티가 진행되고 있어요! 지금 바로 입장해주세요!',
     };
   }
 

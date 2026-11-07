@@ -12,7 +12,7 @@ import { StepRenderer } from '@/components/live-party/StepRenderer';
 import { PartyExitDialog } from '@/components/live-party/PartyExitDialog';
 import { LivePartyHeader } from '@/components/live-party/LivePartyHeader';
 import { PartyEndingNotice } from '@/components/live-party/ending/PartyEndingNotice';
-import { usePartyExitDialog } from '@/hooks/live-party/usePartyExitDialog';
+import { usePartyExitDialog, type PartyExitMode } from '@/hooks/live-party/usePartyExitDialog';
 import { useHostLivePartyGate } from '@/hooks/live-party/useHostLivePartyGate';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLivePartyStep } from '@/hooks/live-party/usePartyStep';
@@ -42,9 +42,11 @@ import {
 } from '@/services/live-party';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorView } from '@/components/ui/ErrorView';
+import { Toast, type ToastState } from '@/components/ui/Toast';
 import { PartyStartSheet } from '@/components/live-party/PartyStartSheet';
 import { PartyEntryReadyOverlay } from '@/components/live-party/entry/PartyEntryReadyOverlay';
 import { BURST_GAME_DURATION_SECONDS } from '@/hooks/live-party/useBurstGameStep';
+import { ApiError } from '@/services/api';
 import { parseKstDateTime } from '@/utils/date';
 
 const PROCESS_PROGRESS_SYNC_INTERVAL_MS = 250;
@@ -92,9 +94,11 @@ export default function LivePartyPage() {
   const candleBlowState = useLivePartyCandleStore((s) => s.candleBlowState);
   const burstGameState = useLivePartyBurstGameStore((s) => s.burstGameState);
   const partyEndingState = useLivePartyStateStore((s) => s.partyEndingState);
+  const partyDeletedState = useLivePartyStateStore((s) => s.partyDeletedState);
   const currentPhase = useLivePartyStateStore((s) => s.currentPhase);
   const currentPhaseStartedAt = useLivePartyStateStore((s) => s.currentPhaseStartedAt);
   const currentPhaseServerNow = useLivePartyStateStore((s) => s.currentPhaseServerNow);
+  const scheduledLiveStartAt = useLivePartyStateStore((s) => s.liveStartAt);
   const hasParticipantToken = useLivePartyStateStore((s) => s.hasParticipantToken);
   const wsError = useLivePartyStateStore((s) => s.wsError);
   const nicknameDuplicate = useLivePartyStateStore((s) => s.nicknameDuplicate);
@@ -141,11 +145,14 @@ export default function LivePartyPage() {
     isEntryReady,
     isTransitioning,
     isInitialized,
+    isAdvancingPhase,
     isPhaseError,
     goToEndStep,
     liveStartedAt,
     liveDeadlineAt,
     liveStartedServerNow,
+    hostExitAction,
+    refetchRealtimeState,
   } = useLivePartyStep({
     partyId,
     partyPhase: currentPhase,
@@ -155,6 +162,16 @@ export default function LivePartyPage() {
     enabled: canFetch,
   });
 
+  const partyExitMode: PartyExitMode = !isHost
+    ? 'leave'
+    : !isInitialized || isAdvancingPhase
+      ? 'pending'
+      : hostExitAction === 'DELETE'
+        ? 'delete'
+        : hostExitAction === 'END'
+          ? 'host-end'
+          : 'pending';
+
   const userRole = isHost ? PARTY_USER.HOST : PARTY_USER.PARTICIPANT_NOT_WRITTEN;
   const isMusicEnabled =
     canFetch && isInitialized && !isProfileLoading && !hostGate.shouldGateHost && !isPhaseError;
@@ -163,7 +180,11 @@ export default function LivePartyPage() {
     enabled: isMusicEnabled,
   });
   const { isExitDialogOpen, handleOpenExitDialog, handleCancelExit, handleConfirmExit } =
-    usePartyExitDialog({ onBeforeExit: stopMusic });
+    usePartyExitDialog({
+      mode: partyExitMode,
+      onHostEnd: goToEndStep,
+      onBeforeExit: stopMusic,
+    });
   const hostName =
     hostGate.celebrant?.nickname ??
     locationState?.hostName ??
@@ -171,6 +192,7 @@ export default function LivePartyPage() {
 
   const [isPartyStartSheetOpen, setIsPartyStartSheetOpen] = useState(false);
   const [isPartyStartSheetVisible, setIsPartyStartSheetVisible] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const [processCompletedStep, setProcessCompletedStep] = useState<PartyStep | null>(null);
   const [processProgressNowMs, setProcessProgressNowMs] = useState(() => Date.now());
   const [chatSheetMetrics, setChatSheetMetrics] = useState<ChatBottomSheetMetrics>({
@@ -223,7 +245,26 @@ export default function LivePartyPage() {
     setProcessCompletedStep(completedStep);
   }, []);
 
+  const closeToast = useCallback(() => setToast(null), []);
+  const showPartyStartTimeToast = useCallback(() => {
+    setToast({
+      id: Date.now(),
+      type: 'error',
+      message: '아직 파티 시작 시간이 아니에요.',
+    });
+  }, []);
+
+  const isBeforeScheduledStart = () => {
+    const scheduledStartTimestamp = getTimestamp(scheduledLiveStartAt);
+    return scheduledStartTimestamp != null && scheduledStartTimestamp > Date.now();
+  };
+
   const handleOpenPartyStartSheet = () => {
+    if (isBeforeScheduledStart()) {
+      showPartyStartTimeToast();
+      return;
+    }
+
     setIsPartyStartSheetOpen(true);
 
     requestAnimationFrame(() => {
@@ -240,14 +281,32 @@ export default function LivePartyPage() {
   };
 
   const handleStartParty = () => {
-    setIsPartyStartSheetOpen(false);
-    handleNextStep();
+    if (isBeforeScheduledStart()) {
+      showPartyStartTimeToast();
+      return;
+    }
+
+    handleNextStep({
+      onSuccess: handleClosePartyStartSheet,
+      onError: (error) => {
+        if (error instanceof ApiError && error.status === 409) {
+          showPartyStartTimeToast();
+          return;
+        }
+
+        setToast({
+          id: Date.now(),
+          type: 'error',
+          message: '파티를 시작하지 못했어요. 다시 시도해주세요.',
+        });
+      },
+    });
   };
 
   const isPartyEndingFlow = Boolean(partyEndingState);
   const isPartyEnding = Boolean(partyEndingState && !partyEndingState.ended);
   const [isPartyEndingNoticeDismissed, setIsPartyEndingNoticeDismissed] = useState(false);
-  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed;
+  const showPartyEndingNotice = isPartyEnding && !isPartyEndingNoticeDismissed && !partyEnd;
   const { data: nextAction } = useRealtimePartyNextAction(
     partyId,
     participantToken,
@@ -281,7 +340,7 @@ export default function LivePartyPage() {
     showPartyEndStep();
   }, [hostGate.guestCount, isHost, isPartyEnding, showPartyEndStep]);
 
-  const handleExitClick = useCallback(() => {
+  const handleExitClick = useCallback(async () => {
     if (isPartyEnding) {
       stopMusic();
 
@@ -293,8 +352,21 @@ export default function LivePartyPage() {
       return;
     }
 
+    if (isHost) {
+      await refetchRealtimeState();
+    }
+
     handleOpenExitDialog();
-  }, [handleOpenExitDialog, isPartyEnding, leaveParty, partyId, showPartyEndStep, stopMusic]);
+  }, [
+    handleOpenExitDialog,
+    isHost,
+    isPartyEnding,
+    leaveParty,
+    partyId,
+    refetchRealtimeState,
+    showPartyEndStep,
+    stopMusic,
+  ]);
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -342,6 +414,7 @@ export default function LivePartyPage() {
   const isBurstGameStep = step === LIVE_PARTY_STEP.BURST_GAME;
   const isCloseableStep = step === LIVE_PARTY_STEP.CLOSEABLE;
   const isEntryStep = step === LIVE_PARTY_STEP.ENTRY;
+  const isEntryPartyEnding = isEntryStep && isPartyEnding;
   const showBurstGameOverlay = isBurstGameStep && !isBurstGameOverlayDismissed;
   const isBurstGameOverlayActive = showBurstGameOverlay && !isPartyEnding;
   const showHostEndingButton =
@@ -432,6 +505,19 @@ export default function LivePartyPage() {
   const { data: entryParticipantsData } = useGetPartyParticipants(partyId, {
     enabled: showPartyMain,
   });
+  const isDeletedWaitingParty = !isProfileLoading && !isHost && Boolean(partyDeletedState);
+
+  if (isDeletedWaitingParty) {
+    return (
+      <ErrorView
+        variant="notFound"
+        title="파티가 종료되었어요"
+        description="주최자가 파티를 종료해 더 이상 참여할 수 없어요."
+        primaryLabel="홈으로"
+        onPrimaryClick={handleGoHome}
+      />
+    );
+  }
 
   if (wsError || isPhaseError) {
     return (
@@ -465,7 +551,7 @@ export default function LivePartyPage() {
           remainingSeconds={hostGate.remainingSeconds}
           isEnding={hostGate.isEnding}
           onInvite={handleInvite}
-          onClose={handleOpenExitDialog}
+          onClose={handleExitClick}
         />
         <PartyExitDialog
           isOpen={isExitDialogOpen}
@@ -494,9 +580,10 @@ export default function LivePartyPage() {
           isPartyEnding={showPartyEndingNotice}
           completedStep={visibleProcessCompletedStep}
           activeProgressRatio={activeProcessProgressRatio}
-          liveStartAt={liveStartedAt}
-          liveDeadlineAt={liveDeadlineAt}
-          serverNow={liveStartedServerNow}
+          liveStartAt={isEntryPartyEnding ? partyEndingState?.endingStartedAt : liveStartedAt}
+          liveDeadlineAt={isEntryPartyEnding ? partyEndingState?.endedAt : liveDeadlineAt}
+          serverNow={isEntryPartyEnding ? partyEndingState?.serverNow : liveStartedServerNow}
+          durationSeconds={isEntryPartyEnding ? PARTY_ENDING_FALLBACK_SECONDS : undefined}
         />
       )}
       {showPartyMain && !showEntryReadyUI && (
@@ -538,6 +625,7 @@ export default function LivePartyPage() {
               partyId={partyId}
               onClose={handleClosePartyStartSheet}
               onStart={handleStartParty}
+              isStarting={isAdvancingPhase || !isPartyStartSheetVisible}
             />
           </div>
         </div>
@@ -576,6 +664,7 @@ export default function LivePartyPage() {
         onCancel={handleCancelExit}
         onConfirm={handleConfirmExit}
       />
+      <Toast toast={toast} onClose={closeToast} />
     </div>
   );
 }

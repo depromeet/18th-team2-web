@@ -57,7 +57,13 @@ export function PartyEndButton({
     navigate(ROUTES.home);
   };
   const handleRollingPaperCheck = () =>
-    navigate(generatePath(ROUTES.rollingPaper, { id: rollingPaperId }));
+    navigate(generatePath(ROUTES.rollingPaper, { id: rollingPaperId }), {
+      replace: true,
+      state: {
+        partyOption: 'REALTIME',
+        entrySource: 'live-party-end',
+      },
+    });
 
   const { isOpen, handleOpen, handleClose, handleWriteNow, handleWriteLater } = useLaterWriteDialog(
     { inviteToken: rollingPaperWriteInviteToken, hostName },
