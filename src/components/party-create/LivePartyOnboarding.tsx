@@ -9,16 +9,16 @@ import { useGuideSeenOnce } from '@/hooks/useGuideSeenOnce';
 const PARTY_ONBOARDING_ITEMS: GuideCarouselItem[] = [
   {
     imageSrc: livePartyOnboardingFirstImage,
-    text: '내 생일날 실시간으로 \n5분 이내 파티를 즐겨요',
+    text: '내 생일날 색다른 컨텐츠로 \n5분 이내 파티를 즐겨요',
   },
   { imageSrc: livePartyOnboardingSecondImage, text: '파티는 약 5분 간 \n4단계로 진행돼요' },
   {
     imageSrc: livePartyOnboardingThirdImage,
-    text: '촛불 불기, 박터뜨리기는\n친구들과 같이 할 수 있어요',
+    text: '실시간으로 친구들과\n축하의 마음을 나눠요',
   },
   {
     imageSrc: livePartyOnboardingFourthImage,
-    text: '파티가 끝난 후에도 7일 더\n롤링페이퍼를 받을 수 있어요',
+    text: '파티가 끝난 후에도\n친구들이 7일간 편지를 남겨요',
   },
 ];
 
