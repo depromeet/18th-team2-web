@@ -196,7 +196,9 @@ describe('RollingPaperHostView', () => {
     expect(topping).toHaveAttribute('aria-disabled', 'false');
     fireEvent.click(topping);
     expect(onToppingClick).toHaveBeenCalledWith(0);
-    expect(screen.getByText('김이라님의 롤링페이퍼')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /김이라님을 위해/ })).toHaveTextContent(
+      '김이라님을 위해롤링페이퍼를 작성해 주세요!',
+    );
     expect(screen.getByText(/토핑을 눌러 확인해 보세요!/)).toBeInTheDocument();
     expect(screen.getByRole('status')).toBeInTheDocument();
     expect(screen.getByText(/작성 가능한 시간/)).toBeInTheDocument();
