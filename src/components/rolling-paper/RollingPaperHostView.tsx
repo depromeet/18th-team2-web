@@ -102,10 +102,10 @@ export function RollingPaperHostView({
               친구들이 총 <span className="font-medium text-white">{totalCount}</span>개의 편지를
               남겼어요!
               {isViewable && !isRealtimeParty && (
-                <>
+                <span data-capture-hidden>
                   <br />
                   토핑을 눌러 확인해 보세요!
-                </>
+                </span>
               )}
             </B1>
           </div>
