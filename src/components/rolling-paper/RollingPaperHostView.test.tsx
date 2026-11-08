@@ -99,7 +99,7 @@ describe('RollingPaperHostView', () => {
   it('공개 일시와 작성 마감 카운트다운을 표시한다', () => {
     renderView();
 
-    expect(screen.getByText(/김이라님을 위해/)).toHaveTextContent(
+    expect(screen.getByRole('heading', { name: /김이라님을 위해/ })).toHaveTextContent(
       '김이라님을 위해롤링페이퍼를 작성해 주세요!',
     );
     expect(screen.getByText('10월 21일 밤 10시')).toBeInTheDocument();
@@ -133,7 +133,7 @@ describe('RollingPaperHostView', () => {
       'data-link',
       `${window.location.origin}/invite/test`,
     );
-    expect(screen.getByRole('button', { name: '이미지 다운로드 기능 준비 중' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '이미지 저장하기' })).toBeEnabled();
 
     fireEvent.click(screen.getByRole('button', { name: '공유 시트 닫기' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -247,7 +247,7 @@ describe('RollingPaperHostView', () => {
     expect(screen.getByText('아직 편지를 남긴 친구가 없어요')).toBeInTheDocument();
     expect(screen.getByText(/링크를 공유해 친구들에게 알려보세요!/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '롤링페이퍼 공유하기' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '이미지 다운로드 기능 준비 중' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '이미지 저장하기' })).toBeEnabled();
   });
 
   it('실시간 파티 종료 후 편지가 있으면 편지 개수와 다운로드 UI를 표시한다', () => {
@@ -268,7 +268,7 @@ describe('RollingPaperHostView', () => {
     );
     expect(screen.getByText(/친구들이 총/)).toHaveTextContent('친구들이 총 1개의 편지를 남겼어요!');
     expect(screen.queryByText(/토핑을 눌러 확인해 보세요!/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '이미지 다운로드 기능 준비 중' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '이미지 저장하기' })).toBeEnabled();
 
     fireEvent.click(screen.getByRole('button', { name: /해파링링/ }));
     expect(onToppingClick).toHaveBeenCalledWith(0);
