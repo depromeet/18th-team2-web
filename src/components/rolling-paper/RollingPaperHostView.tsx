@@ -194,7 +194,7 @@ export function RollingPaperHostView({
       )}
 
       {showShareControls && !hasMessages && (
-        <RollingPaperEmptyCaptureView ref={emptyCaptureTargetRef} hostName={hostName} />
+        <RollingPaperEmptyCaptureView captureRef={emptyCaptureTargetRef} hostName={hostName} />
       )}
 
       {showShareControls && (
