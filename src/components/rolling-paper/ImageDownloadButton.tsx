@@ -76,17 +76,18 @@ export function ImageDownloadButton({
       delete target.dataset.capturing;
 
       // 셔터처럼 화면이 번쩍인 뒤 캡쳐 이미지를 띄운다
+      // 셔터 효과가 끝날 때까지 캡쳐 중으로 두어 그 사이 버튼이 다시 눌리지 않게 한다
       setFlashPhase('fade');
       flashTimerRef.current = window.setTimeout(() => {
         setFlashPhase(null);
         setCapturedImageUrl(dataUrl);
+        setIsCapturing(false);
       }, CAPTURE_FLASH_DURATION_MS);
     } catch {
       delete target.dataset.capturing;
       setFlashPhase(null);
-      setToast({ id: Date.now(), type: 'error', message: '이미지 캡쳐에 실패했어요' });
-    } finally {
       setIsCapturing(false);
+      setToast({ id: Date.now(), type: 'error', message: '이미지 캡쳐에 실패했어요' });
     }
   };
 
