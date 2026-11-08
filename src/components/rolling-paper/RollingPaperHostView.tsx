@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import letterImage from '@/assets/images/live-party/letter.png';
-import DownloadIcon from '@/assets/images/icons/download.svg?react';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
 import { RollingPaperHeader } from '@/components/rolling-paper/RollingPaperHeader';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
@@ -12,6 +11,7 @@ import { B1, H1 } from '@/components/ui/Typography';
 import { useRollingPaperShare } from '@/hooks/rolling-paper/useRollingPaperShare';
 import type { RollingPaperData } from '@/services/rolling-paper';
 import { formatKoreanShortDate, isFuture, parseKstDateTime } from '@/utils/date';
+import { ImageDownloadButton } from '@/components/rolling-paper/ImageDownloadButton';
 
 interface RollingPaperHostViewProps {
   partyType?: 'paper-only' | 'realtime';
@@ -172,17 +172,7 @@ export function RollingPaperHostView({
           variant="solid"
           showTooltip={false}
           layout="compact"
-          leadingAction={
-            <button
-              type="button"
-              aria-label="이미지 다운로드 기능 준비 중"
-              title="이미지 다운로드 기능 준비 중"
-              disabled
-              className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
-            >
-              <DownloadIcon className="h-6 w-6" />
-            </button>
-          }
+          leadingAction={<ImageDownloadButton />}
         />
       )}
 
