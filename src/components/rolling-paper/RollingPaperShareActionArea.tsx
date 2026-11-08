@@ -72,7 +72,7 @@ export function RollingPaperShareActionArea({
         </div>
       )}
 
-      <div className="mx-auto flex w-full flex-col items-center gap-2">
+      <div data-capture-hidden className="mx-auto flex w-full flex-col items-center gap-2">
         {writableUntil && (
           <CountdownTimer
             targetDate={writableUntil}

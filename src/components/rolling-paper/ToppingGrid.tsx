@@ -111,6 +111,7 @@ export function ToppingGrid({
 
       {showIndicator && (
         <div
+          data-capture-hidden
           className="pointer-events-auto absolute left-1/2 z-20 -translate-x-1/2"
           style={
             hasBottomAction

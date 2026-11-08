@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import letterImage from '@/assets/images/live-party/letter.png';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
+import { RollingPaperEmptyCaptureView } from '@/components/rolling-paper/RollingPaperEmptyCaptureView';
 import { RollingPaperHeader } from '@/components/rolling-paper/RollingPaperHeader';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { RollingPaperShareNotice } from '@/components/rolling-paper/RollingPaperShareNotice';
@@ -33,6 +34,8 @@ export function RollingPaperHostView({
   const { messages, totalCount, viewableAt, writableUntil } = data;
   const hostName = data.hostName ?? fallbackHostName;
   const isViewable = data.viewable !== false;
+  const captureTargetRef = useRef<HTMLDivElement>(null);
+  const emptyCaptureTargetRef = useRef<HTMLDivElement>(null);
   const [hasWritableTime, setHasWritableTime] = useState(() => isFuture(writableUntil));
   const { isShareSheetOpen, inviteShareLink, isActivatingInvite, openShareSheet, closeShareSheet } =
     useRollingPaperShare(data.partyId);
@@ -56,6 +59,7 @@ export function RollingPaperHostView({
 
   return (
     <div
+      ref={captureTargetRef}
       className="bg-rolling-paper-main relative mx-auto h-dvh w-full max-w-150 overflow-hidden"
       style={{
         ['--rolling-paper-art-offset' as string]: 'clamp(-81px, calc(100dvh - 812px), 0px)',
@@ -64,7 +68,9 @@ export function RollingPaperHostView({
     >
       {hasMessages && <CakeBackground hideBottomDecoration={showShareControls} />}
 
-      <RollingPaperHeader onBack={onBackClick} onRefresh={onRefresh} />
+      <div data-capture-hidden>
+        <RollingPaperHeader onBack={onBackClick} onRefresh={onRefresh} />
+      </div>
 
       <main
         className={`pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] z-20 flex flex-col px-4 ${showShareControls ? 'bottom-[165px]' : 'bottom-0'}`}
@@ -161,7 +167,11 @@ export function RollingPaperHostView({
         />
       )}
 
-      {showShareControls && <RollingPaperShareNotice />}
+      {showShareControls && (
+        <div data-capture-hidden>
+          <RollingPaperShareNotice />
+        </div>
+      )}
 
       {showShareControls && (
         <RollingPaperShareActionArea
@@ -172,8 +182,19 @@ export function RollingPaperHostView({
           variant="solid"
           showTooltip={false}
           layout="compact"
-          leadingAction={<ImageDownloadButton />}
+          leadingAction={
+            hasMessages ? (
+              <ImageDownloadButton targetRef={captureTargetRef} />
+            ) : (
+              // 받은 편지가 없으면 화면 대신 저장용 레이아웃(360x640)을 1080x1920으로
+              <ImageDownloadButton targetRef={emptyCaptureTargetRef} pixelRatio={3} />
+            )
+          }
         />
+      )}
+
+      {showShareControls && !hasMessages && (
+        <RollingPaperEmptyCaptureView ref={emptyCaptureTargetRef} hostName={hostName} />
       )}
 
       {showShareControls && (
