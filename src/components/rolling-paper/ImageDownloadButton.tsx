@@ -32,6 +32,14 @@ function waitForPaint() {
   });
 }
 
+interface CaptureSession {
+  target: HTMLElement;
+  id: string;
+}
+
+// 인스턴스가 여러 개여도 마커 값이 겹치지 않도록 모듈 단위로 증가시킨다
+let captureSequence = 0;
+
 export function ImageDownloadButton({
   targetRef,
   fileName = 'rolling-paper.png',
@@ -43,12 +51,26 @@ export function ImageDownloadButton({
   const [flashPhase, setFlashPhase] = useState<'cover' | 'fade' | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const flashTimerRef = useRef<number | null>(null);
+  const isMountedRef = useRef(true);
+  const activeCaptureRef = useRef<CaptureSession | null>(null);
+
+  // 이 캡쳐가 단 마커일 때만 제거해 다른 캡쳐의 마커를 건드리지 않는다
+  const releaseCaptureMarker = useCallback((capture: CaptureSession) => {
+    if (capture.target.dataset.capturing === capture.id) {
+      delete capture.target.dataset.capturing;
+    }
+    if (activeCaptureRef.current === capture) activeCaptureRef.current = null;
+  }, []);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
       if (flashTimerRef.current) window.clearTimeout(flashTimerRef.current);
+      // 캡쳐 도중 버튼이 사라지면(예: 작성 시간 만료) 숨겨둔 헤더 등이 계속 안 보이지 않도록 바로 복구한다
+      if (activeCaptureRef.current) releaseCaptureMarker(activeCaptureRef.current);
     };
-  }, []);
+  }, [releaseCaptureMarker]);
 
   const closeToast = useCallback(() => setToast(null), []);
   const closePreview = useCallback(() => setCapturedImageUrl(null), []);
@@ -63,17 +85,24 @@ export function ImageDownloadButton({
     const target = targetRef.current;
     if (!target || isCapturing) return;
 
+    captureSequence += 1;
+    const capture: CaptureSession = { target, id: String(captureSequence) };
+
     setIsCapturing(true);
     // data-capture-hidden 요소를 숨기는 동안 화면이 깜빡이지 않도록 먼저 가린다
     setFlashPhase('cover');
     try {
       await waitForPaint();
-      target.dataset.capturing = 'true';
+      if (!isMountedRef.current) return;
+
+      target.dataset.capturing = capture.id;
+      activeCaptureRef.current = capture;
       const dataUrl = await toPng(target, {
         pixelRatio,
         cacheBust: true,
       });
-      delete target.dataset.capturing;
+      releaseCaptureMarker(capture);
+      if (!isMountedRef.current) return;
 
       // 셔터처럼 화면이 번쩍인 뒤 캡쳐 이미지를 띄운다
       // 셔터 효과가 끝날 때까지 캡쳐 중으로 두어 그 사이 버튼이 다시 눌리지 않게 한다
@@ -84,10 +113,12 @@ export function ImageDownloadButton({
         setIsCapturing(false);
       }, CAPTURE_FLASH_DURATION_MS);
     } catch {
-      delete target.dataset.capturing;
+      if (!isMountedRef.current) return;
       setFlashPhase(null);
       setIsCapturing(false);
       setToast({ id: Date.now(), type: 'error', message: '이미지 캡쳐에 실패했어요' });
+    } finally {
+      releaseCaptureMarker(capture);
     }
   };
 
