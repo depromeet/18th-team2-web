@@ -69,10 +69,11 @@ export interface paths {
          *
          *     **입장 가능 조건**
          *     - 초대 링크가 만료되지 않아야 합니다
-         *     - 실시간 파티가 LIVE_OPEN 상태일 때만 입장할 수 있습니다
+         *     - 파티 시작 5분 전(`enterableFrom`)부터 종료 카운트다운 시작 전까지 입장할 수 있습니다
+         *     - 시작 시각 전에 입장하면 `party-state` 의 status 는 `ROLLING_PAPER_OPEN` 입니다. 채팅은 바로 가능하고, 파티 시작은 시작 시각부터 가능합니다
          *
          *     **재입장**
-         *     기존 participantToken으로 다시 호출해도 LIVE_ENDING 상태에서는 입장할 수 없습니다.
+         *     기존 participantToken 재입장도 같은 입장 가능 구간을 따릅니다. LIVE_ENDING 상태에서는 입장할 수 없습니다.
          *
          *     ---
          *
@@ -90,7 +91,7 @@ export interface paths {
          *     | `message` | 새로 전송된 메시지 1건 |
          *     | `user-entered` | 참여자 입장 알림 |
          *     | `user-left` | 참여자 퇴장 알림 |
-         *     | `party-ending` | 60초 종료 카운트다운 시작 알림 |
+         *     | `party-ending` | 30초 종료 카운트다운 시작 알림 |
          *     | `party-ended` | 실시간 파티 종료 알림 |
          *
          *     ---
@@ -211,6 +212,12 @@ export interface paths {
          *     403 `KAKAO_CALENDAR_CONSENT_REQUIRED` 를 반환한다. 이때 클라이언트는
          *     `GET /api/v1/me/talk-calendar-connection/consent-url` 로 동의 URL 을 받아 브라우저를 그리로 보내고,
          *     동의를 마치고 돌아오면 이 API 를 다시 호출한다.
+         *
+         *     **IMPORTANT: 503 `KAKAO_CALENDAR_NOT_PERMITTED` 는 재동의로 풀리지 않는다**
+         *     카카오 앱이 아직 검수 전(테스트 앱)이라 팀원으로 등록되지 않은 사용자는 동의를 마쳐도 카카오가 일정 생성을
+         *     거부한다(카카오 `code: -5`). 이 응답을 받으면 **동의 URL 을 다시 받지 말고 재시도도 하지 말고** 사용자에게
+         *     "아직 사용할 수 없는 기능" 으로 안내하고 끝내야 한다. 재동의를 반복하면 카카오 토큰 발급 레이트리밋
+         *     (`KOE237`) 에 걸린다.
          */
         post: operations["registerPartyEvent"];
         delete?: never;
@@ -345,7 +352,7 @@ export interface paths {
          * @description 실시간 파티 채팅에 메시지를 전송합니다.
          *
          *     **전송 가능 조건**
-         *     파티가 시작된 상태(`LIVE_OPEN`)에서만 전송할 수 있습니다. 파티 시작 전이나 종료 후에는 전송이 거부됩니다.
+         *     입장 가능 시각(시작 5분 전, `enterableFrom`)부터 종료 카운트다운이 끝날 때까지 전송할 수 있습니다. 그 전이나 종료 후에는 전송이 거부됩니다.
          *
          *     **인증**
          *     로그인 사용자는 `Authorization: Bearer {token}` 헤더를, 비로그인 참여자는 `X-Participant-Token: {participantToken}` 헤더를 사용합니다. 둘 중 하나는 반드시 포함해야 합니다.
@@ -515,6 +522,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/party-invites/{inviteToken}/talk-calendar/consent-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 비회원 톡캘린더 동의 URL 발급
+         * @description 이 경로는 비회원용이며, 동의를 마치면 콜백에서 등록까지 끝난다. 클라이언트는 복귀 후 등록 API 를 재호출하지 않는다.
+         *
+         *     브라우저를 반환된 `consentUrl` 로 보내면 카카오 동의를 거쳐 `returnPath` 로 돌아온다.
+         *     복귀 시 쿼리 파라미터 `calendarConsent` 에 결과가 담긴다. 비회원 경로가 돌려보내는 값은 다음 7개다.
+         *
+         *     - `registered` — 일정을 만들었다
+         *     - `already_registered` — 같은 카카오 계정이 이 파티를 이미 등록했다 (일정을 새로 만들지 않았다)
+         *     - `party_already_started` — 파티가 이미 시작돼 등록하지 않았다
+         *     - `invite_invalid` — 초대 토큰이 없거나 만료됐다
+         *     - `denied` — 사용자가 카카오 동의를 거부했다
+         *     - `expired` — 티켓이 만료됐거나 콜백의 `state` 가 맞지 않다 (동의를 다시 시작해야 한다)
+         *     - `failed` — 그 밖의 실패 (토큰 교환 실패, 카카오 오류 등)
+         *
+         *     회원 경로의 `granted` / `account_mismatch` 는 이 경로에서 나오지 않는다. 비회원은 대조할 서비스 계정이
+         *     없어 계정 대조를 하지 않고, 동의 결과만 알리는 대신 등록 결과를 그대로 돌려보낸다.
+         *
+         *     초대 토큰의 유효성은 이 엔드포인트에서 검사하지 않는다. 토큰이 잘못됐으면 콜백에서 등록을
+         *     시도할 때 `invite_invalid` 로 드러난다.
+         *
+         *     `returnPath` 는 프론트 **경로**다. 도메인은 서버 설정(`app.web-base-url`)에서 붙이므로 넘기지 않는다.
+         *     사용자가 보고 있던 화면을 그대로 넘기면 동의 후 그 화면으로 돌아온다.
+         */
+        get: operations["issueConsentUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/parties/{partyId}/rolling-papers": {
         parameters: {
             query?: never;
@@ -524,7 +571,7 @@ export interface paths {
         };
         /**
          * 주최자용 롤링페이퍼 목록 조회
-         * @description 인증된 파티 소유자가 롤링페이퍼 목록과 상세 오버레이용 본문을 조회한다.
+         * @description 인증된 파티 소유자가 롤링페이퍼 목록과 상세 오버레이용 본문을 조회한다. 열람 가능 시각 전에는 viewable이 false이고 본문(content)은 null로 내려간다.
          */
         get: operations["getOwnerRollingPapers"];
         put?: never;
@@ -719,7 +766,7 @@ export interface paths {
          *     `returnPath` 는 프론트 **경로**다. 도메인은 서버 설정(`app.web-base-url`)에서 붙이므로 넘기지 않는다.
          *     사용자가 보고 있던 화면을 그대로 넘기면 동의 후 그 화면으로 돌아온다.
          */
-        get: operations["issueConsentUrl"];
+        get: operations["issueConsentUrl_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -810,7 +857,7 @@ export interface paths {
         /**
          * 보관함 파티 상세 조회
          * @description 보관함에서 한 파티 상세를 조회한다. 본인이 작성한 롤페가 있으면 모달용 4개 필드가 함께 채워진다.
-         *                 PAPER_ONLY 파티는 participants/chatMessages 가 빈 배열, participantCount=0, chatHasMore=false 로 응답한다.
+         *                 PAPER_ONLY 파티는 participants 가 빈 배열, participantCount=0 으로 응답한다.
          */
         get: operations["getArchivedPartyDetail"];
         put?: never;
@@ -1585,6 +1632,24 @@ export interface components {
             liveDurationMinutes: number;
         };
         /** @description 공통 성공 응답 */
+        ApiResponseKakaoCalendarConsentUrlResult: {
+            /**
+             * Format: int32
+             * @description HTTP 상태 코드
+             * @example 200
+             */
+            status: number;
+            data?: components["schemas"]["KakaoCalendarConsentUrlResult"];
+        };
+        /** @description 톡캘린더 동의 URL */
+        KakaoCalendarConsentUrlResult: {
+            /**
+             * @description 브라우저를 이 주소로 보내면 카카오 동의를 거쳐 복귀 경로로 돌아온다
+             * @example https://api.hapalin.com/api/v1/kakao-calendar/consent?ticket=...&return_path=...
+             */
+            consentUrl: string;
+        };
+        /** @description 공통 성공 응답 */
         ApiResponseParticipantRollingPaperListResponse: {
             /**
              * Format: int32
@@ -1686,10 +1751,10 @@ export interface components {
              */
             writerNickname: string;
             /**
-             * @description 롤링페이퍼 내용. 최대 100자입니다.
+             * @description 롤링페이퍼 내용. 최대 100자입니다. 열람 가능 시각 전에는 null입니다.
              * @example 생일 축하해요!
              */
-            content: string;
+            content?: string;
             /**
              * @description 롤링페이퍼 토핑 이미지 URL.
              * @example /images/rolling-paper-wrappers/Topping_Candle.svg
@@ -1708,6 +1773,16 @@ export interface components {
              * @description 파티 자체 종료 시각
              */
             partyEndAt: string;
+            /**
+             * @description 주최자의 롤링페이퍼 내용 열람 가능 여부. false면 items의 content가 null입니다.
+             * @example true
+             */
+            viewable: boolean;
+            /**
+             * Format: date-time
+             * @description 주최자가 롤링페이퍼 내용을 열람할 수 있는 시각
+             */
+            viewableAt: string;
             /** @description 롤링페이퍼 목록 */
             items: components["schemas"]["OwnerRollingPaperListItemResult"][];
             pageInfo: components["schemas"]["RollingPaperPageInfoResult"];
@@ -1823,6 +1898,12 @@ export interface components {
              * @description 파티 시작 기준 종료 인사하기 버튼 활성화 시각
              */
             hostFarewellAvailableAt?: string;
+            /**
+             * @description 주최자가 파티를 나갈 때 호출할 API. DELETE = `DELETE /parties/{partyId}`(예약 시각 전), END = `POST /parties/{partyId}/realtime-end`(예약 시각 이후, 파티 시작 여부 무관). 이미 종료 중이거나 종료됐으면 null
+             * @example END
+             * @enum {string}
+             */
+            hostExitAction?: "DELETE" | "END" | "DELETE" | "END";
             /**
              * Format: date-time
              * @description 응답 생성 서버 시각
@@ -2123,24 +2204,6 @@ export interface components {
              */
             liveEndAt: string;
         };
-        /** @description 공통 성공 응답 */
-        ApiResponseKakaoCalendarConsentUrlResult: {
-            /**
-             * Format: int32
-             * @description HTTP 상태 코드
-             * @example 200
-             */
-            status: number;
-            data?: components["schemas"]["KakaoCalendarConsentUrlResult"];
-        };
-        /** @description 톡캘린더 동의 URL */
-        KakaoCalendarConsentUrlResult: {
-            /**
-             * @description 브라우저를 이 주소로 보내면 카카오 동의를 거쳐 복귀 경로로 돌아온다
-             * @example https://api.hapalin.com/api/v1/kakao-calendar/consent?ticket=...&return_path=...
-             */
-            consentUrl: string;
-        };
         ApplicationContext: {
             parent?: components["schemas"]["ApplicationContext"];
             id?: string;
@@ -2380,8 +2443,8 @@ export interface components {
             virtualServerName?: string;
         };
         ServletRegistration: {
-            mappings?: string[];
             runAsRole?: string;
+            mappings?: string[];
             name?: string;
             className?: string;
             initParameters?: {
@@ -2490,23 +2553,6 @@ export interface components {
             status: number;
             data?: components["schemas"]["ArchivePartyDetailResponse"];
         };
-        /** @description 보관함 파티 상세 - 채팅 메시지 항목 */
-        ArchiveChatMessageResponse: {
-            /**
-             * Format: int64
-             * @description 메시지 ID
-             */
-            id: number;
-            /** @description 작성자 닉네임 (RealtimeParticipantProfile.nickname) */
-            authorName: string;
-            /** @description 메시지 본문 */
-            content: string;
-            /**
-             * Format: date-time
-             * @description 전송 시각 (KST)
-             */
-            sentAt: string;
-        };
         /** @description 보관함 파티 상세 - 참가자 항목 */
         ArchiveParticipantResponse: {
             /** @description 참가자 닉네임 (RealtimeParticipantProfile.nickname) */
@@ -2553,10 +2599,6 @@ export interface components {
             paperCount: number;
             /** @description 참가자 닉네임 목록. PAPER_ONLY는 빈 배열 */
             participants: components["schemas"]["ArchiveParticipantResponse"][];
-            /** @description 최근 50개 채팅 메시지 (createdAt DESC). PAPER_ONLY는 빈 배열 */
-            chatMessages: components["schemas"]["ArchiveChatMessageResponse"][];
-            /** @description 응답에 담지 못한 추가 메시지 존재 여부 */
-            chatHasMore: boolean;
             /** @description 본인이 롤페를 작성했는지 */
             myPaperWritten: boolean;
             /** @description 본인 롤페 본문. 미작성이면 null */
@@ -3202,6 +3244,15 @@ export interface operations {
                      *       }
                      *     }
                      */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 톡캘린더 기능 사용 불가 (재동의·재시도로 풀리지 않음) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
@@ -4117,6 +4168,56 @@ export interface operations {
             };
         };
     };
+    issueConsentUrl: {
+        parameters: {
+            query: {
+                /**
+                 * @description 동의 후 돌아올 프론트 경로. `/` 로 시작해야 한다
+                 * @example /invite/a796ba5f
+                 */
+                returnPath: string;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description 파티 초대 토큰
+                 * @example a796ba5f
+                 */
+                inviteToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 발급 성공 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseKakaoCalendarConsentUrlResult"];
+                };
+            };
+            /** @description 서버 내부 오류 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": 500,
+                     *       "error": {
+                     *         "code": "INTERNAL_SERVER_ERROR",
+                     *         "message": "서버 내부 오류가 발생했습니다"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getOwnerRollingPapers: {
         parameters: {
             query?: {
@@ -4156,7 +4257,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description 파티 권한 없음 또는 아직 열람 불가 */
+            /** @description 파티 권한 없음 */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4677,7 +4778,7 @@ export interface operations {
             };
         };
     };
-    issueConsentUrl: {
+    issueConsentUrl_1: {
         parameters: {
             query: {
                 /**

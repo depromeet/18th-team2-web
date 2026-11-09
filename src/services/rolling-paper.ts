@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/services/api';
 import type { components } from '@/types/api';
@@ -22,6 +22,10 @@ export interface RollingPaperData {
   messages: RollingPaperMessage[];
   /** 작성 마감 — 주최자 경로 한정. 참가자는 invite lookup의 liveStartAt+7일로 별도 계산. */
   writableUntil?: string;
+  /** 주최자 본문 열람 가능 여부. 참가자 경로에는 없음. */
+  viewable?: boolean;
+  /** 주최자 본문 열람 가능 시각. 참가자 경로에는 없음. */
+  viewableAt?: string;
   totalCount: number;
 }
 
@@ -45,9 +49,34 @@ function toppingTypeFromUrl(url: string | null | undefined): ToppingType {
 
 // list 매핑은 메타데이터(id/작성자/토핑)만 추출 — content는 detail 엔드포인트에서 lazy fetch한다.
 // 참가자 응답엔 content가 없고(BE 정책), 주최자 list도 content를 주지만 모달 일관성을 위해 안 씀.
-type RollingPaperListItem =
-  | components['schemas']['ParticipantRollingPaperListItemResult']
-  | components['schemas']['OwnerRollingPaperListItemResult'];
+interface RollingPaperListItem {
+  rollingPaperId: number;
+  writerNickname?: string;
+  toppingImageUrl?: string;
+}
+
+type OwnerRollingPaperListItem = Omit<
+  components['schemas']['OwnerRollingPaperListItemResult'],
+  'content'
+> & {
+  content: string | null;
+};
+
+type OwnerRollingPaperListResponse = Omit<
+  components['schemas']['OwnerRollingPaperListResponse'],
+  'items'
+> & {
+  viewable: boolean;
+  viewableAt: string;
+  items: OwnerRollingPaperListItem[];
+};
+
+type ApiResponseOwnerRollingPaperList = Omit<
+  components['schemas']['ApiResponseOwnerRollingPaperListResponse'],
+  'data'
+> & {
+  data?: OwnerRollingPaperListResponse;
+};
 
 function mapItems(items: RollingPaperListItem[] | undefined): RollingPaperMessage[] {
   return (items ?? []).map((item) => ({
@@ -57,6 +86,10 @@ function mapItems(items: RollingPaperListItem[] | undefined): RollingPaperMessag
     // 자산 이름 바뀌면 조용히 깨짐 — BE에 명시적 type 필드 요청 필요.
     toppingType: toppingTypeFromUrl(item.toppingImageUrl),
   }));
+}
+
+function participantRollingPaperListQueryKey(inviteToken: string) {
+  return ['rolling-paper', `invite-${inviteToken}`] as const;
 }
 
 // ── 상세 ──
@@ -93,7 +126,9 @@ export const rollingPaperQueries = {
   // totalPages만큼 순회해 모든 토핑을 받아온다. (1페이지만 받으면 2페이지 이상이 영구 누락됨)
   list: (partyId: string, inviteToken?: string, enabled = true) =>
     queryOptions({
-      queryKey: ['rolling-paper', inviteToken ? `invite-${inviteToken}` : `party-${partyId}`],
+      queryKey: inviteToken
+        ? participantRollingPaperListQueryKey(inviteToken)
+        : ['rolling-paper', `party-${partyId}`],
       queryFn: async (): Promise<RollingPaperData> => {
         if (inviteToken) {
           const fetchPage = (page: number) =>
@@ -118,7 +153,7 @@ export const rollingPaperQueries = {
         }
 
         const fetchPage = (page: number) =>
-          api.get<components['schemas']['ApiResponseOwnerRollingPaperListResponse']>(
+          api.get<ApiResponseOwnerRollingPaperList>(
             `/api/v1/parties/${partyId}/rolling-papers?page=${page}`,
           );
         const first = (await fetchPage(1)).data;
@@ -137,6 +172,8 @@ export const rollingPaperQueries = {
           // partyEndAt = startedAt + 7일 = 작성 마감 (BE Party.endedAt 기준).
           // OpenAPI 설명("파티 자체 종료 시각")은 오해 소지 — 실제 파티 종료는 liveEndAt. +7일 금지.
           writableUntil: first.partyEndAt ?? undefined,
+          viewable: first.viewable,
+          viewableAt: first.viewableAt,
           totalCount: first.pageInfo.totalCount,
         };
       },
@@ -157,6 +194,8 @@ export function useRollingPaperDetail(partyId: string, rollingPaperId: string) {
 // ── Mutation hooks ──
 
 export function useWriteRollingPaper() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ inviteToken, writerNickname, content, toppingType }: WriteRollingPaperParams) =>
       api.post<components['schemas']['ApiResponseCreateRollingPaperResponse']>(
@@ -167,5 +206,9 @@ export function useWriteRollingPaper() {
           toppingId: TOPPING_ID[toppingType],
         } satisfies components['schemas']['CreateRollingPaperRequest'],
       ),
+    onSuccess: (_response, { inviteToken }) =>
+      queryClient.invalidateQueries({
+        queryKey: participantRollingPaperListQueryKey(inviteToken),
+      }),
   });
 }

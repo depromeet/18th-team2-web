@@ -40,7 +40,12 @@ export default function RollingPaperCreateCompletePage() {
 
   const handleViewRollingPaper = () => {
     if (partyId == null) return;
-    navigate(generatePath(ROUTES.rollingPaper, { id: String(partyId) }));
+    navigate(generatePath(ROUTES.rollingPaper, { id: String(partyId) }), {
+      state: {
+        partyOption: 'PAPER_ONLY',
+        hostName,
+      },
+    });
   };
 
   return (

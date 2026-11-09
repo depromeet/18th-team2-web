@@ -65,6 +65,7 @@ export function PartyInvitationView({
   const openLoginPrompt = useCallback(() => setIsLoginPromptOpen(true), []);
   const { isTalkCalendarPending, handleRegisterTalkCalendar } = useTalkCalendarReminder({
     partyId,
+    inviteToken,
     isAuthenticated,
     showToast,
     openLoginPrompt,
@@ -87,7 +88,9 @@ export function PartyInvitationView({
   }
 
   function handleViewRollingPaper() {
-    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }));
+    navigate(generatePath(ROUTES.rollingPaper, { id: partyId }), {
+      state: { partyOption, hostName },
+    });
   }
 
   function handleWriteRollingPaper() {

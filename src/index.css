@@ -741,6 +741,33 @@ textarea {
   }
 }
 
+.rolling-paper-lock-progress {
+  position: relative;
+  isolation: isolate;
+}
+
+.rolling-paper-lock-progress::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(143 182 255 / 15%) 30%,
+    rgb(255 255 255 / 85%) 50%,
+    rgb(143 182 255 / 15%) 70%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: rolling-paper-lock-progress-shine 1800ms ease-in-out infinite;
+}
+
+@keyframes rolling-paper-lock-progress-shine {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* 가이드 캐러셀 다이얼로그 */
 
 .guide-carousel-fade-in {
@@ -753,9 +780,49 @@ textarea {
   animation: party-enter-fade-in 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* 롤링페이퍼 이미지 저장 — 셔터 플래시 + 미리보기 */
+@keyframes capture-flash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes capture-preview-pop {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 캡쳐하는 동안 이미지에 담지 않을 요소 — 자리는 유지해 레이아웃이 밀리지 않게 한다 */
+[data-capturing] [data-capture-hidden] {
+  visibility: hidden;
+}
+
+.capture-flash {
+  animation: capture-flash 350ms ease-out both;
+}
+
+.capture-preview-pop {
+  animation: capture-preview-pop 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* 축약 속성이 duration을 덮어쓰지 않도록 선언 뒤에 둔다 */
 @media (prefers-reduced-motion: reduce) {
-  .create-setup-title-swap {
+  .create-setup-title-swap,
+  .capture-flash,
+  .capture-preview-pop {
+    animation: none;
+  }
+
+  .rolling-paper-lock-progress::after {
     animation: none;
   }
 }

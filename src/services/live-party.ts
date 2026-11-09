@@ -23,6 +23,14 @@ export type RealtimePartyStateResult = components['schemas']['RealtimePartyState
 export type PartyParticipantsResult = components['schemas']['PartyParticipantsResponse'];
 export type PartyParticipantResult = components['schemas']['PartyParticipantResponse'];
 
+export async function getRealtimePartyState(partyId: string) {
+  const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
+    `/api/v1/parties/${partyId}/realtime-state`,
+    getParticipantOptions(),
+  );
+  return res.data ?? null;
+}
+
 export const realtimePartyQueries = {
   nextAction: (partyId: string, participantToken?: string | null, enabled = true) =>
     queryOptions({
@@ -49,13 +57,7 @@ export function useRealtimePartyNextAction(
 export function useRealtimePartyState(partyId: string | undefined, enabled = true) {
   return useQuery({
     queryKey: ['realtime-party-state', partyId],
-    queryFn: async () => {
-      const res = await api.get<components['schemas']['ApiResponseRealtimePartyStateResult']>(
-        `/api/v1/parties/${partyId}/realtime-state`,
-        getParticipantOptions(),
-      );
-      return res.data ?? null;
-    },
+    queryFn: () => getRealtimePartyState(partyId ?? ''),
     enabled: Boolean(partyId) && enabled,
   });
 }
@@ -113,6 +115,10 @@ export interface ConnectRealtimePartyParams {
   participantToken?: string | null;
 }
 
+interface ConnectRealtimePartyOptions {
+  onReconnectError?: (error: Error) => void;
+}
+
 // 입장 후 다른 액션(채팅 전송/촛불끄기/박터뜨리기/폭죽/퇴장)이 같은 연결로 publish할 수 있도록 공유
 let activeClient: Client | null = null;
 
@@ -146,6 +152,7 @@ export function connectRealtimeParty(
   params: ConnectRealtimePartyParams,
   onEvent: (event: WebSocketEvent) => void,
   signal: AbortSignal,
+  options: ConnectRealtimePartyOptions = {},
 ): Promise<void> {
   const { partyId, inviteToken, nickname, characterId, participantToken } = params;
   const accessToken = useAuthStore.getState().accessToken;
@@ -209,13 +216,18 @@ export function connectRealtimeParty(
 
           const { data } = parsed as { data: { code: string; message: string } };
 
+          const err = new Error(data.message);
+          (err as Error & { status?: number; code?: string }).status =
+            data.code === 'PARTY_NICKNAME_DUPLICATED' ? 409 : undefined;
+          (err as Error & { code?: string }).code = data.code;
+
           if (!settled) {
             settled = true;
-            const err = new Error(data.message);
-            (err as Error & { status?: number }).status =
-              data.code === 'PARTY_NICKNAME_DUPLICATED' ? 409 : undefined;
             reject(err);
+            return;
           }
+
+          options.onReconnectError?.(err);
         });
 
         const currentParticipantToken =
@@ -232,10 +244,15 @@ export function connectRealtimeParty(
         });
       },
       onStompError: (frame) => {
+        const err = new Error(frame.headers?.message ?? 'STOMP 연결 에러');
+
         if (!settled) {
           settled = true;
-          reject(new Error(frame.headers?.message ?? 'STOMP 연결 에러'));
+          reject(err);
+          return;
         }
+
+        options.onReconnectError?.(err);
       },
     });
 

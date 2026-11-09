@@ -55,8 +55,6 @@ function makeDetailResponse(
     participantCount: 2,
     paperCount: 3,
     participants: [{ nickname: '하파' }, { nickname: '린' }],
-    chatMessages: [],
-    chatHasMore: false,
     myPaperWritten: false,
     ...overrides,
   };
@@ -159,14 +157,6 @@ describe('useArchiveDetail', () => {
       status: 200,
       data: makeDetailResponse({
         role: 'HOST',
-        chatMessages: [
-          {
-            id: 7,
-            authorName: '하파',
-            content: '생일 축하해!',
-            sentAt: '2026-05-12T22:15:30+09:00',
-          },
-        ],
       }),
     });
 
@@ -176,6 +166,7 @@ describe('useArchiveDetail', () => {
     expect(apiGetMock).toHaveBeenCalledWith('/api/v1/archive/party/42');
     expect(result.current.data).toEqual({
       id: '42',
+      partyOption: 'REALTIME',
       title: '김루카의 파티',
       date: '26.05.12',
       time: '22:10',
@@ -187,7 +178,6 @@ describe('useArchiveDetail', () => {
       myPaperContent: undefined,
       myPaperWriterNickname: undefined,
       paperCount: 3,
-      chatMessages: [{ id: '7', authorName: '하파', content: '생일 축하해!', sentAt: '22:15' }],
     });
   });
 
@@ -205,6 +195,7 @@ describe('useArchiveDetail', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data?.title).toBe('김루카의 롤링페이퍼');
+    expect(result.current.data?.partyOption).toBe('PAPER_ONLY');
     expect(result.current.data?.participants).toEqual([]);
   });
 

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { CountdownTimer } from '@/components/rolling-paper/CountdownTimer';
 import { Button } from '@/components/ui/Button';
 
@@ -9,6 +11,9 @@ interface RollingPaperShareActionAreaProps {
   animate?: boolean;
   buttonLabel?: string;
   showTooltip?: boolean;
+  onWritingExpired?: () => void;
+  leadingAction?: ReactNode;
+  layout?: 'default' | 'compact';
 }
 
 export function RollingPaperShareActionArea({
@@ -19,6 +24,9 @@ export function RollingPaperShareActionArea({
   animate = false,
   buttonLabel = '롤링페이퍼 공유하기',
   showTooltip = true,
+  onWritingExpired,
+  leadingAction,
+  layout = 'default',
 }: RollingPaperShareActionAreaProps) {
   const tooltipBubbleClassName = [
     'relative flex w-fit max-w-[calc(100vw-28px)] items-center justify-center rounded-xl bg-blue-1000 px-3 py-2',
@@ -27,7 +35,10 @@ export function RollingPaperShareActionArea({
     .filter(Boolean)
     .join(' ');
   const actionPanelClassName = [
-    'absolute right-0 bottom-0 left-0 z-20 px-4 pt-13 pb-safe-bottom-8-5 short-height:pt-11 short-height:pb-safe-bottom-6',
+    'absolute right-0 bottom-0 left-0 z-20 px-4',
+    layout === 'compact'
+      ? 'pt-7 pb-safe-bottom-6'
+      : 'pt-13 pb-safe-bottom-8-5 short-height:pt-11 short-height:pb-safe-bottom-6',
     variant === 'solid' ? 'bg-white' : 'bg-white-footer-fade',
     animate ? 'rolling-paper-action-panel' : '',
   ]
@@ -61,17 +72,39 @@ export function RollingPaperShareActionArea({
         </div>
       )}
 
-      <div className="mx-auto flex max-w-[343px] flex-col items-center gap-2">
+      <div data-capture-hidden className="mx-auto flex w-full flex-col items-center gap-2">
         {writableUntil && (
           <CountdownTimer
             targetDate={writableUntil}
             className="text-body-2 text-grey-500 text-center font-medium"
             timeClassName="font-semibold text-red-500"
+            onComplete={onWritingExpired}
           />
         )}
-        <Button variant="primary" size="full" disabled={isActivatingInvite} onClick={onShareClick}>
-          {buttonLabel}
-        </Button>
+        {leadingAction ? (
+          <div className="flex w-full gap-2">
+            {leadingAction}
+            <div className="min-w-0 flex-1">
+              <Button
+                variant="primary"
+                size="full"
+                disabled={isActivatingInvite}
+                onClick={onShareClick}
+              >
+                {buttonLabel}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button
+            variant="primary"
+            size="full"
+            disabled={isActivatingInvite}
+            onClick={onShareClick}
+          >
+            {buttonLabel}
+          </Button>
+        )}
       </div>
     </section>
   );
