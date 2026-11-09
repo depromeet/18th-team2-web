@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import letterImage from '@/assets/images/live-party/letter.png';
-import DownloadIcon from '@/assets/images/icons/download.svg?react';
 import { CakeBackground } from '@/components/rolling-paper/CakeBackground';
+import { RollingPaperEmptyCaptureView } from '@/components/rolling-paper/RollingPaperEmptyCaptureView';
 import { RollingPaperHeader } from '@/components/rolling-paper/RollingPaperHeader';
 import { RollingPaperShareActionArea } from '@/components/rolling-paper/RollingPaperShareActionArea';
 import { RollingPaperShareNotice } from '@/components/rolling-paper/RollingPaperShareNotice';
@@ -12,6 +12,7 @@ import { B1, H1 } from '@/components/ui/Typography';
 import { useRollingPaperShare } from '@/hooks/rolling-paper/useRollingPaperShare';
 import type { RollingPaperData } from '@/services/rolling-paper';
 import { formatKoreanShortDate, isFuture, parseKstDateTime } from '@/utils/date';
+import { ImageDownloadButton } from '@/components/rolling-paper/ImageDownloadButton';
 
 interface RollingPaperHostViewProps {
   partyType?: 'paper-only' | 'realtime';
@@ -33,6 +34,8 @@ export function RollingPaperHostView({
   const { messages, totalCount, viewableAt, writableUntil } = data;
   const hostName = data.hostName ?? fallbackHostName;
   const isViewable = data.viewable !== false;
+  const captureTargetRef = useRef<HTMLDivElement>(null);
+  const emptyCaptureTargetRef = useRef<HTMLDivElement>(null);
   const [hasWritableTime, setHasWritableTime] = useState(() => isFuture(writableUntil));
   const { isShareSheetOpen, inviteShareLink, isActivatingInvite, openShareSheet, closeShareSheet } =
     useRollingPaperShare(data.partyId);
@@ -56,6 +59,7 @@ export function RollingPaperHostView({
 
   return (
     <div
+      ref={captureTargetRef}
       className="bg-rolling-paper-main relative mx-auto h-dvh w-full max-w-150 overflow-hidden"
       style={{
         ['--rolling-paper-art-offset' as string]: 'clamp(-81px, calc(100dvh - 812px), 0px)',
@@ -64,7 +68,9 @@ export function RollingPaperHostView({
     >
       {hasMessages && <CakeBackground hideBottomDecoration={showShareControls} />}
 
-      <RollingPaperHeader onBack={onBackClick} onRefresh={onRefresh} />
+      <div data-capture-hidden>
+        <RollingPaperHeader onBack={onBackClick} onRefresh={onRefresh} />
+      </div>
 
       <main
         className={`pointer-events-none absolute inset-x-0 top-[calc(72px+env(safe-area-inset-top))] z-20 flex flex-col px-4 ${showShareControls ? 'bottom-[165px]' : 'bottom-0'}`}
@@ -72,34 +78,20 @@ export function RollingPaperHostView({
         {hasMessages ? (
           <div>
             <H1 className="font-semibold tracking-normal text-white">
-              {isRealtimeParty ? (
-                <>
-                  {hostName ? `${hostName}님을 위해` : '나를 위해'}
-                  <br />
-                  롤링페이퍼를 작성해 주세요!
-                </>
-              ) : isViewable ? (
-                hostName ? (
-                  `${hostName}님의 롤링페이퍼`
-                ) : (
-                  '내 롤링페이퍼'
-                )
-              ) : (
-                <>
-                  {hostName ? `${hostName}님을 위해` : '나를 위해'}
-                  <br />
-                  롤링페이퍼를 작성해 주세요!
-                </>
-              )}
+              <>
+                {hostName ? `${hostName}님을 위해` : '나를 위해'}
+                <br />
+                롤링페이퍼를 작성해 주세요!
+              </>
             </H1>
             <B1 className="mt-2 text-blue-100">
               친구들이 총 <span className="font-medium text-white">{totalCount}</span>개의 편지를
               남겼어요!
               {isViewable && !isRealtimeParty && (
-                <>
+                <span data-capture-hidden>
                   <br />
                   토핑을 눌러 확인해 보세요!
-                </>
+                </span>
               )}
             </B1>
           </div>
@@ -161,7 +153,11 @@ export function RollingPaperHostView({
         />
       )}
 
-      {showShareControls && <RollingPaperShareNotice />}
+      {showShareControls && (
+        <div data-capture-hidden>
+          <RollingPaperShareNotice />
+        </div>
+      )}
 
       {showShareControls && (
         <RollingPaperShareActionArea
@@ -173,17 +169,18 @@ export function RollingPaperHostView({
           showTooltip={false}
           layout="compact"
           leadingAction={
-            <button
-              type="button"
-              aria-label="이미지 다운로드 기능 준비 중"
-              title="이미지 다운로드 기능 준비 중"
-              disabled
-              className="border-grey-200 text-grey-900 flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] border bg-white"
-            >
-              <DownloadIcon className="h-6 w-6" />
-            </button>
+            hasMessages ? (
+              <ImageDownloadButton targetRef={captureTargetRef} />
+            ) : (
+              // 받은 편지가 없으면 화면 대신 저장용 레이아웃(360x640)을 1080x1920으로
+              <ImageDownloadButton targetRef={emptyCaptureTargetRef} pixelRatio={3} />
+            )
           }
         />
+      )}
+
+      {showShareControls && !hasMessages && (
+        <RollingPaperEmptyCaptureView captureRef={emptyCaptureTargetRef} hostName={hostName} />
       )}
 
       {showShareControls && (
